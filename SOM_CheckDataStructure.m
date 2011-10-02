@@ -71,13 +71,45 @@ for iRUN = 1:length(data.run)
 
   % Now check to see if the input files actually exist.
   
-  for iFILE = 1:size(data.run(iRUN).P,1)
+  if exist(data.run(iRUN).P(1,:),'file') == 0
+    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(1,:));
+    return
+  end
+  
+  % Read in a single header for this run from the first file.
+  
+  data.run(iRUN).hdr = spm_read_vol(data.run(iRUN).P(1,:));
+  
+  for iFILE = 2:size(data.run(iRUN).P,1)
     if exist(data.run(iRUN).P(iFILE,:),'file') == 0
       SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(iFILE,:));
       return
+    else
+      thisHDR = spm_read_vol(data.run(iRUN).P(iFILE,:));
+      if any(data.run(iRUN).hdr.mat(:) - thisHDR.mat(:))
+	SOM_LOG(sprintf('FATAL ERROR : File %s ".mat" does not match first file',data.run(iRUN).P(iFILE,:)));
+	return
+      end
+      if any(data.run(iRUN).hdr.dim(1:3) - thisHDR.dim(1:3))
+	SOM_LOG(sprintf('FATAL ERROR : File %s ".dim" does not match first file',data.run(iRUN).P(iFILE,:)));
+	return
+      end
     end
   end
   
+end
+
+% Now check that the headers of each run specifies the same space:
+
+for iRUN = 2:length(data.run)
+  if any(data.run(iRUN).hdr.mat(:) - data.run(1).hdr.mat(:))
+    SOM_LOG(sprintf('FATAL ERROR : Run %d ".mat" does not match first run',iRUN));
+    return
+  end
+  if any(data.run(iRUN).hdr.dim(1:3) - data.run(1).hdr.dim(1:3))
+    SOM_LOG(sprintf('FATAL ERROR : Run %d ".dim" does not match first run',iRUN));
+    return
+  end
 end
 
 % Check to see what type of masking

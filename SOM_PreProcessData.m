@@ -14,6 +14,8 @@
 %
 % Grey Matter mask and flag to use it.
 %
+%  (the grey matter mask is intersected with the epi mask)
+%
 % grey.
 %      File         = full directory path and name to file.
 %      MaskFLAG     = 0 no masking, 1 = masking.
@@ -195,7 +197,7 @@ if parameters.csf.OK == -1
     return
 end
 
-% If no common then we will use one create on the fly.
+% If no common epi mask then we will use one create on the fly.
 
 if isfield(parameters,'epi') == 0 
     parameters.epi = [];
@@ -208,30 +210,47 @@ else
 end
 
 % Now prepare based on parameters.
-    
+
+% Store the head and names for some quick checking.
+
+fileINDEXTemp = 0;
+filesToCheck = [];
+
 if parameters.grey.MaskFLAG == 0
     parameters.grey.ImgMask  = 1;
 else
+    parameters.grey.ImgHDR   = spm_vol(parameters.grey.File);
     parameters.grey.ImgVol   = spm_read_vols(spm_vol(parameters.grey.File));
     parameters.grey.ImgMask  = parameters.grey.ImgVol > parameters.grey.ImgThreshold;
+    % store temp
+    fileINDEXTemp = fileINDEXTemp + 1;
+    filesToCheck(fileINDEXTemp).hdr  = parameters.grey.ImgHDR;
 end
     
 if parameters.white.MaskFLAG == 0
     parameters.white.ImgMask = 0;
     parameters.white.ROIIDX  = [];
 else
+    parameters.white.ImgHDR  = spm_vol(parameters.white.File);
     parameters.white.ImgVol  = spm_read_vols(spm_vol(parameters.white.File));
     parameters.white.ImgMask = parameters.white.ImgVol > parameters.white.ImgThreshold;
     parameters.white.ROIIDX  = find(parameters.white.ImgMask);
+    % store temp
+    fileINDEXTemp = fileINDEXTemp + 1;
+    filesToCheck(fileINDEXTemp).hdr  = parameters.white.ImgHDR;
 end
     
 if parameters.csf.MaskFLAG == 0
     parameters.csf.ImgMask   = 0;
     parameters.csf.ROIIDX    = [];
 else
+    parameters.csf.ImgHDR    = spm_vol(parameters.csf.File);
     parameters.csf.ImgVol    = spm_read_vols(spm_vol(parameters.csf.File));
     parameters.csf.ImgMask   = parameters.csf.ImgVol > parameters.csf.ImgThreshold;
     parameters.csf.ROIIDX    = find(parameters.csf.ImgMask);
+    % store temp
+    fileINDEXTemp = fileINDEXTemp + 1;
+    filesToCheck(fileINDEXTemp).hdr  = parameters.csf.ImgHDR;
 end
 
 % Check the reression flags.
@@ -260,10 +279,28 @@ if parameters.data.MaskFLAG == 1
     else
         parameters.maskHdr = spm_vol(parameters.epi.File);
     end
+    % store temp
+    fileINDEXTemp = fileINDEXTemp + 1;
+    filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
 else
     parameters.maskHdr.fname = [];   % If no name then SOM_PrepData can deal.
 end
-    
+
+%
+% Now make sure all headers comply with each other:
+%
+
+for iHDR = 1:fileINDEXTemp
+   if any(data.run(1).hdr.mat(:) - filesToCheck(iHDR).hdr.mat(:))
+    SOM_LOG(sprintf('FATAL ERROR : File %s ".mat" does not match first run',filesToCheck(iHDR).hdr.fname));
+    return
+  end
+  if any(data.run(1).hdr.dim(1:3) - filesToCheck(iHDR).hdr.dim(1:3))
+    SOM_LOG(sprintf('FATAL ERROR : File %s ".dim" does not match first run',filesToCheck(iHDR).hdr.fname));
+    return
+  end
+end
+
 % Read in the data.
 
 % Loop on the runs to be able to read it all in.

@@ -133,6 +133,22 @@ else
     PMask = rois.mask.File;
 end
 
+%
+% Now make sure that the mask specified matchs our data.
+%
+
+PMaskHDR = spm_vol(PMask);
+
+if any(data.run(1).hdr.mat(:) - PMaskHDR.mat(:))
+  SOM_LOG(sprintf('FATAL ERROR : ROI Mask ".mat" does not match first run'));
+  return
+end
+
+if any(data.run(1).hdr.dim(1:3) - PMaskHDR.dim(1:3))
+  SOM_LOG(sprintf('FATAL ERROR : ROI Mask ".dim" does not match first run'));
+  return
+end
+
 % Now work through the configuration of the ROIs
 
 switch rois.type
@@ -249,7 +265,7 @@ switch rois.type
             return
         end
         
-        DATAHDR = spm_vol(parameters.data.run(1).P(1,:));
+        %DATAHDR = spm_vol(parameters.data.run(1).P(1,:));
         
         for iFILE = 1:rois.nroisRequested
             thisFILE = strtrim(rois.files(iFILE,:));
@@ -263,7 +279,11 @@ switch rois.type
             %
             try
                 rois.hdr(iFILE) = spm_vol(thisFILE);
-                if any(rois.hdr(iFILE).dim(1:3) - DATAHDR(1).dim(1:3))
+                if any(rois.hdr(iFILE).mat(:) - parameters.data.run(1).mat(:))
+                    SOM_LOG(sprintf('FATAL ERROR : roi file %s does not match time series ".mat"',thisFILE));
+                    return
+                end
+                if any(rois.hdr(iFILE).dim(1:3) - parameters.data.run(1).dim(1:3))
                     SOM_LOG(sprintf('FATAL ERROR : roi file %s does not match time series data dimensionality',thisFILE));
                     return
                 end

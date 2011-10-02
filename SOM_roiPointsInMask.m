@@ -62,6 +62,10 @@ MVol = MVol > 0;
 MHdr = spm_vol(PMask);
 
 % Get the voxel numbers.
+%
+% By using the "mat" transformation matrix we can introduce a
+% left/right flip. So you need to make sure that your mask and your
+% time-series data are in the handedness.
 
 ROICoordsVoxel = round((inv(MHdr.mat)*([ROICoords ones(size(ROICoords,1),1)]'))');
 
