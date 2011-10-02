@@ -291,12 +291,8 @@ end
 %
 
 for iHDR = 1:fileINDEXTemp
-   if any(data.run(1).hdr.mat(:) - filesToCheck(iHDR).hdr.mat(:))
-    SOM_LOG(sprintf('FATAL ERROR : File %s ".mat" does not match first run',filesToCheck(iHDR).hdr.fname));
-    return
-  end
-  if any(data.run(1).hdr.dim(1:3) - filesToCheck(iHDR).hdr.dim(1:3))
-    SOM_LOG(sprintf('FATAL ERROR : File %s ".dim" does not match first run',filesToCheck(iHDR).hdr.fname));
+  if SOM_SpaceVerify(parameters.data.run(1).hdr,filesToCheck(iHDR).hdr) != 1
+    SOM_LOG('FATAL ERROR : Error with consistent (mask) image space definition.');
     return
   end
 end

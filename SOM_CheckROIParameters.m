@@ -139,13 +139,8 @@ end
 
 PMaskHDR = spm_vol(PMask);
 
-if any(data.run(1).hdr.mat(:) - PMaskHDR.mat(:))
-  SOM_LOG(sprintf('FATAL ERROR : ROI Mask ".mat" does not match first run'));
-  return
-end
-
-if any(data.run(1).hdr.dim(1:3) - PMaskHDR.dim(1:3))
-  SOM_LOG(sprintf('FATAL ERROR : ROI Mask ".dim" does not match first run'));
+if SOM_SpaceVerify(data.run(1).hdr,PMaskHDR) != 1
+  SOM_LOG('FATAL ERROR : Error with consistent image space (ROI Mask) definition.');
   return
 end
 
@@ -278,24 +273,22 @@ switch rois.type
             % a fatal error.
             %
             try
-                rois.hdr(iFILE) = spm_vol(thisFILE);
-                if any(rois.hdr(iFILE).mat(:) - parameters.data.run(1).mat(:))
-                    SOM_LOG(sprintf('FATAL ERROR : roi file %s does not match time series ".mat"',thisFILE));
-                    return
-                end
-                if any(rois.hdr(iFILE).dim(1:3) - parameters.data.run(1).dim(1:3))
-                    SOM_LOG(sprintf('FATAL ERROR : roi file %s does not match time series data dimensionality',thisFILE));
-                    return
-                end
-                %
-                % Count how many voxels in this ROI
-                %
-		SOM_LOG(sprintf('STATUS : read hdr for %s\n',thisFILE));
-                thisVOL = spm_read_vols(rois.hdr(iFILE));
-                rois.nvoxels(iFILE) = sum(sum(sum((thisVOL>0).*MVol)));
+	      rois.hdr(iFILE) = spm_vol(thisFILE);
+	      
+	      if SOM_SpaceVerify(parameters.data.run(1).hdr,rois.hdr(iFILE)) != 1
+		SOM_LOG('FATAL ERROR : Error with consistent roi image space definition.');
+		return
+	      end
+	      
+	      %
+	      % Count how many voxels in this ROI
+	      %
+	      SOM_LOG(sprintf('STATUS : read hdr for %s\n',thisFILE));
+	      thisVOL = spm_read_vols(rois.hdr(iFILE));
+	      rois.nvoxels(iFILE) = sum(sum(sum((thisVOL>0).*MVol)));
             catch
-                SOM_LOG(sprintf('FATAL ERROR : spm could not read file %s',thisFILE));
-                return
+	      SOM_LOG(sprintf('FATAL ERROR : spm could not read file %s',thisFILE));
+	      return
             end
         end
         
