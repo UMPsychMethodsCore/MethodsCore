@@ -43,7 +43,8 @@ names(runmap)=c(opts$Master$TrialField,'range')
   
 names(data)[grep(opts$Master$TrialField,names(data))]='Trial'
   
-for (i in 1:nrow(data))
+for (i in 1:nrow(data)) {
+#Now loop over
   
   
 
