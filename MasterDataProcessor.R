@@ -37,15 +37,23 @@ for (i in 1:length(opts$Master$RunMap)){
   runmap[i,2]=range
   rm(thing,run,range)
 }
-names(runmap)=c(opts$Master$TrialField,'range')
-  
-#Label trials by run
-  
-names(data)[grep(opts$Master$TrialField,names(data))]='Trial'
-  
-for (i in 1:nrow(data)) {
-#Now loop over
-  
-  
+
+newrunmap=data.frame()
+
+for (i in 1:nrow(runmap)){
+  runseq=eval(parse(text=runmap[i,2]))
+  for (j in 1:length(runseq)){
+    newrunmap[nrow(newrunmap)+1,1]=runmap[i,1]
+    newrunmap[nrow(newrunmap),2]=runseq[j]
+  }
+}
+
+runmap=newrunmap;rm(newrunmap)
+names(runmap)=c('Run',opts$Master$TrialField)
+
+#Label trials by run by merging runmapping file
+data=merge(data,runmap)
+
+
 
 
