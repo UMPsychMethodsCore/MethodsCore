@@ -6,4 +6,14 @@ Master,RunMap,1_1:100,"Format: Run#;1:#Trials,Run#;1:#Trials"
 Master,RunMap,2_101:200,
 Master,Filetype,tab,Should be one of tab or csv
 Master,SkipRows,2,
-Master,TaskType,DDT,
+Master,TaskType,MSIT,
+Master,TimeField,MSITStim.OnsetTime,
+Master,TimeOffset,0,"This script will zero out your durations by run. If it should zero them out relative to some offset, put that here."
+Master,FrameInfo,,
+Master,SubjectCatFields,Session,"If you have multiple fields you want concatenated with ""subjects"" you can put them here, separated with a semicolon. These can include fields from your SupplementFile"
+Master,SubjectField,Subject,
+MSIT,StimRespField,MSITStim.RESP,
+MSIT,JitterRespField,JitterFix.RESP,
+MSIT,CorrectResponseField,MSITStim.CRESP,
+MSIT,StimRTfield,MSITStim.RT,
+MSIT,JitterRTfield,JitterFix.RT,
