@@ -84,5 +84,47 @@ flag=0  #This will check whether task type has been properly specified
 if(opts$Master$TaskType=='DDT') source(DDT.R); flag=1
 if(opts$Master$TaskType=='MSIT') source(MSIT.R); flag=1
 
-if(flag==0){print('No ')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
+if(flag==0){print('No Task Specified')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
+
+#Prune trials outside of scan time
+if(!is.null(opts$Master$RunMax)){
+  runmax=data.frame()
+  for (i in 1:length(opts$Master$RunMax)){
+    thing=unlist(strsplit(opts$Master$RunMax[[i]],'_'))
+    run=thing[1]
+    max=thing[2]
+    runmax[i,1]=run
+    runmax[i,2]=max
+    rm(thing,run,max)
+  }
+  names(runmax)=c('Run','RunMaxTime')
+  data=merge(data,runmax)
+  rm(runmax)
+}
+
+data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
+
+
+#Calculate FIR onsets
+
+data$FIROnsets=data$Onsets-as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIRpretrial)
+data$FIROnsets=ifelse(data$FIROnsets>=0,data$FIROnsets,NA) #Trim off the trials with FIR's extending before the trial
+data$FIROnsets=ifelse(data$FIROnsets+as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIRposttrial)<=data$RunMaxTime,data$FIROnsets,NA) #Trim off trials with FIRs extending beyond the scan
+
+
+#Resort the file
+data=with(data,data[order(Subject,Run,get(opts$Master$TrialField)),])
+
+#Write the human readable version
+write.csv(data,paste('FULL_',opts$Master$Masterdatafilename,sep=''),quote=FALSE,row.names=FALSE,na='NaN')
+
+
+#Add the column indices to the top
+data=rbind(1:ncol(data),data)  
+
+#Coerce everything to numeric so that MATLAB will be happy
+data=apply(data,c(1,2),as.numeric)
+data=data.frame(data)
+#Write out the master datafile
+write.csv(data,opts$Master$Masterdatafilename,quote=FALSE,row.names=FALSE,na='NaN')

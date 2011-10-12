@@ -22,4 +22,3 @@ data=within(data,{   #Calculate accuracy and trial duration within the data envi
 })
   
 
-
