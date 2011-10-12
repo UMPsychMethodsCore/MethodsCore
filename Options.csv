@@ -6,3 +6,4 @@ Master,RunMap,1_1:100,"Format: Run#;1:#Trials,Run#;1:#Trials"
 Master,RunMap,2_101:200,
 Master,Filetype,tab,Should be one of tab or csv
 Master,SkipRows,2,
+Master,TaskType,DDT,

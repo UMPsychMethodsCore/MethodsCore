@@ -54,6 +54,10 @@ names(runmap)=c('Run',opts$Master$TrialField)
 #Label trials by run by merging runmapping file
 data=merge(data,runmap)
 
+#Perform task specific processing steps
+flag=0  #This will check whether task type has been properly specified
+if(opts$Master$TaskType=='DDT') source(DDT.R); flag=1
+if(opts$Master$TaskType=='MSIT') source(MSIT.R); flag=1
 
-
+if(flag==0){print('No ')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
