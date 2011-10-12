@@ -48,12 +48,37 @@ for (i in 1:nrow(runmap)){
   }
 }
 
-runmap=newrunmap;rm(newrunmap)
+runmap=newrunmap;rm(newrunmap);rm(runseq)
 names(runmap)=c('Run',opts$Master$TrialField)
 
 #Label trials by run by merging runmapping file
 data=merge(data,runmap)
+rm(runmap)
 
+
+#Create concatenated Subject Fields
+if(!is.null(opts$Master$SubjectCatFields)){
+vec=unlist(strsplit(x=opts$Master$SubjectCatFields,split=';'))
+for (i in 1:(length(vec))) data$Subject=paste(data$Subject,data[,vec[i]],sep='')
+}
+rm(vec)
+
+#Calculate Onsets
+data$Onsets=data[,opts$Master$TimeField]/1000 #Divide to get it into seconds
+
+#Zero out the onsets
+##This for loop contains a really absurd subtraction that could probably be done much better using R functions I don't know. 
+##It essentially subsets data for a given subject/run and returns just the onsets, then sets them equal to
+##itself minus the min of that subset, in effect zeroing it out.
+subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
+for (i in 1:nrow(subruns)){  
+#   eval(parse(text=paste('min=min(data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\'])',sep='')))
+  eval(parse(text=paste('data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\']=data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\']-min(data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\'])',sep='')))
+  }
+if(!is.null(opts$Master$TimeOffset)) data$Onsets=data$Onsets+as.numeric(opts$Master$TimeOffset)  #add the offset time is defined
+rm(subruns)
+  
+  
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
 if(opts$Master$TaskType=='DDT') source(DDT.R); flag=1
