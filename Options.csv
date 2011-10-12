@@ -17,3 +17,9 @@ MSIT,JitterRespField,JitterFix.RESP,
 MSIT,CorrectResponseField,MSITStim.CRESP,
 MSIT,StimRTfield,MSITStim.RT,
 MSIT,JitterRTfield,JitterFix.RT,
+Master,RunMax,1_400,Specify in seconds the length of each run. You may need to specify this variable multiple times
+Master,RunMax,2_300,
+Master,TR,2,
+Master,FIRposttrial,10,How many TR's after stimulus onset do you want FIR's to encompass?
+Master,FIRpretrial,5,How many TR's before stimulus onset do you want your FIR's to go?
+Master,Masterdatafilename,MSIT_Master.csv,
