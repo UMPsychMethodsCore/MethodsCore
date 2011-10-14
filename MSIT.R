@@ -15,7 +15,7 @@ data=within(data,{   #Calculate accuracy and trial duration within the data envi
   RespSrc=mapply(RespCalc,get(opts$MSIT$StimRespField),get(opts$MSIT$JitterRespField),'src')
   RespRecode=Resp-1
   CResp=get(opts$MSIT$CorrectResponseField)
-  Acc=ifelse(data$Resp==get(opts$MSIT$CorrectResponseField) & !is.na(data$Resp),1,0)
+  Acc=ifelse(Resp==get(opts$MSIT$CorrectResponseField) & !is.na(Resp),1,0)
   TrialDur=ifelse(RespSrc=='stim',get(opts$MSIT$StimRTfield),NA)
   TrialDur=ifelse(RespSrc=='jit',get(opts$MSIT$JitterRTfield),TrialDur)
   TrialDur=TrialDur/1000
