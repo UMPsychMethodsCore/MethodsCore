@@ -3,7 +3,7 @@
 
 #Read in Options file
 optscsv=read.csv('Options.csv',as.is=TRUE)
-
+optscsv=optscsv[optscsv$OptionOn==1,]
 
 #Convert options file to options list object, ala struct variable in MATLAB
 opts=list()
@@ -25,6 +25,8 @@ suppl=read.csv(opts$Master$SupplementFile,stringsAsFactors=FALSE)
 
 #Merge EMerge file with supplemental file
 data=merge(data,suppl)
+
+if(opts$Master$RunField==NULL){
 
 #Build up runmapping frame
 runmap=data.frame()
@@ -53,7 +55,9 @@ names(runmap)=c('Run',opts$Master$TrialField)
 #Label trials by run by merging runmapping file
 data=merge(data,runmap)
 rm(runmap)
+}
 
+if(opts$Master$RunField!=NULL){data$Run=with(data,get(opts$Master$RunField))}
 
 #Create concatenated Subject Fields
 if(!is.null(opts$Master$SubjectCatFields)){
