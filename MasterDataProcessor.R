@@ -3,7 +3,7 @@
 
 #Read in Options file
 optscsv=read.csv('Options.csv',as.is=TRUE)
-optscsv=optscsv[optscsv$OptionOn==1,]
+optscsv=optscsv[optscsv$OptionOn==1,-3]
 
 #Convert options file to options list object, ala struct variable in MATLAB
 opts=list()
@@ -21,12 +21,13 @@ if(opts$Master$Filetype=='tab'){data=read.csv(opts$Master$Filename,as.is=TRUE,sk
 data=data[,!grepl('Clock',names(data))]
 
 #Read in supplemental file. This may contain Tx identifiers, calculated parameters, etc. This needs to contain some sort of meaningful keys
-suppl=read.csv(opts$Master$SupplementFile,stringsAsFactors=FALSE)
+if(!is.null(opts$Master$SupplementFile)){ suppl=read.csv(opts$Master$SupplementFile,stringsAsFactors=FALSE)
 
 #Merge EMerge file with supplemental file
 data=merge(data,suppl)
-
-if(opts$Master$RunField==NULL){
+}
+                                          
+if(is.null(opts$Master$RunField)){
 
 #Build up runmapping frame
 runmap=data.frame()
@@ -57,15 +58,15 @@ data=merge(data,runmap)
 rm(runmap)
 }
 
-if(opts$Master$RunField!=NULL){data$Run=with(data,get(opts$Master$RunField))}
+if(!is.null(opts$Master$RunField)){data$Run=with(data,get(opts$Master$RunField))}
 
 #Create concatenated Subject Fields
 if(!is.null(opts$Master$SubjectCatFields)){
 vec=unlist(strsplit(x=opts$Master$SubjectCatFields,split=';'))
 for (i in 1:(length(vec))) data$Subject=paste(data$Subject,data[,vec[i]],sep='')
-}
-rm(vec)
 
+rm(vec)
+}
 #Calculate Onsets
 data$Onsets=data[,opts$Master$TimeField]/1000 #Divide to get it into seconds
 
@@ -116,6 +117,21 @@ data$FIROnsets=data$Onsets-as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIR
 data$FIROnsets=ifelse(data$FIROnsets>=0,data$FIROnsets,NA) #Trim off the trials with FIR's extending before the trial
 data$FIROnsets=ifelse(data$FIROnsets+as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIRposttrial)<=data$RunMaxTime,data$FIROnsets,NA) #Trim off trials with FIRs extending beyond the scan
 
+#Remap trial types
+if(!is.null(opts$Master$TrialTypeMap)){
+  trialmap=data.frame()
+  for (i in 1:length(opts$Master$TrialTypeMap)){
+    thing=unlist(strsplit(opts$Master$TrialTypeMap[[i]],'_'))
+    trialname=thing[1]
+    trialnum=thing[2]
+    trialmap[i,1]=trialname
+    trialmap[i,2]=trialnum
+    rm(thing,trialname,trialnum)
+  }
+  names(trialmap)=c('TrialType','TrialTypeNum')  #Consider making "TrialType" a flexible field name using options
+  data=merge(data,trialmap)
+  rm(trialmap)
+}
 
 #Resort the file
 data=with(data,data[order(Subject,Run,get(opts$Master$TrialField)),])
