@@ -1,8 +1,7 @@
-#Put some version info or contact info up here
+#See README file included with this distribrution for help and authorship information
 
 
 #Read in Options file
-
 optscsv=read.csv('Options.csv',as.is=TRUE)
 
 
@@ -72,7 +71,6 @@ data$Onsets=data[,opts$Master$TimeField]/1000 #Divide to get it into seconds
 ##itself minus the min of that subset, in effect zeroing it out.
 subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
 for (i in 1:nrow(subruns)){  
-#   eval(parse(text=paste('min=min(data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\'])',sep='')))
   eval(parse(text=paste('data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\']=data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\']-min(data[data$',opts$Master$SubjectField,'==subruns[i,1] & data$Run==subruns[i,2],\'Onsets\'])',sep='')))
   }
 if(!is.null(opts$Master$TimeOffset)) data$Onsets=data$Onsets+as.numeric(opts$Master$TimeOffset)  #add the offset time is defined
@@ -81,8 +79,8 @@ rm(subruns)
   
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
-if(opts$Master$TaskType=='DDT') source(DDT.R); flag=1
-if(opts$Master$TaskType=='MSIT') source(MSIT.R); flag=1
+if(opts$Master$TaskType=='DDT') source('DDT.R'); flag=1
+if(opts$Master$TaskType=='MSIT') source('MSIT.R'); flag=1
 
 if(flag==0){print('No Task Specified')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
