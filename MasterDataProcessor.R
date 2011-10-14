@@ -101,8 +101,10 @@ if(!is.null(opts$Master$RunMax)){
   rm(runmax)
 }
 
-data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
 
+
+data$RunMaxTime=as.numeric(data$RunMaxTime) #Coerce RunMax times to numerics, otherwise comparisons below are really weird
+data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
 
 #Calculate FIR onsets
 
