@@ -1,30 +1,34 @@
 OptionLevel,Option,OptionOn,Value,Comment
-Master,Filename,1,MSIT-Merged-20111014-DK.txt,
-Master,SupplementFile,1,Supplement.csv,
+Master,Filename,1,GO-MSIT-20111014-DK.txt,
+Master,SupplementFile,0,Supplement.csv,
 Master,RunField,1,Block,"If your runs are already identified by a field, give its name here."
-Master,TrialField,0,Block,Which field in your emege file refers to trials?
-Master,RunMap,1,1_1:100,"Format: Run#;1:#Trials,Run#;1:#Trials"
-Master,RunMap,1,2_101:200,
-Master,RunMap,1,,
-Master,RunMap,1,,
+Master,TrialField,1,SubTrial,Which field in your emege file refers to trials?
+Master,RunMap,0,1_1:100,"Format: Run#;1:#Trials,Run#;1:#Trials"
+Master,RunMap,0,2_101:200,
+Master,RunMap,0,,
+Master,RunMap,0,,
 Master,Filetype,1,tab,Should be one of tab or csv
-Master,SkipRows,1,2,
+Master,SkipRows,1,0,
 Master,TaskType,1,MSIT,
-Master,TimeField,1,MSITStim.OnsetTime,
+Master,TimeField,1,Slide1.OnsetTime,
 Master,TimeOffset,1,0,"This script will zero out your durations by run. If it should zero them out relative to some offset, put that here."
-Master,FrameInfo,1,,
-Master,SubjectCatFields,1,,"If you have multiple fields you want concatenated with ""subjects"" you can put them here, separated with a semicolon. These can include fields from your SupplementFile"
+Master,FrameInfo,0,,
+Master,SubjectCatFields,0,,"If you have multiple fields you want concatenated with ""subjects"" you can put them here, separated with a semicolon. These can include fields from your SupplementFile"
 Master,SubjectField,1,Subject,
-Master,RunMax,1,1_400,Specify in seconds the length of each run. You may need to specify this variable multiple times
-Master,RunMax,1,2_300,
-Master,RunMax,1,,
-Master,RunMax,1,,
+Master,RunMax,1,1_220,Specify in seconds the length of each run. You may need to specify this variable multiple times
+Master,RunMax,1,2_220,
+Master,RunMax,1,3_220,
+Master,RunMax,1,4_220,
 Master,TR,1,2,
 Master,FIRposttrial,1,10,How many TR's after stimulus onset do you want FIR's to encompass?
 Master,FIRpretrial,1,5,How many TR's before stimulus onset do you want your FIR's to go?
 Master,Masterdatafilename,1,MSIT_Master.csv,
-MSIT,StimRespField,1,MSITStim.RESP,
-MSIT,JitterRespField,1,JitterFix.RESP,
-MSIT,CorrectResponseField,1,MSITStim.CRESP,
-MSIT,StimRTfield,1,MSITStim.RT,
-MSIT,JitterRTfield,1,JitterFix.RT,
+Master,TrialTypeMap,1,fix_1,Map your trial types to numbers. You will need to define this variable several times. Delimit pairs with underscores
+Master,TrialTypeMap,1,Incong_2,
+Master,TrialTypeMap,1,Cong_3,
+MSIT,StimRespField,1,Slide1.RESP,
+MSIT,JitterRespField,1,Slide2.RESP,
+MSIT,CorrectResponseField,1,Slide1.CRESP,
+MSIT,StimRTfield,1,Slide1.RT,
+MSIT,JitterRTfield,1,Slide2.RT,
+MSIT,StimDurField,1,Slide1.Duration,
