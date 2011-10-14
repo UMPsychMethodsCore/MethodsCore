@@ -17,7 +17,7 @@ data=within(data,{   #Calculate accuracy and trial duration within the data envi
   CResp=get(opts$MSIT$CorrectResponseField)
   Acc=ifelse(Resp==get(opts$MSIT$CorrectResponseField) & !is.na(Resp),1,0)
   TrialDur=ifelse(RespSrc=='stim',get(opts$MSIT$StimRTfield),NA)
-  TrialDur=ifelse(RespSrc=='jit',get(opts$MSIT$JitterRTfield),TrialDur)
+  TrialDur=ifelse(RespSrc=='jit',get(opts$MSIT$JitterRTfield)+get(opts$MSIT$StimDurField),TrialDur)
   TrialDur=TrialDur/1000
 })
   
