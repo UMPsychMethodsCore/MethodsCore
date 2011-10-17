@@ -88,7 +88,7 @@ for iRUN = 1:length(data.run)
       return
     else
       thisHDR = spm_read_vol(data.run(iRUN).P(iFILE,:));
-      if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) != 1
+      if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) ~= 1
 	SOM_LOG('FATAL ERROR : Error with consistent in-run image space definition.');
 	return
       end
@@ -100,7 +100,7 @@ end
 % Now check that the headers of each run specifies the same space:
 
 for iRUN = 2:length(data.run)
-  if SOM_SpaceVerify(data.run(1).hdr,data.run(iRUN).hdr) != 1
+  if SOM_SpaceVerify(data.run(1).hdr,data.run(iRUN).hdr) ~= 1
     SOM_LOG('FATAL ERROR : Error with consistent cross-run image space definition.');
     return
   end

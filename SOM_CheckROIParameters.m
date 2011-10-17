@@ -139,7 +139,7 @@ end
 
 PMaskHDR = spm_vol(PMask);
 
-if SOM_SpaceVerify(data.run(1).hdr,PMaskHDR) != 1
+if SOM_SpaceVerify(data.run(1).hdr,PMaskHDR) ~= 1
   SOM_LOG('FATAL ERROR : Error with consistent image space (ROI Mask) definition.');
   return
 end
@@ -275,7 +275,7 @@ switch rois.type
             try
 	      rois.hdr(iFILE) = spm_vol(thisFILE);
 	      
-	      if SOM_SpaceVerify(parameters.data.run(1).hdr,rois.hdr(iFILE)) != 1
+	      if SOM_SpaceVerify(parameters.data.run(1).hdr,rois.hdr(iFILE)) ~= 1
 		SOM_LOG('FATAL ERROR : Error with consistent roi image space definition.');
 		return
 	      end

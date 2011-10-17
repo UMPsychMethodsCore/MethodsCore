@@ -291,7 +291,7 @@ end
 %
 
 for iHDR = 1:fileINDEXTemp
-  if SOM_SpaceVerify(parameters.data.run(1).hdr,filesToCheck(iHDR).hdr) != 1
+  if SOM_SpaceVerify(parameters.data.run(1).hdr,filesToCheck(iHDR).hdr) ~= 1
     SOM_LOG('FATAL ERROR : Error with consistent (mask) image space definition.');
     return
   end
