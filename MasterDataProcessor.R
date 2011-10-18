@@ -81,6 +81,21 @@ for (i in 1:nrow(subruns)){
 if(!is.null(opts$Master$TimeOffset)) data$Onsets=data$Onsets+as.numeric(opts$Master$TimeOffset)  #add the offset time is defined
 rm(subruns)
   
+#Remap trial types
+if(!is.null(opts$Master$TrialTypeMap)){
+  trialmap=data.frame()
+  for (i in 1:length(opts$Master$TrialTypeMap)){
+    thing=unlist(strsplit(opts$Master$TrialTypeMap[[i]],'_'))
+    trialname=thing[1]
+    trialnum=thing[2]
+    trialmap[i,1]=trialname
+    trialmap[i,2]=trialnum
+    rm(thing,trialname,trialnum)
+  }
+  names(trialmap)=c(opts$Master$TrialTypeField,'TrialTypeNum')  #Consider making "TrialType" a flexible field name using options
+  data=merge(data,trialmap)
+  rm(trialmap)
+}
   
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
@@ -117,21 +132,7 @@ data$FIROnsets=data$Onsets-as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIR
 data$FIROnsets=ifelse(data$FIROnsets>=0,data$FIROnsets,NA) #Trim off the trials with FIR's extending before the trial
 data$FIROnsets=ifelse(data$FIROnsets+as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIRposttrial)<=data$RunMaxTime,data$FIROnsets,NA) #Trim off trials with FIRs extending beyond the scan
 
-#Remap trial types
-if(!is.null(opts$Master$TrialTypeMap)){
-  trialmap=data.frame()
-  for (i in 1:length(opts$Master$TrialTypeMap)){
-    thing=unlist(strsplit(opts$Master$TrialTypeMap[[i]],'_'))
-    trialname=thing[1]
-    trialnum=thing[2]
-    trialmap[i,1]=trialname
-    trialmap[i,2]=trialnum
-    rm(thing,trialname,trialnum)
-  }
-  names(trialmap)=c(opts$Master$TrialTypeField,'TrialTypeNum')  #Consider making "TrialType" a flexible field name using options
-  data=merge(data,trialmap)
-  rm(trialmap)
-}
+
 
 #Resort the file
 data=with(data,data[order(Subject,Run,get(opts$Master$TrialField)),])
