@@ -77,7 +77,7 @@ end
 
 if isfield(SOM,'LOG') == 0
     SOM.LOG = [];
-    tmp = SOM.silent
+    tmp = SOM.silent;
     SOM.silent = 0;
     SOM_LOG('INFO -- Starting LOGGING');
     SOM.silent = tmp
