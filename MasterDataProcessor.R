@@ -134,8 +134,26 @@ data$FIROnsets=ifelse(data$FIROnsets+as.numeric(opts$Master$TR)*as.numeric(opts$
 
 
 
+
+
+
 #Resort the file
 data=with(data,data[order(Subject,Run,get(opts$Master$TrialField)),])
+
+#Introduce parametric decay if option enabled, best to do this after sorting so trials are in proper sequence
+if(!is.null(opts$Master$ParametricTrialDecaySlope & opts$Master$ParametricTrialDecaySlope!=0)){
+  subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
+  if(opts$Master$ParametricTrialDecaySlope>0) {startpt=0;stoppt=1;} else {startpt=1;stoppt=0}
+  
+  attach(data)
+  data$DecayParameter=NA
+  for (i in 1:nrow(subruns)){  
+  data[get(opts$Master$SubjectField)==subruns[i,1] & get(opts$Master$RunField)==subruns[i,2],]$DecayParameter=
+    seq(from=startpt,to=stoppt,length.out=
+    nrow(data[get(opts$Master$SubjectField)==subruns[i,1] & get(opts$Master$RunField)==subruns[i,2],]))
+  }
+  detach(data)
+}
 
 #Write the human readable version
 write.csv(data,paste('FULL_',opts$Master$Masterdatafilename,sep=''),quote=FALSE,row.names=FALSE,na='NaN')
