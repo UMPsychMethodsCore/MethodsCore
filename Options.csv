@@ -23,9 +23,11 @@ Master,TR,1,2,
 Master,FIRposttrial,1,10,How many TR's after stimulus onset do you want FIR's to encompass?
 Master,FIRpretrial,1,5,How many TR's before stimulus onset do you want your FIR's to go?
 Master,Masterdatafilename,1,MSIT_Master.csv,
+Master,TrialTypeField,1,TrialType,The name of the field that has your trial type information
 Master,TrialTypeMap,1,fix_1,Map your trial types to numbers. You will need to define this variable several times. Delimit pairs with underscores
 Master,TrialTypeMap,1,Incong_2,
 Master,TrialTypeMap,1,Cong_3,
+Master,ParametricTrialDecaySlope,1,-1,"If on, will introduce parameter with slope of value for each subject for each run. For example, set to -1 to look for linear decay"
 MSIT,StimRespField,1,Slide1.RESP,
 MSIT,JitterRespField,1,Slide2.RESP,
 MSIT,CorrectResponseField,1,Slide1.CRESP,
