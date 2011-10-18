@@ -95,7 +95,8 @@ if(!is.null(opts$Master$TrialTypeMap)){
   names(trialmap)=c(opts$Master$TrialTypeField,'TrialTypeNum')  #Consider making "TrialType" a flexible field name using options
   data=merge(data,trialmap)
   rm(trialmap)
-}
+} else {data=within(data,expr={TrialTypeNum=get(opts$Master$TrialTypeField)})}
+
   
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
