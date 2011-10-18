@@ -27,7 +27,7 @@ Master,TrialTypeField,1,TrialType,The name of the field that has your trial type
 Master,TrialTypeMap,1,fix_1,Map your trial types to numbers. You will need to define this variable several times. Delimit pairs with underscores
 Master,TrialTypeMap,1,Incong_2,
 Master,TrialTypeMap,1,Cong_3,
-Master,ParametricTrialDecaySlope,1,-1,"If on, will introduce parameter with slope of value for each subject for each run. For example, set to -1 to look for linear decay"
+Master,ParametricTrialDecaySlope,1,-1,"If on, will introduce parameter with positive or negative slope depending on sign of value you provide. 0 will not work."
 MSIT,StimRespField,1,Slide1.RESP,
 MSIT,JitterRespField,1,Slide2.RESP,
 MSIT,CorrectResponseField,1,Slide1.CRESP,
