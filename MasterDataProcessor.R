@@ -10,7 +10,8 @@ opts=list()
 
 for (i in 1:nrow(optscsv)){eval(parse(text=paste('opts$',optscsv[i,1],'$',optscsv[i,2],'=c(opts$',optscsv[i,1],'$',optscsv[i,2],',','optscsv[',i,',3])',sep='')))}
 
-
+#If a custom run field name is used, use that, if not, use the default "Run"
+if(!is.null(opts$Master$RunField)){runfieldname=opts$Master$RunField} else {runfieldname='Run'}
 
 #Read in EMerge file
 if(opts$Master$Filetype=='csv'){data=read.csv(opts$Master$Filename,as.is=TRUE,skip=opts$Master$SkipRows,fileEncoding = 'UCS-2LE')}
@@ -139,19 +140,19 @@ data$FIROnsets=ifelse(data$FIROnsets+as.numeric(opts$Master$TR)*as.numeric(opts$
 
 
 #Resort the file
-data=with(data,data[order(Subject,Run,get(opts$Master$TrialField)),])
+data=with(data,data[order(Subject,get(runfieldname),get(opts$Master$TrialField)),])
 
 #Introduce parametric decay if option enabled, best to do this after sorting so trials are in proper sequence
-if(!is.null(opts$Master$ParametricTrialDecaySlope & opts$Master$ParametricTrialDecaySlope!=0)){
+if(!is.null(opts$Master$ParametricTrialDecaySlope) & opts$Master$ParametricTrialDecaySlope!=0){
   subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
   if(opts$Master$ParametricTrialDecaySlope>0) {startpt=0;stoppt=1;} else {startpt=1;stoppt=0}
   
   attach(data)
   data$DecayParameter=NA
   for (i in 1:nrow(subruns)){  
-  data[get(opts$Master$SubjectField)==subruns[i,1] & get(opts$Master$RunField)==subruns[i,2],]$DecayParameter=
+  data[get(opts$Master$SubjectField)==subruns[i,1] & get(runfieldname)==subruns[i,2],]$DecayParameter=
     seq(from=startpt,to=stoppt,length.out=
-    nrow(data[get(opts$Master$SubjectField)==subruns[i,1] & get(opts$Master$RunField)==subruns[i,2],]))
+    nrow(data[get(opts$Master$SubjectField)==subruns[i,1] & get(runfieldname)==subruns[i,2],]))
   }
   detach(data)
 }
