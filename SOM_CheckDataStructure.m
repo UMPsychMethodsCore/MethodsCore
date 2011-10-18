@@ -78,7 +78,7 @@ for iRUN = 1:length(data.run)
   
   % Read in a single header for this run from the first file.
   
-  data.run(iRUN).hdr = spm_read_vol(data.run(iRUN).P(1,:));
+  data.run(iRUN).hdr = spm_vol(data.run(iRUN).P(1,:));
   
   % And now make sure all files for this run are consistent.
   

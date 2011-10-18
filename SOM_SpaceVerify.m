@@ -40,12 +40,12 @@ end
 % Okay they seem like valid headers, now check them.
 %
 
-if any(headers{1}.hdr.mat(:) - header{2}.hdr.mat(:))
+if any(headers{1}.mat(:) - header{2}.mat(:))
   SOM_LOG(sprintf('FATAL ERROR : ".mat(:)" does not match for files %s and %s ',header{1}.hdr.fname,header{2}.hdr.fname));
   return
 end
 
-if any(header{1}.hdr.dim(1:3) - header{2}.hdr.dim(1:3))
+if any(header{1}.dim(1:3) - header{2}.dim(1:3))
   SOM_LOG(sprintf('FATAL ERROR : ".dim(1:3)" does not match for files %s and %s ',header{1}.hdr.fname,header{2}.hdr.fname));
   return
 end  
