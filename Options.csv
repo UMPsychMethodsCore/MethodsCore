@@ -12,7 +12,7 @@ Master,SkipRows,1,0,
 Master,TaskType,1,MSIT,
 Master,TimeField,1,Slide1.OnsetTime,
 Master,TimeOffset,1,0,"This script will zero out your durations by run. If it should zero them out relative to some offset, put that here."
-Master,FrameInfo,0,,
+Master,RunMaxFile,0,,"If you have irregular max times (e.g. it varies by subjet, by session, etc), you can supply a CSV. This CSV needs to have fields that can be used to merge into your existing datafile (after merge with the supplement file above, if specified). The final field should contain your max number (in seconds)."
 Master,SubjectCatFields,0,,"If you have multiple fields you want concatenated with ""subjects"" you can put them here, separated with a semicolon. These can include fields from your SupplementFile"
 Master,SubjectField,1,Subject,
 Master,RunMax,1,1_220,Specify in seconds the length of each run. You may need to specify this variable multiple times
