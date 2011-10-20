@@ -93,7 +93,7 @@ if(!is.null(opts$Master$TrialTypeMap)){
     trialmap[i,2]=trialnum
     rm(thing,trialname,trialnum)
   }
-  names(trialmap)=c(opts$Master$TrialTypeField,'TrialTypeNum')  #Consider making "TrialType" a flexible field name using options
+  names(trialmap)=c(opts$Master$TrialTypeField,'TrialTypeNum')
   data=merge(data,trialmap)
   rm(trialmap)
 } else {data=within(data,expr={TrialTypeNum=get(opts$Master$TrialTypeField)})}
