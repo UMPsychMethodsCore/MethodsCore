@@ -107,6 +107,7 @@ if(opts$Master$TaskType=='MSIT') source('MSIT.R'); flag=1
 if(flag==0){print('No Task Specified')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
 
+
 #Prune trials outside of scan time
 if(!is.null(opts$Master$RunMax)){
   runmax=data.frame()
@@ -123,6 +124,12 @@ if(!is.null(opts$Master$RunMax)){
   rm(runmax)
 }
 
+if(!is.null(opts$Master$RunMaxFile)){
+  frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
+  names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
+  data=merge(data,frameinfo)
+  if(!is.null(opts$Master$RunMax)) data$RunMaxTime=ifelse(data$RunMaxTime2!=NA,data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
+}
 
 
 data$RunMaxTime=as.numeric(data$RunMaxTime) #Coerce RunMax times to numerics, otherwise comparisons below are really weird
