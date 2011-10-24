@@ -6,6 +6,11 @@ filelist1=`cat filelist1`
 filelist2=`cat filelist2`
 svmdir=`cat svmdir`
 
+if [ ! -d $svmdir ]
+then
+    mkdir $svmdir
+fi
+
 #Build bucket files out of each of your conditions
 3dbucket -sessiondir $svmdir -prefixname bucket1 $filelist1
 3dbucket -sessiondir $svmdir -prefixname bucket2 $filelist2
@@ -38,8 +43,14 @@ done
 3dAutomask timeshortbucket+orig
 
 #Run your 3dsvm model
-3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D -mask automask+orig -model model -bucket weightbucket
+if [ $1 == 1 ]
+then
+    3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D -mask automask+orig -model model -bucket weightbucket -x 1
 
+else
+    3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D -mask automask+orig -model model -bucket weightbucket
+
+fi
 
 ##To add:
 #1) Model testing (on training data itself, be sure to use set detrend to no
