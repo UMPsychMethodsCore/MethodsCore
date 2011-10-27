@@ -180,8 +180,8 @@ data=with(data,data[order(Subject,get(runfieldname),get(opts$Master$TrialField))
 
 #Introduce parametric decay if option enabled, best to do this after sorting so trials are in proper sequence
 if(!is.null(opts$Master$ParametricTrialDecaySlope) & opts$Master$ParametricTrialDecaySlope!=0){
-  subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
-  if(opts$Master$ParametricTrialDecaySlope>0) {startpt=0;stoppt=1;} else {startpt=1;stoppt=0}
+  subruns=unique(data[,c('Subject','Run')]) #Get list of unique subject-run combinations (postcat if applicable) to iterate over
+  if(as.numeric(opts$Master$ParametricTrialDecaySlope)>0) {startpt=0;stoppt=1;} else {startpt=1;stoppt=0}
   
   attach(data)
   data$DecayParameter=NA
