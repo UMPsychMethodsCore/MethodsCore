@@ -62,11 +62,13 @@ rm(runmap)
 if(!is.null(opts$Master$RunField)){data$Run=with(data,get(opts$Master$RunField))}
 
 #Create concatenated Subject Fields
+if (is.null(data$Subject)) data$Subject=NA; data$Subject=with(data,get(opts$Master$SubjectField))  #If there is no field explicitly called subject, initialize it, and copy their subject info into it
 if(!is.null(opts$Master$SubjectCatFields)){
-vec=unlist(strsplit(x=opts$Master$SubjectCatFields,split=';'))
-for (i in 1:(length(vec))) data$Subject=paste(data$Subject,data[,vec[i]],sep='')
-
-rm(vec)
+  data$SubjectPreCat=with(data,get(opts$Master$SubjectField))  #Protect their preconcatenated subject fields in SubjectPreCat
+  vec=unlist(strsplit(x=opts$Master$SubjectCatFields,split=';'))
+  for (i in 1:(length(vec))) data$Subject=paste(data$Subject,data[,vec[i]],sep='')
+  
+  rm(vec)
 }
 #Calculate Onsets
 data$Onsets=data[,opts$Master$TimeField]/1000 #Divide to get it into seconds
