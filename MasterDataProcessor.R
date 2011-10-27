@@ -129,6 +129,7 @@ if(!is.null(opts$Master$RunMax)){
 
 if(!is.null(opts$Master$RunMaxFile)){
   frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
+  if(!is.null(opts$Master$SubjectCatFields)) names(frameinfo)[grep('Subject',names(frameinfo))]='SubjectPreCat' #change the name of the subject field in the frame info file to match the protected one, if there were subject field concatenations performed
   names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
   data=merge(data,frameinfo)
   if(!is.null(opts$Master$RunMax)) data$RunMaxTime=ifelse(data$RunMaxTime2!=NA,data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
