@@ -136,13 +136,12 @@ if(!is.null(opts$Master$RunMaxFile)){
 }
 
 
-
 data$RunMaxTime=as.numeric(data$RunMaxTime) #Coerce RunMax times to numerics, otherwise comparisons below are really weird
 data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
 
 #Add your trial by trial regressors, if turned on
 if(!is.null(opts$Master$TrialByTrial) & opts$Master$TrialByTrial %in% c(1,2)) {
-  subruns=unique(data[,c(opts$Master$SubjectField,'Run')])
+  subruns=unique(data[,c('Subject','Run')]) #Get list of unique subject-run combinations (postcat if applicable) to iterate over
   data$TrialByTrial=NA
   
   for (i in 1:nrow(subruns)){
@@ -150,13 +149,12 @@ if(!is.null(opts$Master$TrialByTrial) & opts$Master$TrialByTrial %in% c(1,2)) {
     runlogic=with(data,get('Run'))==subruns[i,2] #ID only those rows with current run
     timelogic=!is.na(with(data,get('Onsets')))
     if(opts$Master$TrialByTrial==1) trialtypelogic=!is.na(with(data,get('TrialTypeNum'))) #ID only those rows where trialtype is defined
-    if(opts$Master$TrialByTrial==1) trialtypelogic=!is.na(with(data,get('TrialTypeNumAccOnly'))) #ID only those rows where trialtype is defined and accurate (ONLY if you're in trial-by-trial MSIT mode which has a special feature for accurate trials only)
+    if(opts$Master$TrialByTrial==2) trialtypelogic=!is.na(with(data,get('TrialTypeNumAccOnly'))) #ID only those rows where trialtype is defined and accurate (ONLY if you're in trial-by-trial MSIT mode which has a special feature for accurate trials only)
     supalogic=sublogic & runlogic & timelogic & trialtypelogic #Find the logical intersection of 
     
     
-    templength=length(data[supalogic,][order(with(data,get(opts$Master$TrialField))),]$TrialByTrial)
-    data[supalogic,][order(with(data,get(opts$Master$TrialField))),]$TrialByTrial=1:templength
-    data[order(with(data,get(opts$Master$TrialField))),'TrialByTrial'][supalogic]=1:templength
+    templength=length(data[supalogic,][order(with(data[supalogic,],get(opts$Master$TrialField))),]$TrialByTrial)
+    data[supalogic,][order(with(data[supalogic,],get(opts$Master$TrialField))),]$TrialByTrial=1:templength
     rm(sublogic,runlogic,timelogic,trialtypelogic,supalogic,templength)
   }
   rm(subruns)
