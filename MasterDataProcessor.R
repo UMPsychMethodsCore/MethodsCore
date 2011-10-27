@@ -112,10 +112,10 @@ if(flag==0){print('No Task Specified')} #Print an error message if you've define
 
 
 #Prune trials outside of scan time
-if(!is.null(opts$Master$RunMax)){
+if(!is.null(opts$Master$RunMaxDefault)){
   runmax=data.frame()
-  for (i in 1:length(opts$Master$RunMax)){
-    thing=unlist(strsplit(opts$Master$RunMax[[i]],'_'))
+  for (i in 1:length(opts$Master$RunMaxDefault)){
+    thing=unlist(strsplit(opts$Master$RunMaxDefault[[i]],'_'))
     run=thing[1]
     max=thing[2]
     runmax[i,1]=run
@@ -131,8 +131,8 @@ if(!is.null(opts$Master$RunMaxFile)){
   frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
   if(!is.null(opts$Master$SubjectCatFields)) names(frameinfo)[grep('Subject',names(frameinfo))]='SubjectPreCat' #change the name of the subject field in the frame info file to match the protected one, if there were subject field concatenations performed
   names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
-  data=merge(data,frameinfo)
-  if(!is.null(opts$Master$RunMax)) data$RunMaxTime=ifelse(data$RunMaxTime2!=NA,data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
+  data=merge(data,frameinfo,all.x=TRUE) #Merge in your runmax/frameinfo file with your subjects, retaining all edat rows (as these will fall back on the defaults)
+  if(!is.null(opts$Master$RunMaxDefault)) data$RunMaxTime=ifelse(!is.na(data$RunMaxTime2),data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
 }
 
 
