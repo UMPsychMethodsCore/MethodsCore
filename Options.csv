@@ -15,10 +15,8 @@ Master,TimeOffset,1,0,"This script will zero out your durations by run. If it sh
 Master,RunMaxFile,0,,"If you have irregular max times (e.g. it varies by subjet, by session, etc), you can supply a CSV. This CSV needs to have fields that can be used to merge into your existing datafile (after merge with the supplement file above, if specified). The final field should contain your max number (in seconds)."
 Master,SubjectCatFields,0,,"If you have multiple fields you want concatenated with ""subjects"" you can put them here, separated with a semicolon. These can include fields from your SupplementFile"
 Master,SubjectField,1,Subject,
-Master,RunMax,1,1_220,Specify in seconds the length of each run. You may need to specify this variable multiple times
-Master,RunMax,1,2_220,
-Master,RunMax,1,3_220,
-Master,RunMax,1,4_220,
+Master,RunMaxDefault,1,1_440,Specify in seconds the length of each run. You may need to specify this variable multiple times
+Master,RunMaxDefault,1,2_470,
 Master,TrialByTrial,1,Set to 1 if you want a condition column added for trial by trial betas. This will skip over any trials that are marked as undefined due to being outside of the RunMaxes or where the TrialType is undefined. Set it to 2 if you are processing an MSIT file and want the trial-by-trial betas to only count accurate trials. Set to 0 to not do TrialByTrial condition column at all
 Master,TR,1,2,
 Master,FIRposttrial,1,10,How many TR's after stimulus onset do you want FIR's to encompass?
