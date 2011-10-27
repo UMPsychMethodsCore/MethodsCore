@@ -17,7 +17,7 @@ Master,SubjectCatFields,0,,"If you have multiple fields you want concatenated wi
 Master,SubjectField,1,Subject,
 Master,RunMaxDefault,1,1_440,Specify in seconds the length of each run. You may need to specify this variable multiple times
 Master,RunMaxDefault,1,2_470,
-Master,TrialByTrial,1,Set to 1 if you want a condition column added for trial by trial betas. This will skip over any trials that are marked as undefined due to being outside of the RunMaxes or where the TrialType is undefined. Set it to 2 if you are processing an MSIT file and want the trial-by-trial betas to only count accurate trials. Set to 0 to not do TrialByTrial condition column at all
+Master,TrialByTrial,1,1,Set to 1 if you want a condition column added for trial by trial betas. This will skip over any trials that are marked as undefined due to being outside of the RunMaxes or where the TrialType is undefined. Set it to 2 if you are processing an MSIT file and want the trial-by-trial betas to only count accurate trials. Set to 0 to not do TrialByTrial condition column at all
 Master,TR,1,2,
 Master,FIRposttrial,1,10,How many TR's after stimulus onset do you want FIR's to encompass?
 Master,FIRpretrial,1,5,How many TR's before stimulus onset do you want your FIR's to go?
