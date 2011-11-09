@@ -37,15 +37,15 @@ else
     dataFraction = min([1.0 max([dataFraction .01])]);
 end
 
-TVAR = var(theData,[],2);
+TVAR     = var(theData,[],2);
 
 TOTALVAR = sum(var(theData,[],2));
 
-VARIDX = sortrows([TVAR [1:length(TVAR)]'],-1);
+VARIDX   = sortrows([TVAR [1:length(TVAR)]'],-1);
 
-NIDX = max([2 round(dataFraction*length(TVAR))]);
+NIDX     = max([2 round(dataFraction*length(TVAR))]);
 
-VOXIDX = VARIDX(1:NIDX,2);
+VOXIDX   = VARIDX(1:NIDX,2);
 
 [PCCoeff PCScore PCLatent PCT2] = princomp(theData(VOXIDX,:)');
 

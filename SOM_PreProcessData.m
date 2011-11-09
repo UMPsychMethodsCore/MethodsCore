@@ -49,6 +49,8 @@
 %
 %        MotionParameters  = array of motion parameters
 %
+%        nTIME             = number of time points to test.
+%
 %   MaskFLAG          = 0 don't do any masking and grab all of the data
 %                     = 1 mask using either what is in parameters.epi
 %                       or by building a subject specific mask with
@@ -114,11 +116,12 @@
 %         fraction       = fraction of variance for principle components
 %                          analysis. Default 1.
 % 
-%         nTime          = how many time point to include in the event
-%                          that the data is bigger.
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+% Modified Nov 8, 2011 to have nTIME be part of data.run
+% structure, previously it was part of the TIME.run structure.
 
 function [D0 parameters] = SOM_PreProcessData(parameters)
 
@@ -315,18 +318,18 @@ for iRUN = 1:length(parameters.data.run)
   
   % Trim the data as needed.
   
-  if size(D0RUN(iRUN).D0,2) > parameters.TIME.run(iRUN).nTIME;
-    D0RUN(iRUN).D0 = D0RUN(iRUN).D0(:,1:parameters.TIME.run(iRUN).nTIME);
-    SOM_LOG(sprintf('WARNING : Trimming data to adhere to length specified in parameters.TIME.nTIME : %d',parameters.TIME.run(iRUN).nTIME));
+  if size(D0RUN(iRUN).D0,2) > parameters.data.run(iRUN).nTIME;
+    D0RUN(iRUN).D0 = D0RUN(iRUN).D0(:,1:parameters.data.run(iRUN).nTIME);
+    SOM_LOG(sprintf('WARNING : Trimming data to adhere to length specified in parameters.data.run.nTIME : %d',parameters.data.run(iRUN).nTIME));
   end
   
   % Capture how many time points we have read.
   
-  parameters.TIME.run(iRUN).nTimeAnalyzed = size(D0RUN(iRUN).D0,2);
+  parameters.data.run(iRUN).nTimeAnalyzed = size(D0RUN(iRUN).D0,2);
   
   % Record for all runs.
   
-  nTIME  = [nTIME parameters.TIME.run(iRUN).nTimeAnalyzed];
+  nTIME  = [nTIME parameters.data.run(iRUN).nTimeAnalyzed];
   nSPACE = [nSPACE size(D0RUN(iRUN).D0,1)];
 
   % Loop on the preprocessing steps requested.
@@ -352,9 +355,7 @@ for iRUN = 1:length(parameters.data.run)
       
       parameters.startCPU.run(iRUN).detrend = cputime;
       
-      if parameters.TIME.run(iRUN).TrendFLAG < 0
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
-      else
+      if parameters.TIME.run(iRUN).TrendFLAG > 0
 	D0RUN(iRUN).D0 = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).TrendFLAG)';
       end
       
@@ -376,7 +377,6 @@ for iRUN = 1:length(parameters.data.run)
 	D0RUN(iRUN).D0 = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
       else
 	SOM_LOG('STATUS : NOT doing global regression');
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
       end
       
       parameters.stopCPU.run(iRUN).global = cputime;
@@ -420,7 +420,6 @@ for iRUN = 1:length(parameters.data.run)
 	  D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.csf.run(iRUN).regressors);
 	end
       else
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
 	parameters.csf.run(iRUN).regressors = [];
 	SOM_LOG('STATUS : No CSF Regression');
       end
@@ -466,7 +465,6 @@ for iRUN = 1:length(parameters.data.run)
 	
 	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.white.run(iRUN).regressors);
       else
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
 	parameters.white.run(iRUN).regressors = [];
 	SOM_LOG('STATUS : No WM Regression');
       end
@@ -483,10 +481,9 @@ for iRUN = 1:length(parameters.data.run)
       parameters.startCPU.run(iRUN).motion = cputime;
       
       if parameters.RegressFLAGS.motion > 0
-	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.TIME.run(iRUN).nTimeAnalyzed,:));
+	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
 	SOM_LOG('STATUS : Motion Correction Implemented');
       else
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
 	SOM_LOG('STATUS : No Motion Regression.');
       end
       
@@ -512,7 +509,6 @@ for iRUN = 1:length(parameters.data.run)
 	parameters.TIME.run(iRUN).b = b(1,:);
 	SOM_LOG('STATUS : Band Pass Filter Implemented.');
       else
-	D0RUN(iRUN).D0 = D0RUN(iRUN).D0;
 	parameters.TIME.run(iRUN).b = [];
 	SOM_LOG('STATUS : No Band Pass Filter.');
       end

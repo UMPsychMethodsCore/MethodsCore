@@ -139,7 +139,7 @@ end
 
 PMaskHDR = spm_vol(PMask);
 
-if SOM_SpaceVerify(data.run(1).hdr,PMaskHDR) ~= 1
+if SOM_SpaceVerify(parameters.data.run(1).hdr,PMaskHDR) ~= 1
   SOM_LOG('FATAL ERROR : Error with consistent image space (ROI Mask) definition.');
   return
 end

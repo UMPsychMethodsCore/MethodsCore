@@ -21,13 +21,12 @@ global SOM
 SOM.defaults.TIME.TR          = 2;    %Seconds.
 SOM.defaults.TIME.BandFLAG    = 1;
 SOM.defaults.TIME.TrendFLAG   = 1;
-SOM.defaults.TIME.LowF        = .01;  %Hz
-SOM.defaults.TIME.HiF         = .10;
+SOM.defaults.TIME.LowF        = 0.01;  %Hz
+SOM.defaults.TIME.HiF         = 0.10;
 SOM.defaults.TIME.padding     = 10; 
 SOM.defaults.TIME.gentle      = 1;
 SOM.defaults.TIME.whichFilter = 1;
 SOM.defaults.TIME.fraction    = 1;
-SOM.defaults.TIME.nTIME       = Inf;
 
 % Some regression defaults, some, not all.
 

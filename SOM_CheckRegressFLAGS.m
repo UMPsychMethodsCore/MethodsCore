@@ -30,6 +30,9 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+% Modified Nov 8, 2011 to have nTIME be part of data.run
+% structure, previously it was part of the TIME.run structure.
+
 function RegressFLAGS = SOM_CheckRegressFLAGS(parameters)
 
 global SOM
@@ -41,15 +44,28 @@ if isfield(parameters,'RegressFLAGS') == 0
     RegressFLAGS.global   = SOM.defaults.RegressFLAGS.global;
     RegressFLAGS.csf      = parameters.csf.MaskFLAG;
     RegressFLAGS.white    = parameters.white.MaskFLAG;
-    if isfield(parameters.data,'MotionParameters') == 0
-        parameters.data.MotionParameters = [];
-    end
-    if ~isnumeric(parameters.data.MotionParameters) | ...
-            parameters.TIME.nTIME ~= size(parameters.data.MotionParameters,1)
-        SOM_LOG('WARNING : Motion Parameter length does not seem to match');
-        RegressFLAGS.motion = 0;
-    else
+    RegressFLAGS.motion   = 1;
+    for iRUN = 1:length(parameters.data.run)
+      % 
+      % If motion parameters are missing for any run then we turn
+      % the regression off for all runs.
+      %
+      %
+      if isfield(parameters.data.run(iRUN),'MotionParameters') == 0
+        parameters.data.run(iRUN).MotionParameters = [];
+	RegressFLAGS.motion = 0;
+	SOM_LOG(sprintf('No motion parameters for run %d, setting RegressFLAGS.motion = 0',iRUN));
+      end
+      % 
+      % Fatal error if motion parameters are not sufficient.
+      %
+      if ~isnumeric(parameters.data.run(iRUN).MotionParameters) | ...
+            parameters.data.run(iRUN).nTIME > size(parameters.data.MotionParameters,1)
+        SOM_LOG(sprintf('FATAL ERROR : Problem with motion parameters for run %d',iRUN));
+	return
+      else
         RegressFLAGS.motion = 1;
+      end
     end
     % Default the order.
     RegressFLAGS.order = SOM.defaults.RegressFLAGS.order;
@@ -94,9 +110,9 @@ for iRUN = 1:length(parameters.data.run)
   end
   
   if ~isnumeric(MotionParameters) | ...
-        parameters.TIME.run(iRUN).nTIME ~= size(MotionParameters,1)
-    SOM_LOG('WARNING : motion parameters missing, or mismatched, not using.');
-    RegressFLAGS.motion = 0;
+        parameters.data.run(iRUN).nTIME > size(MotionParameters,1)
+    SOM_LOG('FATAL ERROR : motion parameters missing, or mismatched, not using.');
+    return
   else
     if isfield(RegressFLAGS,'motion') == 0
       SOM_LOG('WARNING : motion flag not there, but motion parameters present, setting flag to 1.');

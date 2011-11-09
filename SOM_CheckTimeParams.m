@@ -26,12 +26,14 @@
 %
 %      fraction       = fraction of variance for principle components
 %                       analysis. Default 1.
-%      nTime          = how many time point to include in the event
-%                       that the data is bigger.
 %
 % Returne TIME.OK = 1 if all okay, else -1 if bad.
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+% Modified Nov 8, 2011 to have nTIME be part of data.run
+% structure, previously it was part of the TIME.run structure.
 
 function TIME = SOM_CheckTimeParams(parameters)
 
@@ -123,12 +125,7 @@ for iRUN = 1:length(TIME.run)
     SOM_LOG(sprintf('WARNING : Missing TIME.run(%d).fraction, setting to 1',iRUN));
     TIME.run(iRUN).fraction = SOM.defaults.TIME.fraction;
   end
-  
-  if isfield(TIME.run(iRUN),'nTIME') == 0
-    SOM_LOG(sprintf('WARNING : Missing TIME.run(%d).nTIME, setting to Inf',iRUN));
-    TIME.run(iRUN).nTIME = SOM.defaults.TIME.nTIME;
-  end
-  
+    
   if TIME.run(iRUN).LowF >= TIME.run(iRUN).HiF
     SOM_LOG(sprintf('FATAL ERROR : low frequency equal or exceed high frequency cut off. run:%d',iRUN));
     TIME.OK = -1;
