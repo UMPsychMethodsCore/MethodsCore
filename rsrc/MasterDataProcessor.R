@@ -1,8 +1,14 @@
 #See README file included with this distribrution for help and authorship information
 
+#Setup some directories
+srcdir=getwd() #The directory that holds all the src code (and thus directory from which this central script is being run)
+pkgdir=system('dirname `pwd`')
+inputdir=file.path(pkgdir,'input') #Directory where input files are expected
+configdir=file.path(pkgdir,'config') #Directory where config files are expected
+outdir=file.path(pkgdir,'output') #Directory where output will be sent
 
 #Read in Options file
-optscsv=read.csv('Options.csv',as.is=TRUE)
+optscsv=read.csv(file.path(configdir,'Options.csv'),as.is=TRUE)
 optscsv=optscsv[optscsv$OptionOn==1,-3]
 
 #Convert options file to options list object, ala struct variable in MATLAB
@@ -14,6 +20,7 @@ for (i in 1:nrow(optscsv)){eval(parse(text=paste('opts$',optscsv[i,1],'$',optscs
 if(!is.null(opts$Master$RunField)){runfieldname=opts$Master$RunField} else {runfieldname='Run'}
 
 #Read in EMerge file
+setwd(inputdir) #Set your working directory to the input directory. This way, regardless of whether the user specified the full path to the file or a relative path, it will still work
 if(opts$Master$Filetype=='csv'){data=read.csv(opts$Master$Filename,as.is=TRUE,skip=opts$Master$SkipRows,fileEncoding = 'UCS-2LE')}
 if(opts$Master$Filetype=='tab'){data=read.csv(opts$Master$Filename,as.is=TRUE,skip=opts$Master$SkipRows,sep='\t',fileEncoding = 'UCS-2LE')}
                                 
@@ -21,7 +28,9 @@ if(opts$Master$Filetype=='tab'){data=read.csv(opts$Master$Filename,as.is=TRUE,sk
 #Drop the clock information cuz those strings are huge
 data=data[,!grepl('Clock',names(data))]
 
+
 #Read in supplemental file. This may contain Tx identifiers, calculated parameters, etc. This needs to contain some sort of meaningful keys
+setwd(inputdir) #Make sure you're in the input directory, just in case
 if(!is.null(opts$Master$SupplementFile)){ suppl=read.csv(opts$Master$SupplementFile,stringsAsFactors=FALSE)
 
 #Merge EMerge file with supplemental file
@@ -104,8 +113,8 @@ if(!is.null(opts$Master$TrialTypeMap)){
   
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
-if(opts$Master$TaskType=='DDT') source('DDT.R'); flag=1
-if(opts$Master$TaskType=='MSIT') source('MSIT.R'); flag=1
+if(opts$Master$TaskType=='DDT') source(file.path(srcdir,'DDT.R')); flag=1
+if(opts$Master$TaskType=='MSIT') source(file.path(srcdir,'MSIT.R')); flag=1
 
 if(flag==0){print('No Task Specified')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
@@ -128,6 +137,7 @@ if(!is.null(opts$Master$RunMaxDefault)){
 }
 
 if(!is.null(opts$Master$RunMaxFile)){
+  setwd(inputdir) #set to input directory just in case
   frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
   if(!is.null(opts$Master$SubjectCatFields)) names(frameinfo)[grep('Subject',names(frameinfo))]='SubjectPreCat' #change the name of the subject field in the frame info file to match the protected one, if there were subject field concatenations performed
   names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
@@ -191,6 +201,7 @@ if(!is.null(opts$Master$ParametricTrialDecaySlope) & opts$Master$ParametricTrial
 }
 
 #Write the human readable version
+setwd(outdir) #change to the output directory
 write.csv(data,paste('FULL_',opts$Master$Masterdatafilename,sep=''),quote=FALSE,row.names=FALSE,na='NaN')
 
 
@@ -201,4 +212,5 @@ data=rbind(1:ncol(data),data)
 data=apply(data,c(1,2),as.numeric)
 data=data.frame(data)
 #Write out the master datafile
+setwd(outdir) #change to the output directory
 write.csv(data,opts$Master$Masterdatafilename,quote=FALSE,row.names=FALSE,na='NaN')
