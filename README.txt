@@ -1,6 +1,6 @@
-*PAN_MasterData Processor
+*OMNI_MasterData Processor
 
-Written 2011 by Daniel Kessler, kesslerd@umich.edu, for the Psychiatric Affective Neuroscience Laboratory at the University of Michigan.
+Written in 2011 by Daniel Kessler, kesslerd@umich.edu, Department of Psychiatry, University of Michigan.
 
 *Prerequisites
 This code was written to use R 2.13.0, available (for free!) at cran.r-project.org
@@ -28,7 +28,7 @@ This is where the source code of the project lives. For now it's all just a bunc
 When you run your program, it will generate a log file that will look as if you had run the entire session interactively. If you don't know R very well, these logs may not look like much to you, but if you encounter a problem and want to contain the project's maintainer, including these logs will go a long way towards helping she or he to track down your problem.
 
 *Running the Program
-Once you've got everything placed in the correct directory and your Options file written up (see below), it's time to run the program. Simply execute the shell script named panmasterdata.sh that lives at the top level of the repository, and it will do the rest for you.
+Once you've got everything placed in the correct directory and your Options file written up (see below), it's time to run the program. Simply execute the shell script named omnimasterdata.sh that lives at the top level of the repository, and it will do the rest for you.
 
 *The Options File
 
