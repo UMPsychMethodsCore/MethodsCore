@@ -1,8 +1,8 @@
 #See README file included with this distribrution for help and authorship information
 
 #Setup some directories
-srcdir=getwd() #The directory that holds all the src code (and thus directory from which this central script is being run)
-pkgdir=system('dirname `pwd`')
+pkgdir=getwd() #The directory where the package resides.
+srcdir=file.path(pkgdir,'rsrc') #The directory that holds all the src code (and thus directory from which this central script is being run)
 inputdir=file.path(pkgdir,'input') #Directory where input files are expected
 configdir=file.path(pkgdir,'config') #Directory where config files are expected
 outdir=file.path(pkgdir,'output') #Directory where output will be sent
@@ -113,8 +113,8 @@ if(!is.null(opts$Master$TrialTypeMap)){
   
 #Perform task specific processing steps
 flag=0  #This will check whether task type has been properly specified
-if(opts$Master$TaskType=='DDT') source(file.path(srcdir,'DDT.R')); flag=1
-if(opts$Master$TaskType=='MSIT') source(file.path(srcdir,'MSIT.R')); flag=1
+if(opts$Master$TaskType=='DDT') source(file.path(srcdir,'DDT.R'),echo=TRUE); flag=1
+if(opts$Master$TaskType=='MSIT') source(file.path(srcdir,'MSIT.R'),echo=TRUE); flag=1
 
 if(flag==0){print('No Task Specified')} #Print an error message if you've defined a task that doesn't have a corresponding source pointer
 
