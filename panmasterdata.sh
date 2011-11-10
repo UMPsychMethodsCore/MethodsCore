@@ -3,5 +3,6 @@
 thisdir=`pwd`
 
 R --vanilla &>$thisdir/logs/R.log <<EOF
-$thisdir/rsrc/MasterDataProcessor.R
+source('$thisdir/rsrc/MasterDataProcessor.R',echo=TRUE)
+q()
 EOF
