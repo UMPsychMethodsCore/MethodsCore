@@ -1,0 +1,326 @@
+#
+# Parse the arguments
+#
+
+while (( $argn < $args ))
+do
+  #
+  # If a directory then we assume it is a subject, 
+  # this means you need to specify the subject
+  # master directory first. ( SUBJDIR )
+  #
+    if [ -d "./${SUBJDIR}/$1" ]
+    then
+	let nSubjects++
+	subjects[${nSubjects}]=$1
+    else
+      # 
+      # Else it could be an option flag.
+      #
+	curParam=$1
+      # Check to see if option
+	if [ "${curParam:0:1}" == "-" ]
+      	then 
+            if (( ${#curParam} < 2 ))
+	    then	
+		ALLOWED=
+            else
+		ALLOWED=`echo ${allowedOptions} | grep ${curParam:1:1}`
+            fi
+	    if [ -z "${ALLOWED}" ]
+	    then 
+		echo 
+		echo "Option : $curParam : is not allowed for ${thisCommand}"
+		echo
+		exit 1
+            fi
+	    case "${curParam:1:1}" in
+		
+
+              # case_all_runs 
+	      #
+	      # All runs in func
+	      #
+	      "A")
+		  ALLRUNSFLAG=1
+		  ;;
+
+              # case_anatomy_path 
+ 	      #
+	      # Path name to find virgin anatomy files.
+	      #
+	      "a")
+		  . ${thisDir}/auxillary/setAnatomyPath
+		  ;;
+
+              # case_bet_best_flag 
+	      #
+	      # look at the BET best flag
+	      #
+	      "b")
+		  . ${thisDir}/auxillary/setBETFLAG
+		  ;;
+
+              # case_super_debug_flag 
+	      #
+	      # super debug flag
+	      #
+	      "D")
+		  . ${thisDir}/auxillary/setSuperDebugFlag
+		  ;;
+
+              # case_debug_flag 
+	      #
+	      # debug flag
+	      #
+	      "d")
+		  . ${thisDir}/auxillary/setDebugFlag
+		  ;;
+
+              # case_fmri_tr 
+	      #
+	      # Set the TR
+	      #
+	      "F")
+		  . ${thisDir}/auxillary/setVolumeTR
+		  ;;                	         
+
+              # case_functional_path 
+ 	      #
+	      # Path name to search for functional images.
+	      #
+	      "f")
+		  . ${thisDir}/auxillary/setFunctionalPath
+		  ;;
+
+              # case_set_BET_gradient
+              #
+              # Set the gradient scale for bestBET
+              #
+              "g")
+                  . ${thisDir}/auxillary/setGradientValue
+                  ;;
+              # case_hires_name 
+ 	      # 
+	      # SPGR (hiRES) name to use 
+	      #
+	      "h")
+		  . ${thisDir}/auxillary/setHiResName
+		  ;;
+
+              # case_set_run 
+	      # 
+	      # run list
+	      #
+	      "i")
+		  . ${thisDir}/auxillary/setRunList
+		  ;;
+
+              # case_subject_dir 
+	      # 
+	      # subject directory name to use
+	      #
+	      "M")
+		  . ${thisDir}/auxillary/setSubjectsMasterDir
+		  ;;
+
+              # case_flirt_options 
+	      # 
+	      # find the flirt options
+	      #
+	      "m")
+		  . ${thisDir}/auxillary/setMCFlirtOptions
+		  ;;
+
+              # case_output_name 
+	      #
+	      # Set the name to add.
+	      #
+	      "n")
+		  . ${thisDir}/auxillary/setOutputName
+		  ;;
+
+              # case_other_names 
+	      #
+	      # Simliar Other images
+	      # 
+	      "O")
+		  . ${thisDir}/auxillary/setOtherNames
+		  ;;
+
+              # case_overlay_name 
+	      # 
+	      # overlay name to use
+	      #
+	      "o")
+		  . ${thisDir}/auxillary/setOverlayName
+		  ;;
+
+              # case_physfile_name
+	      # 
+	      # physio phys file table
+	      #
+	      "p")
+		  . ${thisDir}/auxillary/setPhysioName
+		  ;;
+
+              # case_physio_options
+	      # 
+	      # physio options
+	      #
+	      "P")
+		  . ${thisDir}/auxillary/setPhysioOptions
+		  ;;
+
+              # case_reslice_2 
+	      #
+	      # reslice the geometry only with no estimation?
+	      #
+	      "R")
+		  resliceFLAG=2
+		  ;;
+
+              # case_reslice_1 
+	      #
+	      # reslice the geometry?
+	      #
+	      "r")
+		  resliceFLAG=1
+		  ;;
+
+              # case_standard_volume 
+	      # 
+	      # find the standard volume number.
+	      #
+	      "S")
+		  . ${thisDir}/auxillary/setStandardVolumeNumber
+		  ;;
+
+              # case_sub_path 
+ 	      #
+	      # sub-Path name to search for functional images.
+	      #
+	      "s")
+		  . ${thisDir}/auxillary/setFunctionalSubPathName
+		  ;;
+
+              # case_template_name 
+	      #
+	      # Template Image.
+	      #
+	      "T")
+		  . ${thisDir}/auxillary/setTemplateImageName
+		  ;;
+
+              # case_test_flag 
+	      #
+	      # Test FLAG
+	      #
+	      "t")
+		  . ${thisDir}/auxillary/setTestFlag
+		  ;;
+
+              # case_user_email 
+	      # 
+	      # Where to send email when finished
+	      #
+	      "U")
+		  . ${thisDir}/auxillary/setUserEmail
+		  ;;
+
+              # case_set_bet
+	      # 
+	      # Pick up the best BET threshold
+	      #
+	      "u")
+		  . ${thisDir}/auxillary/setBestBET
+		  ;;
+
+              # case_verify_flag
+	      # 
+	      # Set the verify flag
+	      #
+	      "V")
+		  . ${thisDir}/auxillary/setVerifyFLAG
+		  ;;
+
+              # case_volume_name 
+	      # 
+	      # wildcard name to use for which to co-reg.
+	      #
+	      "v")
+		  . ${thisDir}/auxillary/setVolumeWildCard
+		  ;;
+
+              # case_coreg_path 
+ 	      #
+	      # Path name to place coregistration results, our output of anatomy routines.
+	      #
+	      "w")
+		  . ${thisDir}/auxillary/setCoRegPath
+		  ;;
+
+              # case_voxel_size 
+	      #
+	      # Voxel size
+	      #
+	      "z")
+		  . ${thisDir}/auxillary/setVoxelSize
+		  ;;
+
+              # case_run_number 
+	      #
+	      # run numbers
+	      # 
+	      "#")
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for run number, aborting"
+		      exit 0
+		  else
+		      runNAMES[$nRUN]=$1
+		      let nRUN++
+		  fi
+		  ;;
+
+              # case_error 
+	      #
+	      # Anything should result in an error.
+	      #
+	      *)
+		  . ${thisDir}/auxillary/caseError
+		  exit 1
+		
+	    esac
+	else
+            if [ "${thisCommand}" == "smoothfMRI" ]
+            then
+		isnumber $1
+		validNumber=$?
+		if [ "${validNumber}" == "$SUCCESS" ]
+		then
+                    let nParam++
+                    params[${nParam}]=$1
+		else
+		    echo -e "\a"
+		    echo "Parameter number ${nParam} with a value of $1 is not a valid number"
+		    echo "Buggering out"
+		    exit 1
+		fi
+	    else
+	  #
+	  # It is not a directory and not an option, so it will be an error.
+	  #
+		. ${thisDir}/auxillary/unrecognizedArgument
+		exit 1
+	    fi
+	fi
+    fi
+  #
+  # get the next argument.
+  #
+    shift
+    let argn++
+done

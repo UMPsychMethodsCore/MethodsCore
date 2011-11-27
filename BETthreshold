@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# An auxillary command to fit the BET
+# curves and find the best threshold.
+#
+# Or that is, we guess that the average 
+# of the flat top is the best place to 
+# set the threshold.
+#
+#
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main function
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-13"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxillary/commonCode_AllScriptsStart
+
+${MATLAB} -nojvm -nodisplay <<EOF
+
+   addpath ${SPM8B1}
+   addpath ${SPM8B2}
+
+   addpath ${SPM8B3}
+
+   addpath ${AUXPATH}
+
+   fitBETCurves
+
+   exit
+
+EOF
+
+
+#
+# all done
+#

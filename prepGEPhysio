@@ -1,0 +1,109 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Convert a phys directory into a physio
+# directory and create the physio.log
+# file for GE based physio data.
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-10-29"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="fM"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxillary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxillary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxillary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxillary/parse_arguments
+
+for DOWORK in 0 1
+do  
+    for	(( is=1 ; is<=$nSubjects ; is++ ))
+    do
+	cd ${UMBatchMaster}
+	cd ${SUBJDIR}
+	cd ${subjects[$is]}
+	if [ ! -d ${fmriPATH} ]
+	then
+	    echo
+	    echo "Can't find functional directory $fmriPATH for ${subejcts[${is}]}"
+	    echo
+	    exit 0
+	fi
+	cd $fmriPATH
+	cd ../
+	if [ ! -d phys ]
+	then
+	    echo
+	    echo "Can't find functional directory 'phys' for ${fmriPATH} for ${subejcts[${is}]}"
+	    echo
+	    exit 0
+	fi
+	nphys=`ls phys/${subjects[${is}]}_phys_??_resp.dat 2> /dev/null | wc | awk '{print $1}'`
+      	if (( $nphys <= 0 ))
+	then
+	    echo
+	    echo "Can't find any physio files in 'phys' for ${fmriPATH} for ${subjects[${is}]}"
+	    echo
+	    exit 0
+	fi
+	if [ -e phys/physio.log ]
+	then
+	    echo
+	    echo "phys/physio.log already exists for ${fmriPATH} for ${subjects[${is}]}"
+	    echo
+	    exit 0
+	fi
+	if [ "${DOWORK}" == "1" ]
+	then
+	    \rm physio.log 2> /dev/null
+	    touch physio.log
+	    echo
+	    echo "Working on ${subjects[$is]}:"
+	    cd phys
+	    for RESPFILE in `ls ${subjects[${is}]}_phys_??_resp.dat 2> /dev/null`
+	    do
+		RUNNUM=`echo $RESPFILE | awk -F_ '{print $3}'`
+		RUNNAME=run_$RUNNUM
+		echo "  $RUNNAME $RESPFILE ${subjects[${is}]}_phys_${RUNNUM}_trigECG.dat"
+		echo $RUNNAME $RESPFILE ${subjects[${is}]}_phys_${RUNNUM}_trigECG.dat >> physio.log
+	    done
+	fi
+    done
+done    
+
+echo
+echo All done
+echo

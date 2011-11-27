@@ -1,0 +1,3 @@
+    echo "    -U user-email        set the user name for email notification, "
+    echo "                         default is \"${USER}\" of present shell."
+    echo 

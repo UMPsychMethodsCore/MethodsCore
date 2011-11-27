@@ -1,0 +1,246 @@
+#
+# Copyright Robert C. Welsh, Ann Arbor MI 2005-2011
+# 
+# No warranty or guarantee made. USE AT OWN RISK.
+#
+# To make this work at your site you need to change the 
+# definition of "topDIR" below. Point to the parent directory
+# of the spm8 and spm8Batch directories. In our local installation
+# at the University of Michigan the directories "spm8" and "spm8Batch" and "spm8_patch"
+# live side-by-side under the same parent. If you wish something differnt 
+# than that then you will need "bash" knowledge greater than novice.
+#
+#
+#  Things that you need to change to make it work locally (search for these below):
+#
+#  topDIR
+#  LOCALOWNER
+#  MATLAB
+#  TemplateImageFile      (we have our own are the University of Michigan)
+#  MAILRECPT
+#
+
+COPYRIGHT="Copyright Robert C. Welsh, 2005-2011, Version"
+
+if [ -z "${SPM8BATCHGLOBAL_CALLED}" ]
+then
+
+    echo
+    echo Initializing spm8 Batch
+    echo
+
+# Bring in out function to determine whether something
+# is a number or not.
+    
+    . ${thisDir}/isnumber.sh
+    
+#
+# SOME GLOBAL THINGS TO CHANGE ACCORDING TO SITE
+#    
+
+    topDIR=/Users/rcwelsh/Software
+    
+# You must point to SPM8 !!!
+    
+    SPM8B1=${topDIR}/SPM8/spm8_with_R4290
+    
+# This is Robert Welsh's UNIX batch interface to spm8
+    
+    SPM8B2=${topDIR}/spm8Batch
+    
+# This must point to the place where the SPM8 patch is locally. 
+    
+    SPM8B3=${topDIR}/spm8Batch/matlabScripts
+    
+    AUXPATH=${topDIR}/spm8Batch/spm8_patch
+    
+#
+# If the sandbox is populated then we copy files to local disk for processing
+# and then copy back after completion. This will increase performance
+# of processing of warpfMRI and smoothfMRI
+#
+
+    SANDBOXHOST=`echo $HOSTNAME | awk -F. '{print $1}' | awk -F- '{print $1}'`
+    SANDBOX=/${SANDBOXHOST}/sandbox/
+
+# list the devices that require the use of the sandbox
+
+    SANDBOXUSE="data4"
+
+#
+# You should put in the user id of the person
+# that locally manages this software.
+#
+    
+    LOCALOWNER=rcwelsh
+    
+#
+# Mail job will be sent to your user name at the institutionname
+# Please set the instituion email server name here.
+    
+    MAILRECPT=med.umich.edu
+    
+#
+# Default email address to send messages to, on the linux machines
+# use the currently logged in user as the name, on machines with a common
+# analysis login you will need to set to a unique person.
+#
+    
+    DEFAULTUSER=${USER}
+    
+#
+#****
+#   Where to find the template image to normalize to.
+#   This is site DEPENDENT!!!!
+    
+    TemplateImageDir=${SPM8B1}/templates/
+    TemplateImageFile=T1.nii
+    
+    TemplateImage=${TemplateImageDir}/${TemplateImageFile}
+    
+# And finally, you need to point to matlab
+        
+    MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+
+#    
+# Only allow author to execute code during switch.
+# If the current user is the localowner then they may
+# execute the software.
+    
+    if [ -e "${thisDir}/.${LOCALOWNER}.Only" ]
+    then
+	if [ ! "${USER}" == "${LOCALOWNER}" ]
+	then
+	    echo
+	    echo " Currently disabled during switch to new version."
+	    echo
+	    exit 0
+	else
+	    echo
+	    echo " AUTHORIZED USER."
+	    echo
+	fi
+    fi
+    
+# Done with author check
+    
+# Now check the critical components are here.
+    
+    for CRITICALCOMPONENT in $topDIR $SPM8B1 $SPM8B2 $SPM8B3
+    do	
+	if [ ! -z "${CRITICALCOMPONENT}" ]
+	then
+	    if [ ! -d ${CRITICALCOMPONENT} ]
+	    then
+		echo 
+		echo " FATAL ERROR - CHECK THE INSTALL"
+		echo	
+		echo " The directory :"
+		echo	
+		echo "     ${CRITICALCOMPONENT}"
+		echo
+		echo " does not exist."
+		exit 0
+	    fi
+	fi
+    done
+    
+# Make sure we have access to matlab
+    
+    if [ ! -e "${MATLAB}" ]
+    then
+	echo
+	echo " FATAL ERROR - CHECK THE INSTALL"
+	echo 
+	echo " I can not find matlab: "
+	echo
+	echo "       $MATLAB"
+	echo
+	exit 0
+    fi
+    
+# Now fix on whether we are on 64bit machine or 32bit machine
+    
+# Not sure if we need this, we really should be using
+# the 64 bit version.
+    
+    ARCH=`uname -m`
+    
+#if [ "${ARCH}" == "x86_64" ]
+#then
+#	MATLAB="linux32 ${MATLAB}"
+#fi
+    
+# Well, if we got this far then software seems to be installed
+# ok.
+    
+# Now start building the automatic scripts. Some of these variables are from the parent shell script that
+# has sourced this code block.
+    
+# We can build the names for the scripts right here.
+    
+    theDate=`date +%y%m%d_%H_%M_%S`
+    theYearMonth=`date +%Y_%m`
+    
+    HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}' | sed 's/-/_/g'`
+    
+    if (( ${#HOSTCOMPUTER} > 8 ))
+    then
+	HOSTCOMPUTER=${HOSTCOMPUTER:0:8}
+    fi
+    
+    SCRIPTNAME=${thisCommand}_${theDate}_${USER}_${HOSTCOMPUTER}
+    
+    MATLABDIR=matlabScripts/spm8Batch/${thisCommand}/${theYearMonth}
+    
+    UMBatchMaster=`pwd`
+    
+    FULLSCRIPTNAME=${UMBatchMaster}/${MATLABDIR}/${SCRIPTNAME}
+    
+    GENERICRUNDIR=run_
+    
+fi
+
+SPM8BATCHGLOBAL_CALLED=YES
+
+# # # # # # # # # # # # #
+# 
+# Function Definitions
+#
+# # # # # # # # # # # # #
+
+# define out debug output function
+
+# to use debugout then do 'debugout "string" D'
+
+function debugout()
+{
+    if ! [ -z "$1" ]
+    then
+	if ! [ -z "$2" ]
+	then
+	    if  [ $2 == "D" ] || [ $2 == 'd' ]
+	    then
+		echo $1
+	    fi
+        fi
+    fi
+}
+
+# A function to return NIFTI file information to the screen.
+
+function NIFTIINFO()
+{
+    printf "         ${2} ${1} \t\t:"
+    for DIM in dim1 dim2 dim3
+    do
+	INFO=`fslinfo ${1} | grep -v pix | grep ${DIM} | awk '{print $2}'`
+	echo -n "${INFO} x "
+    done
+    INFO=`fslinfo ${1} | grep -v pix | grep dim4 | awk '{print $2}'`
+    echo "${INFO}"		    
+}
+
+#
+# Globals all done.
+#

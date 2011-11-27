@@ -1,0 +1,7 @@
+# validate that we have what we need.
+
+. ${thisDir}/auxillary/checkFSLParts
+
+# Initialize FSl variables
+
+. ${thisDir}/auxillary/initialization_all

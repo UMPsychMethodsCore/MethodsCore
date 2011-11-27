@@ -1,0 +1,3 @@
+    echo "    -M SUBJECTMASTER     set the directory to scan for subjects, "
+    echo "                         default is Subjects/"
+    echo 

@@ -1,0 +1,6 @@
+	      # 
+	      # overlay name to use
+	      #
+	      "o")
+		  . ${thisDir}/auxillary/setOverlayName
+		  ;;

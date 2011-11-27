@@ -1,0 +1,3 @@
+    echo "    -z VOXELSIZE         set the voxel size for resampling, "
+    echo "                         default is spm default."
+    echo 

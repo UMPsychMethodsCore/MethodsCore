@@ -1,0 +1,243 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# This command will connect to the imaging center
+# and download the studies indicated.
+#
+# Written by Keith Sudheimer
+#
+# Modified by Robert C. Welsh
+#
+# Copyright 2006
+#
+# getfmri
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main function of getfMRI
+#
+
+VERSION="1.1"
+VERSIONDATE="2007-02-12"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+# Bring in the global definitions that all of these
+# routines need.
+#
+
+. ${thisDir}/spm8Batch_Global
+
+#
+# Inialization.
+#
+
+let args=$#
+
+let argn=0
+let nSubjects=0
+let nParam=0
+
+# Default parameters.
+
+DESTPATH=`pwd`
+FMRIUSER=jslab
+FMRIPATH=@welles.engin.umich.edu:/net/welles/subjects/
+
+debugFlag=0
+SuperDebugFlag=0
+subPATH=
+
+# Number of arguments passed.
+
+if [ "$#" == "0" ]
+    then
+    echo
+    echo " A script to bring data from the imaging center. Data will"
+    echo " be placed in the current working directory unless changed using"
+    echo " the '-p' flag (see below)."
+    echo
+    echo " Usage: "
+    echo 
+    echo "   getfmri [-w DESTINATION] [-u USERNAME] [sub1] [sub2] ... [subN]"
+    echo
+    echo 
+    echo " Options"
+    echo 
+    echo "     -w DESTINATION  - Destination directory other than present"
+    echo "                       working directory. May be relative or"
+    echo "                       absolute directory."
+    echo "     -u USERNAME     - To use a name other than 'jslab', you must"
+    echo "                       have a valid account at welles.engin.umich.edu"
+    echo 
+    echo " e.g."
+    echo 
+    echo "     getfmri 050126zz 031223aa"
+    echo
+    echo "     getfmri -w /net/data2/schizIAPS2 050126zz 031223aa"
+    echo
+    echo " Current Destination path is : $DESTPATH"
+    echo
+    echo " Copyright Keith Sudheimer/Robert C. Welsh, 2006-2007, Version ${VERSION}"
+    echo
+    exit 0
+fi
+
+#
+# Now figure out what the user has passed to the command.
+#
+
+echo
+echo " getfmri "
+echo
+echo " Copyright Keith Sudheimer/Robert C. Welsh, 2006-2007, Version ${VERSION}"
+echo
+
+while (( $argn < $args ))
+  do
+  #
+  # If a directory then we assume it is a subject.
+  #
+  # 
+  # Else it could be an option or a parameter for smoothing.
+  #
+  curParam=$1
+  # Check to see if option
+  if [ "${curParam:0:1}" == "-" ]
+  	  then 
+  	  case "${curParam:1:1}" in
+  	      #
+  	      # Debug flag
+  	      #
+  	      "d")
+  		  debugFlag=1
+  		  ;;
+	      #
+	      # Username
+	      #
+	      "u")
+	          shift
+		  let argn++
+  		  if (( $argn >= $args ))
+  		      then
+  		      echo "Missing parameter for path name, aborting"
+  		      exit 0
+  		  else
+		      FMRIUSER=$1
+		  fi
+		  ;;
+  	      #
+  	      # Path name to search for functional images. Changed o 2007-02-12
+  	      #
+  	      "w")
+  		  shift
+  		  let argn++
+  		  if (( $argn >= $args ))
+  		      then
+  		      echo "Missing parameter for path name, aborting"
+  		      exit 0
+  		  else
+  		      DESTPATH=$1
+  		      if [ ! -d ${DESTPATH} ]
+  			  then
+  			  echo 
+  			  echo "  You have specified a destination directory that does not exist."
+  			  echo "  I'll try to create destination path."
+  			  SUCC=`mkdir -p ${DESTPATH} 2> /dev/null`
+  			  if [ ! -d ${DESTPATH} ]
+  			      then
+  			      echo "  You don't have permission to created '$DESTPATH'"
+  			      echo "  Aborting."
+  			      echo
+  			      exit 0
+  			  fi
+  			  echo "  Destination correctly created."
+  			  echo 
+  		      fi
+  		  fi
+  		  ;;
+  	      *)
+  		  echo -e "\a"
+  		  echo "Invalid option"
+  		  exit 0
+  	  esac
+  else
+  	  let nSubjects++
+  	  subjects[${nSubjects}]=$1
+  fi
+  shift
+  let argn++
+done
+
+#
+# There is NO script to write. We do the work immediately.
+#
+
+if (( ${#subjects[@]} < 1 ))
+    then
+    echo -e "\a"
+    echo 
+    echo "* * * * * YOU DID NOT SPECIFY ANY SUBJECTS * * * * * "
+    echo 
+    exit 0
+fi
+
+if [ "$debugFlag" == "1" ]
+    then
+    echo 
+    echo " DEBUG IS ON - I'll SHOW YOU THE COMMANDS I'LL BE EXECUTING."
+    echo 
+fi
+
+# Ok, lets do the business.
+
+echo 
+echo "  Will set up the scp job(s) using the following parameters"
+echo 
+echo 
+echo "     Destination path will be                     : $DESTPATH"
+echo
+echo 
+echo "  And will retrieve data on the following subjects:"
+echo
+
+declare -i ii
+
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+  echo "      ${subjects[$ii]}"
+done
+
+echo 
+echo 
+echo " Submitting commands to get data, you'll be prompted for password."
+echo 
+# Now start building the automatic scripts.
+
+theDate=`date +%y%m%d_%H_%M_%S`
+HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}'`
+
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+  echo "    scp -r ${FMRIUSER}${FMRIPATH}/${subjects[$ii]} ${DESTPATH}/"
+  scp -r ${FMRIUSER}${FMRIPATH}/${subjects[$ii]} ${DESTPATH}/
+  chmod -R go+rw ${DESTPATH}/${subjects[$ii]}
+  echo
+done
+
+echo
+echo
+echo " All done."
+echo
+
+#
+# All done.
+#

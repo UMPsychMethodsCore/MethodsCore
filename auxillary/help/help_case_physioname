@@ -1,0 +1,4 @@
+    echo "    -p physiofilexref    set name of text file with run-physio xref table,"
+    echo "                         default=physio.log"
+    echo "                         this file is expected in func/Physio/"
+    echo 

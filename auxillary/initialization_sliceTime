@@ -1,0 +1,12 @@
+#
+# Inialization.
+#
+
+# Name of the volume to scan for.
+volumeWILD=prun
+
+FSL_COMMENT_B="Slice time correcting subject"
+
+#
+# all done
+#

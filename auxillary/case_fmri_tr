@@ -1,0 +1,6 @@
+	      #
+	      # Set the TR
+	      #
+	      "F")
+		  . ${thisDir}/auxillary/setVolumeTR
+		  ;;                	         

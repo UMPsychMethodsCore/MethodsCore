@@ -1,0 +1,17 @@
+                  ERRORMESSAGE="Trying to determine the template image."
+
+	          . ${thisDir}/auxillary/setGenericFileName
+
+                  # If they speficified the directory, else we use the default directory.
+
+		  if [ "${FILENAME:0:1}" == "/" ]
+		  then		  
+		      TARGETNAME=${FILENAME}
+		  else
+		      TARGETNAME=${TemplateImageDir}/${FILENAME}
+		  fi
+		  TARGETEXT=${FILEEXT}
+
+		  . ${thisDir}/auxillary/verifyTargetImage
+
+		  TemplateImage=${TARGETIMG}

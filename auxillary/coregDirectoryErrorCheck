@@ -1,0 +1,10 @@
+    if [ ! -d "${fmriPATH}/${coregPATH}" ]
+    then
+	echo
+	echo "Failed to create coregistation directory ${fmriPATH}/${coregPATH}"
+	echo
+	echo " ABORTING "
+	echo
+	exit 1
+    fi
+    

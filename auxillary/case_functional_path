@@ -1,0 +1,6 @@
+ 	      #
+	      # Path name to search for functional images.
+	      #
+	      "f")
+		  . ${thisDir}/auxillary/setFunctionalPath
+		  ;;

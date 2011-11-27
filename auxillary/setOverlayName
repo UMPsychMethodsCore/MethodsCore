@@ -1,0 +1,4 @@
+	         ERORORMESSAGE="For subject : ${subjects[$is]} returned no result."
+	          . ${thisDir}/auxillary/setGenericFileName
+		  overlayNAME=$FILENAME
+		  overlayExt=$FILEEXT

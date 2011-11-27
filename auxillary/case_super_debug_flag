@@ -1,0 +1,6 @@
+	      #
+	      # super debug flag
+	      #
+	      "D")
+		  . ${thisDir}/auxillary/setSuperDebugFlag
+		  ;;

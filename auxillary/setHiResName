@@ -1,0 +1,3 @@
+	          . ${thisDir}/auxillary/setGenericFileName
+		  HIRESNAME=$FILENAME
+		  HIRESEXT=$FILEEXT

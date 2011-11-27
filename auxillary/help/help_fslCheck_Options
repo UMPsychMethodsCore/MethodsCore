@@ -1,0 +1,9 @@
+    echo "${helpComment} anatomy path             : ${anatomyPATH}"
+    echo "${helpComment} name of hisres image     : ${HIRESNAME}"
+    echo "${helpComment} best BET threshold       : ${USEBETBEST}"
+    echo "${helpComment} View best BET            : ${BETBESTFLAG}"
+    echo "${helpComment} BET gradient             : $BETGRADIENT"
+    echo "${helpComment} BET gradient name        : $BETNAME"
+    echo 
+
+    . ${thisDir}/auxillary/help/help_options_end

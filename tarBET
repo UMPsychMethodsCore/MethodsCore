@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Pull up the ht1spgr and the best BET
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-10-20"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+#allowedOptions="abhMu"
+allowedOptions="aMnw"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxillary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxillary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxillary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxillary/parse_arguments
+
+for DOWORK in 0 1
+do
+    for (( is=1 ; is<=$nSubjects ; is++ ))
+    do
+	SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/BET
+	if [ ! -d "${SUBJECTANATOMY}" ]
+	then
+	    echo
+	    echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	    echo
+	    echo
+	    exit 0
+	fi
+	for FILE in $BETFILES
+	do
+	    if [ ! -e "${SUBJECTANATOMY}/${FILE}" ]
+	    then
+		echo
+		echo "   FATAL ERROR, can't BET file ${SUBJECTANATOMY}/${FILE}"
+		echo
+		echo
+		exit 0
+	    fi
+	done
+	if [ -e ${UMBatchMaster}/$coregPATH/${outputName}BET_${subjects[$is]}.tar ]
+	then
+	    echo
+	    echo "   FATAL ERROR, tar file ${UMBatchMaster}/$coregPATH/${outputName}BET_${subjects[$is]}.tar already exists"
+	    echo
+	    exit 0
+	fi
+	if [ ${DOWORK} == "1" ]
+	then
+	    cd ${UMBatchMaster}
+	    mkdir -p $coregPATH
+	    FILESTOTAR=
+	    for FILE in $BETFILES
+	    do
+		FILESTOTAR="${FILESTOTAR} ${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/BET/$FILE"
+	    done
+	    TARFILE=$coregPATH/${outputName}BET_${subjects[$is]}.tar
+	    echo tar -cvf $TARFILE $FILESTOTAR
+	    tar -cvf $TARFILE $FILESTOTAR
+	    echo
+	    echo
+	fi
+    done
+done

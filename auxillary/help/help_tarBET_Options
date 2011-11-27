@@ -1,0 +1,6 @@
+    echo "${helpComment} anatomy path             : $anatomyPATH"
+    echo "${helpComment} directory to tar         : $coregPATH"
+    echo "${helpComment} prepending name          : $outputName"
+    echo 
+
+    . ${thisDir}/auxillary/help/help_options_end

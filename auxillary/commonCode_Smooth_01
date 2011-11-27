@@ -1,0 +1,8 @@
+# validate that we have what we need.
+
+. ${thisDir}/auxillary/checkSmoothParts
+
+# Initialize smoothing variables.
+
+. ${thisDir}/auxillary/initialization_all
+

@@ -1,0 +1,18 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for best BET threshold"
+		      exit 1
+		  else
+		      USEBETBEST=$1
+		      isnumber ${USEBETBEST}
+		      validNumber=$?
+		      if [ ! "$validNumber" == "$SUCCESS" ]
+		      then
+			  echo -e "\a"
+			  echo "Parameter $1 is not a valid number"
+			  echo "Buggering out"
+			  exit 0
+		      fi
+		  fi

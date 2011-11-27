@@ -1,0 +1,2 @@
+
+export PATH=/net/dysthymia/spm8Batch:${PATH}

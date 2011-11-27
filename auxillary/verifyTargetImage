@@ -1,0 +1,49 @@
+  #
+  # Determine the extension for the target image.
+  #
+    
+    USEEXT=
+    
+  #
+  # If no extension was specified so we will find one, and we can do this independently for each 
+  # subject, else we use the one specified and we stripped. But we also check to see if the overlay
+  # image really exists, else we bugger out with error.
+  #
+    
+    if [ -z ${TARGETEXT} ] 
+    then
+	for EXT in .nii.gz .nii
+	do
+	    if [ -e "${TARGETNAME}${EXT}" ]
+	    then
+		USEEXT=${EXT}
+	    fi
+	done
+    else
+	USEEXT=${TARGETEXT}
+    fi
+  #
+  # We did not find anything.
+  #
+    if [ -z ${USEEXT} ]
+    then
+	echo
+	echo "Scanning for target image : ${TARGETNAME}, could not determine extension. ${ERRORMESSAGE}"
+	echo 
+	echo "ABORTING"
+	echo
+	exit 1
+    fi
+
+    if [ ! -e "${TARGETNAME}${USEEXT}" ]
+    then
+	echo
+	echo "Scanning for target image : ${TARGETNAME}${USEEXT}. ${ERRORMESSAGE}"
+	echo 
+	echo "ABORTING"
+	echo
+	exit 1
+    fi
+
+    TARGETIMG=${TARGETNAME}${USEEXT}
+

@@ -1,0 +1,3 @@
+    echo "    -g gradient          change the gradient for BET, "
+    echo "                         default is 0.15"
+    echo 

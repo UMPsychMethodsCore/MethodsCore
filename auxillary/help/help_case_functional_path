@@ -1,0 +1,3 @@
+    echo "    -f sub-directory     set relative path functional directory,"
+    echo "                         default=func"
+    echo 

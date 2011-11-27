@@ -1,0 +1,6 @@
+	      # 
+	      # find the standard volume number.
+	      #
+	      "S")
+		  . ${thisDir}/auxillary/setStandardVolumeNumber
+		  ;;

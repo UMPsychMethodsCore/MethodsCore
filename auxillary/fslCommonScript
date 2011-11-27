@@ -1,0 +1,6 @@
+#
+# Some common code the fsl based commands.
+#
+echo "echo "                                                          >> ${FULLSCRIPTNAME}.sh
+echo "echo \"Starting command '${thisCommand}' at \${STARTTIME}\" "   >> ${FULLSCRIPTNAME}.sh
+echo "echo "                                                          >> ${FULLSCRIPTNAME}.sh

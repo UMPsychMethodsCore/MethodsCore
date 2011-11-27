@@ -1,0 +1,6 @@
+echo -n "        Runs...                               : "
+for (( ir=0; ir<$nRUN ; ir++ ))
+do
+    echo -n "${runNAMES[$ir]} "
+done
+echo

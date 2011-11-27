@@ -1,0 +1,15 @@
+    echo
+    echo " A command line command to find the best guess at the BET threshold"
+    echo
+    . ${thisDir}/auxillary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "     bestBET 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxillary/help/help_bestBET_Options

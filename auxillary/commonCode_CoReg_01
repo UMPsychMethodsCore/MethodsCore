@@ -1,0 +1,8 @@
+# validate that we have what we need.
+
+. ${thisDir}/auxillary/checkCoRegParts
+
+# Initialize coregistration variables.
+
+. ${thisDir}/auxillary/initialization_all
+

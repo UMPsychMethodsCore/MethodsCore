@@ -1,0 +1,15 @@
+    echo
+    echo " A command line command to fslview the ht1spgr and best BET"
+    echo
+    . ${thisDir}/auxillary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "     fslCheck 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxillary/help/help_fslCheck_Options

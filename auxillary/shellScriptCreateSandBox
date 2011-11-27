@@ -1,0 +1,5 @@
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# Create the sandbox"                                                            >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "${thisDir}/auxillary/create_sandbox ${SANDBOXPID}"                               >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh

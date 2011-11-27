@@ -1,0 +1,9 @@
+    echo "${helpComment} Standard Volume Number (0=first)          : ${standardVolume}"
+    echo "${helpComment} Functional Path                           : ${fmriPATH}"
+    echo "${helpComment} Sub-directory                             : ${subPATH}"
+    echo "${helpComment} Volume Wildcard                           : ${volumeWILD}"
+    echo "${helpComment} McFlirt Options                           : ${mcOPT}"
+    echo "${helpComment} FSLOUTPUTTYPE                             : ${FSLOUTPUTTYPE}"
+    echo "${helpComment} Number of runs to realign                 : ${nRUN}"
+
+    . ${thisDir}/auxillary/help/help_options_end

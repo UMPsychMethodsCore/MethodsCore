@@ -1,0 +1,6 @@
+	      # 
+	      # run list
+	      #
+	      "i")
+		  . ${thisDir}/auxillary/setRunList
+		  ;;
