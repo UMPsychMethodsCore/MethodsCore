@@ -1,0 +1,52 @@
+# Automatic emailer.
+
+if [ "${USEREMAIL}" != "NOMAIL" ]
+then
+  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh ${USEREMAIL}
+fi
+
+echo                                                                                   >> ${FULLSCRIPTNAME}.sh
+
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# Remove the sandbox"                                                            >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}"                 >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "ENDTIME=\`date\`"                                                                >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "echo   "                                                                         >> ${FULLSCRIPTNAME}.sh
+echo "echo   "                                                                         >> ${FULLSCRIPTNAME}.sh
+echo "echo \"Start   : \${STARTTIME}\" "                                               >> ${FULLSCRIPTNAME}.sh
+echo "echo \"Finish  : \${ENDTIME}\" "                                                 >> ${FULLSCRIPTNAME}.sh
+echo "echo  "                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "echo  "                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# This job was created on ${theDate} with the command line:"                     >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# ${theFullCommand}"                                                             >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# Command was built while in the directory:"                                     >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# ${execDIR}"                                                                    >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "# All done"                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+
+chmod +x ${FULLSCRIPTNAME}.sh
+
+echo
+
+echo -e " Script name(s):\n\n"
+if [ -e ${FULLSCRIPTNAME}.m ]
+then
+    echo -e "    ${FULLSCRIPTNAME}.m"
+fi
+if [ -e ${FULLSCRIPTNAME}.sh ]
+then
+    echo -e "    ${FULLSCRIPTNAME}.sh"
+fi
+
+echo 
+

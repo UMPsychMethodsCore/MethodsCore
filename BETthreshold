@@ -2,7 +2,7 @@
 
 # # # # # # # # # # # # # # # # # # 
 #
-# An auxillary command to fit the BET
+# An auxiliary command to fit the BET
 # curves and find the best threshold.
 #
 # Or that is, we guess that the average 
@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
 # This piece of code all of the spm8Batch scripts will use
-. ${thisDir}/auxillary/commonCode_AllScriptsStart
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
 ${MATLAB} -nojvm -nodisplay <<EOF
 

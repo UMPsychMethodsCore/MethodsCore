@@ -1,6 +1,0 @@
-if (( ${#subjects[@]} < 1 ))
-    then
-    . ${thisDir}/auxillary/noSubjectsErrorMsg
-    exit 1
-fi
-

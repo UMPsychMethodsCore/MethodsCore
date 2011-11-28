@@ -1,6 +1,0 @@
-	      # 
-	      # subject directory name to use
-	      #
-	      "M")
-		  . ${thisDir}/auxillary/setSubjectsMasterDir
-		  ;;

@@ -38,39 +38,39 @@ thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 allowedOptions="aDdghMtU"
 
 # This piece of code all of the spm8Batch scripts will use
-. ${thisDir}/auxillary/commonCode_AllScriptsStart
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
 # Validate that we have FSL installed.
-. ${thisDir}/auxillary/commonCode_FSL_01
+. ${thisDir}/auxiliary/commonCode_FSL_01
 
 # This is common in-line code for all spm8Batch script to make sure arguments were passed
-. ${thisDir}/auxillary/commonCode_checkIfArgsPassed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
 
 #
 # The actual function.
 #
 
-. ${thisDir}/auxillary/parse_arguments
+. ${thisDir}/auxiliary/parse_arguments
 
 #
 
-. ${thisDir}/auxillary/superDebugStatus
+. ${thisDir}/auxiliary/superDebugStatus
 
 #
 # Ok - let's start displaying things back to the terminal
 #
 
-. ${thisDir}/auxillary/shellScriptInfo
+. ${thisDir}/auxiliary/shellScriptInfo
 
 #
 # Prepare to write the script.
 #
 
 # Makes sure they speficied some subjects.
-. ${thisDir}/auxillary/checkInputForSubjects
+. ${thisDir}/auxiliary/checkInputForSubjects
 
 # Write out debug status
-. ${thisDir}/auxillary/debugStatus
+. ${thisDir}/auxiliary/debugStatus
 
 # Ok, lets do the business.
 
@@ -98,7 +98,7 @@ do
 done
 
 # Print out the list of subjects that we operate upon.
-. ${thisDir}/auxillary/printSubjectsList
+. ${thisDir}/auxiliary/printSubjectsList
 
 # Now start building the automatic scripts.
 
@@ -112,11 +112,11 @@ done
 #    FULLSCRIPTNAME   - full path and name of scripts to write.
 # 
 
-. ${thisDir}/auxillary/buildMatlabScripts_01
+. ${thisDir}/auxiliary/buildMatlabScripts_01
 
-. ${thisDir}/auxillary/shellScriptStart
+. ${thisDir}/auxiliary/shellScriptStart
 
-. ${thisDir}/auxillary/fslCommonScript
+. ${thisDir}/auxiliary/fslCommonScript
 
 echo                                                                                         >> ${FULLSCRIPTNAME}.sh
 echo "testFLAG=${testFLAG}"                                                                  >> ${FULLSCRIPTNAME}.sh
@@ -128,7 +128,7 @@ done
 echo                                                                                         >> ${FULLSCRIPTNAME}.sh
 echo "do"                                                                                    >> ${FULLSCRIPTNAME}.sh
 
-. ${thisDir}/auxillary/fslCommonCode_B
+. ${thisDir}/auxiliary/fslCommonCode_B
 
 echo "    cd $anatomyPATH"                                                                   >> ${FULLSCRIPTNAME}.sh
 echo "    mkdir -p BET"                                                                      >> ${FULLSCRIPTNAME}.sh
@@ -137,7 +137,7 @@ echo "    cd BET/"                                                              
 echo "    echo BETing and fasting"                                                           >> ${FULLSCRIPTNAME}.sh
 echo "    ${thisDir}/recursiveBET $HIRESNAME F $BETGRADIENT $BETNAME"                        >> ${FULLSCRIPTNAME}.sh
 echo "    echo Couting segment voxels"                                                       >> ${FULLSCRIPTNAME}.sh
-echo "    ${thisDir}/auxillary/countMaskVoxels $BETGRADIENT $BETNAME"                        >> ${FULLSCRIPTNAME}.sh
+echo "    ${thisDir}/auxiliary/countMaskVoxels $BETGRADIENT $BETNAME"                        >> ${FULLSCRIPTNAME}.sh
 echo "    echo Finding BET threshold"                                                        >> ${FULLSCRIPTNAME}.sh
 echo "    ${thisDir}/BETthreshold"                                                           >> ${FULLSCRIPTNAME}.sh
 echo "done"                                                                                  >> ${FULLSCRIPTNAME}.sh
@@ -152,11 +152,11 @@ echo "Finished building, launching...."
 
 # Finalize the shell script.
 
-. ${thisDir}/auxillary/shellScriptFinalize
+. ${thisDir}/auxiliary/shellScriptFinalize
 
 # Now launch into the background if desired.
 
-. ${thisDir}/auxillary/shellScriptLaunch
+. ${thisDir}/auxiliary/shellScriptLaunch
 
 #
 # all done.

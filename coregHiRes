@@ -43,47 +43,47 @@ thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 allowedOptions="aDdfhMnOorrtUw"
 
 # This piece of code all of the spm8Batch scripts will use
-. ${thisDir}/auxillary/commonCode_AllScriptsStart
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
 # This is common in-line code for the coregistration steps.
-. ${thisDir}/auxillary/commonCode_CoReg_01
+. ${thisDir}/auxiliary/commonCode_CoReg_01
 
 # This is common in-line code for all spm8Batch script to make sure arguments were passed
-. ${thisDir}/auxillary/commonCode_checkIfArgsPassed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
 
 #
 # The actual function.
 #
 
-. ${thisDir}/auxillary/parse_arguments
+. ${thisDir}/auxiliary/parse_arguments
 
 #
 
-. ${thisDir}/auxillary/superDebugStatus
+. ${thisDir}/auxiliary/superDebugStatus
 
 #
 # Ok - let's start displaying things back to the terminal
 #
 
-. ${thisDir}/auxillary/shellScriptInfo
+. ${thisDir}/auxiliary/shellScriptInfo
 
 #
 # Prepare to write the script.
 #
 
 # Makes sure they speficied some subjects.
-. ${thisDir}/auxillary/checkInputForSubjects
+. ${thisDir}/auxiliary/checkInputForSubjects
 
 # Write out debug status
-. ${thisDir}/auxillary/debugStatus
+. ${thisDir}/auxiliary/debugStatus
 
 # Ok, lets do the business.
 
 # Write out the status of the reslicing flag.
-. ${thisDir}/auxillary/coregResliceStatusMsg
+. ${thisDir}/auxiliary/coregResliceStatusMsg
 
 # Print out the list of subjects that we operate upon.
-. ${thisDir}/auxillary/printSubjectsList
+. ${thisDir}/auxiliary/printSubjectsList
 
 # Now start building the automatic scripts.
 
@@ -97,7 +97,7 @@ allowedOptions="aDdfhMnOorrtUw"
 #    FULLSCRIPTNAME   - full path and name of scripts to write.
 # 
 
-. ${thisDir}/auxillary/coregPart_01
+. ${thisDir}/auxiliary/coregPart_01
 
 # Now build the list of directories for each subject.
 
@@ -116,7 +116,7 @@ do
   # check the coregistation directory.
   #
     
-    . ${thisDir}/auxillary/coregDirectoryErrorCheck
+    . ${thisDir}/auxiliary/coregDirectoryErrorCheck
     
     # The high resolution is becoming the source,
 
@@ -126,14 +126,14 @@ do
     debugout "HiRes name is : ${SOURCENAME}"   $SuperDebugFLAG
     debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
     # find and move it.
-    . ${thisDir}/auxillary/coregFindSourceAndMove
+    . ${thisDir}/auxiliary/coregFindSourceAndMove
 
     # Now find the target, which is the overlay.
 
     TARGETNAME=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${overlayNAME}
     TARGETEXT=${overlayExt}
 
-    . ${thisDir}/auxillary/verifyTargetImage
+    . ${thisDir}/auxiliary/verifyTargetImage
 
     debugout "Overlay name is : ${TARGETNAME}" $SuperDebugFLAG
     debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
@@ -150,28 +150,28 @@ cd $curDIR
 
 # Get the other images into the matlab script
 
-. ${thisDir}/auxillary/coregPrepOtherImages
+. ${thisDir}/auxiliary/coregPrepOtherImages
 
 # Wrap up the writing of the matlab script.
 
-. ${thisDir}/auxillary/coregPart_02
+. ${thisDir}/auxiliary/coregPart_02
 
 # Now build the shell script command that will get launched into the background.
 
 # Common start to all shell scripts
-. ${thisDir}/auxillary/shellScriptStart
+. ${thisDir}/auxiliary/shellScriptStart
 
 # Add the matlab code to the shell script
 
-. ${thisDir}/auxillary/shellScriptMATLABCall
+. ${thisDir}/auxiliary/shellScriptMATLABCall
 
 # Finalize the shell script.
 
-. ${thisDir}/auxillary/shellScriptFinalize
+. ${thisDir}/auxiliary/shellScriptFinalize
 
 # Now launch into the background if desired.
 
-. ${thisDir}/auxillary/shellScriptLaunch
+. ${thisDir}/auxiliary/shellScriptLaunch
 
 #
 # all done.

@@ -1,0 +1,19 @@
+    echo
+    echo " A command line command to drive batch processing to segment the 'SPGR'"
+    echo " to the standard template. This code will use SPM8 batch mode. "
+    echo 
+    
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "   To segment the 'whet1spgr' :"
+    echo 
+    echo "     segHiRes -f func/MSIT 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+    
+    . ${thisDir}/auxiliary/help/help_segHiRes_Options

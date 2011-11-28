@@ -33,19 +33,19 @@ thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 allowedOptions="aghMu"
 
 # This piece of code all of the spm8Batch scripts will use
-. ${thisDir}/auxillary/commonCode_AllScriptsStart
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
 # Validate that we have FSL installed.
-. ${thisDir}/auxillary/commonCode_FSL_01
+. ${thisDir}/auxiliary/commonCode_FSL_01
 
 # This is common in-line code for all spm8Batch script to make sure arguments were passed
-. ${thisDir}/auxillary/commonCode_checkIfArgsPassed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
 
 #
 # The actual function.
 #
 
-. ${thisDir}/auxillary/parse_arguments
+. ${thisDir}/auxiliary/parse_arguments
 
 # First we loop on everybody and make sure we can do the work
 # that is requested.
@@ -114,7 +114,7 @@ do
 	echo "  Using fraction : $FRAC"
 	echo
         # Now get the gradient
-        . ${thisDir}/auxillary/calcBETname
+        . ${thisDir}/auxiliary/calcBETname
 	if [ ! -d ${SUBJECTANATOMY}/BET/ ]
 	then
 	    echo 

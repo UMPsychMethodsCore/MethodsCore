@@ -1,6 +1,0 @@
-	      # 
-	      # find the flirt options
-	      #
-	      "m")
-		  . ${thisDir}/auxillary/setMCFlirtOptions
-		  ;;

@@ -1,6 +1,0 @@
- 	      #
-	      # sub-Path name to search for functional images.
-	      #
-	      "s")
-		  . ${thisDir}/auxillary/setFunctionalSubPathName
-		  ;;

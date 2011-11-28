@@ -1,0 +1,8 @@
+# Number of arguments passed.
+
+if [ "$#" == "0" ]
+    then
+    . ${thisDir}/auxiliary/${thisCommand}_Help
+    exit 0
+fi
+

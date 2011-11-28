@@ -1,8 +1,0 @@
-# Number of arguments passed.
-
-if [ "$#" == "0" ]
-    then
-    . ${thisDir}/auxillary/help/${thisCommand}_Help
-    exit 0
-fi
-

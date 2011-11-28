@@ -1,6 +1,0 @@
-	      #
-	      # Anything should result in an error.
-	      #
-	      *)
-		  . ${thisDir}/auxillary/caseError
-		  exit 1

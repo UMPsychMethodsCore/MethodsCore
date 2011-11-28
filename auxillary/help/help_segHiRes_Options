@@ -1,5 +1,0 @@
-    echo "${helpComment} directory to coreg       : ${fmriPATH}/$coregPATH"
-    echo "${helpComment} name of the high res     : $HIRESNAME"
-    echo 
-
-    . ${thisDir}/auxillary/help/help_options_end
