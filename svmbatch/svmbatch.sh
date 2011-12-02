@@ -1,7 +1,58 @@
 #!/bin/bash
 
- 
+#A program to perform SVM based only on lists of files
+
+#CONSTANTS
+
+#FUNCTIONS
+
+function totembatch {
+    #Given a filelist, suffixlist, and totem directory, loop over
+    #combinations of filelist and suffixlist, and build totems
+
+    totemsuf=`cat totem.suf`
+    
+    for  file in $1; do
+	totemlist=  #Clear the totemlist variable. This will hold the list of all the subfiles going into your totem
+	for suf in $totemsuf; do
+		totemlist=`echo $totemlist $file/$suf` #loop over suffixes, and build up the list of subfiles
+	done
+	newname=`echo $file | sed 's:/:_:2g'` #edit the filename to have underscores instead of slashes, it will keep the temp directory cleaner
+	fslmerge -z $totemtemp/$newname $totemlist  #use fsl to merge your subfiles in the z direction into totems
+	newname=
+    done
+}
+
+
+#Parameter Processing
+
+totem=
+crossv=
+totemtemp=/tmp/totems #Where to store your totem files/examples
+
+
+while [ "$1" != "" ]; do
+    case $1 in
+	-t | --totem )	totem=1  #Operate in totem stacking mode
+			shift
+			#totemtemp=$1
+			echo Running in Totem Mode
+			;;
+	-c | --crossv )	crossv=1 #Will perform cross validation
+			
+    esac
+    shift
+done
+       
+
+##Main Function
+
+
+
 #Read in variable values from associated files
+
+
+
 filelist1=`cat filelist1`
 filelist2=`cat filelist2`
 svmdir=`cat svmdir`
@@ -9,6 +60,20 @@ svmdir=`cat svmdir`
 if [ ! -d $svmdir ]
 then
     mkdir $svmdir
+fi
+
+#if in totem mode
+
+if [ "$totem" == 1 ]; 
+    then
+    mkdir $totemtemp
+    totembatch "$filelist1"
+    totembatch "$filelist2"
+
+    filelist1=`cat filelist1 | sed -e 's:/:_:2g' -e 's:^:/'$totemtemp: -e 's:$:.hdr:'` #Update the filelist to point to where the totem-ed files are
+    filelist2=`cat filelist2 | sed -e 's:/:_:2g' -e 's:^:/'$totemtemp: -e 's:$:.hdr:'`
+
+
 fi
 
 #Build bucket files out of each of your conditions
@@ -42,15 +107,26 @@ done
 #Build a mask (in the future we may want to learn more about these options, or allow for specification of a custom mask
 3dAutomask timeshortbucket+orig
 
-#Run your 3dsvm model
-if [ $1 == 1 ]
+#maskrule="-mask automask+orig"
+if [ "$totem" = "1" ]
 then
-    3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D -mask automask+orig -model model -bucket weightbucket -x 1
-
-else
-    3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D -mask automask+orig -model model -bucket weightbucket
-
+    maskrule="-nomodelmask"
 fi
+
+crossvrule=""
+if [ "$crossv" = "1" ]
+then
+    crossvrule="-x 1"
+fi
+
+#Run your 3dsvm model
+3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D $maskrule -model model -bucket weightbucket $crossvrule
+
+if [ "$totem" = "1" ] #delete your temporary totem files, if they existed
+then
+    rm $totemtemp -rf
+fi
+
 
 ##To add:
 #1) Model testing (on training data itself, be sure to use set detrend to no
