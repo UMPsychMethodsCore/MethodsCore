@@ -34,11 +34,17 @@ totemtemp=/tmp/totems #Where to store your totem files/examples
 while [ "$1" != "" ]; do
     case $1 in
 	-t | --totem )	totem=1  #Operate in totem stacking mode
-			shift
+			#shift
 			#totemtemp=$1
 			echo Running in Totem Mode
 			;;
-	-c | --crossv )	crossv=1 #Will perform cross validation
+	-c | --crossv )	crossv=1;; #Will perform cross validation
+	-k | --kernel ) kernelmode=1 #Kernel has been specified
+			shift
+			kernel=$1
+			echo Kernel specified is $kernel
+			;;
+	-d | --directory ) shift ; svmdir=$1
 			
     esac
     shift
@@ -55,7 +61,11 @@ done
 
 filelist1=`cat filelist1`
 filelist2=`cat filelist2`
-svmdir=`cat svmdir`
+
+if [ -f svmdir ]
+then
+    svmdir=`cat svmdir`
+fi
 
 if [ ! -d $svmdir ]
 then
@@ -113,19 +123,27 @@ then
     maskrule="-nomodelmask"
 fi
 
-crossvrule=""
+crossvrule="-x 1"
 if [ "$crossv" = "1" ]
 then
     crossvrule="-x 1"
 fi
 
+if [ "$kernelmode" = "1" ] #if running in kernel mode
+then
+	kernelrule="-kernel $kernel"
+else
+	kernelrule="-bucket weightbucket"
+fi
+
 #Run your 3dsvm model
-3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D $maskrule -model model -bucket weightbucket $crossvrule
+3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D $maskrule -model model $kernelrule $crossvrule
 
 if [ "$totem" = "1" ] #delete your temporary totem files, if they existed
 then
     rm $totemtemp -rf
 fi
+
 
 
 ##To add:
