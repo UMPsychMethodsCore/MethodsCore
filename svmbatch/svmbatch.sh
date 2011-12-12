@@ -24,6 +24,8 @@ function totembatch {
 }
 
 
+
+
 #Parameter Processing
 
 totem=
@@ -38,7 +40,8 @@ while [ "$1" != "" ]; do
 			#totemtemp=$1
 			echo Running in Totem Mode
 			;;
-	-c | --crossv )	crossv=1;; #Will perform cross validation
+	-c | --crossv )	crossv=1;; #Will perform cross validation per SVM-light
+	-C | --CROSSV ) scrossv=1;; #will do super cross validation (per dan)
 	-k | --kernel ) kernelmode=1 #Kernel has been specified
 			shift
 			kernel=$1
@@ -58,7 +61,7 @@ done
 
 #Read in variable values from associated files
 
-
+function svm_prep {
 
 filelist1=`cat filelist1`
 filelist2=`cat filelist2`
@@ -73,6 +76,12 @@ then
     mkdir $svmdir
 fi
 
+}
+
+
+
+function totem_build {
+
 #if in totem mode
 
 if [ "$totem" == 1 ]; 
@@ -86,6 +95,9 @@ if [ "$totem" == 1 ];
 
 
 fi
+}
+
+function afni_build{
 
 #Build bucket files out of each of your conditions
 3dbucket -sessiondir $svmdir -prefixname bucket1 $filelist1
@@ -102,7 +114,9 @@ cd $svmdir
 
 #Convert your short bucket to be of type "time" (required by 3dsvm)
 3dTcat -prefix timeshortbucket shortbucket+orig
+}
 
+function label_build {
 #Build filelist by appending 1s or 2s to label file based on number in each class category
 
 for i in $filelist1
@@ -114,10 +128,14 @@ for i in $filelist2
 do
 echo 2 >> labels.1D
 done
+}
 
+function mask_build {
 #Build a mask (in the future we may want to learn more about these options, or allow for specification of a custom mask
 3dAutomask timeshortbucket+orig
+}
 
+function setrules {
 maskrule="-mask automask+orig"
 if [ "$totem" = "1" | "$nomodelmask" = "1" ]
 then
@@ -136,15 +154,58 @@ then
 else
 	kernelrule="-bucket weightbucket"
 fi
+}
 
+function svm_train {
 #Run your 3dsvm model
-3dsvm -trainvol timeshortbucket+orig -trainlabels labels.1D $maskrule -model model $kernelrule $crossvrule
+3dsvm \
+-trainvol timeshortbucket+orig\
+-trainlabels labels.1D\ 
+$maskrule -model \
+model \
+$kernelrule \
+$crossvrule
 
 if [ "$totem" = "1" ] #delete your temporary totem files, if they existed
 then
     rm $totemtemp -rf
 fi
 
+}
+
+
+function main {
+svm_prep
+totem_build
+afni_build
+label_build
+mask_build
+setrules
+svm_train
+}
+
+#Super looper down here?
+
+#main #If nothing special, just run it I guess?
+
+svmdir_orig=echo $svmdir
+filelist1_orig=echo "$filelist1"
+filelist2_orig=echo "$filelist2"
+
+biglist=`cat filelist1 filelist2`
+for file in $biglist
+do
+filename=`cat $file | sed -e 's:/:_:2g' `
+svmdir= echo $svmdir/$filename
+filelist1=`echo "$filelist1" | sed "/$file/ d" `
+filelist2=`echo "$filelist2" | sed "/$file/ d" `
+
+totem_build
+afni_build
+label_build
+mask_build
+setrules
+svm_train
 
 
 ##To add:
