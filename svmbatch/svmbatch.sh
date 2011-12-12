@@ -44,7 +44,8 @@ while [ "$1" != "" ]; do
 			kernel=$1
 			echo Kernel specified is $kernel
 			;;
-	-d | --directory ) shift ; svmdir=$1
+	-d | --directory ) shift ; svmdir=$1;;
+	--nomodelmask ) nomodelmask=1;;
 			
     esac
     shift
@@ -117,13 +118,13 @@ done
 #Build a mask (in the future we may want to learn more about these options, or allow for specification of a custom mask
 3dAutomask timeshortbucket+orig
 
-#maskrule="-mask automask+orig"
-if [ "$totem" = "1" ]
+maskrule="-mask automask+orig"
+if [ "$totem" = "1" | "$nomodelmask" = "1" ]
 then
     maskrule="-nomodelmask"
 fi
 
-crossvrule="-x 1"
+crossvrule=""
 if [ "$crossv" = "1" ]
 then
     crossvrule="-x 1"
