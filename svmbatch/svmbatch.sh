@@ -10,17 +10,17 @@ function totembatch {
     #Given a filelist, suffixlist, and totem directory, loop over
     #combinations of filelist and suffixlist, and build totems
 
-    totemsuf=`cat totem.suf`
-    
-    for  file in $1; do
-	totemlist=  #Clear the totemlist variable. This will hold the list of all the subfiles going into your totem
-	for suf in $totemsuf; do
-		totemlist=`echo $totemlist $file/$suf` #loop over suffixes, and build up the list of subfiles
-	done
-	newname=`echo $file | sed 's:/:_:2g'` #edit the filename to have underscores instead of slashes, it will keep the temp directory cleaner
-	fslmerge -z $totemtemp/$newname $totemlist  #use fsl to merge your subfiles in the z direction into totems
-	newname=
+totemsuf=`cat totem.suf`
+
+for  file in $1; do
+    totemlist=  #Clear the totemlist variable. This will hold the list of all the subfiles going into your totem
+    for suf in $totemsuf; do
+	totemlist=`echo $totemlist $file/$suf` #loop over suffixes, and build up the list of subfiles
     done
+    newname=`echo $file | sed 's:/:_:2g'` #edit the filename to have underscores instead of slashes, it will keep the temp directory cleaner
+    fslmerge -z $totemtemp/$newname $totemlist  #use fsl to merge your subfiles in the z direction into totems
+    newname=
+done
 }
 
 
@@ -33,27 +33,42 @@ crossv=
 totemtemp=/tmp/totems #Where to store your totem files/examples
 
 
+
+
+
+
 while [ "$1" != "" ]; do
     case $1 in
-	-t | --totem )	totem=1  #Operate in totem stacking mode
-			#shift
-			#totemtemp=$1
-			echo Running in Totem Mode
-			;;
-	-c | --crossv )	crossv=1;; #Will perform cross validation per SVM-light
-	-C | --CROSSV ) scrossv=1;; #will do super cross validation (per dan)
-	-k | --kernel ) kernelmode=1 #Kernel has been specified
-			shift
-			kernel=$1
-			echo Kernel specified is $kernel
-			;;
-	-d | --directory ) shift ; svmdir=$1;;
-	--nomodelmask ) nomodelmask=1;;
-			
+	-t | --totem )
+	    totem=1  #Operate in totem stacking mode
+	    #shift
+	    #totemtemp=$1
+	    echo Running in Totem Mode
+	    ;;
+	-c | --crossv )	
+	    crossv=1
+	    ;; #Will perform cross validation per SVM-light
+	-C | --CROSSV ) 
+	    scrossv=1
+	    ;; #will do super cross validation (per dan)
+	-k | --kernel ) 
+	    kernelmode=1 #Kernel has been specified
+	    shift
+	    kernel=$1
+	    echo Kernel specified is $kernel
+	    ;;
+	-d | --directory )
+	    shift
+	    svmdir=$1
+	    ;;
+	--nomodelmask ) 
+	    nomodelmask=1
+	    ;;
+
     esac
     shift
 done
-       
+
 
 ##Main Function
 
@@ -67,12 +82,12 @@ filelist1=`cat filelist1`
 filelist2=`cat filelist2`
 
 if [ -f svmdir ]
-then
+    then
     svmdir=`cat svmdir`
 fi
 
 if [ ! -d $svmdir ]
-then
+    then
     mkdir $svmdir
 fi
 
@@ -84,7 +99,7 @@ function totem_build {
 
 #if in totem mode
 
-if [ "$totem" == 1 ]; 
+if [ "$totem" == 1 ];
     then
     mkdir $totemtemp
     totembatch "$filelist1"
@@ -120,13 +135,13 @@ function label_build {
 #Build filelist by appending 1s or 2s to label file based on number in each class category
 
 for i in $filelist1
-do
-echo 1 >>labels.1D
+  do
+  echo 1 >>labels.1D
 done
 
 for i in $filelist2
-do
-echo 2 >> labels.1D
+  do
+  echo 2 >> labels.1D
 done
 }
 
@@ -138,36 +153,36 @@ function mask_build {
 function setrules {
 maskrule="-mask automask+orig"
 if [ "$totem" = "1" | "$nomodelmask" = "1" ]
-then
+    then
     maskrule="-nomodelmask"
 fi
 
 crossvrule=""
 if [ "$crossv" = "1" ]
-then
+    then
     crossvrule="-x 1"
 fi
 
 if [ "$kernelmode" = "1" ] #if running in kernel mode
-then
-	kernelrule="-kernel $kernel"
+    then
+    kernelrule="-kernel $kernel"
 else
-	kernelrule="-bucket weightbucket"
+    kernelrule="-bucket weightbucket"
 fi
 }
 
 function svm_train {
 #Run your 3dsvm model
 3dsvm \
--trainvol timeshortbucket+orig\
--trainlabels labels.1D\ 
+    -trainvol timeshortbucket+orig\
+    -trainlabels labels.1D\
 $maskrule -model \
-model \
-$kernelrule \
-$crossvrule
+    model \
+    $kernelrule \
+    $crossvrule
 
 if [ "$totem" = "1" ] #delete your temporary totem files, if they existed
-then
+    then
     rm $totemtemp -rf
 fi
 
@@ -194,20 +209,25 @@ filelist2_orig=echo "$filelist2"
 
 biglist=`cat filelist1 filelist2`
 for file in $biglist
-do
-filename=`cat $file | sed -e 's:/:_:2g' `
-svmdir= echo $svmdir/$filename
-filelist1=`echo "$filelist1" | sed "/$file/ d" `
-filelist2=`echo "$filelist2" | sed "/$file/ d" `
+  do
+  curdir=`echo $file | sed -e 's:/:_:2g' `
+  svmdir= echo $svmdir/$curdir
+  filelist1=`echo "$filelist1" | sed "/$file/ d" `
+  filelist2=`echo "$filelist2" | sed "/$file/ d" `
+  
+  echo "$svmdir"
+  echo "$filelist1"
+  echo "$filelist2"
 
-totem_build
-afni_build
-label_build
-mask_build
-setrules
-svm_train
+#   totem_build
+#   afni_build
+#   label_build
+#   mask_build
+#   setrules
+#   svm_train
+done
 
-
+  
 ##To add:
 #1) Model testing (on training data itself, be sure to use set detrend to no
 #2) Ability to automatically split examples into training and test set, and do cross validation randomly
