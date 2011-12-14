@@ -15,10 +15,6 @@ crossv=
 totemtemp=/tmp/totems #Where to store your totem files/examples
 
 
-
-
-
-
 while [ "$1" != "" ]; do
     case $1 in
 	-t | --totem )
@@ -56,34 +52,11 @@ done
 
 #FUNCTIONS
 
-function totem_build { #
-
-#if in totem mode
-
-if [ "$totem" == 1 ];
-    then
-    mkdir $totemtemp
-    totembatch "$filelist1"
-    totembatch "$filelist2"
-
-    filelist1= `hdr_append  `prepend $totemtemp  `slash_strip "$filelist1"` ` `
-    filelist2= `hdr_append  `prepend $totemtemp  `slash_strip "$filelist2"` ` `
-
-    #filelist1=`cat filelist1 | sed -e 's:/:_:2g' -e 's:^:/'$totemtemp: -e 's:$:.hdr:'` #Update the filelist to point to where the totem-ed files are
-    #filelist2=`cat filelist2 | sed -e 's:/:_:2g' -e 's:^:/'$totemtemp: -e 's:$:.hdr:'`
-
-
-fi
-}
 
 function totembatch { #Read totem.suf, mk totemtemp, assemble totems, update filelist to point to totems
-
 totemsuf=`cat totem.suf`
-
 mkdir $totemtemp
-
 function totem_build {
-
 for  file in $1; do
     totemlist=  #Clear totemlist. Holds names of files to go into totem
     newname= #Clear newname. Holds name of target totem
@@ -95,63 +68,23 @@ for  file in $1; do
     newname=
 done
 }
-
 totem_build $filelist1 #Quoting doesn't matter here for list ops
 totem_build $filelist2 #And function will not quote anyway
-
-filelist1=`hdr_append \`prepend $totemtemp \\\`slash_strip "$filelist1" \\\` \` `
+filelist1=`hdr_append \`prepend $totemtemp \\\`slash_strip "$filelist1" \\\` \` ` #update names to point at totems
 filelist2=`hdr_append \`prepend $totemtemp \\\`slash_strip "$filelist2" \\\` \` `
 }
 
 
-#Read in variable values from associated files
-
-function svm_prep { #Read in filelists, svmdir, totem.suf and make svmdir
-
-filelist1=`cat filelist1`
-filelist2=`cat filelist2`
-
-if [ -f svmdir ]
-    then
-    svmdir=`cat svmdir`
-fi
-
-if [ ! -d $svmdir ]
-    then
-    mkdir $svmdir
-fi
-
-if [ "$totem" = "1" ]; thhen    totemlist=  #Clear the totemlist variable. This will hold the list of all the subfiles going into your totem
-    for suf in $totemsuf;
-      do
-      totemlist=`echo $totemlist $file/$suf` #loop over suffixes, and build up the list of subfiles
-    done
-    newname=`echo $file | sed 's:/:_:2g'` #edit the filename to have underscores instead of slashes, it will keep the temp directory cleaner
-    fslmerge -z $totemtemp/$newname $totemlist  #use fsl to merge your subfiles in the z direction into totems
-    newname=
-    done
-}
-
-
-#Read in variable values from associated files
-
 function svm_prep { #Read in filelists, svmdir, and make svmdir
-
 filelist1=`cat filelist1`
 filelist2=`cat filelist2`
-
-if [ -f svmdir ]
-    then
+if [ -f svmdir ]; then
     svmdir=`cat svmdir`
 fi
 
-if [ ! -d $svmdir ]
-    then
+if [ ! -d $svmdir ]; then
     mkdir $svmdir
 fi
-
-
-
 }
 
 function slash_strip { #Strip all slashes off $1,prepend slash 
@@ -170,8 +103,8 @@ function hdr_strip { #Remove all instances of .hdr from $1
 echo "$1" | sed "s:.hdr::"
 }
 
-function afni_bucket_build { #Build converted bucket files from list $1
-3dbucket -sessiondir $svmdir -prefixname bucket$2 $1
+function afni_bucket_build { #Build converted bucket files from list $1, named $2
+3dbucket -sessiondir $svmdir -prefixname $2 $1
 }
 
 function afni_bucket_combine { #Combine buckets specified in $1, name them $2
@@ -251,14 +184,26 @@ fi
 function svm_train { #Train on timeshort labeled in $1
 #Run your 3dsvm model
 3dsvm \
-    -trainvol $1+orig\
-    -trainlabels labels.1D\
-    $maskrule -model \
-    model \
+    -trainvol $1+orig \
+    -trainlabels labels.1D \
+    $maskrule \
+    -model  model \
     $kernelrule \
     $crossvrule
 
 }
+
+function svm_batchtrain { #Based on curval of $filelists and $svmdir, does all the lifting
+afni_bucket_build "$filelist1" "bucket1"
+afni_bucket_build "$filelist2" "bucket2"
+afni_bucket_combine "bucket1 bucket2" "bucket"
+afni_bucket_short "bucket" "bucketshort"
+afni_bucket_time "bucketshort" "bucketshorttime"
+label_build
+set_train_rules
+svm_train "bucketshorttime"
+}
+
 
 function totem_clean { #delete your temporary totem files, if they existed
 if [ "$totem" = "1" ] 
@@ -269,60 +214,60 @@ fi
 }
 
 function set_test_rules { #Set rules for 3dsvm testing based on options
+echo You need to finish this one Dan
+}
 
-function svm_test { #Test model #1 against volume #2
+function svm_test { #Test model $1 against volume $2
 3dsvm \
-    -model $1 \
-    -testvol $2 \
+    -model $1+orig \
+    -testvol $2+orig \
     -predictions $pname\
     -nodetrend
 
 }
 
+function svm_batchtest { #Test model $1 against constructed volume based on hdrs in $2
+afni_bucket_build "$1" "testbucket"
+afni_bucket_short "testbucket" "testbucketshort"
+afni_bucket_time "testbucketshort" "testbucketshorttime"
+set_test_rukes
+svm_test $1 "testbucketshorttime"
+}
 
+function super_crossvalid { #no arguments. Performs LOO-CV manually, and saved predictions
+svmdir_orig=$svmdir
+filelist1_orig=$filelist1
+filelist2_orig=$filelist2
+
+biglist=`echo -e "$filelist1\n$filelist2"`
+for file in $filelist; do
+    echo "Now working on LOOCV for $file"
+    pname="pred" #this is the file predictions will get written to. file specific will be better
+    loodir=`hdr_strip \`slash_strip $file \` ` #Make file into a dirname
+    svmdir=`echo $svmdir_orig/LOOCV/$loodir   ` #build a dir from loodir and svmdir_orig
+    filelist1=`echo "$filelist1" | sed "\:$file: d" ` #remove $file from filelist1
+    filelist2=`echo "$filelist2" | sed "\:$file: d" ` #remove $file from filelist2
+    svm_batchtrain #train up a model based on the updated filelist and svmdir
+    svm_batchtest "model" "$file"
+done
 
 function main {
 svm_prep
 totem_build
-afni_build
-label_build
-mask_build
-setrules
-svm_train
+
+if [ "$CROSSV" != "1" ]; then
+    echo "Training one and only model"
+    svm_batchtrain
+else
+    echo "Entering Super Cross Validation Mode!"
+    super_crossvalid
+fi
+
 }
 
 
+main
 
-#Super looper down here?
-
-#main #If nothing special, just run it I guess?
-
-svm_prep
-
-svmdir_orig=$svmdir
-filelist1_orig="$filelist1"
-filelist2_orig="$filelist2"
-
-
-biglist=`echo -e "$filelist1\n$filelist1"` #Concatenate your two lists
-for file in $biglist
-  do
-  curdir=`hdr_strip \`slash_strip $file \` `
-  svmdir=`echo $svmdir_orig/$curdir`	
-  filelist1=`echo "$filelist1" | sed "\:$file: d" ` #Because our $file has tons of slashes, we use : as the delimeter
-  filelist2=`echo "$filelist2" | sed "\:$file: d" `
-  
-  echo "$svmdir"
-#  echo "$filelist1"
- # echo "$filelist2"
-
-#   totem_build
-#   afni_build
-#   label_build
-#   mask_build
-#   setrules
-#   svm_train
-done
 
 
 ##To add:
