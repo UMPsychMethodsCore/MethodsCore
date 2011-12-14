@@ -255,8 +255,8 @@ for file in $biglist; do
     loodir=`hdr_strip \`slash_strip $file \` ` #Make file into a dirname
     pname=`echo "$loodir" | sed 's:/::'`
     svmdir=`echo $svmdir_orig/LOOCV/$loodir   ` #build a dir from loodir and svmdir_orig
-    filelist1=`echo "$filelist1" | sed "\:$file: d" ` #remove $file from filelist1
-    filelist2=`echo "$filelist2" | sed "\:$file: d" ` #remove $file from filelist2
+    filelist1=`echo "$filelist1_orig" | sed "\:$file: d" ` #remove $file from filelist1
+    filelist2=`echo "$filelist2_orig" | sed "\:$file: d" ` #remove $file from filelist2
     svm_batchtrain #train up a model based on the updated filelist and svmdir
     svm_batchtest "model" "$file"
 done
