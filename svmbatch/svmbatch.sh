@@ -49,7 +49,6 @@ done
 
 
 
-
 #FUNCTIONS
 
 
@@ -104,7 +103,7 @@ echo "$1" | sed "s:.hdr::"
 }
 
 function afni_bucket_build { #Build converted bucket files from list $1, named $2
-3dbucket -sessiondir $svmdir -prefixname $2 $1
+3dbucket -sessiondir $svmdir -prefixname $2 $1 2>/dev/null
 }
 
 function afni_bucket_combine { #Combine buckets specified in $1, name them $2
@@ -166,7 +165,7 @@ function mask_build { #Build automask
 
 function set_train_rules { #Set rules for 3dsvm training based on options
 maskrule="-mask automask+orig"
-if [ "$totem" = "1" | "$nomodelmask" = "1" ]; then
+if [ "$totem" = "1" -o "$nomodelmask" = "1" ]; then
     maskrule="-nomodelmask"
 fi
 
@@ -227,7 +226,7 @@ function svm_test { #Test model $1 against volume $2
 }
 
 function svm_batchtest { #Test model $1 against constructed volume based on hdrs in $2
-afni_bucket_build "$1" "testbucket"
+afni_bucket_build "$2" "testbucket"
 afni_bucket_short "testbucket" "testbucketshort"
 afni_bucket_time "testbucketshort" "testbucketshorttime"
 set_test_rukes
@@ -239,23 +238,34 @@ svmdir_orig=$svmdir
 filelist1_orig=$filelist1
 filelist2_orig=$filelist2
 
+mkdir $svmdir_orig/LOOCV/
+
 biglist=`echo -e "$filelist1\n$filelist2"`
-for file in $filelist; do
+for file in $biglist; do
     echo "Now working on LOOCV for $file"
-    pname="pred" #this is the file predictions will get written to. file specific will be better
+    pname="$file" #this is the file predictions will get written to. file specific will be better
     loodir=`hdr_strip \`slash_strip $file \` ` #Make file into a dirname
+    pname=`echo "$loodir" | sed 's:/::'`
     svmdir=`echo $svmdir_orig/LOOCV/$loodir   ` #build a dir from loodir and svmdir_orig
     filelist1=`echo "$filelist1" | sed "\:$file: d" ` #remove $file from filelist1
     filelist2=`echo "$filelist2" | sed "\:$file: d" ` #remove $file from filelist2
     svm_batchtrain #train up a model based on the updated filelist and svmdir
     svm_batchtest "model" "$file"
 done
+}
 
 function main {
 svm_prep
-totem_build
 
-if [ "$CROSSV" != "1" ]; then
+if [ "$totem" = "1" ]; then
+    
+totem_build
+    
+fi
+
+
+
+if [ "$scrossv" != "1" ]; then
     echo "Training one and only model"
     svm_batchtrain
 else
