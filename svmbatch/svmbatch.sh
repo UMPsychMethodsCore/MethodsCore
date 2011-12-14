@@ -52,7 +52,7 @@ done
 #FUNCTIONS
 
 
-function totembatch { #Read totem.suf, mk totemtemp, assemble totems, update filelist to point to totems
+function totem_batch { #Read totem.suf, mk totemtemp, assemble totems, update filelist to point to totems
 totemsuf=`cat totem.suf`
 mkdir $totemtemp
 function totem_build {
@@ -259,7 +259,7 @@ svm_prep
 
 if [ "$totem" = "1" ]; then
     
-totem_build
+totem_batch
     
 fi
 
@@ -271,6 +271,12 @@ if [ "$scrossv" != "1" ]; then
 else
     echo "Entering Super Cross Validation Mode!"
     super_crossvalid
+fi
+
+if [ "$totem" = "1" ]; then
+    
+totem_clean
+    
 fi
 
 }
