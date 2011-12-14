@@ -56,7 +56,7 @@ function totem_batch { #Read totem.suf, mk totemtemp, assemble totems, update fi
 totemsuf=`cat totem.suf`
 mkdir $totemtemp
 function totem_build {
-for  file in $1; do
+  for  file in $1; do
     totemlist=  #Clear totemlist. Holds names of files to go into totem
     newname= #Clear newname. Holds name of target totem
     for suf in $totemsuf; do
@@ -67,10 +67,18 @@ for  file in $1; do
     newname=
 done
 }
-totem_build $filelist1 #Quoting doesn't matter here for list ops
-totem_build $filelist2 #And function will not quote anyway
-filelist1=`hdr_append \`prepend $totemtemp \\\`slash_strip "$filelist1" \\\` \` ` #update names to point at totems
-filelist2=`hdr_append \`prepend $totemtemp \\\`slash_strip "$filelist2" \\\` \` `
+totem_build "$filelist1" #Quoting here DOES matter. Otherwise it will take only first element as $1
+totem_build "$filelist2"
+
+
+filelist1=`slash_strip "$filelist1"`
+filelist1=`prepend $totemtemp "$filelist1"`
+filelist1=`hdr_append "$filelist1"`
+
+filelist2=`slash_strip "$filelist2"`
+filelist2=`prepend $totemtemp "$filelist2"`
+filelist2=`hdr_append "$filelist2"`
+
 }
 
 
@@ -229,7 +237,7 @@ function svm_batchtest { #Test model $1 against constructed volume based on hdrs
 afni_bucket_build "$2" "testbucket"
 afni_bucket_short "testbucket" "testbucketshort"
 afni_bucket_time "testbucketshort" "testbucketshorttime"
-set_test_rukes
+set_test_rules
 svm_test $1 "testbucketshorttime"
 }
 
