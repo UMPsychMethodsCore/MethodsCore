@@ -275,7 +275,8 @@ done
 function permutation_test { #will perfrom $1 permutations on data, writing out weight buckets at each step
 permute=1
 for i in `seq 1 $1`; do
-svmdir=`echo svmdir/perm$i`
+echo "Running permutation $i of $1"
+svmdir=`echo $svmdir/perms/$i`
 svm_batchtrain
 done
 
@@ -303,7 +304,8 @@ fi
 
 if [ "$permutationmode" = "1" ]; then
     echo "Entering permutation mode"
-    sbm_batchtrain
+    svm_batchtrain
+fi
 
 if [ "$totem" = "1" ]; then
     
