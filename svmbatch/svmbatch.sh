@@ -42,6 +42,9 @@ while [ "$1" != "" ]; do
 	--nomodelmask ) 
 	    nomodelmask=1
 	    ;;
+	-p | --permutation )
+	    permutationmode=1
+	    ;;
 
     esac
     shift
@@ -167,6 +170,10 @@ for i in $filelist2
 done
 }
 
+function label_permute { #Randomly permute the labels in a given label file
+for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]+//' > $1
+}
+
 function mask_build { #Build automask
 3dAutomask timeshortbucket+orig
 }
@@ -207,6 +214,9 @@ afni_bucket_combine "bucket1 bucket2" "bucket"
 afni_bucket_short "bucket" "bucketshort"
 afni_bucket_time "bucketshort" "bucketshorttime"
 label_build
+if [ "$permute" = "1" ]; then
+    label_permute labels.1D
+fi
 set_train_rules
 svm_train "bucketshorttime"
 }
@@ -262,6 +272,16 @@ for file in $biglist; do
 done
 }
 
+function permutation_test { #will perfrom $1 permutations on data, writing out weight buckets at each step
+permute=1
+for i in `seq 1 $1`; do
+svmdir=`echo svmdir/perm$i`
+svm_batchtrain
+done
+
+}
+
+
 function main {
 svm_prep
 
@@ -280,6 +300,10 @@ else
     echo "Entering Super Cross Validation Mode!"
     super_crossvalid
 fi
+
+if [ "$permutationmode" = "1" ]; then
+    echo "Entering permutation mode"
+    sbm_batchtrain
 
 if [ "$totem" = "1" ]; then
     
