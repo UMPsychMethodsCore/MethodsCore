@@ -95,6 +95,11 @@ fi
 if [ ! -d $svmdir ]; then
     mkdir $svmdir
 fi
+
+filelist1_orig="$filelist1"
+filelist2_orig="$filelist2"
+svmdir_orig="$svmdir"
+
 }
 
 function slash_strip { #Strip all slashes off $1,prepend slash 
@@ -171,7 +176,9 @@ done
 }
 
 function label_permute { #Randomly permute the labels in a given label file
-for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]+//' > $1
+for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]+//' > plabels.1D
+rm labels.1D
+mv plabels.1D labels.1D
 }
 
 function mask_build { #Build automask
@@ -215,6 +222,7 @@ afni_bucket_short "bucket" "bucketshort"
 afni_bucket_time "bucketshort" "bucketshorttime"
 label_build
 if [ "$permute" = "1" ]; then
+    cd $svmdir
     label_permute labels.1D
 fi
 set_train_rules
@@ -274,9 +282,11 @@ done
 
 function permutation_test { #will perfrom $1 permutations on data, writing out weight buckets at each step
 permute=1
+mkdir $svmdir/perms
 for i in `seq 1 $1`; do
 echo "Running permutation $i of $1"
-svmdir=`echo $svmdir/perms/$i`
+svmdir=`echo $svmdir_orig/perms/$i`
+mkdir $svmdir
 svm_batchtrain
 done
 
@@ -304,7 +314,7 @@ fi
 
 if [ "$permutationmode" = "1" ]; then
     echo "Entering permutation mode"
-    svm_batchtrain
+    permutation_test 100
 fi
 
 if [ "$totem" = "1" ]; then
