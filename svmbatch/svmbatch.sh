@@ -176,7 +176,7 @@ done
 }
 
 function label_permute { #Randomly permute the labels in a given label file
-for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]+//' > plabels.1D
+for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]\s+//' > plabels.1D
 rm labels.1D
 mv plabels.1D labels.1D
 }
@@ -287,9 +287,13 @@ for i in `seq 1 $1`; do
 echo "Running permutation $i of $1"
 svmdir=`echo $svmdir_orig/perms/$i`
 mkdir $svmdir
-svm_batchtrain
+cd $svmdir
+ln -s $svmdir_orig/bucketshorttime* .
+cp $svmdir_orig/labels.1D ./labels.1D
+label_permute labels.1D
+set_train_rules
+svm_train "bucketshorttime"
 done
-
 }
 
 
