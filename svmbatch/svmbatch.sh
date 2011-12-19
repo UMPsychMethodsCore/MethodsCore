@@ -44,6 +44,8 @@ while [ "$1" != "" ]; do
 	    ;;
 	-p | --permutation )
 	    permutationmode=1
+	    shift
+	    permcount=$1
 	    ;;
 
     esac
@@ -176,7 +178,7 @@ done
 }
 
 function label_permute { #Randomly permute the labels in a given label file
-for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]\s+//' > plabels.1D
+for i in `cat $1`; do echo "$RANDOM $i"; done | sort | sed -r 's/^[0-9]+//' > plabels.1D
 rm labels.1D
 mv plabels.1D labels.1D
 }
@@ -318,7 +320,7 @@ fi
 
 if [ "$permutationmode" = "1" ]; then
     echo "Entering permutation mode"
-    permutation_test 100
+    permutation_test $permcount
 fi
 
 if [ "$totem" = "1" ]; then
