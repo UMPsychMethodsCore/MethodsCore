@@ -10,6 +10,7 @@ Pp=spm_select('List',pdir,'[0-9].hdr+')
 
 %% Read in files
 th=spm_vol(Pt);
+cd(pdir);
 ph=spm_vol(Pp);
 
 tvol=spm_read_vols(th);
