@@ -2,13 +2,15 @@
 
 #A program to reorganize permutation test results from svmbatch for later processing
 
-permdir=  #String pointing to location of the permutation test directories
+permdir='/net/data4/MAS/SVM/FIR_6_10_perms/perms'  #String pointing to location of the permutation test directories
 
-targetdir= #where you want to put your files after conversion
+targetdir='/net/data4/MAS/SVM/FIR_6_10_perms/perms_analyze/' #where you want to put your files after conversion
 
 cd $permdir
 
 weights=`find -name "weight*HEAD"` #get a list of all your weight buckets
+
+mkdir $targetdir
 
 let "i=1"
 
