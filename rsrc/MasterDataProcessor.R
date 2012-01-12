@@ -121,32 +121,32 @@ if(flag==0){print('No Task Specified')} #Print an error message if you've define
 
 
 #Prune trials outside of scan time
-#if(!is.null(opts$Master$RunMaxDefault)){
-#  runmax=data.frame()
-#  for (i in 1:length(opts$Master$RunMaxDefault)){
-#    thing=unlist(strsplit(opts$Master$RunMaxDefault[[i]],'_'))
-#    run=thing[1]
-#    max=thing[2]
-#    runmax[i,1]=run
-#    runmax[i,2]=max
-#    rm(thing,run,max)
-#  }
-#  names(runmax)=c('Run','RunMaxTime')
-#  data=merge(data,runmax)
-#  rm(runmax)
-#}
+if(!is.null(opts$Master$RunMaxDefault)){
+  runmax=data.frame()
+  for (i in 1:length(opts$Master$RunMaxDefault)){
+    thing=unlist(strsplit(opts$Master$RunMaxDefault[[i]],'_'))
+    run=thing[1]
+    max=thing[2]
+    runmax[i,1]=run
+    runmax[i,2]=max
+    rm(thing,run,max)
+  }
+  names(runmax)=c('Run','RunMaxTime')
+  data=merge(data,runmax)
+  rm(runmax)
+}
 
-#if(!is.null(opts$Master$RunMaxFile)){
-#  setwd(inputdir) #set to input directory just in case
-#  frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
-#  if(!is.null(opts$Master$SubjectCatFields)) names(frameinfo)[grep('Subject',names(frameinfo))]='SubjectPreCat' #change the name of the subject field in the frame info file to match the protected one, if there were subject field concatenations performed
-#  names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
-#  data=merge(data,frameinfo,all.x=TRUE) #Merge in your runmax/frameinfo file with your subjects, retaining all edat rows (as these will fall back on the defaults)
-#  if(!is.null(opts$Master$RunMaxDefault)) data$RunMaxTime=ifelse(!is.na(data$RunMaxTime2),data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
-#}
+if(!is.null(opts$Master$RunMaxFile)){
+  setwd(inputdir) #set to input directory just in case
+  frameinfo=read.csv(opts$Master$RunMaxFile,stringsAsFactors=FALSE)
+  if(!is.null(opts$Master$SubjectCatFields)) names(frameinfo)[grep('Subject',names(frameinfo))]='SubjectPreCat' #change the name of the subject field in the frame info file to match the protected one, if there were subject field concatenations performed
+  names(frameinfo)[ncol(frameinfo)]='RunMaxTime2'
+  data=merge(data,frameinfo,all.x=TRUE) #Merge in your runmax/frameinfo file with your subjects, retaining all edat rows (as these will fall back on the defaults)
+  if(!is.null(opts$Master$RunMaxDefault)) data$RunMaxTime=ifelse(!is.na(data$RunMaxTime2),data$RunMaxTime2,data$RunMaxTime);data$RunMaxTime2=NULL
+}
 
 
-#data$RunMaxTime=as.numeric(data$RunMaxTime) #Coerce RunMax times to numerics, otherwise comparisons below are really weird
+data$RunMaxTime=as.numeric(data$RunMaxTime) #Coerce RunMax times to numerics, otherwise comparisons below are really weird
 #data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
 
 #Add your trial by trial regressors, if turned on
