@@ -200,6 +200,9 @@ if(!is.null(opts$Master$ParametricTrialDecaySlope) & opts$Master$ParametricTrial
   detach(data)
 }
 
+#Add a fixedduration of 0 column
+data$FixDur=0
+
 #Write the human readable version
 setwd(outdir) #change to the output directory
 write.csv(data,paste('FULL_',opts$Master$Masterdatafilename,sep=''),quote=FALSE,row.names=FALSE,na='NaN')
