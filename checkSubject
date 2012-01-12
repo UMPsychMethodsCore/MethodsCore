@@ -31,7 +31,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="fM"
+allowedOptions="fMv"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -74,10 +74,15 @@ do
 	do
 	    cd $RUN
 	    echo -n " $RUN"
-	    for OBJ in run prun aprun raprun arun rarun
+	    for OBJ in $volumeWILD 
 	    do
-		FILE=`ls  ${OBJ}_??.nii 2> /dev/null | wc | awk '{print $1}'`
-		echo -n " $FILE"
+		FILE=`ls  ${OBJ}_??.nii 2> /dev/null | wc | awk '{print $1}'`		
+		DIM4=`fslinfo ${OBJ}_??.nii 2> /dev/null | grep dim4 | grep -v pix | awk '{print $NF}'`
+		if [ -z "$DIM4" ]
+		    then
+		    DIM4=M
+		fi
+		echo -n " $FILE:$DIM4"
 	    done
 	    cd ../
 	done

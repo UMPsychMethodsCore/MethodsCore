@@ -90,6 +90,31 @@ do
 	    TARFILE=$coregPATH/${outputName}BET_${subjects[$is]}.tar
 	    echo tar -cvf $TARFILE $FILESTOTAR
 	    tar -cvf $TARFILE $FILESTOTAR
+	    #
+	    # Now find the best guess image that was calculated
+	    #
+	    FRAC=`head -1 ${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/BET/BET_threshold.txt | awk '{printf "%02d",$1}'`
+	    FRACIM=`ls ${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/BET/*frac_${FRAC}_*g*R.nii 2> /dev/null`
+	    if [ -z "$FRACIM" ]
+		then
+		echo
+		echo Missing expected image for calculated best guess
+		echo
+	    else
+		tar -rvf $TARFILE $FRACIM
+	    fi
+	    #
+	    # Now tar up the input file that was used.
+	    #
+	    INPUTIMG=`ls ${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/BET/*.nii 2> /dev/null | grep -v frac | grep -v fast | grep -v best`
+	    if [ -z "${INPUTIMG}" ]
+	    then
+		echo
+		echo Missing expected input image that was used.
+		echo
+	    else
+		tar -rvf $TARFILE $INPUTIMG
+	    fi
 	    echo
 	    echo
 	fi
