@@ -44,6 +44,7 @@ function [U] = spm_get_ons(SPM,s)
 % Karl Friston
 % $Id: spm_get_ons.m 3691 2010-01-20 17:08:30Z guillaume $
 
+global negtime
 
 % time units
 %--------------------------------------------------------------------------
@@ -84,6 +85,11 @@ catch
 
     U   = {};
     v   = spm_input('number of conditions/trials',2,'w1');
+end
+
+mintrial = 0;
+for zz=1:v
+    mintrial = min(mintrial,min(U(zz).ons));
 end
 
 % get trials
@@ -237,7 +243,17 @@ for i = 1:v
     %======================================================================
     ton       = round(ons*TR/dt) + 33;               % onsets
     tof       = round(dur*TR/dt) + ton + 1;          % offset
+    if mintrial < 0
+        if i==1 %Adjust k and calc negtime only if on the first trial type
+
+            negtime = -mintrial*TR/dt - 32;
+             k = k + (32 + negtime)*dt/2;  %Adjust scans to add space at bottom of design matrix
+        end
+        ton = ton + negtime;
+        tof = tof + negtime;
+    end
     sf        = sparse((k*T + 128),size(u,2));
+
     ton       = max(ton,1);
     tof       = max(tof,1);
     for j = 1:length(ton)
