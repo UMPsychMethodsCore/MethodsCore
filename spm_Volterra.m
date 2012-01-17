@@ -63,7 +63,7 @@ end
 
 % return if first order
 %---------------------------------------------------------------------------
-if exist('negtime')
+if exist('negtime') & negtime > 0
     X=X((negtime+1):end,:);
 end
 if V == 1, return, end
