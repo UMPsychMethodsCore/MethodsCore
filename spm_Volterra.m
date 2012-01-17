@@ -24,7 +24,7 @@ function [X,Xname,Fc] = spm_Volterra(U,bf,V)
 % Karl Friston
 % $Id: spm_Volterra.m 2021 2008-08-27 10:05:32Z volkmar $
 
-
+global negtime
 
 % 1st order terms
 %---------------------------------------------------------------------------
@@ -63,6 +63,9 @@ end
 
 % return if first order
 %---------------------------------------------------------------------------
+if exist('negtime')
+    X=X((negtime+1):end,:);
+end
 if V == 1, return, end
 
 % 2nd order terms
