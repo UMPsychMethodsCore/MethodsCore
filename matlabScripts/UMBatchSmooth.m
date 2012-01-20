@@ -127,6 +127,16 @@ spm_jobman('run_nogui',matlabbatch);
 
 results = toc;
 
+% Log the smoothing to the local target directory.
+
+SmoothingDirectory = fileparts(Images2Smooth(1,:));
+
+UMBatchLogProgress(SmoothingDirectory,sprintf( 'UMBatchSmooth : Smoothed images (%04d) : %s',size(Images2Smooth,1),Images2Smooth(1,:));
+
+if size(Images2Smooth,1) > 1
+  UMBatchLogProcess(SmoothingDirectory,sprintf('UMBatchSmooth : through image        : %s',Images2Smooth(end,:)));
+end
+
 fprintf('Smoothing done in %f seconds.\n\n\n',results);
 
 %

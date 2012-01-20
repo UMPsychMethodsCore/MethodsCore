@@ -25,6 +25,11 @@ fi
 
 echo "addpath ${UMBatchMaster}/$MATLABDIR"                                       >> ${FULLSCRIPTNAME}.sh
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "global UMBatchJobName"                                                     >> ${FULLSCRIPTNAME}.sh
+echo "global UMBatchProcessName"                                                 >> ${FULLSCRIPTNAME}.sh
+echo "UMBatchJobName     = '${SCRIPTMAME}'"                                      >> ${FULLSCRIPTNAME}.sh
+echo "UMBatchProcessName = '${thisCommand}'"                                     >> ${FULLSCRIPTNAME}.sh
+echo                                                                             >> ${FULLSCRIPTNAME}.sh
 echo "${SCRIPTNAME}"                                                             >> ${FULLSCRIPTNAME}.sh
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
 echo "exit"                                                                      >> ${FULLSCRIPTNAME}.sh

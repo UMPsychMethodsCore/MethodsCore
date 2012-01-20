@@ -134,6 +134,7 @@ do
 	    else
 		fslview ${IMG1} -l Copper -t .7 -b 0,2000 ${IMG2} -b 0,2000 ${IMG3} &
 	    fi
+	    logTheUMProcess fslCheck ${FULLSCRIPTNAME} ${IMG1} ${IMG2} ${IMG3}
 	else
 	    echo
 	    echo "    I can't find : ${IMG1}"

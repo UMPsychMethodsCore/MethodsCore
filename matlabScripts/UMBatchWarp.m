@@ -164,6 +164,12 @@ if DetermineParam == 1
 
       % We need to add the ",1" to the name for spm to handle
       % nifti/nifti_gz images.
+
+      % Pull out the directory 
+      
+      ParamImageDirectory = fileparts(ParamImage);
+      
+      % Need to indicate to SPM which frame to use.
       
       TemplateImage = [ TemplateImage ',1'];
       ParamImage    = [ParamImage ',1'];
@@ -199,6 +205,10 @@ if DetermineParam == 1
       
       spm_jobman('run_nogui',matlabbatch);
       
+      % Log that we finished this portion.
+      
+      UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchWarp : Determined parameter for : %s',ParamImage));
+    
     end
     clear matlabbatch
 end
@@ -238,6 +248,18 @@ if WriteImage == 1
       fprintf('Warping %d images like %s to voxel size %f\n',size(Images2Write,1),deblank(Images2Write(1,:)),VoxelSize);
 
       spm_jobman('run_nogui',matlabbatch);
+
+      % Log that we finished this portion.
+      
+      % Get the directory of the images that we warped.
+      
+      ImageDirectory = fileparts(Images2Write(1,:));
+      
+      UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : Warped images (%04d) : %s',size(Images2Write,1),Images2Write(1,:)));
+      
+      if size(Images2Write,1) > 1
+	UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : through image      : %s',Images2Write(end,:)));
+      end
       
     end
     clear matlabbatch

@@ -11,6 +11,11 @@ CS           = 0;
 
 % Does the sandbox even exist?
 
+% The tricky thing here is that if sourceVolume is a 4D file, then
+% we move the whole thing -- though we are only geared up for a
+% single file as we use "FILESTOMOVE(1)" below. Not sure on the
+% impact of other code? 
+
 if exist(SandBoxPID) == 7
   FILESTOMOVE=dir([sourceDir '/' sourceVolume '*.nii']);
   %

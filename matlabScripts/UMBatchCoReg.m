@@ -186,6 +186,12 @@ else
      
   spm_jobman('run_nogui',matlabbatch);
     
+  % Now write out a log to the subjects directory
+  
+  [objectDirectory dummy1 dummy2] = fileparts(ObjectImage);
+  
+  UMBatchLogProcess(objectDirectory,sprintf('UMBatchCoReg : %s -> %s',ObjectImage,TargetImage));
+  
 end
 
 %

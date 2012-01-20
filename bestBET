@@ -140,6 +140,8 @@ echo "    echo Couting segment voxels"                                          
 echo "    ${thisDir}/auxiliary/countMaskVoxels $BETGRADIENT $BETNAME"                        >> ${FULLSCRIPTNAME}.sh
 echo "    echo Finding BET threshold"                                                        >> ${FULLSCRIPTNAME}.sh
 echo "    ${thisDir}/BETthreshold"                                                           >> ${FULLSCRIPTNAME}.sh
+echo "    logTheUMProcess bestBET ${FULLSCRIPTNAME} $HIRESNAME $BETGRADIENT $BETNAME"        >> ${FULLSCRIPTNAME}.sh
+
 echo "done"                                                                                  >> ${FULLSCRIPTNAME}.sh
 echo "echo"                                                                                  >> ${FULLSCRIPTNAME}.sh
 echo "echo \" All done\""                                                                    >> ${FULLSCRIPTNAME}.sh

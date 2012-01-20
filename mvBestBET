@@ -170,6 +170,7 @@ do
 		cp ${IMG1} ${IMG2}
 	    done
 	    echo $FRAC > ${SUBJECTANATOMY}/BET/BET_threshold.txt
+	    logTheUMProcess mvBestBET ${FULLSCRIPTNAME} $HIRESNAME $FRAC ${BETNAME}
 	fi
     done
 done
