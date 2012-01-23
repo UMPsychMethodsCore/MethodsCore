@@ -21,6 +21,7 @@ data=within(data,{   #Calculate accuracy and trial duration within the data envi
   TrialDur=TrialDur/1000
   TrialTypeNumAccOnly=ifelse(Acc==1,TrialTypeNum,3) #Change inaccurate trials to be type 3
   TrialTypeNumAccOnly=ifelse(!is.na(TrialDur),TrialTypeNumAccOnly,4) #Change nonresponse trials to type 4
+  TrialDur=ifelse(Acc==1,TrialDur,NA) #For innaccurate trials, change duration to NA
 })
   
 
