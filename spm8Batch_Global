@@ -46,13 +46,13 @@ then
     
 # This is Robert Welsh's UNIX batch interface to spm8
     
-    SPM8B2=${topDIR}/spm8Batch
+    SPM8B2=${topDIR}/spm8Batch_V2.0.4
     
 # This must point to the place where the SPM8 patch is locally. 
     
-    SPM8B3=${topDIR}/spm8Batch/matlabScripts
+    SPM8B3=${topDIR}/spm8Batch_V2.0.4/matlabScripts
     
-    AUXPATH=${topDIR}/spm8Batch/spm8_patch
+    AUXPATH=${topDIR}/spm8Batch_V2.0.4/spm8_patch
     
 #
 # If the sandbox is populated then we copy files to local disk for processing

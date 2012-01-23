@@ -115,5 +115,7 @@ for sl=0:Nslices -1
     %
     % imagesc(squeeze([polynomial cph rph]))
 end
-save(saveFile,'PhysioMat','resp','filtered_resp','filtered_resp2','peakDelta','time');
+
+save(saveFile,'PhysioMat','resp','filtered_resp','filtered_resp2','peakDelta','card','time');
+
 return

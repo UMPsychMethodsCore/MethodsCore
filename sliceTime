@@ -143,7 +143,7 @@ echo "          then"                                                           
 echo "            FSLOUTPUTTYPE=NIFTI"                                                                >> ${FULLSCRIPTNAME}.sh
 echo "            echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} -r ${TR}  --tglobal=${TGLOBAL}\"">> ${FULLSCRIPTNAME}.sh
 echo "            slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} -r ${TR} --tglobal=${TGLOBAL}"          >> ${FULLSCRIPTNAME}.sh
-echo "            logTheUMProcess sliceTime ${FULLSCRIPTNAME} ${CURRRUN4D} ${outputName}\${CURRUN4D}"             >> ${FULLSCRIPTNAME}.sh
+echo "            logTheUMProcess sliceTime ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}"            >> ${FULLSCRIPTNAME}.sh
 echo "          else"                                                                                 >> ${FULLSCRIPTNAME}.sh
 echo "             echo \"Can't find a 4D ${volumeWILD}*.nii for this run \${CURRUN}\" "              >> ${FULLSCRIPTNAME}.sh
 echo "          fi"                                                                                   >> ${FULLSCRIPTNAME}.sh

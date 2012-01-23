@@ -255,10 +255,10 @@ if WriteImage == 1
       
       ImageDirectory = fileparts(Images2Write(1,:));
       
-      UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : Warped images (%04d) : %s',size(Images2Write,1),Images2Write(1,:)));
+      UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : Warped images (%04d) : %s -> %s',size(Images2Write,1),Images2Write(1,:),OutputName));
       
       if size(Images2Write,1) > 1
-	UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : through image      : %s',Images2Write(end,:)));
+	UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : through image        : %s',Images2Write(end,:)));
       end
       
     end

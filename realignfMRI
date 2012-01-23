@@ -162,10 +162,10 @@ echo "             if [ -e \"\${CURRUN4D}\" ] "                                 
 echo "             then"                                                                     >> ${FULLSCRIPTNAME}.sh
 echo "               CURRUN4D=\${CURRUN4D:0:\${#CURRUN4D}-4}"                                >> ${FULLSCRIPTNAME}.sh
 echo "               FSLOUTPUTTYPE=NIFTI"                                                    >> ${FULLSCRIPTNAME}.sh
-echo "               mcflirt -in \${CURRUN4D} -o r_mcflirt_\${CURRUN4D} -reffile \${REFFILE}.nii $mcOPT"   >> ${FULLSCRIPTNAME}.sh
-echo "               mv r_mcflirt_\${CURRUN4D}.par  mcflirt_realign_\${CURRUN4D}.dat"                      >> ${FULLSCRIPTNAME}.sh
-echo "               mv r_mcflirt_\${CURRUN4D}.nii  ${outputName}\${CURRUN4D}.nii"                         >> ${FULLSCRIPTNAME}.sh
-echo "               logTheUMProcess realignfMRI ${FULLSCRIPTNAME} ${CURRRUN4D} ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh
+echo "               mcflirt -in \${CURRUN4D} -o r_mcflirt_\${CURRUN4D} -reffile \${REFFILE}.nii $mcOPT"    >> ${FULLSCRIPTNAME}.sh
+echo "               mv r_mcflirt_\${CURRUN4D}.par  mcflirt_realign_\${CURRUN4D}.dat"                       >> ${FULLSCRIPTNAME}.sh
+echo "               mv r_mcflirt_\${CURRUN4D}.nii  ${outputName}\${CURRUN4D}.nii"                          >> ${FULLSCRIPTNAME}.sh
+echo "               logTheUMProcess realignfMRI ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh
 echo "             else"                                                                     >> ${FULLSCRIPTNAME}.sh
 echo "                echo \"Can't find a 4D ${volumeWILD}*.nii for this run \${CURRUN}\" "  >> ${FULLSCRIPTNAME}.sh
 echo "             fi"                                                                       >> ${FULLSCRIPTNAME}.sh

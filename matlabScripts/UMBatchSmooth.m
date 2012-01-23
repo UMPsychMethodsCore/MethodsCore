@@ -131,10 +131,10 @@ results = toc;
 
 SmoothingDirectory = fileparts(Images2Smooth(1,:));
 
-UMBatchLogProgress(SmoothingDirectory,sprintf( 'UMBatchSmooth : Smoothed images (%04d) : %s',size(Images2Smooth,1),Images2Smooth(1,:));
+UMBatchLogProcess(SmoothingDirectory,sprintf('UMBatchSmooth : Smoothed images (%04d) : %s -> %s',size(Images2Smooth,1),Images2Smooth(1,:),OutputName));
 
 if size(Images2Smooth,1) > 1
-  UMBatchLogProcess(SmoothingDirectory,sprintf('UMBatchSmooth : through image        : %s',Images2Smooth(end,:)));
+  UMBatchLogProcess(SmoothingDirectory,sprintf('UMBatchSmooth : through image          : %s',Images2Smooth(end,:)));
 end
 
 fprintf('Smoothing done in %f seconds.\n\n\n',results);
