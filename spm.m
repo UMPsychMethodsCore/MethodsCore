@@ -427,7 +427,7 @@ Modality = spm('CheckModality',Modality);
 
 %-Re-initialise, load defaults (from spm_defaults.m) and store modality
 %-----------------------------------------------------------------------
-clear global defaults
+% clear global defaults %Why clear it if already loaded?
 spm_get_defaults('modality',Modality);
 
 %-Addpath modality-specific toolboxes
