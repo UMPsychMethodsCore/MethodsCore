@@ -1,3 +1,18 @@
+%%Dan's Comments
+% Objects
+%   permD - permissibility matrix of driving inputs
+%   permC - permissibility matrix of fixed connectivity
+%   permM - permissibility matrix of modulatory connectivity
+%   allD  - cell array of length a x 1 where a = # of possible driving
+%   input configurations
+%   allC  - cell array of length b x 1 where b = # of poss connectivities
+%   allM  - cell array of length b x 1. Each cell will contain another cell
+%   array, size c* x 1 where c* is the number of possible modulatory
+%   connectivity configurations for a given fixed connectivity matrix
+%   (indexed by b)
+%   allDCM - cell array length 3 x (a * sum(c* over b))
+
+
 %%
 t=cputime;
 
