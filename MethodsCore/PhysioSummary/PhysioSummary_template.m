@@ -38,7 +38,7 @@ RunDir = {
 
 PhysioPathTemplate = '[*Exp]/Subjects/[*Subject]/Physio/run_0[*iRun]_physio.mat';
 
-%/net/data4/MAS/Subjects/5002/Tx1/Physio/run_01_physio.mat
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -50,7 +50,7 @@ OutputPathTemplate = '[*Exp]/Output/Physio/[*OutputName]';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects 
-%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
+%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = [runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
 

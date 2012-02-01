@@ -1,82 +1,25 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% GENERAL OPTIONS
-%%%	These options are the same between Preprocessing and First level
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The path to SPM on your system
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spmpath = '/usr/local/spm8';
+Exp = '/net/data4/MAS/';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List all your run directories
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The folder that contains your subject folders
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/data/BIEL/SIM/ScriptTest/';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Where to find each subjects functional data
-%%% InputDir is contstructed by /Exp/ImageLevel1/SubjDir/ImageLevel2/runDir/ImageLevel3/
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageLevel1 = 'Subjects/';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The path inside your subject folders where the functional runs are
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageLevel2 = '';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The path inside each run folder where the actual images are
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageLevel3 = '';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% A list of run folders where the script can find the images to use
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RunDir = {
-	'motorvis_1/';
-	'motorvis_2/';
-};
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The list of subjects to process
-%%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjDir = {
-'090613vs',1,[1 2];
-'090627eg',2,[1 2];
-       };
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The TR your data was collected at
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TR = 2;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, normalization, and smoothing (spm8 only)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-stp = 'a';
-rep = 'r';
-nop = 'w';
-smp = 's';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Preprocessing that has already been completed on images
-%%% [slicetime realign normalize smooth]
-%%% If you are only running First Level (i.e. Preprocessing is already done)
-%%% setting these will add the appropriate prefix to the basefile
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alreadydone = [1 1 1 1];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The  prefix of each functional file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'run';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Image Type should be either 'nii' or 'img'
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-imagetype = 'nii';
-
+RunDir = { 
+    
+  'run_01/';
+  'run_02/'
+  'run_03/'
+  'run_04/'
+  'run_05/'
+  'run_06/'
+         };
+     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
@@ -84,20 +27,113 @@ imagetype = 'nii';
 NumScan = [70 70]; 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where the motion correction parameter files are located
+%%
+%%  Variables you can use in your template are:
+%%   Exp = path to your experiment directory
+%%   iSubject = index for subject
+%%   Subject = name of subject from SubjDir (using iSubject as index of row)
+%%   iRun = index of run (listed in Column 3 of SubjDir)
+%%   Run = name of run from RunDir (using iRun as index of row)
+%%   
+%% Examples:
+%% MotionPathTemplate = '[*Exp]/Subjects/[*Subject]/func/[*Run]/realign.dat';
+%% MotionPathTemplate = '[*Exp]/Subjects/[*Subject]/TASK/func/run_0[*iRun]/rp_arun_[*iRun].txt'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+MotionPathTemplate = '[*Exp]/Subjects/[*Subject]/TASK/func/run_0[*iRun]/rp_arun_0[*iRun].txt';
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% MVMT COLLAPSE OPTIONS
-%%%	These options are only used for First Level processing
-%%%	Each of these values can be set to a constant value across models
-%%%	Or it can be reset within each model to be a different value
+%%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+OutputName = 'MAS_motionregressors';
+OutputPathTemplate = '[*Exp]/MasterData/[*OutputName]';
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Location of the regressor CSV file
-%%% RegFile is created by /Exp/RegLevel1/RegLevel2.csv
+%%% The list of subjects to process
+%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegLevel1 = 'MasterData/';
-RegLevel2 = 'MOTORVIS_regressors';
+SubjDir = {
+
+'5001/Tx1',50011,[1],[215 235], 0;
+ '5002/Tx1',50021,[1],[225 240], 0;
+'5003/Tx1',50031,[1], [225 240], 0;
+'5004/Tx1',50041,[1], 0, 0;
+'5005/Tx1',50051,[1 ], 0, 0;
+%%%%%%%'5008/Tx1',50081,[1 2], 0, 0;
+'5010/Tx1',50101,[1], 0, 0;
+'5011/Tx1',50111,[1], 0, 0;
+'5012/Tx1',50121,[1], 0, 0;
+%%%%%%%%%%%'5013/Tx2',50132,[1 2], 0, 0;
+'5014/Tx1',50141,[1], 0, 0;
+'5015/Tx1',50151,[1], 0, 0;
+'5016/Tx1',50161,[1], 0, 0;
+'5017/Tx1',50171,[1], 0, 0;
+'5018/Tx1',50181,[1], 0, 0;
+'5019/Tx1',50191,[1], 0, 0;
+'5020/Tx1',50201,[1], 0, 0;
+'5021/Tx1',50211,[1], 0, 0;
+'5023/Tx1',50231,[1], 0, 0;
+'5024/Tx1',50241,[1], 0, 0;
+'5025/Tx1',50251,[1], 0, 0;
+'5026/Tx1',50261,[1], 0, 0;
+'5028/Tx1',50281,[1], 0, 0;
+'5029/Tx1',50291,[1], 0, 0;
+'5031/Tx1',50311,[1], 0, 0;
+'5032/Tx1',50321,[1], 0, 0;
+% % '5034/Tx2',50232,[1], 0, 0;
+% % '5035/Tx2',50241,[1], 0, 0;
+% % '5036/Tx2',50252,[1], 0, 0;
+% % '5037/Tx2',50262,[1], 0, 0;
+% % '5038/Tx2',50281,[1], 0, 0;
+% % '5040/Tx1',50291,[1], 0, 0;
+% % '5041/Tx2',50311,[1], 0, 0;
+% % '5042/Tx2',50321,[1], 0, 0;  
+% 
+% 
+% '5001/Tx2',50012,[1],[215 235], 0;
+%  '5002/Tx2',50022,[1],[225 240], 0;
+% '5003/Tx2',50032,[1], [225 240], 0;
+% '5004/Tx2',50042,[1], 0, 0;
+% '5005/Tx2',50052,[1], 0, 0;
+% %%%%%%%'5008/Tx1',50081,[1], 0, 0;
+% '5010/Tx2',50102,[1], 0, 0;
+% '5011/Tx2',50112,[1], 0, 0;
+% '5012/Tx2',50122,[1], 0, 0;
+% %%%%%%%%%%%'5013/Tx2',50132,[1], 0, 0;
+% '5014/Tx2',50142,[1], 0, 0;
+% '5015/Tx2',50152,[1], 0, 0;
+% '5016/Tx2',50162,[1], 0, 0;
+% '5017/Tx2',50172,[1], 0, 0;
+% '5018/Tx2',50182,[1], 0, 0;
+% '5019/Tx2',50192,[1], 0, 0;
+% '5020/Tx2',50202,[1], 0, 0;
+% '5021/Tx2',50212,[1], 0, 0;
+% '5023/Tx2',50232,[1], 0, 0;
+% '5024/Tx2',50242,[1], 0, 0;
+% '5025/Tx2',50252,[1], 0, 0;
+% '5026/Tx2',50262,[1], 0, 0;
+% '5028/Tx2',50282,[1], 0, 0;
+% '5029/Tx2',50292,[1], 0, 0;
+% '5031/Tx2',50312,[1], 0, 0;
+% '5032/Tx2',50322,[1], 0, 0;
+% % '5034/Tx2',50232,[1], 0, 0;
+% % '5035/Tx2',50241,[1], 0, 0;
+% % '5036/Tx2',50252,[1], 0, 0;
+% % '5037/Tx2',50262,[1], 0, 0;
+% % '5038/Tx2',50281,[1], 0, 0;
+% % '5040/Tx1',50291,[1], 0, 0;
+% % '5041/Tx2',50311,[1], 0, 0;
+% % '5042/Tx2',50321,[1], 0, 0; 
+   };
+   
 
 
 
@@ -106,6 +142,5 @@ RegLevel2 = 'MOTORVIS_regressors';
 
 
 
-
-addpath(pwd);
+addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/MotionRegressors/
 MVMT_collapse_central
