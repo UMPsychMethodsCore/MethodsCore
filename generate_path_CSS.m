@@ -37,6 +37,7 @@ for k=1:length(varargin)
 end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
+<<<<<<< HEAD
 
 
 indexstar=strfind(OutputTemplate,'*');
@@ -54,5 +55,6 @@ if indexstar>0 %% if there is a wildcard
     end %% case staement
 end %% if statement
 pizza=1;
+
 
 end
