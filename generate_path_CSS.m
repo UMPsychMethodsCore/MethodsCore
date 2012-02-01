@@ -37,7 +37,18 @@ OutputTemplate=horzcat(OutputTemplate,TemplatePart{k},varargin{k});
 end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
-
-test=1;
+clear filelist
+filelist=dir(OutputTemplate); %%% this returns the list of files matching the template. Allows wildcards.
+switch length(filelist)
+    case 0
+        pizza=1;
+    case 1
+        [OutputDir OutputName]=fileparts(OutputTemplate);
+        OutputTemplate = [OutputDir,filelist(1).name];
+    otherwise
+        error('Error -- found more than 1 file. Please look at your use of wildcards');
+end
+        
+ pizza=1;       
 %template = strrep(template, ['[' k ']'], varargin{k});
 end
