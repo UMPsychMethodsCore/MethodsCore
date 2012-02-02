@@ -1,4 +1,4 @@
-
+addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts   %%%% this is for generate_path_CSS
 
 display ('-----')
 OutputPathFile = generate_path_CSS(OutputPathTemplate,Exp);
@@ -11,7 +11,7 @@ display ('-----')
 
 
 
-addpath /net/dysthymia/matlabScripts/  %%%% this is for generate_path_CSS
+
 
 clear CombinedOutput
 clear MotionPath

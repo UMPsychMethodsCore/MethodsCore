@@ -1,5 +1,5 @@
 function OutputStrings=generate_strings_CSS(Template, varargin)
-Template2=strrep(Template,'*','');
+Template2=Template;
 
 index1=strfind(Template2,'[');
 index2=strfind(Template2,']');
