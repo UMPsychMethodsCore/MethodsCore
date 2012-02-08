@@ -63,6 +63,20 @@ functionalDIR = pwd;
 cd(physioDIR)
 physioDIR=pwd;
 
+%Parse the runlist
+
+if (strcmp(UMRunList,'ALLRUNS'))
+    targetruns{1}=-1; %set targetruns to -1 as a flag to do all runs
+else
+    targetruns=regexp(UMRunList,'[0-9]+','match'); %parse the UMRunList object
+    for i=1:length(targetruns)
+        if(length(targetruns{i})==1) %add leading 0's to single digit targetrun objects
+            targetruns{i}=['0' targetruns{i}];
+        end
+    end
+end
+
+
 cd(functionalDIR);
 
 if exist(fullfile(physioDIR,[physioFILE physioEXT])) == 0
@@ -103,6 +117,24 @@ if yRUN == 0
     nRUNS = nRUNS + 1;
     physioInfo{nRUNS} = runINFO;
 end
+
+%Prune the objects in physio.log to correspond with indicated runs, if
+%targeting certain runs
+newphysioInfo=[];
+if(targetruns{1}~=-1)
+    for i=1:length(physioInfo) %Loop over physioInfo, only retain those that are in targetruns
+        if(sum(cell2mat(regexp(physioInfo{i}(1,:),targetruns)))>0)
+            newphysioInfo{end+1}=physioInfo{i};
+        end
+    end
+    physioInfo=newphysioInfo;
+    nRUNS=length(physioInfo); %update nRUNS based on the pruned list
+    if(length(physioInfo)==0)
+        fprintf(['No runs available for preprocessing for this subject'])
+        return
+    end
+end
+
 
 NPHYSPERRUN = [];
 
@@ -155,11 +187,7 @@ cd (functionalDIR);
 
 RUNDIRS = dir('run_*');
 
-if length(RUNDIRS) ~= nRUNS
-  fprintf('Number of runs (%d) found does not match the number of runs in the physio log file %s\n',length(RUNDIRS),physioFILE);
-  fprintf('ABORTING\n\n');  
-  return
-end
+
 
 % Now see if the names match up?
 
@@ -180,25 +208,25 @@ if sum(RUNFOUND) ~= nRUNS
 end
    
 %
-% Ok, so far so good. Now we make sure there is a run in each run directory.
+% Ok, so far so good. Now we make sure there is a run in each targeted run directory.
 % 
 
-for iRUN = 1:length(RUNDIRS)
-  cd (functionalDIR)
-  if RUNDIRS(iRUN).isdir
-    cd(RUNDIRS(iRUN).name)
-    RUNFILE=dir([UMVolumeWILD '*.nii']);
-    if length(RUNFILE) ~= 1
-      fprintf('Too many run files (%d) found in %s\n',length(RUNFILE),RUNDIRS(iRUN).name);
-      fprintf('ABORTING\n\n');  
-      return
+for iRUN = 1:length(physioInfo)
+    try
+        cd (strtrim(physioInfo{iRUN}(1,:)))
+        RUNFILE=dir([UMVolumeWILD '*.nii']);
+        if length(RUNFILE) ~= 1
+            fprintf('Too many or too few run files (%d) found in %s\n',length(RUNFILE),RUNDIRS(iRUN).name);
+            fprintf('ABORTING\n\n');
+            return
+        end
+        cd (functionalDIR)
+    catch
+        fprintf('Name issue with %s, not a directory.\n',physioInfo{iRUN}(1,:));
+        fprintf('ABORTING\n\n');
+        return
     end
-  else
-    fprintf('Name issue with %s, not a directory.\n',RUNDIRS(iRUN));
-    fprintf('ABORTING\n\n');  
-    return
-  end
-end      
+end
 
 %
 % All in line now.
