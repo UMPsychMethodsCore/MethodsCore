@@ -192,6 +192,16 @@ else
   
   UMBatchLogProcess(objectDirectory,sprintf('UMBatchCoReg : %s -> %s',ObjectImage,TargetImage));
   
+  % Now log the other images that are coreged as well.
+  
+  if length(OtherImages) > 0      
+    for iO = 1:length(OtherImages)
+      if length(OtherImages{iO}) > 0
+	UMBatchLogProcess(objectDirectory,sprintf('UMBatchCoReg : %s -> %s',OtherImages{iO},TargetImage));
+      end
+    end	  
+  end
+  
 end
 
 %
