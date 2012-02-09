@@ -140,6 +140,24 @@ if(targetruns{1}~=-1)
     end
 end
 
+%Check to ensure that the same run is not specified twice. More of a safeguard against typos
+
+pRUNFOUND = zeros(nRUNS,1)
+
+for iRun = 1:nRUNS
+    for jRun = 1:nRUNS
+        if strcmp(strtrim(physioInfo{iRUN}(1,:),strtrim(physioInfo{jRUN}(1,:))))
+            pRUNFOUND(iRUN) = pRUNFOUND(iRUN) + 1
+        end
+    end
+end
+
+if sum(pRUNFOUND) ~= nRUNS
+    fprintf('Some runs may be specified more than once in the physio log file. Are you sure you haven''t made a typo?\n')
+    fprintf('ABORTING\n\n');  
+    return
+end
+
 
 NPHYSPERRUN = [];
 
