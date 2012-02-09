@@ -69,11 +69,14 @@ if (strcmp(UMRunList,'ALLRUNS'))
     targetruns{1}=-1; %set targetruns to -1 as a flag to do all runs
 else
     targetruns=regexp(UMRunList,'[0-9]+','match'); %parse the UMRunList object
+    % Force all run number strings to be 2-digit number as a string
+    % - RCWelsh 2012-02-09
     for i=1:length(targetruns)
-        if(length(targetruns{i})==1) %add leading 0's to single digit targetrun objects
-            targetruns{i}=['0' targetruns{i}];
-        end
+      targetruns{i} = sprintf('%02d',str2num(targetruns{i}));
     end
+      %if(length(targetruns{i})==1) %add leading 0's to single digit targetrun objects
+      %      targetruns{i}=['0' targetruns{i}];
+      %  end
 end
 
 
@@ -130,8 +133,10 @@ if(targetruns{1}~=-1)
     physioInfo=newphysioInfo;
     nRUNS=length(physioInfo); %update nRUNS based on the pruned list
     if(length(physioInfo)==0)
-        fprintf(['No runs available for preprocessing for this subject'])
-        return
+      fprintf('* * * * FATAL ERROR * * * * \n');
+      fprintf(['No runs available for preprocessing for this subject'])
+      fprintf('ABORTING\n\n');
+      return
     end
 end
 
@@ -154,9 +159,10 @@ fprintf('\n');
 % know what to do if different.
 
 if any(NPHYSPERRUN - NPHYSPERRUN(1))
-    fprintf('Different phys log files per run, not programmed for that!\n');
-    fprintf('ABORTING\n\n');
-    return
+  fprintf('* * * * FATAL ERROR * * * * \n');
+  fprintf('Different phys log files per run, not programmed for that!\n');
+  fprintf('ABORTING\n\n');
+  return
 end
 
 % If two phys files per then we have to assume that one is the cardiac and
@@ -174,6 +180,7 @@ end
 for iRUN = 1:nRUNS
   for iLINE = 2:size(physioInfo{iRUN},1)
     if exist(fullfile(physioDIR,strtrim(physioInfo{iRUN}(iLINE,:)))) == 0
+      fprintf('* * * * FATAL ERROR * * * * \n');
       fprintf('Can''t find physio file %s in %s\n',strtrim(physioInfo{iRUN}(iLINE,:)),physioDIR);
       fprintf('ABORTING\n\n');  
       return
@@ -189,13 +196,13 @@ RUNDIRS = dir('run_*');
 
 
 
-% Now see if the names match up?
+% Now see if the names match up? and that run_* is a directory.
 
 RUNFOUND = zeros(nRUNS,1);
 
 for iRUN = 1:nRUNS
   for jRUN = 1:length(RUNDIRS)
-    if strcmp(strtrim(physioInfo{iRUN}(1,:)),strtrim(RUNDIRS(jRUN).name))
+    if strcmp(strtrim(physioInfo{iRUN}(1,:)),strtrim(RUNDIRS(jRUN).name)) & RUNDIRS(jRUN).isdir
       RUNFOUND(iRUN) = 1;
     end
   end
