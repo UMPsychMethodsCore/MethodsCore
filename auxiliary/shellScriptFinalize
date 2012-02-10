@@ -31,6 +31,11 @@ echo "# Command was built while in the directory:"                              
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 echo "# ${execDIR}"                                                                    >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
+
+BATCHVERSION=`cat ${thisDir}/.spm8BatchVersion`
+
+echo "# spm8Batch Version : ${BATCHVERSION}"                                           >> ${FULLSCRIPTNAME}.sh
+echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 echo "# All done"                                                                      >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 
