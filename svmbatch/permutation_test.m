@@ -1,27 +1,29 @@
-function [Y] = permutation_test(Pt,pdir,name)
+%function [Y] = permutation_test(Pt,Pdir,name)
 % Calculate nonparametric distributions based on svm permutation tests
 % Pt   - filename of weight vector from real model
 % Pdir - file directory in which to search for results of permutation test
 % img/hdr pairs
-% name - string of name to write out
+% name - string of name to write out (without .img extension)
 
 %% Make list of files
-Pp=spm_select('List',pdir,'[0-9].hdr+')
+Pp=spm_select('List',Pdir,'[0-9]+\.hdr');
 
 %% Read in files
 th=spm_vol(Pt);
-cd(pdir);
-ph=spm_vol(Pp);
-
 tvol=spm_read_vols(th);
-pvol=spm_read_vols(ph);
 
+
+cd(Pdir);
+ph=spm_vol(Pp);
+pvol=spm_read_vols(ph);
+cd ..
 
 %% Create dumping space for comparisons
 
 rvol=zeros(size(tvol));
 rh=th;
-rh.fname=name;
+rh.fname=[name '.img'];
+rh.descrip='SPM{T_[10000000]}';
 
 %% Loop over dimensions
 
@@ -47,6 +49,29 @@ for i=1:size(rvol,1), for j=1:size(rvol,2), for k=1:size(rvol,3)
             if tvol(i,j,k)==0, rvol(i,j,k)=0; end
         end,end,end
 
-%% Write out the resulting p values
+%% Replace Inf and -Inf values with prior min and max, respectively
+% rvol(find(rvol==Inf))=max(rvol(~isinf(rvol)));
+% rvol(find(rvol==-Inf))=min(rvol(~isinf(rvol)));
 
-rvol=spm_write_vol(rh,rvol);
+rvol(find(rvol==Inf))=norminv((1-1/size(pvol,4)));
+rvol(find(rvol==-Inf))=norminv((1/size(pvol,4)));
+
+%Fix the origin for 
+
+rh.mat(:,4)=[-81 -115 -53 1];
+
+
+%% Write out the resulting p values in one giant file
+spm_write_vol(rh,rvol);
+
+%%Slice up the file into its sub-totems, and write them out separately from
+%%bottom up
+
+for i=1:(th.dim(3)/46)
+    cth_range=[1:46] + (i-1)*46;
+    cth=rh;
+    cth.fname=sprintf('%s%s%s%.3d%s',pwd,'/', name ,i,'.img');
+    cth.dim(3)=[46];
+    ctvol=rvol(:,:,cth_range);
+    spm_write_vol(cth,ctvol);
+end

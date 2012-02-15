@@ -2,9 +2,25 @@
 
 #A program to reorganize permutation test results from svmbatch for later processing
 
-permdir='/net/data4/MAS/SVM/FIR_6_10_perms/perms'  #String pointing to location of the permutation test directories
 
-targetdir='/net/data4/MAS/SVM/FIR_6_10_perms/perms_analyze/' #where you want to put your files after conversion
+#Parameter Processing
+
+while [ "$1" != "" ]; do
+    case $1 in
+	-p)
+	    shift
+	    permdir=$1
+	    
+	    ;;
+	-t)
+	    shift
+	    targetdir=$1
+	    ;;
+	*)
+	    
+    esac
+    shift
+done
 
 cd $permdir
 
@@ -15,6 +31,7 @@ mkdir $targetdir
 let "i=1"
 
 for w in $weights; do
-    3dAFNItoANALYZE -4D $targetdir/$i $w
+    3dAFNItoANALYZE -4D $targetdir/$i $w >/dev/null
+    echo "Converting file $i"
     let "i=$i+1"
 done
