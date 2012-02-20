@@ -67,26 +67,25 @@ permM(:,:,1)=[0,2,0,1,0;1,0,0,0,0;0,1,0,0,0;0,0,2,0,1;0,0,0,1,0];
 permM(:,:,2)=[0,2,1,1,0;1,1,0,0,1;0,1,2,0,2;0,0,2,0,1;2,0,0,1,0];
 %------define modulatory matrices for each connectivity matrices
 %------store all modu mats for the ith conn mat in allM{i}
-% ModuCell=cell(1,npM);
-% 
-% for i = 1 : nC
-%     ModuClean=permM.*squeeze(allC(:,:,i));
-%     allM{i}=permutation(ModuClean);
-% end
-
 [npMrow, npMcolm,npM]=size(permM);
+%ModuCell=cell(1,npM);
 
-%get permutation for each modulatory input and extract how many
-%permutations for each modulatory input
-for n=1:npM
-    permM2D=permM(:,:,n);
-    permMall{n}=permutation(permM2D);       %get permutation for each modulatory input
-    [a,b,nM2D(n)]=size(permMall{n});
+
+for i = 1 : nC
+    %make mask of C, 5*5, repeat 2 times, = 5*10
+    maskC=repmat(squeeze(allC(:,:,i)),[1,npM]);
+    %flat M, to 5*10
+    flatM=reshape(permM,[npMrow, npMcolm*npM,1]);
+    %clean M
+    ModuClean=flatM.*maskC;
+    %change M back to 5*5*2
+    ModuClean3D=reshape(ModuClean,[npMrow, npMcolm,npM]);
+    %put M according to each C to each cell of cell array
+    allM{i}=permutation3D(ModuClean3D);
 end
 
 
-for n=1:npM
-    for i=1:
+
 
 %%
 
