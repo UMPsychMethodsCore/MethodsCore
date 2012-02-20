@@ -18,9 +18,10 @@ function [PermuMat]=permutation (InputMat)
     
 %implement permutation(get every possible permutation)
 %define # of rows and # of cols
-[nrow, ncol]=size(InputMat);
+dim=size(InputMat);
+dimensioncol=repmat(':,',1,size(dim,2));  %':,:,:,...' 
 
-%!!!!!!!etract must be's
+%!!!!!!!extract must be's
 InputMatPermuDef=(InputMat==2);    
 
 %list all situation for could be's 
@@ -32,21 +33,28 @@ ind=repmat(find(InputMatPos)',2^nposs,1);
 InputPermuMask=InputPermuMask.*ind;
 
 
-a=zeros(nrow,ncol);
-InputMatPermuPos=zeros(nrow,ncol,2^nposs);
-InputMatPermuPos(:,:,1)=a;
-for i=2:2^nposs
-    a=zeros(nrow,ncol);
-    pos=InputPermuMask(i,:);
-    a(pos(pos>0))=1;
-    InputMatPermuPos(:,:,i)=a;
+a=zeros([dim]);
+InputMatPermuPos=zeros([[dim] 2^nposs]);
+dimensioncol=repmat(':,',1,size(dim,2));
+eval(['InputMatPermuPos(' dimensioncol '1)=a;']);
+if nposs>1
+    for i=2:2^nposs
+        a=zeros([dim]);
+        pos=InputPermuMask(i,:);
+        a(pos(pos>0))=1;
+
+        eval(['InputMatPermuPos(' dimensioncol 'i)=a;']);
+    end
 end
 
 
 %define whole Inputection permutation matrix, 2^nposs in total
-PermuMat=zeros(nrow,ncol,2^nposs);
+PermuMat=zeros([[dim] 2^nposs]);
 for i=1:2^nposs
-    PermuMat(:,:,i)=squeeze(InputMatPermuPos(:,:,i))+InputMatPermuDef;
+    %dimensioncol=repmat(':,',1,size(dim,2));
+    eval(['InputMatPermuPos(' dimensioncol 'i)=squeeze(InputMatPermuPos(' dimensioncol 'i))+InputMatPermuDef;']);
+
+   % PermuMat(:,:,i)=squeeze(InputMatPermuPos(:,:,i))+InputMatPermuDef;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%END HERE%%%%%%%%%%%%%%%%%%%%%%

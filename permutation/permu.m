@@ -17,7 +17,7 @@
 clear all
 clc
 
-t=cputime;
+%t=cputime;
 
 %define nodes
 nnodes=5;       %# of nodes
@@ -26,7 +26,8 @@ nnodes=5;       %# of nodes
 %----                      DRIVING                 ------
 %--------------------------------------------------------
 %define driving vector
-permD=[2,1,0,0,1]';
+%permD=[2,1,0,0,1]';
+permD=[2,1,0,0,1;2,2,1,0,0]';
 
 %---------    define driving permutation vector   -------
 %---------           defined as 'allD'         -----
@@ -61,15 +62,32 @@ allC=permutation (permC);
 %----                   MODULATORY                 ------
 %--------------------------------------------------------
 %-----------       define modulatory matrix    --------
-permM=[0,2,0,1,0;1,0,0,0,0;0,1,0,0,0;0,0,2,0,1;0,0,0,1,0];
-
+%permM=[0,2,0,1,0;1,0,0,0,0;0,1,0,0,0;0,0,2,0,1;0,0,0,1,0];
+permM(:,:,1)=[0,2,0,1,0;1,0,0,0,0;0,1,0,0,0;0,0,2,0,1;0,0,0,1,0];
+permM(:,:,2)=[0,2,1,1,0;1,1,0,0,1;0,1,2,0,2;0,0,2,0,1;2,0,0,1,0];
 %------define modulatory matrices for each connectivity matrices
 %------store all modu mats for the ith conn mat in allM{i}
-ModuCell=cell (1,nC);
-for i = 1 : nC
-    ModuClean=permM.*squeeze(allC(:,:,i));
-    allM{i}=permutation(ModuClean);
+% ModuCell=cell(1,npM);
+% 
+% for i = 1 : nC
+%     ModuClean=permM.*squeeze(allC(:,:,i));
+%     allM{i}=permutation(ModuClean);
+% end
+
+[npMrow, npMcolm,npM]=size(permM);
+
+%get permutation for each modulatory input and extract how many
+%permutations for each modulatory input
+for n=1:npM
+    permM2D=permM(:,:,n);
+    permMall{n}=permutation(permM2D);       %get permutation for each modulatory input
+    [a,b,nM2D(n)]=size(permMall{n});
 end
+
+
+for n=1:npM
+    for i=1:
+
 %%
 
 % %--------------------------------------------------------
@@ -97,4 +115,4 @@ for i=1:nD
 end
 
 
- t=cputime-t
+ %t=cputime-t
