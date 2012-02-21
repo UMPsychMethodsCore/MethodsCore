@@ -1,0 +1,1 @@
+PickAtlas 2.5 is ONLY for SPM8 revision 4010 or better.
