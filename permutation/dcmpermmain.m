@@ -1,4 +1,4 @@
-function [allDCM]=dcmpermmain(nnodes,permD, permC, permM)
+function [allDCM]=dcmpermmain(permD, permC, permM)
 %%Dan's Comments
 % Objects
 %   permD - permissibility matrix of driving inputs
@@ -16,7 +16,8 @@ function [allDCM]=dcmpermmain(nnodes,permD, permC, permM)
 
 
 % %define nodes
-% nnodes=5;       %# of nodes
+[nrow, ncol]=size(permD);
+ nnodes=nrow;       %# of nodes
 
 %--------------------------------------------------------
 %----                      DRIVING                 ------
