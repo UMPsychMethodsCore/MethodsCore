@@ -17,7 +17,7 @@
 clear all
 clc
 
-%t=cputime;
+t=cputime;
 
 %define nodes
 nnodes=5;       %# of nodes
@@ -81,7 +81,7 @@ for i = 1 : nC
     %change M back to 5*5*2
     ModuClean3D=reshape(ModuClean,[npMrow, npMcolm,npM]);
     %put M according to each C to each cell of cell array
-    allM{i}=permutation3D(ModuClean3D);
+    allM{i}=permutation(ModuClean3D);
 end
 
 
@@ -95,7 +95,7 @@ end
 %nM stores each 
 totalnM=0;
 for i=1:nC
-    [nMrow, nMcol, nM(i)]=size(allM{i});
+    [nMrow, nMcol, nDriv,nM(i)]=size(allM{i});
     totalnM=totalnM+nM(i);
 end
             
@@ -108,10 +108,10 @@ for i=1:nD
             %
             %M=cell(1,nM(j));
             M=allM{1,j};
-            allDCM{3,sum(nM(1:j-1))+k}=M(:,:,k);
+            allDCM{3,sum(nM(1:j-1))+k}=M(:,:,:,k);
         end
     end
 end
 
 
- %t=cputime-t
+ t=cputime-t

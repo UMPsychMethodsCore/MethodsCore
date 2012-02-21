@@ -20,16 +20,20 @@ function [PermuMat]=permutation (InputMat)
 %define # of rows and # of cols
 %[nrow, ncol,nslice]=size(InputMat);
 dim=size(InputMat);
+%if the matrix is 2D, use 2D permutation
 if length(dim)==2
     PermuMat=permutation2D(InputMat);
+%if it's more than 2D, first flatten it then do 2D permutation then
+%change it back
 else
+%flatten
 nrow=dim(1);
 ncol=prod(dim(2:end));
-
 
 FlatMat=reshape(InputMat,[nrow,ncol]);
 PermuMat2D=permutation2D(FlatMat);
 
+%
 dimP=size(PermuMat2D);
 nperm=dimP(3);
 PermuMat=reshape(PermuMat2D,[dim,nperm]);
