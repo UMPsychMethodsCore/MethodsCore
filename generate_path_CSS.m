@@ -37,7 +37,7 @@ for k=1:length(varargin)
 end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
-<<<<<<< HEAD
+
 
 
 indexstar=strfind(OutputTemplate,'*');
@@ -56,5 +56,8 @@ if indexstar>0 %% if there is a wildcard
 end %% if statement
 pizza=1;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5bd44d6... Updated generate path toolbox
 end
