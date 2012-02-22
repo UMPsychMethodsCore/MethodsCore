@@ -30,6 +30,7 @@ for iSubject = 1: size(SubjDir,1)
 
         pathcallcmd=generate_PathCommand(MotionPathTemplate);
         MotionPath = eval(pathcallcmd);
+        CheckPath(MotionPath, 'a realignment file')
         MotionParameters = load (MotionPath);
 
 
@@ -64,17 +65,23 @@ end
 fprintf(theFID,'Subject,SubNum,Run,TR,x_mm,y_mm,z_mm,pitch,roll,yaw,\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject,1};
+ %   chariSubject = int2str(iSubject);
+ chariSubject=num2str(SubjDir{iSubject,2});
     NumRun= size(SubjDir{iSubject,3},2);
     for jRun = 1:NumRun
         iRun=SubjDir{iSubject,3}(1,iRun);
 
-        RunString=RunDir{iRun}; %%% maybe set RunString as iRun?
-
+   %     RunString=RunDir{iRun}; %%% maybe set RunString as iRun?
+         RunString=num2str(iRun);
 
 
         for iRow = 1:size(CombinedOutput{iSubject,jRun},1)
             chariRow = int2str(iRow);
-            fprintf(theFID,'%s,%s,',Subject,RunString);
+        %    fprintf(theFID,'%s,%s,',Subject,RunString);
+            fprintf(theFID,'%s,',Subject);
+			fprintf(theFID,'%s,',chariSubject);
+			fprintf(theFID,'%s,',RunString);
+			fprintf(theFID,'%s,',chariRow);
             for iColumn=1:size(CombinedOutput{iSubject,jRun},2)
                 fprintf(theFID,'%g,',CombinedOutput{iSubject,iRun}(iRow,iColumn));
             end %iColumn

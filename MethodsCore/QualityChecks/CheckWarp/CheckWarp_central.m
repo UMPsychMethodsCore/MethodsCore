@@ -33,11 +33,7 @@ ImagePath=eval(pathcallcmd);
 
 
 
-pathcallcmd=generate_PathCommand(OverlayTemplate);
-OverlayPathFile=eval(pathcallcmd);
 
-pathcallcmd=generate_PathCommand(SPGRTemplate);
-SPGRPathFile=eval(pathcallcmd);
 
  
 

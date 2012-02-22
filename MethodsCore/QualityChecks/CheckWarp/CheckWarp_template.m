@@ -36,9 +36,8 @@ RunDir = {
 %% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
 
-SPGRTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
+
 
 ImageTemplate=    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 

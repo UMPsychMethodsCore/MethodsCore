@@ -14,13 +14,12 @@
 
 clear CombinedData
 clear SPMList;
-CombinedData={};
-clear Header
+
 
 UseSPM=1;
 
-iCol=1;  
-SPMPrevious.SPM.xY.P=   {}; 
+  
+
 
 FullFileName=eval(generate_PathCommand(OuputPathTemplate));
        
@@ -44,10 +43,8 @@ FullFileName=eval(generate_PathCommand(OuputPathTemplate));
 
 
 %if UseSPM==1
-
-
     spm_name = [ConditionPath '/SPM.mat'] ;
- %   SPMList{iJob}=spm_name;
+    SPMList{iJob}=spm_name;
 %end
 
 roi_file = [ROIPath];
@@ -88,38 +85,9 @@ y  = summary_data(Y);  % get summary time course(s)
 %  y=vertcat(y,zeros(1,Gap)'); %%%% This fills alldata with zeros
 
 
-SPMData=load(spm_name);
-mismatch=0;
-%%%% check if the two lists are different
-if length(SPMData.SPM.xY.P)==length(SPMPrevious.SPM.xY.P)
-for iRow = 1:length(SPMData.SPM.xY.P)
-    [file1 fn]=fileparts(SPMData.SPM.xY.P{iRow});
-    [file2 fn]=fileparts(SPMPrevious.SPM.xY.P{iRow});
-  if  strcmp(file1,file2)
-  else
-      mismatch=1;
-  end
-end
-else
-    mismatch=1;
-end
 
-if mismatch==1
+CombinedData{ijob} = y;
 
-     %for iRow = 1:length(SPMData.SPM.xY.P)
-%         if UseSPM==1
-%         if iRow<=length(SPMData.SPM.xY.P)
-       %  S=vertcat(S,SPMData.SPM.xY.P{iRow}(1:end-6));
-       SPMAsMat=cell2mat(SPMData.SPM.xY.P);
-CombinedData{iCol}=SPMAsMat(:,1:end-2);
-Header{iCol}='Subject from SPM';
-     iCol=iCol+1;
-end %% end if statement    
-[pn ROIName]=fileparts(ExtractionJobs{ijob,2});
-Header{iCol}=[ExtractionJobs{ijob,1},'_',ROIName(1:end-4)];
-CombinedData{iCol} = num2str(y);
-iCol=iCol+1;
-SPMPrevious.SPM.xY.P=SPMData.SPM.xY.P;
 end % loop through extraction jobs
 
 
@@ -135,7 +103,7 @@ end
 for x=1:size(CombinedData,2)
     CurrLength=size(CombinedData{x},1);
     for k=CurrLength+1:MaxLength
-        CombinedData{x}(k)='';
+        CombinedData{x}(k)=NaN;
     end
 end
 
@@ -159,67 +127,50 @@ if theFID < 0
     return
 end
 
-% StringStatement='Subject from SPM';
-% fprintf(theFID,'%s,',StringStatement);
- StringStatement='Row Number';
- fprintf(theFID,'%s,',StringStatement);
-% 
- for i=1:size(CombinedData,2) %%% loop through columns
-%     [pn ROIName]=fileparts(ExtractionJobs{i,2});
-%      ColName = [ExtractionJobs{i,1},'_',ROIName(1:end-4)];
-      fprintf(theFID,'%s,',Header{i});
- end % loop through cols
-% 
-% 
-% %SPMData=load(spm_name);
-% 
-% 
+StringStatement='Subject from SPM';
+fprintf(theFID,'%s,',StringStatement);
+StringStatement='Row Number';
+fprintf(theFID,'%s,',StringStatement);
+
+for i=1:size(CombinedData,2) %%% loop through columns
+    [pn ROIName]=fileparts(ExtractionJobs{i,2});
+     ColName = [ExtractionJobs{i,1},'_',ROIName(1:end-4)];
+     fprintf(theFID,'%s,',ColName);
+end % loop through extraction jobs
+
+
+%SPMData=load(spm_name);
+
+
   fprintf(theFID,'\n');
-     for iRow = 1:MaxLength
-%         if UseSPM==1
-%         if iRow<=length(SPMData.SPM.xY.P)
-%          S=SPMData.SPM.xY.P{iRow}(1:end-6);
-%         else
-%             S='Empty';
-%         end
-%         else
-%             S='Empty';
-%         end 
-%         
-%          fprintf(theFID,'%s,',S);  
+    for iRow = 1:MaxLength
+        if UseSPM==1
+        if iRow<=length(SPMData.SPM.xY.P)
+         S=SPMData.SPM.xY.P{iRow}(1:end-6);
+        else
+            S='Empty';
+        end
+        else
+            S='Empty';
+        end 
+        
+         fprintf(theFID,'%s,',S);  
          chariRow = int2str(iRow);
-          fprintf(theFID,'%s,',chariRow);
+         fprintf(theFID,'%s,',chariRow);
    
  
          
-%      SPMDataBefore.SPM.xY.P=   {}; 
+     SPMDataBefore=    
   for iCol = 1:size(CombinedData,2);
-%       
-%     SPMData=load(SPMList{iCol}); 
-%     if SPMData.SPM.xY.P ~= SPMDataBefore.SPM.xY.P
-%         fprintf(theFID,'\n');
-%     for iRow = 1:MaxLength
-%         if UseSPM==1
-%         if iRow<=length(SPMData.SPM.xY.P)
-%          S=SPMData.SPM.xY.P{iRow}(1:end-6);
-%         else
-%             S='Empty';
-%         end
-%         else
-%             S='Empty';
-%         end 
-%         
-%          fprintf(theFID,'%s,',S);  
-%          chariRow = int2str(iRow);
-%          fprintf(theFID,'%s,',chariRow);
-%     end %% loop through rows
-%     end %%% end if
+      
+    SPMData=load(SPMList{iCol}); 
     
-        fprintf(theFID,'%s,',CombinedData{iCol}(iRow,:));
+        
+        fprintf(theFID,'%g,',CombinedData{iCol}(iRow));
     end   % loop through cols
          fprintf(theFID,'\n');
     end   % loop through rows
 
 fclose(theFID);
   
- display('Done!!!');
+ 

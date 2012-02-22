@@ -38,7 +38,7 @@ RunDir = {
 
 OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
 
-SPGRTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
+HiResTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
 
 ImageTemplate=    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
@@ -81,13 +81,13 @@ FilePrefix = 'ra';
 % '5020/Tx2',50202,[1 2];
 % '5021/Tx1',50211,[1 2];
 % '5023/Tx2',50232,[1 2];
-'5024/Tx1',50241,[1 2];
-'5025/Tx2',50252,[1 2];
-'5026/Tx2',50262,[1 2];
-'5028/Tx1',50281,[1 2];
-'5029/Tx1',50291,[1 2];
-'5031/Tx1',50311,[1 2];
-'5032/Tx1',50321,[1 2];
+% '5024/Tx1',50241,[1 2];
+% '5025/Tx2',50252,[1 2];
+% '5026/Tx2',50262,[1 2];
+% '5028/Tx1',50281,[1 2];
+% '5029/Tx1',50291,[1 2];
+% '5031/Tx1',50311,[1 2];
+ '5032/Tx1',50321,[1 2];
 '5034/Tx2',50232,[1 2];
 '5035/Tx2',50241,[1 2];
 '5036/Tx2',50252,[1 2];

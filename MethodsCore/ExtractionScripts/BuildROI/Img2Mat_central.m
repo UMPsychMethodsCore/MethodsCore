@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath /net/dysthymia/spm2_64b/
-addpath('/net/dysthymia/matlabScripts/marsbar-0.41/')
+addpath /net/dysthymia/spm8/
+ addpath('/net/data4/MAS/marsbar-0.42/')
 addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
 %addpath('/net/dysthymia/matlabScripts/') %%% for generate path
 
@@ -84,4 +84,6 @@ binf=1;
 %roi_fname=[OutputROIDir filename '_roi'];
     varargout = {saveroi(o, roi_fname)};
  end
+ 
+ display('Done!!!');
  

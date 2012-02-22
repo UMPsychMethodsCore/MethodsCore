@@ -12,7 +12,7 @@ global UFp;
 %addpath /net/dysthymia/matlabScripts/  %%%% this is for generate_path_CSS
 addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
 display('*****************************************************************');
-display('Starting Check Coregistration to examine registration of Overlay, SPGR, and first five functional.');
+display('Starting Check Coregistration to examine registration of Overlay, HiRes, and first five functional.');
 display('*****************************************************************');
    for iSubject = 1:size(SubjDir,1)
 
@@ -33,8 +33,8 @@ ImagePath=eval(pathcallcmd);
 pathcallcmd=generate_PathCommand(OverlayTemplate);
 OverlayPathFile=eval(pathcallcmd);
 
-pathcallcmd=generate_PathCommand(SPGRTemplate);
-SPGRPathFile=eval(pathcallcmd);
+pathcallcmd=generate_PathCommand(HiResTemplate);
+HiResPathFile=eval(pathcallcmd);
 
  
 
@@ -45,7 +45,7 @@ SPGRPathFile=eval(pathcallcmd);
 
 data = {
     [OverlayPathFile];
-    [SPGRPathFile];
+    [HiResPathFile];
     [ImagePath ImagePathName ',1'];
     [ImagePath ImagePathName ',2'];
     [ImagePath ImagePathName ',3'];

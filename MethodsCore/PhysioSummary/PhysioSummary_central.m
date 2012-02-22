@@ -3,7 +3,6 @@ addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts   %%%% this is for
 display ('-----')
 OutputPathFile = generate_path_CSS(OutputPathTemplate,Exp);
 display('I am going to compute physio summary statistics');
-display(sprintf('The size of the lever arm I will use is %d',LeverArm));
 display(sprintf('The output will be stored here: %s', OutputPathFile));
 display('These are the subjects:')
 display(SubjDir)
@@ -26,13 +25,13 @@ for iSubject = 1:size(SubjDir,1)
 
         pathcallcmd=generate_PathCommand(PhysioPathTemplate);
         PhysioPath = eval(pathcallcmd);
-        
-
+        CheckPath(PhysioPath, 'Check the PhysioPathTemplate, your subject directory, and your run directory.');
+%CheckPath(PhysioPath)
         
         PhysioParameters = load (PhysioPath);
         %Output=euclideanDisplacement(MotionParameters,LeverArm);
-        CardRate=(sum(card)/(range(time))*60;
-        RespRate=(sum(peakDelta)/(range(time))*60;
+        CardRate=(sum(PhysioParameters.card)/(range(PhysioParameters.time))*60);
+        RespRate=(sum(PhysioParameters.peakDelta)/(range(PhysioParameters.time))*60);
         
         CombinedOutput{iSubject,iRun}=horzcat(CardRate,RespRate);
 
