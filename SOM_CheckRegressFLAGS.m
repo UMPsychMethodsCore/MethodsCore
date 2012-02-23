@@ -54,7 +54,7 @@ if isfield(parameters,'RegressFLAGS') == 0
       if isfield(parameters.data.run(iRUN),'MotionParameters') == 0
         parameters.data.run(iRUN).MotionParameters = [];
 	RegressFLAGS.motion = 0;
-	SOM_LOG(sprintf('No motion parameters for run %d, setting RegressFLAGS.motion = 0',iRUN));
+	SOM_LOG(sprintf('WARNING : No motion parameters for run %d, setting RegressFLAGS.motion = 0',iRUN));
       end
       % 
       % Fatal error if motion parameters are not sufficient.

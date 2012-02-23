@@ -123,6 +123,12 @@
 % Modified Nov 8, 2011 to have nTIME be part of data.run
 % structure, previously it was part of the TIME.run structure.
 
+% 2012.01.12 Modified to allow editing of time-series data 
+% 2012.01.12 after conversation with Mike Milham on removing movement
+% 2012.01.12 outliers. RCWelsh
+
+% 2011.11.18 - RCWelsh : Fixed nSPACE -> nSPACE(1) 
+
 function [D0 parameters] = SOM_PreProcessData(parameters)
 
 global SOM
@@ -536,14 +542,43 @@ if length(nSPACE>1)
   end
 end
 
+% Number of time points before editing
+
 cnTIME = [0 cumsum(nTIME)];
 
-SOM_LOG(sprintf('STATUS : Arranging data into %d space by %d time-points',nSPACE(1),cnTIME(end)));
+SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPACE(1),cnTIME(end)));
 
-D0 = zeros(nSPACE,sum(nTIME));
+% 2011.11.18 - RCWelsh : Fixed nSPACE -> nSPACE(1) 
+
+% Edit the data if needed.
+
+enTIME = [];
+
+for iRUN = length(parameters.data.run)
+  if exist(parmaters.data.run(iRUN),'censorVector')
+    D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN.D0),parameters.data.run(iRUN).censorVector);
+    if D0RUN(iRUN).D0 == -1
+      SOM_LOG('FATAL : SOM_editTimeSeries failed.');
+      exit
+    else
+      SOM_LOG(sprintf(['STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
+      enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
+    end
+  end
+end
+
+% Now calculate the new length.
+
+cenTIME = cumsum(enTIME);
+
+SOM_LOG(sprintf('STATUS : Edited data to : %d space by %d time-points',nSPACE(1),cenTIME(end)));
+
+% Now contactenate the data.
+
+D0 = zeros(nSPACE(1),sum(enTIME));
 
 for iRUN = 1:length(parameters.data.run)
-  D0(:,cnTIME(iRUN)+1:cnTIME(iRUN+1)) = D0RUN(iRUN).D0;
+  D0(:,cenTIME(iRUN)+1:cenTIME(iRUN+1)) = D0RUN(iRUN).D0;
 end
 
 parameters.stopCPU.preprocess = cputime;

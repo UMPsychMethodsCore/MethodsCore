@@ -200,6 +200,7 @@ switch rois.type
                     SOM_LOG('FATAL ERROR : You need to specify either a size, or your own XROI, YROI, ZROI');
                 end
             end
+            rois.mni.size.size = length(rois.mni.size.XROI);
         end
         
         %

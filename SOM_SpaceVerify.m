@@ -37,7 +37,7 @@ fieldsToCheck = {'mat','dim'};
 for iHDR = 1:2
   for iField = 1:2
     if isfield(headers{iHDR},fieldsToCheck{iField}) == 0
-      SOM_LOG('You need to specify valid headers to be checked.');
+      SOM_LOG('FATAL ERROR : You need to specify valid headers to be checked.');
       return
     end
   end

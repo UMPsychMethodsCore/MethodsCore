@@ -65,7 +65,7 @@ global SOMMem
 
 slot = 1;
 
-SOM_LOG('Reading data');
+SOM_LOG('STATUS : Reading data');
 
 results = [];
 maskInfo = [];

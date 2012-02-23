@@ -3,6 +3,11 @@
 THISDIR=`pwd`
 THATDIR=/Volumes/ALS/Software/SOMWork/SOMBen/SOM
 
+if [ ! -z "$1" ]
+then
+    THATDIR=$1
+fi
+
 echo
 echo Comparing stuff in $THISDIR to things in $THATDIR
 echo

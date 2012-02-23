@@ -21,6 +21,12 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+%
+% 2011.11.18 - RCWelsh - Fixed error on subscript to line below to
+%                        reflect change:
+%                        size(PCScore,1) -> size(PCScore,2);
+%
+
 function results = SOM_PrinComp(theData,dataFraction)
 
 global SOM
@@ -64,7 +70,7 @@ for iC = 1:min(SOM.NumberPrincipleComponents,size(PCScore,2))
 end
 
 results.VARCOMP  = VARCOMP;
-results.PCScore  = PCScore(:,1:min(SOM.NumberPrincipleComponents,size(PCScore,1)));
+results.PCScore  = PCScore(:,1:min(SOM.NumberPrincipleComponents,size(PCScore,2)));
 results.TOTALVAR = TOTALVAR;
 
 results.stopCPU  = cputime;

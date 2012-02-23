@@ -26,6 +26,10 @@
 %        nTIME             = number of time points to 
 %                            analyze.
 %
+%        censorVector      = vector of 0's and 1's on which
+%                            specific TR's to include in the analysis, this is after
+%                            the nTIME has trimmed the data. NOT REQUIRED.
+%
 %   OK                = -1 returned if bad
 %                        1 if things are okay.
 %
@@ -33,6 +37,8 @@
 
 % Modified Nov 8, 2011 to have nTIME be part of data.run
 % structure, previously it was part of the TIME.run structure.
+
+% 2012.01.17 - put in check for censor vector - RCWelsh
 
 function data = SOM_CheckDataStructure(parameters)
 
@@ -79,13 +85,20 @@ for iRUN = 1:length(data.run)
   % than most likely a nifti file, and if P has more than one line
   % than it is img/hdr.
   
-  nTIME = max( [ length(data.run(iRUN).hdr) size(data.run(iRUN).P,) ] );
+  nTIME = max( [ length(data.run(iRUN).hdr) size(data.run(iRUN).P,1) ] );
 
   if isfield(data.run(iRUN),'nTIME') == 0
     data.run(iRUN).nTIME = nTIME;
     SOM_LOG(sprintf('STATUS : Determined that for run %d, there are %d time-points.',iRUN,nTIME));
   end
   
+  if exist(data.run(iRUN),'censorVector')
+    if length(data.run(iRUN).censorVector) ~= data.run(iRUN).nTIME
+      SOM_LOG(sprintf('FATAL : Specified censorVector of length %d
+                                                                %for
+                                                                %run
+                                                                %%d
+                                                                %s
   % Check to see if the motion parameters are there
 
   if isfield(data.run(iRUN),'MotionParameters') == 1
