@@ -1,18 +1,21 @@
 % %%
 % %define variables for function
-% %name of output structure of DCM
-% DCM_name='DCM.mat';
-% %path of SPM matrix and VOI matrices
-% data_path='datapath';
-% 
+% %path and name of output structure of DCM
+% DCM_name='path/DCM.mat';
+% %path of SPM matrix 
+% SPM_path='spmpath';
+%  
+% path of VOI matrices
+% VOI_path='voipath';
+% %voi names
+% VOI_name={'voi1.mat';'voi2.mat';'voi3.mat';'voi4.mat';'voi5.mat'};
+%
+%
 % %a: driving, b: modulatory, c: connectivity
 % load allDCM.mat;
 % a = allDCM{1,1};
 % b = allDCM{3,1};
 % c = allDCM{2,1};
-% 
-% %voi names
-% VOI_name={'voi1.mat';'voi2.mat';'voi3.mat';'voi4.mat';'voi5.mat'};
 
 
 %--------------------------------------------------------------------------
@@ -27,16 +30,16 @@
 %reached either through directly run the function and get DCM or by loading
 %the .mat file
 %--------------------------------------------------------------------------
-function DCM=dcm_job_config(data_path, a, b, c, VOI_name)
+function DCM=dcm_job_config(DCM_name, SPM_path, VOI_path, VOI_name, a, b, c)
 
 [nnodes, ndriv]=size(a);
 
 %specify SPM
-load(fullfile(data_path,'SPM.mat'),'SPM');
+load(fullfile(SPM_path,'SPM.mat'),'SPM');
 
 %specify VOIs
 for i=1:nnodes
-load(fullfile(data_path,VOI_name{i}),'xY');
+load(fullfile(VOI_path,VOI_name{i}),'xY');
 DCM.xY(i) = xY;
 end
 
@@ -80,7 +83,7 @@ DCM.b = b;
 DCM.c = c;
 DCM.d = zeros(DCM.n,DCM.n,0);
 
-save(fullfile(data_path,DCM_name), 'DCM');
+save(fullfile(DCM_name), 'DCM');
 end
 
 
