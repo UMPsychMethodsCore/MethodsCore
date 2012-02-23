@@ -150,7 +150,7 @@ if(flag==0){print('No Task Specified')} #Print an error message if you've define
 #data$Onsets=ifelse(data$Onsets+data$TrialDur<=data$RunMaxTime,data$Onsets,NA)
 
 #Add your trial by trial regressors, if turned on
-if(!is.null(opts$Master$TrialByTrial) & opts$Master$TrialByTrial %in% c(1,2)) {
+if(if(!is.null(opts$Master$TrialByTrial)) opts$Master$TrialByTrial %in% c(1,2) else FALSE) {
   subruns=unique(data[,c('Subject','Run')]) #Get list of unique subject-run combinations (postcat if applicable) to iterate over
   data$TrialByTrial=NA
   
@@ -186,7 +186,7 @@ data$FIROnsets=data$Onsets-as.numeric(opts$Master$TR)*as.numeric(opts$Master$FIR
 data=with(data,data[order(Subject,get(runfieldname),get(opts$Master$TrialField)),])
 
 #Introduce parametric decay if option enabled, best to do this after sorting so trials are in proper sequence
-if(!is.null(opts$Master$ParametricTrialDecaySlope) & opts$Master$ParametricTrialDecaySlope!=0){
+if( if(!is.null(opts$Master$ParametricTrialDecaySlope)) opts$Master$ParametricTrialDecaySlope!=0 else FALSE) {
   subruns=unique(data[,c('Subject','Run')]) #Get list of unique subject-run combinations (postcat if applicable) to iterate over
   if(as.numeric(opts$Master$ParametricTrialDecaySlope)>0) {startpt=0;stoppt=1;} else {startpt=1;stoppt=0}
   
