@@ -21,17 +21,17 @@ RunDir = {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path where the motion correction parameter files are located
-%%
-%%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
-%%       iSubject = index for subject
-%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%       Run = name of run from RunDir (using iRun as index of row)
-%%        * = wildcard (can only be placed in final part of template)
-%% Examples:
-%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
-%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp = path to your experiment directory
+%%%       iSubject = index for subject
+%%%       Subject = name of subject from SubjDir (using iSubject as index of row)
+%%%       iRun = index of run (listed in Column 3 of SubjDir)
+%%%       Run = name of run from RunDir (using iRun as index of row)
+%%%        * = wildcard (can only be placed in final part of template)
+%%% Examples:
+%%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
+%%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -42,7 +42,7 @@ PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputName = 'RestingPhysio_bothsessions';
+OutputName = 'RestingPhysio_bothsessions_test';
 OutputPathTemplate = '[Exp]/Output/Physio/[OutputName]';
 
 

@@ -1,7 +1,7 @@
-%addpath /net/dysthymia/matlabScripts/  %%%% this is for generate_path_CSS
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 display ('-----')
-pathcallcmd=generate_PathCommand(OutputPathTemplate);
+pathcallcmd=GeneratePathCommand(OutputPathTemplate);
 OutputPathFile = eval(pathcallcmd);
 display('I am going to generate motion regressors');
 display(sprintf('The output will be stored here: %s', OutputPathFile));
@@ -28,7 +28,7 @@ for iSubject = 1: size(SubjDir,1)
         Run = RunDir{iRun};
 
 
-        pathcallcmd=generate_PathCommand(MotionPathTemplate);
+        pathcallcmd=GeneratePathCommand(MotionPathTemplate);
         MotionPath = eval(pathcallcmd);
         CheckPath(MotionPath, 'a realignment file')
         MotionParameters = load (MotionPath);
@@ -52,7 +52,7 @@ end; %subjects
 
 %%%%%%% Save results to CSV file
 
-OutputPathFull=generate_path_CSS(OutputPathTemplate,Exp, OutputName);
+OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
 [OutputPath OutputName] = fileparts(OutputPathFull);
 
 eval(sprintf('!mkdir -p %s',OutputPath));

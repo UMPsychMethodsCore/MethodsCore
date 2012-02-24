@@ -9,8 +9,8 @@ addpath /net/dysthymia/spm8
 global defaults;
 global UFp;
 
-%addpath /net/dysthymia/matlabScripts/  %%%% this is for generate_path_CSS
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 display('*****************************************************************');
 display('Starting Check Coregistration to examine registration of Overlay, HiRes, and first five functional.');
 display('*****************************************************************');
@@ -25,15 +25,15 @@ Run=RunDir{1};
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pathcallcmd=generate_PathCommand(ImageTemplate);
+pathcallcmd=GeneratePathCommand(ImageTemplate);
 ImagePath=eval(pathcallcmd);
 
 
 
-pathcallcmd=generate_PathCommand(OverlayTemplate);
+pathcallcmd=GeneratePathCommand(OverlayTemplate);
 OverlayPathFile=eval(pathcallcmd);
 
-pathcallcmd=generate_PathCommand(HiResTemplate);
+pathcallcmd=GeneratePathCommand(HiResTemplate);
 HiResPathFile=eval(pathcallcmd);
 
  
