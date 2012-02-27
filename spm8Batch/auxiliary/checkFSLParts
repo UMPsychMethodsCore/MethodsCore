@@ -1,0 +1,15 @@
+# need mcflirt, fslsplit, fslmerge, and slicetimer
+
+for ITEM in mcflirt fslsplit fslmerge slicetimer
+do
+    results=`which ${ITEM}`
+    results=`echo ${results} | awk '{print $1}'`
+    if [ "$results" == "no" ]
+	then
+	echo 
+	echo "Can't find element '$ITEM', do you have FSL installed?"
+	echo
+	exit 0
+    fi
+done
+

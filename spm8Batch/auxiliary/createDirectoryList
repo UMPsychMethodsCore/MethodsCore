@@ -1,0 +1,25 @@
+echo "UMImgDIRS    = {..."                                                         >> ${FULLSCRIPTNAME}.m
+
+declare -i is
+declare -i ii
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+  echo "       --> ${subjects[$is]}"   
+  theDIRS=`findVols.sh ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH} $volumeWILD $SUBDIR`
+  theDirectories=(`echo $theDIRS | sed 's/\,/\ /g'`)
+  if [ -z "$theDirectories" ]
+      then
+      AllDirs="{}"
+  else
+      AllDirs="{'${theDirectories[0]}'"
+      for (( ii=1;ii<${#theDirectories[@]};ii++ ))
+	do
+	AllDirs="${AllDirs},'${theDirectories[$ii]}'"
+      done
+      AllDirs="${AllDirs}}"
+  fi
+  echo "                 $AllDirs;..."                                            >> ${FULLSCRIPTNAME}.m
+done
+
+echo "                };"                                                         >> ${FULLSCRIPTNAME}.m
+

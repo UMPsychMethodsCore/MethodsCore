@@ -1,0 +1,6 @@
+ 	      # 
+	      # SPGR (hiRES) name to use 
+	      #
+	      "h")
+		  . ${thisDir}/auxiliary/setHiResName
+		  ;;

@@ -1,0 +1,5 @@
+    echo -e "\a"
+    echo 
+    echo "* * * * * YOU DID NOT SPECIFY ANY SUBJECTS * * * * * "
+    echo 
+    ${thisCommand}

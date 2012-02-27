@@ -1,0 +1,7 @@
+if [ "$debugFLAG" == "1" ]
+    then
+    echo 
+    echo " DEBUG IS ON - WILL BUILD BUT NOT RUN SCRIPTS"
+    echo 
+fi
+

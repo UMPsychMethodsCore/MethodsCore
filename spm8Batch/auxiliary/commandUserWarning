@@ -1,0 +1,9 @@
+    echo
+    echo "    Hello ${USER}"
+    echo
+    echo "    BIG WARNING"
+    echo
+    echo "    I advise that you examine the help comments below before"
+    echo "    using this command. After reading you may resubmit your  "
+    echo "    command by hitting the up arrow."          
+    echo

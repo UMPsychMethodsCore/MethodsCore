@@ -1,0 +1,25 @@
+cd $UMBatchMaster
+cd $MATLABDIR
+
+
+# Make a log of what is being used.
+
+mkdir -p ${thisDir}/Usage/${SANDBOXHOST}/${theYearMonth}
+echo "${FULLSCRIPTNAME}.sh" > ${thisDir}/Usage/${SANDBOXHOST}/${theYearMonth}/${SCRIPTNAME}
+
+# Now launch.
+
+if [ ! "$debugFLAG" == "1" ]
+then
+    echo
+    echo "   Lauching script into background."
+    echo
+    nohup ${FULLSCRIPTNAME}.sh &> ${FULLSCRIPTNAME}.log &
+else
+    echo
+    echo "   Script can now be launched by hand."
+    echo
+fi
+
+echo 
+echo

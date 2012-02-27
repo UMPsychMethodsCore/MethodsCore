@@ -1,0 +1,19 @@
+    echo
+    echo " A command line command to drive batch processing to warp the 'SPGR'"
+    echo " to the standard template."
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "   To warp the 'het1spgr.img' to the standard template:"
+    echo 
+    echo "     warpHiRes -p func/MSIT 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+    echo
+
+    . ${thisDir}/auxiliary/help/help_warpHiRes_Options

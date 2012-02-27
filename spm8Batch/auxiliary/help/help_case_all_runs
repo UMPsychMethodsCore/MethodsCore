@@ -1,0 +1,3 @@
+    echo "    -A                   process all runs found in 'func' directory,"
+    echo "                         default is unspecified."
+    echo 

@@ -1,0 +1,9 @@
+echo
+echo " ${thisCommand}"
+echo 
+echo "  Will set up ${thisCommand} batch jobs using the following parameters"
+echo 
+
+. ${thisDir}/auxiliary/help/help_${thisCommand}_Options
+
+echo

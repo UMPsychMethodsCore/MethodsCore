@@ -1,0 +1,5 @@
+echo "#!/bin/bash -l" 								        > ${FULLSCRIPTNAME}.sh
+echo "#"             								       >> ${FULLSCRIPTNAME}.sh
+echo "# ${thisCommand} Version ${VERSION} ${VERSIONDATE}"      			       >> ${FULLSCRIPTNAME}.sh
+echo "# Copyright Robert C. Welsh"             					       >> ${FULLSCRIPTNAME}.sh
+echo "#"             								       >> ${FULLSCRIPTNAME}.sh

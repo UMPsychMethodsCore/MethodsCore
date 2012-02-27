@@ -1,0 +1,9 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing standard volume number, aborting"
+		      exit 0
+		  else
+		      standardVolume=$1
+		  fi

@@ -1,0 +1,3 @@
+    echo "    -S VolumeNumber      set volume number to be the standard for realignment, "
+    echo "                         default is 10."
+    echo 

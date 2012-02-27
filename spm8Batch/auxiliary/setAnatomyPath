@@ -1,0 +1,9 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for path name, aborting"
+		      exit 1
+		  else
+		      anatomyPATH=$1
+		  fi

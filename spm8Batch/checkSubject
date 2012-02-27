@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Convert a phys directory into a physio
+# directory and create the physio.log
+# file for GE based physio data.
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-10-29"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="fMv"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+for	(( is=1 ; is<=$nSubjects ; is++ ))
+do
+    cd ${UMBatchMaster}
+    cd ${SUBJDIR}
+    cd ${subjects[$is]}
+    echo 
+    echo ${subjects[$is]}
+    echo
+    for OBJ in phys raw $fmriPATH
+    do
+	if [ ! -d ${OBJ} ]
+	    then
+	    echo Missing ${subjects[$is]}/${OBJ}
+	fi
+    done
+    #
+    # Now check func
+    #
+    if [ -d $fmriPATH ]
+	then
+	echo -n "  ${subjects[$is]}/$fmriPATH"
+	cd $fmriPATH
+	for RUN in `ls -l 2> /dev/null | grep drw | grep run_ | awk '{print $NF}'`
+	do
+	    cd $RUN
+	    echo -n " $RUN"
+	    for OBJ in $volumeWILD 
+	    do
+		FILE=`ls  ${OBJ}_??.nii 2> /dev/null | wc | awk '{print $1}'`		
+		DIM4=`fslinfo ${OBJ}_??.nii 2> /dev/null | grep dim4 | grep -v pix | awk '{print $NF}'`
+		if [ -z "$DIM4" ]
+		    then
+		    DIM4=M
+		fi
+		echo -n " $FILE:$DIM4"
+	    done
+	    cd ../
+	done
+	echo
+	cd ../
+    fi
+done
+
+echo
+echo All done
+echo

@@ -1,0 +1,11 @@
+for CRITICALMATLAB in coreg_part_1.m coreg_part_2.m
+do
+    if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
+    then
+	echo
+	echo "Validate that you have 'coreg_part_1.m' and 'coreg_part_2.m' "
+	echo "Missing a critical component '${CRITICALMATLAB}'"
+	echo
+	exit 0
+    fi
+done

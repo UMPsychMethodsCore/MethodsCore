@@ -1,0 +1,14 @@
+#
+# Inialization.
+#
+
+# Name of the volume to scan for.
+volumeWILD=aprun
+
+FSL_COMMENT_B="Realigning subject"
+
+outputName=r
+
+#
+# all done
+#

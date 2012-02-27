@@ -1,0 +1,14 @@
+# Bring in configuration for spm8 batch processing from command line.
+
+. ${thisDir}/spm8Batch_Global
+
+# Verify that the user has examined the help aspect of the command.
+# This is a bit anal, but just making sure that people read the help!
+
+. ${thisDir}/permittedToRunComand
+
+# Kludge in case they issue this command back to back and it creates
+# the script twice ...
+
+sleep 1
+

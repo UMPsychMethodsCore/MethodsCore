@@ -1,0 +1,3 @@
+    echo "    -n PrependName       name to add to output file name, "
+    echo "                         default is none."
+    echo 

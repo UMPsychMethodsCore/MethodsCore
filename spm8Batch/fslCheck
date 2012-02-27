@@ -1,0 +1,149 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Pull up the ht1spgr and the best BET
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-13"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+#allowedOptions="abhMu"
+allowedOptions="ahbgMu"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+    SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}
+    if [ ! -d "${SUBJECTANATOMY}" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	echo
+	echo
+	exit 0
+    fi
+    if [ ! -e "${SUBJECTANATOMY}/${HIRESNAME}.nii" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't anatomy file ${SUBJECTANATOMY}/${HIRESNAME}.nii"
+	echo
+	echo
+	exit 0
+    fi
+    if [ ! -d "${SUBJECTANATOMY}/BET/" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}/BET"
+	echo
+	echo
+	exit 0
+    fi
+    if [ ! -e "${SUBJECTANATOMY}/BET/BET_best.txt" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't anatomy file ${SUBJECTANATOMY}/BET/BET_best.txt"
+	echo
+	echo
+	exit 0
+    fi
+    isnumber ${USEBETBEST}
+    validNumber=$?
+    if [ "$validNumber" == "$SUCCESS" ]
+	then
+	FRAC=`echo $USEBETBEST | awk '{printf "%02d",$1}'`
+    else
+	FRAC=`head -1 ${SUBJECTANATOMY}/BET/BET_best.txt`
+    fi
+    FRAC=`echo $FRAC | awk '{printf "%02d",$1}'`
+    echo
+    echo "  Comparing to fraction : $FRAC"
+    echo
+    # Now get the gradient
+    . ${thisDir}/auxiliary/calcBETname
+    IMG2=${SUBJECTANATOMY}/BET/${HIRESNAME}_frac_${FRAC}_g${BETNAME}R.nii 
+    IMG3=
+    if [ "${BETBESTFLAG}" != "0" ]
+	then
+	# 
+	# they want to look at the result of mvBestBET
+	#
+	IMG3=${SUBJECTANATOMY}/BET/best_BET_hiRes.nii
+	if [ ! -e "${IMG3}" ]
+	    then
+	    echo
+	    echo "Want to compare to the best_BET_hiRes.nii, but you need to execute mvBestBET first."
+	    echo
+	    exit 0
+	fi
+	if [ ! -e "${SUBJECTANATOMY}/BET/BET_threshold.txt" ]
+	    then
+	    echo
+	    echo "best_BET_hiRes.nii is there, but not threshold found."
+	    echo
+	else
+	    FRAC=`head -1 ${SUBJECTANATOMY}/BET/BET_threshold.txt`
+	    echo
+	    echo Best BET was determined to have threshold of $FRAC
+	    echo
+	fi    
+    fi
+    IMG1=${SUBJECTANATOMY}/BET/${HIRESNAME}.nii 
+    if [ -e ${IMG2} ]
+	then
+	if [ -e ${IMG1} ]
+	    then
+	    if [ -z "${IMG3}" ]
+		then		
+		fslview ${IMG1} -l Copper -t .7 -b 0,2000 ${IMG2} -b 0,2000 &
+	    else
+		fslview ${IMG1} -l Copper -t .7 -b 0,2000 ${IMG2} -b 0,2000 ${IMG3} &
+	    fi
+	    logTheUMProcess fslCheck ${FULLSCRIPTNAME} ${IMG1} ${IMG2} ${IMG3}
+	else
+	    echo
+	    echo "    I can't find : ${IMG1}"
+	    echo
+	fi
+    else
+	echo
+	echo "    I can't find : ${IMG2}"
+	echo
+    fi
+done
+

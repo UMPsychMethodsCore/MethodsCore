@@ -1,0 +1,9 @@
+#
+#  Some common code for all of the fsl routines.
+#
+
+echo "    cd ${UMBatchMaster}"                                       >> ${FULLSCRIPTNAME}.sh
+echo "    cd ${SUBJDIR}"                                             >> ${FULLSCRIPTNAME}.sh
+echo "    cd \${SUBJECT}"                                            >> ${FULLSCRIPTNAME}.sh
+echo "    CURDATE=\`date\` "                                         >> ${FULLSCRIPTNAME}.sh
+echo "    echo \"${FSL_COMMENT_B} \${SUBJECT} at \${CURDATE}\" "     >> ${FULLSCRIPTNAME}.sh

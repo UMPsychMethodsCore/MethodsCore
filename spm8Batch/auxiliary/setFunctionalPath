@@ -1,0 +1,9 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for functional path name, aborting"
+		      exit 1
+		  else
+		      fmriPATH=$1
+		  fi

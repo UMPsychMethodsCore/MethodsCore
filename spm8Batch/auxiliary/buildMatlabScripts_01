@@ -1,0 +1,17 @@
+echo 
+echo " Building scripts..."
+echo
+echo "  UMBatchMaster=${UMBatchMaster}"
+echo 
+echo "   Script will live in : $MATLABDIR"
+echo 
+
+if [ ! -d "${MATLABDIR}" ]
+    then
+    echo "    1) ${MATLABDIR} directory will be created "
+    mkdir -p $MATLABDIR
+fi
+
+cd $MATLABDIR
+
+echo "    2) building in first part of matlab script"

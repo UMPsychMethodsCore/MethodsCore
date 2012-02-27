@@ -1,0 +1,6 @@
+	      #
+	      # Template Image.
+	      #
+	      "T")
+		  . ${thisDir}/auxiliary/setTemplateImageName
+		  ;;

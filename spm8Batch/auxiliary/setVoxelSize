@@ -1,0 +1,9 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for voxel size, aborting"
+		      exit 1
+		  else
+		      voxelSize=$1
+		  fi

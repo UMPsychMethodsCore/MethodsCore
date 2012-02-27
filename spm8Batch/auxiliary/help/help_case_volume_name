@@ -1,0 +1,3 @@
+    echo "    -v volume-wild       set the volume name wild-card, "
+    echo "                         default \"${volumeWILD}\"."
+    echo 

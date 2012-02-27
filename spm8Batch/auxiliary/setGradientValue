@@ -1,0 +1,10 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for setting the gradient for BET"
+		      exit 1
+		  else
+		      BETGRADIENT=$1
+                      . ${thisDir}/auxiliary/calcBETname
+		  fi

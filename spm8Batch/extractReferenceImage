@@ -1,0 +1,74 @@
+#!/bin/bash
+# # # # # # # # # # # # # # # # # # 
+#
+# 
+#
+# Robert C. Welsh
+# Copyright 2006-2011
+#
+#
+# # # # # # # # # # # # # # # # # # 
+
+CURPID=$$
+
+RUNDIR=$1
+VOLUME=$2
+N=$3
+
+tmpfile=mcflirt_${CURPID}
+
+if [ ! -d "${RUNDIR}" ]
+then
+    echo "Missing run directory : $RUNDIR"
+    exit 1
+fi
+
+cd ${RUNDIR}
+
+VOLNII=`ls ${VOLUME}*.nii 2> /dev/null`
+
+if [ -z "${VOLNII}" ]
+then
+    echo "Missing nifti file in $RUNDIR for $VOLUME"
+    exit 1
+fi
+
+rm -r ${tmpfile}
+
+mkdir -p ${tmpfile}
+
+cd ${tmpfile}
+
+FSLOUTPUTTYPE=NIFTI_PAIR
+
+fslsplit ../${VOLNII} ${tmpfile}_ -t
+
+REFNO=`echo $N | awk '{printf "%04d",$1}'`
+
+REFFILE=${tmpfile}_${REFNO}
+
+if [ ! -e ${REFFILE}.img ]
+then
+    echo "Conversion failed, or coudn't find ${REFFILE}.img"
+    exit 1
+fi
+
+mv ${REFFILE}.img ../
+mv ${REFFILE}.hdr ../
+
+cd ../
+
+rm -r ${tmpfile}
+
+FSLOUTPUTTYPE=NIFTI
+
+fslmerge -t ../realignRefVolume ${REFFILE}
+
+rm ${REFFILE}.img
+rm ${REFFILE}.hdr
+
+exit 0
+
+#
+# all done
+#

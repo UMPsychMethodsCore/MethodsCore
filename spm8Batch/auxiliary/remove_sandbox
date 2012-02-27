@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# Remove the sandbox created by make_sandbox
+#
+#
+# remove_sandbox 0/1 [SANDBOXPID]
+
+if [ "$#" == "0" ]
+then
+    echo
+    echo "No sandbox specified"
+    echo
+    exit 0
+fi
+
+if [ "$#" == "1" ]
+then
+    exit 0
+fi
+
+if [ "$1" == "1" ] 
+then
+    if [ -d "$2" ]
+    then
+	count=`ls $2 2> /dev/null | wc | awk '{print $1}'`
+	if [ "${count}" == "0" ]
+	then
+	    rmdir $2 2> /dev/null
+	    echo
+	    echo "Removed sandbox : $2 "
+	    echo
+	else
+	    echo
+	    echo "Sandbox : $2 is not empty!"
+	    echo
+	fi
+    fi
+fi

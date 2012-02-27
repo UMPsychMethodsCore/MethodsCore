@@ -1,0 +1,14 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for subject directory."
+		      exit 1
+		  else
+		      SUBJDIR=$1
+		      if [ ! -d "${SUBJDIR}" ]
+			  then
+			  echo "The master subject directory that you have specified does not exist."
+			  exit 1
+		      fi
+		  fi

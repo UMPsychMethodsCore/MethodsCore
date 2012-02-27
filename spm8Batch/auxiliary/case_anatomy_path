@@ -1,0 +1,6 @@
+ 	      #
+	      # Path name to find virgin anatomy files.
+	      #
+	      "a")
+		  . ${thisDir}/auxiliary/setAnatomyPath
+		  ;;

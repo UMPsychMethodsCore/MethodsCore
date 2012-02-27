@@ -1,0 +1,8 @@
+if [ $nRUN -le 0 ] && [ "${ALLRUNSFLAG}" -eq "0" ] 
+then
+    echo 
+    echo "No runs were specified, aborting, do '${thisCommand}' for help"
+    echo
+    exit 0
+fi
+
