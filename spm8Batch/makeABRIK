@@ -1,0 +1,168 @@
+#!/bin/bash -l
+
+#
+# A routine to take a bunch of analyze files and turn them into 
+# BRIK data. This is needed for processing in AFNI.
+#
+
+if (( $# < 1 ))
+then
+    echo 
+    echo "makeABRIK"
+    echo
+    echo "Copyright 2010, Robert C. Welsh, Ann Arbor MI"
+    echo "Base on Scott Peltier's matlab code"
+    echo
+    echo "This version works with NIFTI (.nii) files only."
+    echo
+    echo "Usage"
+    echo 
+    echo "  makeABRIK [fileroot] [M]"
+    echo 
+    echo "  e.g."
+    echo 
+    echo "  makeABRIK rapnvol"
+    echo
+    echo " M = masking image"
+    echo
+    exit 0
+fi
+
+#
+MASKING=0
+
+if (( $# == 2 ))
+then
+    MASKING=1
+    echo
+    echo "Writing as a masking image int8"
+    echo
+else
+    echo
+    echo "Writing as int16 data"
+    echo
+fi
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+. ${thisDir}/spm8Batch_Global
+
+#
+# Check for AFNI
+#
+
+AFNIYESNO=`which afni`
+
+if [ -z "${AFNIYESNO}" ]
+then
+    echo
+    echo "You need to install AFNI"
+    echo
+    exit 0
+fi
+
+# The root file to compress into a BRIK.
+
+FILES=$1
+
+nFRAMES=`fslinfo ${FILES} | grep dim4 | head -1 | awk '{print $2}'`
+
+if (( $nFRAMES < 1 ))
+then
+    echo "Not enough files to turn into a BRIK"
+    exit 0
+fi
+
+xDIM=`fslinfo $FILES | grep dim1 | grep -v pix | awk '{print $2}'`
+yDIM=`fslinfo $FILES | grep dim2 | grep -v pix | awk '{print $2}'`
+zDIM=`fslinfo $FILES | grep dim3 | grep -v pix | awk '{print $2}'`
+
+xVOX=`fslinfo $FILES | grep dim1 | grep pix | awk '{print $2}'`
+yVOX=`fslinfo $FILES | grep dim2 | grep pix | awk '{print $2}'`
+zVOX=`fslinfo $FILES | grep dim3 | grep pix | awk '{print $2}'`
+
+xSIZE=`echo $xDIM*$xVOX | bc`
+ySIZE=`echo $yDIM*$yVOX | bc`
+zSIZE=`echo $zDIM*$zVOX | bc`
+
+zDIMnFRAMES=$(($zDIM*$nFRAMES))
+
+echo ${xDIM} ${yDIM} ${zDIM} ${xVOX} ${yVOX} ${zVOX} ${xSIZE} ${ySIZE} ${zSIZE} 
+
+
+${MATLAB} -nojvm -nodisplay <<EOF
+
+% Set the "1" to "0" if you want to test the bash portion
+
+maskingImage=${MASKING}
+
+if 1
+ 
+ fprintf('Adding paths...\n');
+ if length('${SPM8B1}') > 0 
+   addpath ${SPM8B1}
+ end
+ if length('${SPM8B2}') > 0 
+   addpath ${SPM8B2}
+ end
+ if length('${AUXPATH}') > 0 
+   addpath ${AUXPATH}
+ end
+
+ fprintf('Calling spm_defaults...\n');
+ spm('defaults','fmri');
+
+ warning off
+
+ FILEWILD='${FILES}'
+ 
+ fprintf('Getting list of files...\n');
+
+ P = spm_select('ExtFPList','./',FILEWILD,inf);
+
+ fprintf('Processing %d files into BRIK\n',size(P,1));
+
+ fprintf('Reading files...');
+ VOLS = spm_read_vols(spm_vol(P)); 
+ fprintf('read.\n');
+
+ fname=['${FILES}' '.BRIK']; 
+
+
+ fprintf('Writing to file : %s  ',fname);
+
+ fid=fopen(fname,'w');
+ if maskingImage
+   fprintf('as a binary image.\n');
+   fwrite(fid,VOLS(:)>.5,'int8');
+ else
+   fprintf('as a time series.\n');
+   fwrite(fid,VOLS(:),'int16');
+ end
+ fclose(fid)
+end
+exit
+EOF
+
+# Echo out the command we are issuing.
+
+if [ "${MASKING}" == "0" ]
+then
+    echo to3d -prefix ${FILES} -xFOV ${xSIZE}L-R -yFOV ${ySIZE}A-P -zSLAB ${zSIZE}I-S -time:zt $zDIM $nFRAMES 2 zero 3D:0:0:${xDIM}:${yDIM}:${zDIMnFRAMES}:${FILES}.BRIK
+# Now issue the AFNI command
+    to3d -prefix ${FILES} -xFOV ${xSIZE}L-R -yFOV ${ySIZE}A-P -zSLAB ${zSIZE}I-S -time:zt $zDIM $nFRAMES 2000 zero 3D:0:0:${xDIM}:${yDIM}:${zDIMnFRAMES}:${FILES}.BRIK
+else
+    echo to3d -prefix ${FILES} -datum byte -xFOV ${xSIZE}L-R -yFOV ${ySIZE}A-P -zSLAB ${zSIZE}I-S 3Db:0:0:${xDIM}:${yDIM}:${zDIM}:${FILES}.BRIK
+    to3d -prefix ${FILES} -datum byte -xFOV ${xSIZE}L-R -yFOV ${ySIZE}A-P -zSLAB ${zSIZE}I-S 3Db:0:0:${xDIM}:${yDIM}:${zDIM}:${FILES}.BRIK
+
+fi
+
+#
+# All done.
+#

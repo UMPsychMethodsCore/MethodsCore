@@ -1,0 +1,9 @@
+    echo "${helpComment} Sub-directory             : ${subPATH}"
+    echo "${helpComment} Volume Wildcard           : ${volumeWILD}"
+    echo "${helpComment} prepending name           : $outputName"
+    echo "${helpComment} Number of runs to phys    : ${nRUN}"
+    echo "${helpComment} fMRI TR                   : ${TR}"
+    echo "${helpComment} Physio xref table         : ${PHYSIOTABLE}"
+    echo "${helpComment} Physio Options            : ${PHYSIOOPTIONS}"
+    
+    . ${thisDir}/auxiliary/help/help_options_end

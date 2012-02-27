@@ -1,0 +1,6 @@
+	      # 
+	      # Where to send email when finished
+	      #
+	      "U")
+		  . ${thisDir}/auxiliary/setUserEmail
+		  ;;

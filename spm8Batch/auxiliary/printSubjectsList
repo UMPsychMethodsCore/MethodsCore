@@ -1,0 +1,11 @@
+echo 
+echo "  And will perform ${thisCommand} on the following subjects:"
+echo
+
+declare -i ii
+
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+  echo "      ${subjects[$ii]}"
+done
+

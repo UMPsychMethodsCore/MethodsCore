@@ -1,0 +1,3 @@
+    echo "    -w sub-directory     set outputpath (for coreg, warp, tarBET)"
+    echo "                         default=${coregPATH}"
+    echo 

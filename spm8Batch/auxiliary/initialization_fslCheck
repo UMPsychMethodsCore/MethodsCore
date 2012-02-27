@@ -1,0 +1,23 @@
+# Inialization.
+
+FSL_COMMENT_B="fsl check reging between best BET and original hi res"
+
+BATCHCOMMAND=0
+
+# If this is a number then we use the number
+# else we use the number that is in the file
+# below, which is been created with "bestBET"
+
+USEBETBEST="BET_best.txt"
+
+# If the flag is set then we hunt for the result of mvBestBET
+
+BETBESTFLAG=0
+
+# Hiresolution image
+HIRESNAME=ht1spgr
+HIRESEXT=
+
+#
+# all done
+#

@@ -1,0 +1,3 @@
+    echo "    -F FMRI_TR           set the TR for volume acquisition, "
+    echo "                         default is 2."
+    echo 

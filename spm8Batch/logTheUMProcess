@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# logTheUMProcess
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+# Take the inputs and write out a log file
+
+if [ $# -lt 1 ]
+then
+    echo "You need to specify at least 1 argue to write the log file."
+    exit 0
+fi
+
+HIDDENFILE=.$1
+THEDATE=`date`
+
+touch $HIDDENFILE
+
+echo "$2 : $THEDATE : $3 $4 $5" >> $HIDDENFILE
+
+#
+# all done.
+#

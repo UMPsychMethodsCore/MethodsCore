@@ -1,0 +1,602 @@
+#!/bin/bash
+
+#
+# Train a dataset for SVM
+#
+
+VERSION="1.0"
+VERSIONDATE="2010-09-20"
+
+if [ ! -e ~/.help.trainSVM ]
+then
+    date > ~/.help.trainSVM
+    trainSVM.sh
+    echo
+    echo "    Hello ${USER}"
+    echo
+    echo "    BIG WARNING"
+    echo
+    echo "    I advise that you examine the above help comments before"
+    echo "    using this command. After reading you may resubmit your  "
+    echo "    command by hitting the up arrow."          
+    echo
+    exit 0
+fi
+
+# Kludge in case they issue this command back to back and it creates
+# the script twice ...
+
+sleep 1
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+# Bring in the global definitions that all of these
+# routines need.
+#
+
+. ${thisDir}/spm8Batch_Global
+
+#
+# Inialization.
+#
+
+let args=$#
+let argn=0
+
+let nSubjects=0
+
+UMBatchMaster=`pwd`
+
+theDate=`date +%y%m%d_%H_%M_%S`
+HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}' | awk -F\- '{print $1}'`
+
+# Test and debug flags.
+
+testFLAG=0
+debugFLAG=0
+SuperDebugFLAG=0
+WIPEFLAG=0
+
+maskIMG=          
+maskFLAG=0        # maskIMG must be specified and exist for this to be set to 1
+robustFLAG=0
+
+RUNNO=1
+BRIKNAME=wrapnvol+orig
+NAMELABEL=X2H
+RESULTSDIR=
+MASKNAME=brainMask_NoVisual+orig
+MASTERDIR=
+DIR1D=1d
+USERNAME=
+
+# If these stay blank then we figure them out, else we use what the user overrides with.
+
+XONNAME=
+XCENSORNAME=
+
+# Get the current directory as we might need it.
+
+currentDIR=`pwd`
+
+# Number of arguments passed.
+
+if [ "$#" == "0" ]
+    then
+    echo
+    echo " trainSVM.sh"
+    echo
+    echo " A script to call 3dsvm to build models for further testing."
+    echo " Use this script to train a lot of data sets automatically"
+    echo " that can be then tested later with other data sets."
+    echo 
+    echo " Usage"
+    echo
+    echo "   trainSVM.sh -d -R -r [RUNNO] -v [BRIK] -L [NAME_OF_LABEL] [-ON vector] [-CENSOR vector] -w [LOCATION_FOR_MODEL] -m [MASK] -M [MASTERDIR] -U [USERNAME] -W [SUBJECT_LIST]"
+    echo
+    echo " Options"
+    echo 
+    echo "     -d                      - debug flag, will print along the way"
+    echo "     -R                      - robust flag, proceed past minor errors"
+    echo "     -r RUNNO                - run number to use for the analysis (default=1)"
+    echo "     -v BRIK                 - name of the BRIK file to use (default=wrapnvol+orig)"
+    echo "     -L NAME_OF_LABEL        - generic name of the labe to look for in the 1d directory (default=X2H)"
+    echo "     -w LOCATION_FOR_MODEL   - place to put the results automatically under FirstLevel/[SUBJECT] (default=TRAIN/[NAME_OF_LABEL])"
+    echo "     -m MASK                 - mask file, you can specify either releative or absolute path (default=brainMask_NoVisual)"
+    echo "     -M MASTERDIR            - name of director below PWD that contains the subjects"
+    echo "     -1 1DDIR                - directory to hunt for 1d descrip data (default=1d)."
+    echo "     -U Username             - name to email to (default=blank). If Username='NOMAIL' then no email."
+    echo "     -W                      - wipe the output directory before proceeding."
+    echo
+    echo " "
+    echo " Copyright Robert C. Welsh, 2010, Version ${VERSION}"
+    echo
+    exit 0
+fi
+
+while (( $argn < $args ))
+do
+  #
+  # If a directory then we assume it is a subject.
+  #
+    if [ -d "./${MASTERDIR}/$1" ]
+    then
+	let nSubjects++
+	subjects[${nSubjects}]=$1
+    else
+    # 
+    # Options or a parameter for Estimation.
+    #
+	curParam=$1
+    # Check to see if option
+	if [ "${curParam:0:1}" == "-" ]
+	then 
+	    case "${curParam}" in
+	      #
+	      # Debug FLAG
+	      #
+		"-d")
+		    debugFLAG=1
+		    ;;
+	      #
+	      # super debug flag
+	      #
+		"-R")
+		    robustFLAG=D
+		    ;;
+	      #
+	      # Wipe directory first.
+	      #
+		"-W")
+		    WIPEFLAG=1
+		    ;;
+	      #
+	      # super debug flag
+	      #
+		"-D")
+		    SuperDebugFLAG=D
+		    debugFLAG=1
+		    ;;
+	      #
+	      # run number.
+	      #
+		"-r")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			RUNNO=$1
+		    fi
+		    ;;
+	      #
+	      # brik name.
+	      #
+		"-v")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			BRIKNAME=$1
+		    fi
+		    ;;
+	      #
+	      # Generic name of the labels
+	      #
+		"-L")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			NAMELABEL=$1
+		    fi
+		    ;;
+	      #
+	      # ON vector name
+	      #
+		"-ON")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			XONNAME=$1
+		    fi
+		    ;;
+	      #
+	      # OFF vector name
+	      #
+		"-OFF")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			XOFF=$1
+		    fi
+		    ;;
+	      #
+	      # CENSOR vector name
+	      #
+		"-CENSOR")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			XCENSORNAME=$1
+		    fi
+		    ;;
+	      #
+	      # mask name.
+	      #
+		"-m")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for explicit mask name, aborting."
+			exit 0
+		    else
+			MASKNAME=$1
+			if [ -e "$MASKNAME" ]
+			then
+			    maskFLAG=1
+			else
+			    maskFLAG=0
+			    echo "Masking image \"${maskIMG}\" doesn't exist!"
+			    echo "Aborting"
+			    exit 0
+			fi
+		    fi
+		    ;;
+ 	      #
+	      # sub-Path name to write estimation.
+	      #
+		"-w")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for sub-path name, aborting"
+			exit 0
+		    else
+			RESULTSDIR=$1
+		    fi
+		    ;;
+	      # 
+	      # subject master directory name to use
+	      #
+		"-M")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for subject directory."
+			exit 0
+		    else
+			MASTERDIR=$1
+			if [ ! -d "${MASTERDIR}" ]
+			then
+			    echo "The master subject directory that you have specified does not exist."
+			    exit 0
+			fi
+		    fi
+		    ;;
+	      #
+	      # username.
+	      #
+		"-U")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for path name, aborting"
+			exit 0
+		    else
+			USERNAME=$1
+		    fi
+		    ;;
+	      # 
+	      # 1d vector directory name to use
+	      #
+		"-1")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for subject directory."
+			exit 0
+		    else
+			DIR1D=$1
+			if [ ! -d "${DIR1D}" ]
+			then
+			    echo "The master subject directory that you have specified does not exist."
+			    exit 0
+			else
+			    if [ "${DIR1D:0:1}" != "/" ]
+			    then
+				DIR1D=${UMBatchMaster}/${DIR1D}
+			    fi
+			fi
+		    fi
+		    ;;
+	      #
+	      # NO email notification
+	      #
+		"--nomail")
+		    emailFLAG=0
+		    ;;
+	      #
+              # Default case - can't find bugger out.
+              #
+		*)
+		    echo -e "\a"
+		    echo "$theUSER, you made a mistake."
+		    echo "Invalid option : ${curParam}"
+		    echo
+		    exit 0
+	    esac
+	else
+	    let nParam++
+	    params[${nParam}]=$1
+	    isnumber ${params[${nParam}]}
+	    validNumber=$?
+	    if [ ! "$validNumber" == "$SUCCESS" ]
+	    then
+		echo -e "\a"
+		echo "Parameter number ${nParam} with a value of $1 is not a valid number"
+		echo "Buggering out"
+		exit 0
+	    fi
+	fi
+    fi
+    shift
+    let argn++
+done
+
+# Now do some work.
+
+# 
+# Loop on the subjects
+# and look for the data.
+#
+
+if (( ${#subjects[@]} < 1 ))
+    then
+    echo -e "\a"
+    echo 
+    echo "* * * * * YOU DID NOT SPECIFY ANY SUBJECTS * * * * *"
+    echo 
+    exit 0
+fi
+
+if [ -z "${RESULTSDIR}" ] 
+then
+    RESULTSDIR=SVM/TRAIN/${NAMELABEL}
+fi
+
+if [ "${MASKNAME:0:1}" != "/" ]
+then
+    MASKNAME=${UMBatchMaster}/${MASKNAME}
+fi
+
+echo 
+echo " trainSVM.sh"
+echo 
+echo " Running at $theDate on $HOSTCOMPUTER"
+echo 
+echo "  RUNNO                  : ${RUNNO}"    
+echo "  BRIKNAME               : ${BRIKNAME}"
+echo "  NAMELABEL              : ${NAMELABEL}"
+echo "  RESULTSDIR             : ${RESULTSDIR}"
+echo "  MASKNAME               : ${MASKNAME}"
+echo "  MASTERDIR              : ${MASTERDIR}"
+echo "  XON                    : ${XONNAME}"
+echo "  XCENSOR                : ${XCENSORNAME}"
+echo "  1D DIR                 : ${DIR1D}"
+echo
+echo "  And will perform SVM training on the following subjects:"
+echo
+
+declare -i ii
+
+ALLOK=1
+
+RUNDIR=`echo $RUNNO | awk '{printf "func/run_%02d/",$1}'`
+
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+    echo -n "      ${subjects[$ii]}"
+    subjectGood[${ii}]=1
+    THISSUBJECT=${subjects[$ii]}
+    SUBJECTDATADIR=${UMBatchMaster}/${MASTERDIR}/${THISSUBJECT}/${RUNDIR}
+    THISDIR=`pwd`
+    if [ -d "${SUBJECTDATADIR}" ]
+    then 
+	if [ -e "${SUBJECTDATADIR}/${BRIKNAME}.BRIK" ]
+	then
+	    subjectBRIK[${ii}]=${SUBJECTDATADIR}/${BRIKNAME}.BRIK
+		  # Now look for the labels etc.
+	    if [ ! -d "${DIR1D}" ] 
+	    then
+		echo 
+		echo "Missing 1d directory for experiment description."
+		echo
+		ALLOK=0
+		exit 0
+	    fi
+		    #
+		    # If using default for XON?
+		    #
+	    if [ -z "${XONNAME}" ]
+	    then
+		XON=`ls ${DIR1D}/${NAMELABEL}ON.1D 2> /dev/null`
+	    else
+		XON=`ls ${DIR1D}/${XONNAME}.1D 2> /dev/null`
+	    fi
+		    #
+		    # If using default XCENSOR?
+		    #
+	    if [ -z "${XCENSORNAME}" ]
+	    then
+		XCENSOR=`ls ${DIR1D}/${NAMELABEL}CENSOR.1D 2> /dev/null`
+	    else
+		XCENSOR=`ls ${DIR1D}/${XCENSORNAME}.1D 2> /dev/null`
+	    fi
+	    if [ -z "${XON}" ]
+	    then
+		echo
+		echo "Can't find XON : ${DIR1D}/${NAMELABEL}ON_${NNIMGS}.1D"
+		echo
+		ALLOK=0
+		xon_subject[${ii}]=
+		subjectGood[${ii}]=0
+	    else
+		xon_subject[${ii}]=${XON}
+	    fi
+	    if [ -z "${XCENSOR}" ]
+	    then
+		echo
+		echo "Can't find XCENSOR : 1d/${NAMELABEL}CENSOR_${NNIMGS}.1D"
+		echo
+		ALLOK=0
+		xcensor_subject[${ii}]=""
+		subjectGood[${ii}]=0
+	    else
+		xcensor_subject[${ii}]=${XCENSOR}
+	    fi		    
+	    echo " Found BRIK with ${NNIMGS} and :${xon_subject[${ii}]}: and :${xcensor_subject[${ii}]}:"
+	else
+	    echo " BRIK is MISSING : ${SUBJECTDATADIR}/${BRIKNAME}.BRIK"
+	    ALLOK=0
+	    subjIMGS[${ii}]=0
+	    subjectGood[${ii}]=0
+	fi
+    else
+	echo " data dir is MISSING"
+	subjectGood[${ii}]=0
+	ALLOK=0
+    fi
+done
+
+if [ "${ALLOK}" == "0" ]
+then
+    if [ "${robustFLAG}" == "0" ]
+	then
+	echo
+	echo "Exiting with minor error, if you want to override, resubmit with '-R' flag"
+	echo
+	exit 0
+    fi
+fi
+
+# Now start building the automatic scripts.
+
+SCRIPTNAME=train_svm_${theDate}_${USER}_${HOSTCOMPUTER}
+
+yearWeek=`date +%Y_%W`
+
+SCRIPTDIR=Scripts/TRAIN/${yearWeek}
+
+mkdir -p ${SCRIPTDIR}
+
+FULLSCRIPTNAME=${UMBatchMaster}/${SCRIPTDIR}/${SCRIPTNAME}.sh
+FULLLOGNAME=${UMBatchMaster}/${SCRIPTDIR}/${SCRIPTNAME}.log
+
+echo 
+echo " Building scripts..."
+echo
+echo "  UMBatchMaster=${UMBatchMaster}"
+echo 
+echo "   Script will live in : $SCRIPTDIR"
+echo 
+
+echo "#!/bin/bash"                                        > ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "# Copyright Robert C. Welsh "                      >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "# Script to build models for SVM from"             >> ${FULLSCRIPTNAME}
+echo "# trainging data set"                              >> ${FULLSCRIPTNAME}
+echo "# "                                                >> ${FULLSCRIPTNAME}
+echo "# This scripts is called : ${FULLSCRIPTNAME}"                        >> ${FULLSCRIPTNAME}
+echo "# and was generated by executing the following command:"             >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "#  ${theFullCommand}"                              >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "# and was created on ${theDate}"                   >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "# Don't edit this script as it was written by trainSVM.sh"           >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo                                                     >> ${FULLSCRIPTNAME}
+echo "echo "                                             >> ${FULLSCRIPTNAME}
+echo "echo "                                             >> ${FULLSCRIPTNAME}
+echo "theDate=\`date\`"                                  >> ${FULLSCRIPTNAME}
+echo "echo \"Starting trainSVMProcess at \${theDate}\" " >> ${FULLSCRIPTNAME}
+echo                                                     >> ${FULLSCRIPTNAME}
+
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+    echo "echo -n \"${subjects[$ii]} \" "                                 >> ${FULLSCRIPTNAME}
+    echo "TIME=\`date +%H:%M:%S\`"                                        >> ${FULLSCRIPTNAME}
+    echo "echo -n \"\${TIME} \" "                                         >> ${FULLSCRIPTNAME}
+    echo  -n "${thisDir}/trainSVMProcess.sh ${subjects[$ii]} "            >> ${FULLSCRIPTNAME}
+    echo  -n "${subjectGood[${ii}]} "                                     >> ${FULLSCRIPTNAME}
+    echo  -n "${subjectBRIK[${ii}]} "                                     >> ${FULLSCRIPTNAME}
+    echo  -n "${UMBatchMaster}/FirstLevel/${subjects[$ii]}/${RESULTSDIR} ">> ${FULLSCRIPTNAME}
+    echo  -n "${MASKNAME} "                                               >> ${FULLSCRIPTNAME}
+    echo  -n "${xon_subject[${ii}]} "                                     >> ${FULLSCRIPTNAME}
+    echo  -n "${xcensor_subject[${ii}]} "                                 >> ${FULLSCRIPTNAME}
+    echo     "${WIPEFLAG}"                                                >> ${FULLSCRIPTNAME}
+    echo "TIME=\`date +%H:%M:%S\`"                                        >> ${FULLSCRIPTNAME}
+    echo "echo \"\${TIME} \" "                                            >> ${FULLSCRIPTNAME}
+done
+
+#
+#
+
+if [ "${USERNAME}" != "NOMAIL" ]
+then
+    mailJob.sh ${FULLSCRIPTNAME} ${FULLSCRIPTNAME} ${USERNAME}
+fi
+
+echo "theDate=\`date\`"                                  >> ${FULLSCRIPTNAME}
+echo "echo \"Finished trainSVMProcess at \${theDate}\" " >> ${FULLSCRIPTNAME}
+echo                                                     >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "# All done"                                        >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+echo "#"                                                 >> ${FULLSCRIPTNAME}
+
+echo "            ${FULLSCRIPTNAME}"
+echo
+echo "Launching into background."
+
+chmod +x ${FULLSCRIPTNAME}
+
+nohup ${FULLSCRIPTNAME} &> ${FULLLOGNAME} &
+
+echo 

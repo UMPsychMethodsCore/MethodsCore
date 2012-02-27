@@ -1,0 +1,8 @@
+echo "    3) building list of subjects"   
+echo "UMBatchSubjs  = {..."                                   >> ${FULLSCRIPTNAME}.m
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+do
+    echo "      '${subjects[$ii]}';..."                       >> ${FULLSCRIPTNAME}.m
+done
+echo "                 };"                                    >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m

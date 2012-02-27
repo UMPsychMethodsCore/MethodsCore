@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# 
+# Copyright Robert C. Welsh 2010
+# Ann Arbor
+#
+# after Scott Peltier's matlab code.
+#
+
+if [ $# == 0 ] 
+then
+   echo
+   echo "Usage : "
+   echo 
+   echo "    recursiveBET_Parallel [intputImage]"
+   echo
+   echo "The input image must be a NIFTI image (.nii) and leave off the .nii part please"
+  echo
+   echo "Copyright Robert C. Welsh, 2010, Ann Arbor MI"
+   echo
+   exit 0
+fi
+
+INPUTIMAGE=$1
+
+if [ $# -ge 1 ]
+then
+    FAST=1
+else
+    FAST=0
+fi
+
+if [ -e ${INPUTIMAGE}.nii ]
+then 
+  export FSLOUTPUTTYPE=NIFTI
+  for iLEVEL in `seq 25 30`
+  do
+     LEVEL=`echo $((iLEVEL*3)) | awk '{printf "%02d",$1}'`
+     THEDATE=`date`
+     echo "${THEDATE} : bet ${INPUTIMAGE} ${INPUTIMAGE}_frac_${LEVEL}_g15R -f 0.${LEVEL} -R -m"
+     BETFASTBACKGROUND ${INPUTIMAGE} ${LEVEL} &
+  done
+else
+  echo
+  echo "Can't find that file : ${INPUTIMAGE}"
+  echo
+  recursiveBET
+fi
+
+#
+# All done
+#

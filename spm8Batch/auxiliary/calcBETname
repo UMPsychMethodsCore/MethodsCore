@@ -1,0 +1,7 @@
+		      BETVALUE=`echo ${BETGRADIENT}*100 | bc | awk '{printf "%02.0f",$1}'`
+		      if [ ${BETVALUE:0:1} == "-" ]
+                         then 
+                           BETNAME=m${BETVALUE:1:2}
+                         else
+                           BETNAME=${BETVALUE}
+                      fi

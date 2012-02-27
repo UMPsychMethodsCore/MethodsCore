@@ -1,0 +1,57 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+                      echo
+		      echo "Missing physio options, aborting"
+		      exit 0
+		  else
+		      PHYSIOOPTIONS="$1"
+		  fi
+                  #
+                  # Now check it, to make sure everything is there.
+                  #
+                  TMPOPTIONS=( ${PHYSIOOPTIONS} )
+                  if [ "${#TMPOPTIONS[@]}" != "3" ]
+                  then
+                     echo
+                     echo "You need to specifiy three options: 'rate', 'disdaq' and 'down', aborting"
+                     exit 0
+                  fi
+                  for IELE in 0 1 2
+                  do                
+                    THISOPTION=${TMPOPTIONS[${IELE}]}
+		    Z=`echo $THISOPTION | grep "="`
+		    if [ -z "$Z" ]
+		    then 
+		       echo
+                       echo "Physio Option '$THISOPTION' missing assignment (=), aborting"
+		       echo
+		       exit 0
+                    fi
+                    OPTIONVARIABLE=`echo $THISOPTION | awk -F= '{print $1}'`
+		    OPTIONVALUE=`echo $THISOPTION | awk -F= '{print $2}'`
+		    Z=`echo $OPTIONVARIABLE | grep -e "rate" -e "down" -e "disdaq"`
+		    if [ -z "$Z" ]
+		    then 
+		       echo
+                       echo "Physio Option '$OPTIONVARIABLE' not recognized, needs to be either 'down', 'disdaq', or 'rate', aborting"
+		       echo
+		       exit 0
+                    fi		    		    
+                  done
+		  #
+                  # Now make sure both are there.
+                  #
+                  let nOPTIONS=0
+                  for OPT in rate down disdaq
+                  do
+                    Z=`echo $PHYSIOOPTIONS | grep $OPT`
+                    if [ -z "$Z" ]
+                    then                    
+                       echo
+                       echo "You need to specifiy threee: 'rate','disdaq', and 'down', aborting"
+                       echo
+                       exit 0               
+                    fi
+                  done

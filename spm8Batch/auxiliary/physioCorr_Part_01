@@ -1,0 +1,65 @@
+# Use common in-line code #01 -- comments out to standard output.
+
+. ${thisDir}/auxiliary/buildMatlabScripts_01
+
+cat ${thisDir}/parts/physioCorr_part_1.m                       > ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_02
+
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "UMSubjectDir   = '${SUBJDIR}';"                         >> ${FULLSCRIPTNAME}.m
+
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "UMFuncDir      = '${fmriPATH}';"                        >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+echo "UMVolumeWILD   = '${volumeWILD}';"                      >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+echo "UMOutName      = '${outputName}';"                      >> ${FULLSCRIPTNAME}.m
+
+echo "UMPhysioTable  = '${PHYSIOTABLE}';"                     >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+if [ "${ALLRUNSFLAG}" == "1" ]
+then
+    echo "UMRunList      = 'ALLRUNS';"                        >> ${FULLSCRIPTNAME}.m
+else
+    UMRUNLIST=
+    for (( ir=0 ; ir<$nRUN ; ir++ ))
+    do
+	UMRUNLIST="${UMRUNLIST} ${runNAMES[$ir]}"
+    done
+    echo "UMRunList      = '${UMRUNLIST}';"                   >> ${FULLSCRIPTNAME}.m
+fi
+
+# Now the sample rate and down sampling etc.
+
+TMPOPTIONS=( ${PHYSIOOPTIONS} )
+
+
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "%"                                                      >> ${FULLSCRIPTNAME}.m  
+echo "% Physio sample rate and downsample value "             >> ${FULLSCRIPTNAME}.m  
+echo "%"                                                      >> ${FULLSCRIPTNAME}.m  
+for IELE in 0 1 2
+do
+  THISOPTION=${TMPOPTIONS[${IELE}]}
+  OPTIONVARIABLE=`echo $THISOPTION | awk -F= '{print $1}'`
+  OPTIONVALUE=`echo $THISOPTION | awk -F= '{print $2}'`
+  echo "UM${OPTIONVARIABLE}         = ${OPTIONVALUE};"        >> ${FULLSCRIPTNAME}.m
+done
+echo "%"                                                      >> ${FULLSCRIPTNAME}.m  
+
+echo "UMfMRITR       = ${TR};"                                >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "SandBoxDIR     = '${SANDBOX}/';"                        >> ${FULLSCRIPTNAME}.m
+
+echo "SandBoxPID     = '${SANDBOXPID}/';"                     >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_03
+
+cat ${thisDir}/parts/physioCorr_part_2.m                      >> ${FULLSCRIPTNAME}.m

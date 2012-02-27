@@ -1,0 +1,3 @@
+    echo "    -a sub-directory     set relative path for anatomy directory,"
+    echo "                         default=anatomy"
+    echo 

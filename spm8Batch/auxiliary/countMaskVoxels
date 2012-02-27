@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Count the voxels in each segment that was produced.
+
+pwd
+\rm SEG_stats_?.dat 2> /dev/null
+
+for SEG in 0 1 2
+do
+    for FILE in `ls fast_*_pve_${SEG}.nii` 
+    do 
+	ONES=`fslstats $FILE  -H 2 0 1 | grep 0 | tail -1 ` 
+	FRAC=`echo $FILE | awk -F_ '{print $2}'` ; 
+	echo $FRAC  $ONES >> SEG_stats_${SEG}.dat
+    done
+done

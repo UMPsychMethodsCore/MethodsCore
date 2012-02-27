@@ -1,0 +1,209 @@
+
+              # case_all_runs 
+	      #
+	      # All runs in func
+	      #
+	      "A")
+		  ALLRUNSFLAG=1
+		  ;;
+
+              # case_anatomy_path 
+ 	      #
+	      # Path name to find virgin anatomy files.
+	      #
+	      "a")
+		  . ${thisDir}/auxiliary/setAnatomyPath
+		  ;;
+
+              # case_debug_flag 
+	      #
+	      # debug flag
+	      #
+	      "d")
+		  . ${thisDir}/auxiliary/setDebugFlag
+		  ;;
+
+              # case_super_debug_flag 
+	      #
+	      # super debug flag
+	      #
+	      "D")
+		  . ${thisDir}/auxiliary/setSuperDebugFlag
+		  ;;
+
+              # case_fmri_tr 
+	      #
+	      # Set the TR
+	      #
+	      "F")
+		  . ${thisDir}/auxiliary/setVolumeTR
+		  ;;                	         
+
+              # case_functional_path 
+ 	      #
+	      # Path name to search for functional images.
+	      #
+	      "f")
+		  . ${thisDir}/auxiliary/setFunctionalPath
+		  ;;
+
+              # case_hires_name 
+ 	      # 
+	      # SPGR (hiRES) name to use 
+	      #
+	      "h")
+		  . ${thisDir}/auxiliary/setHiResName
+		  ;;
+
+              # case_set_run 
+	      # 
+	      # run list
+	      #
+	      "i")
+		  . ${thisDir}/auxiliary/setRunList
+		  ;;
+
+              # case_subject_dir 
+	      # 
+	      # subject directory name to use
+	      #
+	      "M")
+		  . ${thisDir}/auxiliary/setSubjectsMasterDir
+		  ;;
+
+              # case_flirt_options 
+	      # 
+	      # find the flirt options
+	      #
+	      "m")
+		  . ${thisDir}/auxiliary/setMCFlirtOptions
+		  ;;
+
+              # case_output_name 
+	      #
+	      # Set the name to add.
+	      #
+	      "n")
+		  . ${thisDir}/auxiliary/setOutputName
+		  ;;
+
+              # case_other_names 
+	      #
+	      # Simliar Other images
+	      # 
+	      "O")
+		  . ${thisDir}/auxiliary/setOtherNames
+		  ;;
+
+              # case_overlay_name 
+	      # 
+	      # overlay name to use
+	      #
+	      "o")
+		  . ${thisDir}/auxiliary/setOverlayName
+		  ;;
+
+              # case_reslice_2 
+	      #
+	      # reslice the geometry only with no estimation?
+	      #
+	      "R")
+		  resliceFLAG=2
+		  ;;
+
+              # case_reslice_1 
+	      #
+	      # reslice the geometry?
+	      #
+	      "r")
+		  resliceFLAG=1
+		  ;;
+
+              # case_standard_volume 
+	      # 
+	      # find the standard volume number.
+	      #
+	      "S")
+		  . ${thisDir}/auxiliary/setStandardVolumeNumber
+		  ;;
+
+              # case_sub_path 
+ 	      #
+	      # sub-Path name to search for functional images.
+	      #
+	      "s")
+		  . ${thisDir}/auxiliary/setFunctionalSubPathName
+		  ;;
+
+              # case_template_name 
+	      #
+	      # Template Image.
+	      #
+	      "T")
+		  . ${thisDir}/auxiliary/setTemplateImageName
+		  ;;
+
+              # case_test_flag 
+	      #
+	      # Test FLAG
+	      #
+	      "t")
+		  . ${thisDir}/auxiliary/setTestFlag
+		  ;;
+
+              # case_user_email 
+	      # 
+	      # Where to send email when finished
+	      #
+	      "U")
+		  . ${thisDir}/auxiliary/setUserEmail
+		  ;;
+
+              # case_volume_name 
+	      # 
+	      # wildcard name to use for which to co-reg.
+	      #
+	      "v")
+		  . ${thisDir}/auxiliary/setVolumeWildCard
+		  ;;
+
+              # case_coreg_path 
+ 	      #
+	      # Path name to place coregistration results.
+	      #
+	      "w")
+		  . ${thisDir}/auxiliary/setCoRegPath
+		  ;;
+
+              # case_voxel_size 
+	      #
+	      # Voxel size
+	      #
+	      "z")
+		  . ${thisDir}/auxiliary/setVoxelSize
+		  ;;
+
+              # case_run_number 
+	      #
+	      # run numbers
+	      # 
+	      "#")
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for run number, aborting"
+		      exit 0
+		  else
+		      runNAMES[$nRUN]=$1
+		      let nRUN++
+		  fi
+		  ;;
+
+              # case_error 
+	      #
+	      # Anything should result in an error.
+	      #
+	      *)
+		  . ${thisDir}/auxiliary/caseError
+		  exit 1

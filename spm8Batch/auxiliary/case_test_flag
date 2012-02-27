@@ -1,0 +1,6 @@
+	      #
+	      # Test FLAG
+	      #
+	      "t")
+		  . ${thisDir}/auxiliary/setTestFlag
+		  ;;

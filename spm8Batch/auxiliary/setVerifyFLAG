@@ -1,0 +1,4 @@
+#
+# Set the verify flag for the moving commands.
+#
+	verifyFLAG=1

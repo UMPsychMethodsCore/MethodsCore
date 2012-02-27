@@ -1,0 +1,7 @@
+    echo "${helpComment} Sub-directory             : ${subPATH}"
+    echo "${helpComment} Volume Wildcard           : ${volumeWILD}"
+    echo "${helpComment} fMRI TR                   : ${TR}"
+    echo "${helpComment} FSLOUTPUTTYPE             : ${FSLOUTPUTTYPE}"
+    echo "${helpComment} Number of runs to realign : ${nRUN}"
+
+    . ${thisDir}/auxiliary/help/help_options_end

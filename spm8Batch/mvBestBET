@@ -1,0 +1,188 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Pull up the ht1spgr and the best BET
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-13"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+#allowedOptions="ahMu"
+allowedOptions="aghMu"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+# First we loop on everybody and make sure we can do the work
+# that is requested.
+
+STARTTIME=`date`
+
+for DOWORK in 0 1
+do
+    if [ "${DOWORK}" == "1" ]
+    then
+	echo 
+	echo Making log file of work in ${MATLABDIR}
+	echo
+	mkdir -p ${MATLABDIR}
+	echo
+	echo Log file is:
+	echo
+	echo "   ${FULLSCRIPTNAME}.log"
+	echo
+	echo                                                        > ${FULLSCRIPTNAME}.log
+	echo mvBestBET was called on $theDate on $HOSTCOMPUTER     >> ${FULLSCRIPTNAME}.log
+	echo                                                       >> ${FULLSCRIPTNAME}.log
+	echo Command issued was                                    >> ${FULLSCRIPTNAME}.log
+ 	echo                                                       >> ${FULLSCRIPTNAME}.log
+	echo "    ${theFullCommand}            "                   >> ${FULLSCRIPTNAME}.log
+ 	echo                                                       >> ${FULLSCRIPTNAME}.log
+ 	echo                                                       >> ${FULLSCRIPTNAME}.log
+    fi
+    for (( is=1 ; is<=$nSubjects ; is++ ))
+    do
+	SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}
+	if [ ! -d "${SUBJECTANATOMY}" ]
+	then
+	    echo
+	    echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	    echo
+	    echo
+	    exit 0
+	fi
+	if [ ! -d "${SUBJECTANATOMY}/BET/" ]
+	then
+	    echo
+	    echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}/BET"
+	    echo
+	    echo
+	    exit 0
+	fi
+	if [ ! -e "${SUBJECTANATOMY}/BET/BET_best.txt" ]
+	then
+	    echo
+	    echo "   FATAL ERROR, can't text file ${SUBJECTANATOMY}/BET/BET_best.txt"
+	    echo
+	    echo
+	    exit 0
+	fi
+	isnumber ${USEBETBEST}
+	validNumber=$?
+	if [ "$validNumber" == "$SUCCESS" ]
+	then
+	    FRAC=`echo $USEBETBEST | awk '{printf "%02d",$1}'`
+	else
+	    FRAC=`head -1 ${SUBJECTANATOMY}/BET/BET_best.txt`
+	fi
+	FRAC=`echo $FRAC | awk '{printf "%02d",$1}'`
+	echo
+	echo "  Using fraction : $FRAC"
+	echo
+        # Now get the gradient
+        . ${thisDir}/auxiliary/calcBETname
+	if [ ! -d ${SUBJECTANATOMY}/BET/ ]
+	then
+	    echo 
+	    echo "Missing ${SUBJECTANATOMY}/BET/"
+	    echo 
+	    echo ABORTING
+	    echo
+	    exit 0
+	fi
+	IMGSOURCE=${SUBJECTANATOMY}/BET/${HIRESNAME}_frac_${FRAC}_g${BETNAME}R.nii 
+	if [ ! -e ${IMGSOURCE} ]
+	then
+	    echo 
+	    echo "Missing ${IMGSOURCE}"
+	    echo 
+	    echo ABORTING
+	    echo
+	    exit 0
+	fi
+	# 
+	# Check that each segment exists.
+	#
+	for SEG in pve_0 pve_1 pve_2 mixeltype
+	do
+	    if [ ! -e ${SUBJECTANATOMY}/BET/fast_${FRAC}_$SEG.nii ]
+		then
+		echo
+		echo "Missing ${SUBJECTANATOMY}/BET/fast_${FRAC}_$SEG.nii"
+		echo
+		exit 0
+	    fi
+	done
+	IMGTARGET=${SUBJECTANATOMY}/BET/best_BET_hiRes.nii
+	#
+	# Now copy over to destination.
+	#
+	if [ "${DOWORK}" == "1" ]
+	then
+	    echo "    $IMGSOURCE ->>> $IMGTARGET "
+	    echo "    $IMGSOURCE ->>> $IMGTARGET "                     >> ${FULLSCRIPTNAME}.log
+	    cp $IMGSOURCE $IMGTARGET
+ 	    echo "         cp $IMGSOURCE $IMGTARGET"                   >> ${FULLSCRIPTNAME}.log
+	    echo                                                       >> ${FULLSCRIPTNAME}.log
+	    #
+	    # Copy the segments we will need
+	    #
+	    for SEG in pve_0 pve_1 pve_2 mixeltype
+	    do
+		IMG1=${SUBJECTANATOMY}/BET/fast_${FRAC}_${SEG}.nii
+		IMG2=${SUBJECTANATOMY}/BET/best_fast_${SEG}.nii
+		echo "    $IMG1 ->>> $IMG2 "
+		echo "    $IMG1 ->>> $IMG2 "                           >> ${FULLSCRIPTNAME}.log
+		cp ${IMG1} ${IMG2}
+	    done
+	    echo $FRAC > ${SUBJECTANATOMY}/BET/BET_threshold.txt
+	    logTheUMProcess mvBestBET ${FULLSCRIPTNAME} $HIRESNAME $FRAC ${BETNAME}
+	fi
+    done
+done
+
+ENDTIME=`date`
+
+echo "Start   : ${STARTTIME}"                                          >> ${FULLSCRIPTNAME}.log
+echo "Finish  : ${ENDTIME}"                                            >> ${FULLSCRIPTNAME}.log
+echo                                                                   >> ${FULLSCRIPTNAME}.log
+echo All done                                                          >> ${FULLSCRIPTNAME}.log
+echo                                                                   >> ${FULLSCRIPTNAME}.log
+
+#
+# all done
+#

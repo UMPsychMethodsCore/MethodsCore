@@ -1,0 +1,8 @@
+if [ ! -e ~/.help.${thisCommand} ]
+then
+    date > ~/.help.${thisCommand}
+    . ${thisDir}/auxiliary/commandUserWarning
+    . ${thisDir}/${thisCommand}
+    exit 0
+fi
+

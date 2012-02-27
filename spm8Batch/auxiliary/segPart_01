@@ -1,0 +1,14 @@
+# Use common in-line code #01 -- comments out to standard output.
+
+. ${thisDir}/auxiliary/buildMatlabScripts_01
+
+cat ${thisDir}/parts/seg_hires_part_1.m                    > ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_02
+
+echo "TemplateImage = '${TemplateImage}';"                >> ${FULLSCRIPTNAME}.m
+
+echo "UMNormedFlag  = '${NormedFLAG}';"                   >> ${FULLSCRIPTNAME}.m 
+
+. ${thisDir}/auxiliary/buildMatlabScripts_03
+

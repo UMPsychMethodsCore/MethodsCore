@@ -1,0 +1,6 @@
+	      #
+	      # reslice the geometry only with no estimation?
+	      #
+	      "R")
+		  resliceFLAG=2
+		  ;;

@@ -1,0 +1,22 @@
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "% This part placed by '${thisCommand}' auto script"     >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "% "                                                     >> ${FULLSCRIPTNAME}.m
+echo "% "                                                     >> ${FULLSCRIPTNAME}.m
+echo "% This script is called :  "                            >> ${FULLSCRIPTNAME}.m
+echo "% "                                                     >> ${FULLSCRIPTNAME}.m
+echo "% ${FULLSCRIPTNAME}.m"                                  >> ${FULLSCRIPTNAME}.m
+echo "% "                                                     >> ${FULLSCRIPTNAME}.m
+echo "% and create on ${theDate}"                             >> ${FULLSCRIPTNAME}.m
+echo "% "                                                     >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "UMBatchMaster = '${UMBatchMaster}';"                    >> ${FULLSCRIPTNAME}.m
+echo " "                                                      >> ${FULLSCRIPTNAME}.m
+
+if [ "$testFLAG" == "0" ]
+then
+    echo "UMTestFlag    = 0;"                                 >> ${FULLSCRIPTNAME}.m
+else
+    echo "UMTestFlag    = 1;"                                 >> ${FULLSCRIPTNAME}.m
+fi
+

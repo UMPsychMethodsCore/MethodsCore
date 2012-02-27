@@ -1,0 +1,11 @@
+echo " "                                                       >> ${FULLSCRIPTNAME}.m
+echo "% All done "                                             >> ${FULLSCRIPTNAME}.m
+echo " "                                                       >> ${FULLSCRIPTNAME}.m
+
+
+echo "    4) finalizing matlab scripts"
+
+cat ${SPM8B2}/parts/coreg_part_2.m                             >> ${FULLSCRIPTNAME}.m
+
+echo "    5) building shell script"
+echo

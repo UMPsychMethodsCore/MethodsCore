@@ -1,0 +1,9 @@
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for user email name, aborting"
+		      exit 1
+		  else
+		      USEREMAIL=$1
+		  fi

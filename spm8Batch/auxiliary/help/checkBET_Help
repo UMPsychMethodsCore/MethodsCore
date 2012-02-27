@@ -1,0 +1,15 @@
+    echo
+    echo " A command line command to check the BET anatomy of a subject"
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "     checkBET 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options

@@ -1,0 +1,16 @@
+#
+# Inialization.
+#
+
+# Name of the volume to scan for.
+volumeWILD=run
+
+# Name of the xref table for the physio files
+PHYSIOTABLE=../Physio/physio.log
+PHYSIOOPTIONS="rate=0.002 down=12 disdaq=0"
+
+outputName=p
+
+#
+# all done
+#
