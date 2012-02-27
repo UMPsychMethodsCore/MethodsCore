@@ -19,9 +19,7 @@ data=within(data,{   #Calculate accuracy and trial duration within the data envi
   TrialDur=ifelse(RespSrc=='stim',get(opts$MSIT$StimRTfield),NA)
   TrialDur=ifelse(RespSrc=='jit',get(opts$MSIT$JitterRTfield)+get(opts$MSIT$StimDurField),TrialDur)
   TrialDur=TrialDur/1000
-  TrialTypeNumAccOnly=ifelse(Acc==1,TrialTypeNum,3) #Change inaccurate trials to be type 3
-  TrialTypeNumAccOnly=ifelse(!is.na(TrialDur),TrialTypeNumAccOnly,4) #Change nonresponse trials to type 4
-  TrialDur=ifelse(Acc==1,TrialDur,NA) #For innaccurate trials, change duration to NA
+  TrialTypeNum=as.numeric(TrialTypeNum)
+  TrialTypeNumAccOnly=ifelse(!is.na(TrialTypeNum) & is.na(TrialDur),max(TrialTypeNum,na.rm=TRUE)+2,TrialTypeNum)
+  TrialTypeNumAccOnly=ifelse(!is.na(TrialTypeNum) & !is.na(TrialDur) & Acc==0,max(TrialTypeNum,na.rm=TRUE)+1,TrialTypeNumAccOnly)
 })
-  
-
