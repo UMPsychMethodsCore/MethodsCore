@@ -1,4 +1,4 @@
-function OutputStrings=generate_strings_CSS(Template, varargin)
+function OutputStrings=GenerateStrings(Template, varargin)
 Template2=Template;
 
 index1=strfind(Template2,'[');

@@ -1,7 +1,7 @@
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts  %%%% this is for generate_path_CSS
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts  %%%% this is for GeneratePath
 
 display ('-----')
-OutputPathFile = generate_path_CSS(OutputPathTemplate,Exp);
+OutputPathFile = GeneratePath(OutputPathTemplate,Exp);
 display('I am going to compute summary motion summary statistics');
 display(sprintf('The size of the lever arm I will use is %d',LeverArm));
 display(sprintf('The output will be stored here: %s', OutputPathFile));
@@ -24,7 +24,7 @@ for iSubject = 1:size(SubjDir,1)
         %       CharjRun = sprintf('%02d',jRun);
         Run = RunDir{iRun};
 
-        pathcallcmd=generate_PathCommand(MotionPathTemplate);
+        pathcallcmd=GeneratePathCommand(MotionPathTemplate);
         MotionPath = eval(pathcallcmd);
         
 
@@ -39,7 +39,7 @@ end %%% loop over subjects
 
 %%%%%%% Save results to CSV file
 
-OutputPathFull=generate_path_CSS(OutputPathTemplate,Exp, OutputName);
+OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
 [OutputPath OutputName] = fileparts(OutputPathFull);
 
 eval(sprintf('!mkdir -p %s',OutputPath));
