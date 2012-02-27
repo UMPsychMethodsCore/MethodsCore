@@ -4,7 +4,7 @@
 
 
  addpath /net/dysthymia/spm8/
- addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+ addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
  addpath('/net/data4/MAS/marsbar-0.42/')
 % addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
 
@@ -22,7 +22,7 @@ UseSPM=1;
 iCol=1;  
 SPMPrevious.SPM.xY.P=   {}; 
 
-FullFileName=eval(generate_PathCommand(OuputPathTemplate));
+FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
        
  for ijob = 1 : size(ExtractionJobs,1)
 % %      
@@ -31,13 +31,10 @@ FullFileName=eval(generate_PathCommand(OuputPathTemplate));
 % %  alldata(iSubject,1)=iSubject;
 % % end   
 %      end
-     pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,1});
-     ConditionPath=eval(pathcallcmd);
-     pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,2});
-     ROIPath = eval(pathcallcmd);
-    % ROIName = ExtractionJobs{ijob,3};
-     
- 
+     ConditionPath=eval(GeneratePathCommand(ExtractionJobs{ijob,1}));
+   
+     ROIPath=eval(GeneratePathCommand(ExtractionJobs{ijob,2}));
+  
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

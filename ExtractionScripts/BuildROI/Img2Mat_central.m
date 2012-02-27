@@ -3,8 +3,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath /net/dysthymia/spm8/
  addpath('/net/data4/MAS/marsbar-0.42/')
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
-%addpath('/net/dysthymia/matlabScripts/') %%% for generate path
+addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for GeneratePath
+
 
  
 
@@ -14,8 +14,8 @@ addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for g
      JobType = JobList{iJob,1}
 
 
-InputROIDir = eval(generate_PathCommand(JobList{iJob,1}))
-OutputROIDir = eval(generate_PathCommand(JobList{iJob,2}))
+InputROIDir = eval(GeneratePathCommand(JobList{iJob,1}))
+OutputROIDir = eval(GeneratePathCommand(JobList{iJob,2}))
 imgname = [InputROIDir JobList{iJob,3}];  
 roitype='image';
 

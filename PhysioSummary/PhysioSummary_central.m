@@ -1,7 +1,7 @@
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts   %%%% this is for generate_path_CSS
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts   %%%% this is for GeneratePath
 
 display ('-----')
-OutputPathFile = generate_path_CSS(OutputPathTemplate,Exp);
+OutputPathFile = eval(GeneratePathCommand(OutputPathTemplate));
 display('I am going to compute physio summary statistics');
 display(sprintf('The output will be stored here: %s', OutputPathFile));
 display('These are the subjects:')
@@ -23,7 +23,7 @@ for iSubject = 1:size(SubjDir,1)
         %       CharjRun = sprintf('%02d',jRun);
         Run = RunDir{iRun};
 
-        pathcallcmd=generate_PathCommand(PhysioPathTemplate);
+        pathcallcmd=GeneratePathCommand(PhysioPathTemplate);
         PhysioPath = eval(pathcallcmd);
         CheckPath(PhysioPath, 'Check the PhysioPathTemplate, your subject directory, and your run directory.');
 %CheckPath(PhysioPath)
@@ -41,7 +41,7 @@ end %%% loop over subjects
 
 %%%%%%% Save results to CSV file
 
-OutputPathFull=generate_path_CSS(OutputPathTemplate,Exp, OutputName);
+OutputPathFull=eval(GeneratePathCommand(OutputPathTemplate));
 [OutputPath OutputName] = fileparts(OutputPathFull);
 
 eval(sprintf('!mkdir -p %s',OutputPath));
@@ -60,15 +60,15 @@ for iSubject = 1:size(SubjDir,1)
         
         
  
- %%%%% Select appropriate output based on h user has set
- 
- index=strfind(PhysioPathTemplate,'Run');
- if size(index)>0
- RunString=RunDir{iRun};
- else
+%  %%%%% Select appropriate output based on h user has set
+%  
+%  index=strfind(PhysioPathTemplate,'Run');
+%  if size(index)>0
+%  RunString=RunDir{iRun};
+%  else
      RunString=num2str(iRun);
 %    RunString = sprintf('%02d',jRun);
- end
+ %end
  %%%%%%%%%%%%%%%%%%%%%%%%%%%
  
  

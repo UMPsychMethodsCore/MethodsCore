@@ -9,8 +9,8 @@ addpath /net/dysthymia/spm8
 global defaults;
 global UFp;
 
-%addpath /net/dysthymia/matlabScripts/  %%%% this is for generate_path_CSS
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 
 display('*****************************************************************');
 display('Starting Check Warp to examine registration of canonical template and first five functional.');
@@ -28,7 +28,7 @@ Run=RunDir{1};
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pathcallcmd=generate_PathCommand(ImageTemplate);
+pathcallcmd=GeneratePathCommand(ImageTemplate);
 ImagePath=eval(pathcallcmd);
 
 

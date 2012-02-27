@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath /net/dysthymia/spm2_64b/
-addpath('/net/dysthymia/matlabScripts/marsbar-0.41/')
+addpath /net/dysthymia/spm8/
+addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
 %addpath('/net/dysthymia/matlabScripts/') %%% for generate path
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
  
 
 
@@ -18,7 +18,7 @@ filename = JobList{iJob,1};
 coordinates = JobList{iJob,2};
 
 r=JobList{iJob,3};
-OutputROIDir = eval(generate_PathCommand(JobList{iJob,4}));
+OutputROIDir = eval(GeneratePathCommand(JobList{iJob,4}));
 
 c = coordinates;
 roitype='sphere';
