@@ -52,7 +52,9 @@ end
 cd(UMBatchMaster);
 cd(UMSubjectDir);
 cd(UMSubject);
-cd(UMFuncDir);
+if (~strcmp(UMFuncDir,''))
+    cd(UMFuncDir);
+end
 
 functionalDIR = pwd;
 
@@ -142,12 +144,12 @@ end
 
 %Check to ensure that the same run is not specified twice. More of a safeguard against typos
 
-pRUNFOUND = zeros(nRUNS,1)
+pRUNFOUND = zeros(nRUNS,1) ;
 
-for iRun = 1:nRUNS
-    for jRun = 1:nRUNS
-        if strcmp(strtrim(physioInfo{iRUN}(1,:),strtrim(physioInfo{jRUN}(1,:))))
-            pRUNFOUND(iRUN) = pRUNFOUND(iRUN) + 1
+for iRUN = 1:nRUNS
+    for jRUN = 1:nRUNS
+        if strcmp(strtrim(physioInfo{iRUN}(1,:)),strtrim(physioInfo{jRUN}(1,:)))
+            pRUNFOUND(iRUN) = pRUNFOUND(iRUN) + 1 ;
         end
     end
 end
