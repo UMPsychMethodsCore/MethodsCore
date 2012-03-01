@@ -54,19 +54,19 @@ end
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 
 
-
+%% Handle cases where file ends in a wildcard
 indexstar=strfind(OutputTemplate,'*');
 if indexstar>0 %% if there is a wildcard
     clear filelist
     filelist=dir(OutputTemplate); %%% this returns the list of files matching the template. Allows wildcards.
     switch length(filelist)
         case 0
-            error('Error -- did not find any files. Please look at your use of wildcards');
+            errordlg('Error -- did not find any files. Please look at your use of wildcards');
         case 1
             [OutputDir OutputName]=fileparts(OutputTemplate);
             OutputTemplate = [OutputDir,filelist(1).name];
         otherwise
-            error('Error -- found more than 1 file. Please look at your use of wildcards');
+            errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
     end %% case staement
 end %% if statement
 pizza=1;
