@@ -56,8 +56,5 @@ if indexstar>0 %% if there is a wildcard
 end %% if statement
 pizza=1;
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 5bd44d6... Updated generate path toolbox
 end
