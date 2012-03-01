@@ -1,5 +1,19 @@
 function OutputTemplate=GeneratePath(Template)
 
+%% Parse Template to Identify Variables
+index1=strfind(Template,'[');
+index2=strfind(Template,']');
+
+
+%if length(index1) ~= length(index2)
+%   display('Your template was not contructed properly. Your open brackets and closed brackets are not balanced')
+%end
+
+for i=1:length(index1)
+    VariableList{i}=Template(index1(i)+1:index2(i)-1);
+end
+
+%% Parse String to Find Constants to fill TemplatePart
 index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
