@@ -72,4 +72,8 @@ end %% if statement
 pizza=1;
 
 
+%% Check if path exists (if supposed to)
+
+%% Make path if it doesn't exist
+
 end
