@@ -108,7 +108,12 @@ end
 if strcmpi('make',mode)
     [templatepath, templatename, templatext, templateversn] = fileparts(OutPutTemplate);
     if exist(templatepath,'file') ~= 0
-        mkdir(templatepath)
+        try
+            mkdir(templatepath)
+        catch
+            errordlg(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
+                'have write permissions to the directory that you specified. Confirm that you are ' ...
+                'able to make the directory manually.'],templatepath);
     end
 end
 
