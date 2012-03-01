@@ -37,9 +37,6 @@ for i=1:length(index1)
 end
 
 %% Parse String to Find Constants to fill TemplatePart
-index1=strfind(Template,'[');
-index2=strfind(Template,']');
-
 if index1(1)>1
     TemplatePart{1}=Template(1:index1-1); %Grab all of the string up to the first [
 else
