@@ -1,4 +1,27 @@
-function OutputTemplate=GeneratePath(Template)
+function OutputTemplate=GeneratePath(Template,mode)
+% A tool to assist in generating paths to files and directories from user
+% specified templates, with variable names filled in.
+% 
+% FORMAT P = GeneratePath(Template,mode)
+% Template              String. For example
+%                       '[Exp]/[Subject]/TASK/func/[Run]/*
+%                       This will build a string by substituting [Exp]
+%                       the current value of the variable Exp, etc.
+%                       A wildcard is allowed at the end, but if it
+%                       matches more than one file, it will generate an
+%                       error dialog.
+% 
+% mode                  String to specify the run mode. Can be...
+%                       
+%                       'check' - Function will check to see if path point
+%                       to extant file or directory, and raise error
+%                       message for user if not.
+% 
+%                       'make' - If directory, make it (including any
+%                       necessary parent directories). If path points to a
+%                       file, make the containing directory, and any
+%                       necessary parent directories.
+
 
 %% Parse Template to Identify Variables
 index1=strfind(Template,'[');
@@ -73,7 +96,21 @@ pizza=1;
 
 
 %% Check if path exists (if supposed to)
+if strcmpi('check',mode)
+    if exist(OutPutTemplate,'file') ~= 0
+        errordlg(['Error -- it appears that the file %s does not exist.' ... 
+            'Double check that you haven''t made a typo and that that file actually exists'],OutputTemplate)
+    end
+end
+    
+    
+%% Make path if it doesn't exist (if supposed to)
+if strcmpi('make',mode)
+    [templatepath, templatename, templatext, templateversn] = fileparts(OutPutTemplate);
+    if exist(templatepath,'file') ~= 0
+        mkdir(templatepath)
+    end
+end
 
-%% Make path if it doesn't exist
-
+%% End the function
 end
