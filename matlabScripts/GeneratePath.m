@@ -40,14 +40,15 @@ else
     TemplatePart{k+2}='';
 end
 
-
+%% Reconstruct the path, piece by piece, substituting in variable values
 OutputTemplate =[];
 
-for k=1:length(varargin)
+for k=1:length(VariableList)
     %     if isnumeric(varargin{k})
     %         varargin{k}=num2str(varargin{k});
     %     end
-    OutputTemplate=horzcat(OutputTemplate,TemplatePart{k},varargin{k});
+    VarValue = evalin('caller',VariableList{k});
+    OutputTemplate=horzcat(OutputTemplate,TemplatePart{k},VarValue); %This appears to reconstruct the template without the brackets around the variables
 end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
