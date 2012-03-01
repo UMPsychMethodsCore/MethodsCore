@@ -1,4 +1,4 @@
-function OutputTemplate=generate_path_CSS(Template, varargin)
+function OutputTemplate=GeneratePath(Template)
 
 index1=strfind(Template,'[');
 index2=strfind(Template,']');
