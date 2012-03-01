@@ -104,7 +104,7 @@ end
 %% Make path if it doesn't exist (if supposed to)
 if strcmpi('make',mode)
     [templatepath, templatename, templatext, templateversn] = fileparts(OutPutTemplate);
-    if exist(templatepath,'file') ~= 0
+    if exist(templatepath,'file') == 0
         try
             mkdir(templatepath)
         catch
