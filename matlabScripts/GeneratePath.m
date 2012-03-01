@@ -98,8 +98,8 @@ pizza=1;
 %% Check if path exists (if supposed to)
 if strcmpi('check',mode)
     if exist(OutPutTemplate,'file') ~= 0
-        errordlg(['Error -- it appears that the file %s does not exist.' ... 
-            'Double check that you haven''t made a typo and that that file actually exists'],OutputTemplate)
+        errordlg(['Error -- it appears that the file %s does not exist. ' ... 
+            'Double check that you haven''t made a typo and that that file actually exists'],OutputTemplate);
     end
 end
     
