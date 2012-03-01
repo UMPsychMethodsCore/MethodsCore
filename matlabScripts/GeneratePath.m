@@ -18,7 +18,7 @@ index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
 if index1(1)>1
-    TemplatePart{1}=Template(1:index1-1);
+    TemplatePart{1}=Template(1:index1-1); %Grab all of the string up to the first [
 else
     TemplatePart{1}=''; %%% Contains everything before the first wildcard
 end
@@ -26,10 +26,10 @@ end
 
 if length(index1)==1
     k=0;
-else
+else %Fill in all of the strings in the middle
 
     for k=1:length(index1)-1  %%% you've already gotten everything before the first index
-        TemplatePart{k+1}=horzcat(Template(index2(k)+1:index1(k+1)-1));
+        TemplatePart{k+1}=horzcat(Template((index2(k)+1):index1(k+1)-1)); %Snag everything after the ith stop, up until the i+1th start
     end
 end
 
