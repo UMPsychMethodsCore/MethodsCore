@@ -17,10 +17,19 @@ function OutputTemplate=GeneratePath(Template,mode)
 %                       to extant file or directory, and raise error
 %                       message for user if not.
 % 
-%                       'make' - If directory, make it (including any
-%                       necessary parent directories). If path points to a
-%                       file, make the containing directory, and any
-%                       necessary parent directories.
+%                       'makedir' - Make the directory as specified by the
+%                       path template exactly. Be careful in using this, as
+%                       you could end up with directories named
+%                       'run_01.nii' if your path returns a pointer to what
+%                       should be a file rather than a directory.
+% 
+%                       'makeparentdir' - Parse out the parent path by
+%                       removing the "file" part of your path (anything
+%                       at the end of the string that isn't terminated by a
+%                       "/"). This is useful if GeneratePath is returning
+%                       an absolute path to a file you're planning to make
+%                       later, but for now you want it to make a directory
+%                       where you can place this file.
 
 
 %% Parse Template to Identify Variables
@@ -94,23 +103,37 @@ pizza=1;
 
 %% Check if path exists (if supposed to)
 if strcmpi('check',mode)
-    if exist(OutPutTemplate,'file') ~= 0
-        errordlg(['Error -- it appears that the file %s does not exist. ' ... 
-            'Double check that you haven''t made a typo and that that file actually exists'],OutputTemplate);
+    if exist(OutputTemplate,'file') == 0
+        errordlg(sprintf(['Error -- it appears that the file %s does not exist. ' ... 
+            'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate));
     end
 end
     
     
 %% Make path if it doesn't exist (if supposed to)
-if strcmpi('make',mode)
-    [templatepath, templatename, templatext, templateversn] = fileparts(OutPutTemplate);
+if strcmpi('makedir',mode)
+    if exist(OutputTemplate,'file') == 0
+        try
+            mkdir(OutputTemplate)
+        catch
+            errordlg(sprintf(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
+                'have write permissions to the directory that you specified. Confirm that you are ' ...
+                'able to make the directory manually.'],templatepath));
+        end
+    end
+end
+
+%% Make parent path if it doesn't exist (if supposed to)
+if strcmpi('makeparentdir',mode)
+    [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
             mkdir(templatepath)
         catch
-            errordlg(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
+            errordlg(sprintf(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
-                'able to make the directory manually.'],templatepath);
+                'able to make the directory manually.'],templatepath));
+        end
     end
 end
 
