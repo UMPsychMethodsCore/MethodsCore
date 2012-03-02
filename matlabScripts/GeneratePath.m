@@ -1,4 +1,4 @@
-function OutputTemplate=GeneratePath(Template,mode)
+function OutputTemplate=GeneratePath(Template,mode,suffix)
 % A tool to assist in generating paths to files and directories from user
 % specified templates, with variable names filled in.
 % 
@@ -84,18 +84,59 @@ OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 
 
 %% Handle cases where file ends in a wildcard
+wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
-if indexstar>0 %% if there is a wildcard
+if any(indexstar>0) %% if there is a wildcard
+    wildcardflag=1;
     clear filelist
-    filelist=dir(OutputTemplate); %%% this returns the list of files matching the template. Allows wildcards.
-    switch length(filelist)
+%     filelist=spm_select('filter',OutputTemplate); %%% this returns the list of files matching the template. Allows wildcards.
+for index=1:length(indexstar)
+    startemplate=OutputTemplate;
+    curTemplate=OutputTemplate(1:indexstar(index));
+    starmatch=dir(curTemplate);
+    switch length(starmatch)
         case 0
-            errordlg('Error -- did not find any files. Please look at your use of wildcards');
+            %Raise error
+        case 1
+            curTemplate = fileparts(curTemplate);
+            replacedtemplate=fullfile(curTemplate,starmatch.name);
+            OutputTemplate(1:length(replacedtemplate)) = replacedtemplate;
+        otherwise
+            %Raise error
+    end
+end
+
+filelist=dir(OutputTemplate);
+switch length(filelist)
+        case 0
+            errmsg='Error -- did not find any files. Please look at your use of wildcards';
+            errordlg(errmsg);
+            error(errmsg)
         case 1
             [OutputDir OutputName]=fileparts(OutputTemplate);
             OutputTemplate = [OutputDir,filelist(1).name];
         otherwise
-            errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+            if exist('suffix')
+                suffixmatch=[];
+                for ifile=1:length(filelist)
+                    substr=filelist(ifile).name(length((filelist(ifile).name-length(suffix)):length(filelist(ifile).name)));
+                    suffixmatch(ifile)=strcmp(substr,suffix);
+                end
+
+                filelist=filelist(substr);
+
+                switch length(filelist)
+                    case 0
+                        errordlg(['Error -- found no files matching your wildcard with the required suffix. ' ...
+                            'Please look at your use of wildcards.'])
+                    case 1
+                        OutputTemplate = filelist(1).name;
+                    otherwise
+                        errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+                end
+            else
+                errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+            end
     end %% case staement
 end %% if statement
 pizza=1;
@@ -111,7 +152,7 @@ end
     
     
 %% Make path if it doesn't exist (if supposed to)
-if strcmpi('makedir',mode)
+if all(strcmpi('makedir',mode),wildcardflag==0)
     if exist(OutputTemplate,'file') == 0
         try
             mkdir(OutputTemplate)
@@ -124,7 +165,7 @@ if strcmpi('makedir',mode)
 end
 
 %% Make parent path if it doesn't exist (if supposed to)
-if strcmpi('makeparentdir',mode)
+if all(strcmpi('makeparentdir',mode),wildcardflag==0)
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
@@ -136,6 +177,14 @@ if strcmpi('makeparentdir',mode)
         end
     end
 end
+
+%% Check if file ends with suffix. If not, append it.
+if exist('suffix')
+    if strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
+        OutputTemplate = [OutputTemplate suffix];
+    end
+end
+
 
 %% End the function
 end
