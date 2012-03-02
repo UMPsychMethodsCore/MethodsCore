@@ -104,7 +104,7 @@ pizza=1;
 %% Check if path exists (if supposed to)
 if strcmpi('check',mode)
     if exist(OutputTemplate,'file') == 0
-        errordlg(sprintf(['Error -- it appears that the file %s does not exist. ' ... 
+        errordlg(sprintf(['Error -- it appears that the directory or file %s does not exist. ' ... 
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate));
     end
 end
@@ -116,7 +116,7 @@ if strcmpi('makedir',mode)
         try
             mkdir(OutputTemplate)
         catch
-            errordlg(sprintf(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
+            errordlg(sprintf(['Error -- there was a problem writing the file/directory %s, perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],templatepath));
         end
@@ -130,7 +130,7 @@ if strcmpi('makeparentdir',mode)
         try
             mkdir(templatepath)
         catch
-            errordlg(sprintf(['Error -- there was a problem generating path %s, perhaps you don''t ' ...
+            errordlg(sprintf(['Error -- there was a problem making the directory %s, perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],templatepath));
         end
