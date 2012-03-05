@@ -82,64 +82,96 @@ end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 
-
-%% Handle cases where file ends in a wildcard
+%% Handle cases with wildcards
 wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
-if any(indexstar>0) %% if there is a wildcard
+indexsep=strfind(OutputTemplate,filesep); %return indices of file separators
+if any(indexstar>0) %% if there are any wildcards present
     wildcardflag=1;
-    clear filelist
-%     filelist=spm_select('filter',OutputTemplate); %%% this returns the list of files matching the template. Allows wildcards.
-for index=1:length(indexstar)
-    startemplate=OutputTemplate;
-    curTemplate=OutputTemplate(1:indexstar(index));
-    starmatch=dir(curTemplate);
+    for index=2:length(indexsep) %run over all directory names
+        indexsep=strfind(OutputTemplate,filesep); %update indices of separators (they might move around after substitution, but number will not change)
+        prePath = OutputTemplate(1:(indexsep(index)-1));
+        postPath = OutputTemplate(indexsep(index):end);
+
+        if any(strfind(prePath,'*')>0) %if any wildcards exist in present chunk
+            starmatch=dir(prePath);
+            switch length(starmatch)
+                case 0
+                    %Raise error
+                case 1
+                    preParent = fileparts (prePath) ;
+                    preMatch = starmatch.name ;
+                    prePath=fullfile(preParent,preMatch) ;
+                    OutputTemplate = [prePath postPath] ;
+                otherwise
+                    %if filling in final wildcard, use suffix to clean things up
+                    if finalflag==1 && exist('suffix')
+                        suffixmatch=[];
+                        for ifile=1:length(starmatch)
+                            substr=starmatch(ifile).name(length((starmatch(ifile).name-length(suffix)):length(starmatch(ifile).name)));
+                            suffixmatch(ifile)=strcmp(substr,suffix);
+                        end
+
+                        starmatch=starmatch(substr);
+
+                        switch length(starmatch)
+                            case 0
+                                errordlg(['Error -- found no files matching your wildcard with the required suffix. ' ...
+                                    'Please look at your use of wildcards.'])
+                            case 1
+                                OutputTemplate = starmatch(1).name;
+                            otherwise
+                                errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+                        end
+                    else
+                        errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+                    end
+            end
+        end
+    end
+end
+
+% handle the last piece
+if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must be in a file spec at the end of OutputTemplate)
+    starmatch=dir(OutputTemplate);
     switch length(starmatch)
         case 0
             %Raise error
         case 1
-            curTemplate = fileparts(curTemplate);
-            replacedtemplate=fullfile(curTemplate,starmatch.name);
-            OutputTemplate(1:length(replacedtemplate)) = replacedtemplate;
+            Parent = fileparts (OutputTemplate) ;
+            Match = starmatch.name ;
+            OutputTemplate=fullfile(Parent,Match) ;
         otherwise
-            %Raise error
-    end
-end
-
-filelist=dir(OutputTemplate);
-switch length(filelist)
-        case 0
-            errmsg='Error -- did not find any files. Please look at your use of wildcards';
-            errordlg(errmsg);
-            error(errmsg)
-        case 1
-            [OutputDir OutputName]=fileparts(OutputTemplate);
-            OutputTemplate = [OutputDir,filelist(1).name];
-        otherwise
+            %if filling in final wildcard, use suffix to clean things up
             if exist('suffix')
                 suffixmatch=[];
-                for ifile=1:length(filelist)
-                    substr=filelist(ifile).name(length((filelist(ifile).name-length(suffix)):length(filelist(ifile).name)));
+                for ifile=1:length(starmatch)
+                    substr=starmatch(ifile).name(length((starmatch(ifile).name-length(suffix)):end));
                     suffixmatch(ifile)=strcmp(substr,suffix);
                 end
 
-                filelist=filelist(substr);
+                starmatch=starmatch(substr);
 
-                switch length(filelist)
+                switch length(starmatch)
                     case 0
                         errordlg(['Error -- found no files matching your wildcard with the required suffix. ' ...
                             'Please look at your use of wildcards.'])
                     case 1
-                        OutputTemplate = filelist(1).name;
+                        Parent = fileparts (OutputTemplate) ;
+                        Match = starmatch.name ;
+                        OutputTemplate=fullfile(Parent,Match) ;
                     otherwise
-                        errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+                        errordlg('Error -- found more than 1 file matching your suffix and wildcards. Please look at your use of wildcards');
                 end
             else
                 errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
             end
-    end %% case staement
-end %% if statement
-pizza=1;
+    end
+end
+    
+          
+             
+
 
 
 %% Check if path exists (if supposed to)
@@ -149,10 +181,10 @@ if strcmpi('check',mode)
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate));
     end
 end
-    
+
     
 %% Make path if it doesn't exist (if supposed to)
-if all(strcmpi('makedir',mode),wildcardflag==0)
+if strcmpi('makedir',mode) && wildcardflag==0
     if exist(OutputTemplate,'file') == 0
         try
             mkdir(OutputTemplate)
@@ -165,7 +197,7 @@ if all(strcmpi('makedir',mode),wildcardflag==0)
 end
 
 %% Make parent path if it doesn't exist (if supposed to)
-if all(strcmpi('makeparentdir',mode),wildcardflag==0)
+if strcmpi('makeparentdir',mode) && wildcardflag==0
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
