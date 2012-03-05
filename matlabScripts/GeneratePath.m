@@ -1,8 +1,8 @@
 function OutputTemplate=GeneratePath(Template,mode,suffix)
 % A tool to assist in generating paths to files and directories from user
 % specified templates, with variable names filled in.
-% 
-% FORMAT P = GeneratePath(Template,mode)
+%
+% FORMAT P = GeneratePath(Template,mode,suffix)
 % Template              String. For example
 %                       '[Exp]/[Subject]/TASK/func/[Run]/*
 %                       This will build a string by substituting [Exp]
@@ -10,26 +10,44 @@ function OutputTemplate=GeneratePath(Template,mode,suffix)
 %                       A wildcard is allowed at the end, but if it
 %                       matches more than one file, it will generate an
 %                       error dialog.
-% 
+%
 % mode                  String to specify the run mode. Can be...
-%                       
+%
 %                       'check' - Function will check to see if path point
 %                       to extant file or directory, and raise error
 %                       message for user if not.
-% 
+%
 %                       'makedir' - Make the directory as specified by the
 %                       path template exactly. Be careful in using this, as
 %                       you could end up with directories named
 %                       'run_01.nii' if your path returns a pointer to what
-%                       should be a file rather than a directory.
-% 
+%                       should be a file rather than a directory. If
+%                       Template includes any wildcard this mode will be
+%                       disabled.
+%
 %                       'makeparentdir' - Parse out the parent path by
 %                       removing the "file" part of your path (anything
 %                       at the end of the string that isn't terminated by a
 %                       "/"). This is useful if GeneratePath is returning
 %                       an absolute path to a file you're planning to make
 %                       later, but for now you want it to make a directory
-%                       where you can place this file.
+%                       where you can place this file. If Template includes
+%                       any wildcards this mode will be disabled.
+%
+%                       'null' (or anything else). Include some meaningless
+%                       string here to pad the arguments in if you wish to
+%                       use later arguments.
+%
+% suffix                If you expect the final resolution of the call to
+%                       include be a particular suffix (e.g. .nii) indicate
+%                       it in this slot. This will use the suffix to
+%                       whittle down the list of potential matches when
+%                       working with wildcards, and, if the final result
+%                       does not end in the specified suffix, it will be
+%                       appended.
+%
+% -------------------------------------------------
+% Note: Wildcards are incompatible with both
 
 
 %% Parse Template to Identify Variables
@@ -94,38 +112,29 @@ if any(indexstar>0) %% if there are any wildcards present
         postPath = OutputTemplate(indexsep(index):end);
 
         if any(strfind(prePath,'*')>0) %if any wildcards exist in present chunk
+            [preParent, preWild, preExt] = fileparts(prePath);
+            preWild = [preWild preExt];
             starmatch=dir(prePath);
             switch length(starmatch)
                 case 0
-                    %Raise error
+                    %Raise error CHECKED
+                    errormsg = sprintf(['Error -- No subdirectories found in "%s" that match your wildcard expression "%s". ' ...
+                        'Please check your use of wildcards.'], ...
+                        preParent, preWild);
+                    errordlg(errormsg,'Path Generation Error')
+                    error(errormsg)
                 case 1
                     preParent = fileparts (prePath) ;
                     preMatch = starmatch.name ;
                     prePath=fullfile(preParent,preMatch) ;
                     OutputTemplate = [prePath postPath] ;
                 otherwise
-                    %if filling in final wildcard, use suffix to clean things up
-                    if finalflag==1 && exist('suffix')
-                        suffixmatch=[];
-                        for ifile=1:length(starmatch)
-                            substr=starmatch(ifile).name(length((starmatch(ifile).name-length(suffix)):length(starmatch(ifile).name)));
-                            suffixmatch(ifile)=strcmp(substr,suffix);
-                        end
-
-                        starmatch=starmatch(substr);
-
-                        switch length(starmatch)
-                            case 0
-                                errordlg(['Error -- found no files matching your wildcard with the required suffix. ' ...
-                                    'Please look at your use of wildcards.'])
-                            case 1
-                                OutputTemplate = starmatch(1).name;
-                            otherwise
-                                errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
-                        end
-                    else
-                        errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
-                    end
+                    %CHECKED
+                    errormsg = sprintf(['Error -- More than one subdirectory found in "%s" matches your wildcard expression "%s". ' ...
+                        'Please check your use of wildcards.'], ...
+                        preParent, preWild);
+                    errordlg(errormsg)
+                    error(errormsg)
             end
         end
     end
@@ -134,64 +143,84 @@ end
 % handle the last piece
 if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must be in a file spec at the end of OutputTemplate)
     starmatch=dir(OutputTemplate);
+    [preParent, preWild, preExt] = fileparts(OutputTemplate);
+    preWild = [preWild preExt];
     switch length(starmatch)
         case 0
-            %Raise error
+            %Raise error CHECKED
+            errormsg = sprintf(['Error -- No files found in "%s" that match your wildcard expression "%s". ' ...
+                'Please check your use of wildcards.'], ...
+                preParent, preWild);
+            errordlg(errormsg)
+            error(errormsg)
         case 1
             Parent = fileparts (OutputTemplate) ;
             Match = starmatch.name ;
             OutputTemplate=fullfile(Parent,Match) ;
         otherwise
-            %if filling in final wildcard, use suffix to clean things up
             if exist('suffix')
                 suffixmatch=[];
                 for ifile=1:length(starmatch)
-                    substr=starmatch(ifile).name(length((starmatch(ifile).name-length(suffix)):end));
+                    substr=starmatch(ifile).name((length(starmatch(ifile).name)-length(suffix)+1):end);
                     suffixmatch(ifile)=strcmp(substr,suffix);
                 end
 
-                starmatch=starmatch(substr);
+                starmatch=starmatch(find(suffixmatch));
 
                 switch length(starmatch)
                     case 0
-                        errordlg(['Error -- found no files matching your wildcard with the required suffix. ' ...
-                            'Please look at your use of wildcards.'])
+                        errormsg=sprintf(['Error -- found no files in "%s" matching your wildcard "%s" with the required suffix "%s". ' ...
+                            'Please look at your use of wildcards.'], ...
+                            preParent,preWild,suffix);
+                        errordlg(errormsg)
+                        error(errormsg)
                     case 1
                         Parent = fileparts (OutputTemplate) ;
                         Match = starmatch.name ;
                         OutputTemplate=fullfile(Parent,Match) ;
                     otherwise
-                        errordlg('Error -- found more than 1 file matching your suffix and wildcards. Please look at your use of wildcards');
+                        errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard expression "%s" ' ...
+                            'and required suffix "%s". Please check your use of wildcards.'], ...
+                            preParent, preWild, suffix);
+                        errordlg(errormsg)
+                        error(errormsg)
                 end
             else
-                errordlg('Error -- found more than 1 file. Please look at your use of wildcards');
+                %Checked
+                errormsg = sprintf(['More than one file found in "%s" matches your wildcard expression "%s". ' ...
+                    'Please check your use of wildcards.'], ...
+                    preParent, preWild);
+                errordlg(errormsg)
+                error(errormsg)
             end
     end
 end
-    
-          
-             
+
+
+
 
 
 
 %% Check if path exists (if supposed to)
 if strcmpi('check',mode)
     if exist(OutputTemplate,'file') == 0
-        errordlg(sprintf(['Error -- it appears that the directory or file %s does not exist. ' ... 
+        errordlg(sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate));
     end
 end
 
-    
+
 %% Make path if it doesn't exist (if supposed to)
 if strcmpi('makedir',mode) && wildcardflag==0
     if exist(OutputTemplate,'file') == 0
         try
             mkdir(OutputTemplate)
         catch
-            errordlg(sprintf(['Error -- there was a problem writing the file/directory %s, perhaps you don''t ' ...
+            errormsg=sprintf(['Error -- there was a problem writing the file/directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
-                'able to make the directory manually.'],templatepath));
+                'able to make the directory manually.'],templatepath);
+            errordlg(errormsg);
+            error(errormsg);
         end
     end
 end
@@ -203,9 +232,11 @@ if strcmpi('makeparentdir',mode) && wildcardflag==0
         try
             mkdir(templatepath)
         catch
-            errordlg(sprintf(['Error -- there was a problem making the directory %s, perhaps you don''t ' ...
+            errordmsg=sprintf(['Error -- there was a problem making the directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
-                'able to make the directory manually.'],templatepath));
+                'able to make the directory manually.'],templatepath);
+            errordlg(errormsg);
+            error(errormsg);
         end
     end
 end
