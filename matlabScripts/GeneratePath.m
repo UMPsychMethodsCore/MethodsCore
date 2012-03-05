@@ -49,6 +49,7 @@ function OutputTemplate=GeneratePath(Template)
 %                       working with wildcards, and, if the final result
 %                       does not end in the specified suffix, it will be
 %                       appended.
+%                       NOTE - Specifying a suffix will disable makedir mode.
 %
 % STRUCT.type           Numeric. Can be...
 %
@@ -287,7 +288,7 @@ if strcmpi('makeparentdir',mode) && wildcardflag==0
 end
 
 %% Check if file ends with suffix. If not, append it.
-if exist('suffix')
+if exist('suffix') && mode~='makedir'
     if ~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
         OutputTemplate = [OutputTemplate suffix];
     end
