@@ -76,6 +76,7 @@ function OutputTemplate=GeneratePath(Template)
 %% Parse arguments
 
 type=0; %default to 0
+mode='null';
 
 if(isstruct(Template))
     if(isfield(Template,'mode')) mode=Template.mode; end;
