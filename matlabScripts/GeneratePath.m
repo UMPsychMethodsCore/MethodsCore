@@ -1,17 +1,21 @@
-function OutputTemplate=GeneratePath(Template,mode,suffix)
+function OutputTemplate=GeneratePath(Template)
 % A tool to assist in generating paths to files and directories from user
 % specified templates, with variable names filled in.
 %
-% FORMAT P = GeneratePath(Template,mode,suffix)
-% Template              String. For example
-%                       '[Exp]/[Subject]/TASK/func/[Run]/*
-%                       This will build a string by substituting [Exp]
-%                       the current value of the variable Exp, etc.
-%                       A wildcard is allowed at the end, but if it
-%                       matches more than one file, it will generate an
-%                       error dialog.
+% FORMAT P = GeneratePath(STRUCT)
+% In this format, a STRUCT(ure) object is passed to GeneratePath.
 %
-% mode                  String to specify the run mode. Can be...
+% STRUCT                The struct object contains fields for various
+%                       settings to be communicated to GeneratePath
+%
+% STRUCT.Template       REQUIRED - String. For example
+%                       '[Exp]/[Subject]/TASK/func/[Run]/'
+%                       This will build a string by substituting [Exp]
+%                       with the current value of the variable Exp, etc.
+%                       Wildcards are allowed throughout to signify none,
+%                       one, or many characters.
+%
+% STRUCT.mode           Optional - String to specify the run mode. Can be...
 %
 %                       'check' - Function will check to see if path point
 %                       to extant file or directory, and raise error
@@ -34,11 +38,11 @@ function OutputTemplate=GeneratePath(Template,mode,suffix)
 %                       where you can place this file. If Template includes
 %                       any wildcards this mode will be disabled.
 %
-%                       'null' (or anything else). Include some meaningless
-%                       string here to pad the arguments in if you wish to
-%                       use later arguments.
+%                       NOTE - If STRUCT.Template includes any wildcards,
+%                       both makedir and makeparentdir modes will be
+%                       disabled.
 %
-% suffix                If you expect the final resolution of the call to
+% STRUCT.suffix         Optional - If you expect the final resolution of the call to
 %                       include be a particular suffix (e.g. .nii) indicate
 %                       it in this slot. This will use the suffix to
 %                       whittle down the list of potential matches when
@@ -46,9 +50,46 @@ function OutputTemplate=GeneratePath(Template,mode,suffix)
 %                       does not end in the specified suffix, it will be
 %                       appended.
 %
+% STRUCT.type           Numeric. Can be...
+%
+%                       1 - STRUCT.Template should resolve to a DIRECTORY
+%                       path. This will influence appropriateness of error
+%                       messages when failing to find a particular path.
+%
+%
+%
+%
+% FORMAT P = GeneratePath(Template)
+% In this simplified format, GeneratePath is passed simply a string.
+%
+% Template              String. For example
+%                       '[Exp]/[Subject]/TASK/func/[Run]/*
+%                       This will build a string by substituting [Exp]
+%                       the current value of the variable Exp, etc.
+%                       A wildcard is allowed at the end, but if it
+%                       matches more than one file, it will generate an
+%                       error dialog.
+%
+%
 % -------------------------------------------------
-% Note: Wildcards are incompatible with both
 
+%% Parse arguments
+
+type=0; %default to 0
+
+if(isstruct(Template))
+    if(isfield(Template,'mode')) mode=Template.mode; end;
+    if(isfield(Template,'suffix')) suffix=Template.suffix; end;
+    if(isfield(Template,'type')) type=Template.type; end;
+    Template = Template.Template;
+end
+
+%% Clean up template based on type
+if(type==1)
+    if(~strcmpi(Template(end),filesep))
+        Template = [Template filesep];
+    end
+end
 
 %% Parse Template to Identify Variables
 index1=strfind(Template,'[');
@@ -133,7 +174,7 @@ if any(indexstar>0) %% if there are any wildcards present
                     errormsg = sprintf(['Error -- More than one subdirectory found in "%s" matches your wildcard expression "%s". ' ...
                         'Please check your use of wildcards.'], ...
                         preParent, preWild);
-                    errordlg(errormsg)
+                    errordlg(errormsg,'Path Generation Error')
                     error(errormsg)
             end
         end
@@ -151,7 +192,7 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
             errormsg = sprintf(['Error -- No files found in "%s" that match your wildcard expression "%s". ' ...
                 'Please check your use of wildcards.'], ...
                 preParent, preWild);
-            errordlg(errormsg)
+            errordlg(errormsg,'Path Generation Error')
             error(errormsg)
         case 1
             Parent = fileparts (OutputTemplate) ;
@@ -172,7 +213,7 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
                         errormsg=sprintf(['Error -- found no files in "%s" matching your wildcard "%s" with the required suffix "%s". ' ...
                             'Please look at your use of wildcards.'], ...
                             preParent,preWild,suffix);
-                        errordlg(errormsg)
+                        errordlg(errormsg,'Path Generation Error')
                         error(errormsg)
                     case 1
                         Parent = fileparts (OutputTemplate) ;
@@ -182,7 +223,7 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
                         errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard expression "%s" ' ...
                             'and required suffix "%s". Please check your use of wildcards.'], ...
                             preParent, preWild, suffix);
-                        errordlg(errormsg)
+                        errordlg(errormsg,'Path Generation Error')
                         error(errormsg)
                 end
             else
@@ -190,7 +231,7 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
                 errormsg = sprintf(['More than one file found in "%s" matches your wildcard expression "%s". ' ...
                     'Please check your use of wildcards.'], ...
                     preParent, preWild);
-                errordlg(errormsg)
+                errordlg(errormsg,'Path Generation Error')
                 error(errormsg)
             end
     end
@@ -204,8 +245,11 @@ end
 %% Check if path exists (if supposed to)
 if strcmpi('check',mode)
     if exist(OutputTemplate,'file') == 0
-        errordlg(sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
-            'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate));
+        errormsg = sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
+            'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
+        errordlg(errormsg,'Path Generation Error');
+        error(errormsg)
+        
     end
 end
 
@@ -219,7 +263,7 @@ if strcmpi('makedir',mode) && wildcardflag==0
             errormsg=sprintf(['Error -- there was a problem writing the file/directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],templatepath);
-            errordlg(errormsg);
+            errordlg(errormsg,'Path Generation Error');
             error(errormsg);
         end
     end
@@ -235,7 +279,7 @@ if strcmpi('makeparentdir',mode) && wildcardflag==0
             errordmsg=sprintf(['Error -- there was a problem making the directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],templatepath);
-            errordlg(errormsg);
+            errordlg(errormsg,'Path Generation Error');
             error(errormsg);
         end
     end
@@ -243,7 +287,7 @@ end
 
 %% Check if file ends with suffix. If not, append it.
 if exist('suffix')
-    if strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
+    if ~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
         OutputTemplate = [OutputTemplate suffix];
     end
 end
