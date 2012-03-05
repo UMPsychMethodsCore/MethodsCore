@@ -97,11 +97,6 @@ end
 index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
-
-%if length(index1) ~= length(index2)
-%   display('Your template was not contructed properly. Your open brackets and closed brackets are not balanced')
-%end
-
 for i=1:length(index1)
     VariableList{i}=Template(index1(i)+1:index2(i)-1);
 end
@@ -134,10 +129,16 @@ end
 OutputTemplate =[];
 
 for k=1:length(VariableList)
-    %     if isnumeric(varargin{k})
-    %         varargin{k}=num2str(varargin{k});
-    %     end
-    VarValue = evalin('caller',VariableList{k});
+    try
+        VarValue = evalin('caller',VariableList{k});
+    catch
+        errormsg = sprintf(['Error -- The variable "%s" that you enclosed in brackets does not have a ' ...
+            'defined value. Double check that you have not made a typo (e.g. [EXP] instead of Exp) and carefully ' ...
+            'read the commented instructions around your path template specification to be sure of which variables ' ...
+            'you can use in bracketed expressions.'],VariableList{k});
+        errordlg(errormsg,'Path Generation Error')
+        error(errormsg)
+    end
     OutputTemplate=horzcat(OutputTemplate,TemplatePart{k},VarValue); %This appears to reconstruct the template without the brackets around the variables
 end
 
