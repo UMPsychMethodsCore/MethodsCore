@@ -289,7 +289,7 @@ if strcmpi('makeparentdir',mode) && wildcardflag==0
 end
 
 %% Check if file ends with suffix. If not, append it.
-if exist('suffix') && mode~='makedir'
+if exist('suffix') && strcmpi('makedir',mode)
     if ~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
         OutputTemplate = [OutputTemplate suffix];
     end
