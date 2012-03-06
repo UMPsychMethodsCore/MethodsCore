@@ -1,6 +1,6 @@
 # validate that we have what we need.
 
-. ${thisDir}/auxiliary/checkVBM8Parts
+. ${thisDir}/auxiliary/checkVBMParts
 
 # Initialize warping variables.
 

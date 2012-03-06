@@ -7,7 +7,7 @@
     echo " e.g. "
     echo
     echo "   To process the image 'ht1spgr.nii' through VBM8 to create a skull-stripped"
-    echo "   image in the native space do:
+    echo "   image in the native space do:"
     echo 
     echo "     vbm8HiRes 050126zz"
     echo

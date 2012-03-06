@@ -1,0 +1,13 @@
+# Use common in-line code #01 -- comments out to standard output.
+
+. ${thisDir}/auxiliary/buildMatlabScripts_01
+
+cat ${SPM8B2}/parts/vmb8_part_01.m                            > ${FULLSCRIPTNAME}.m
+
+# Use common in-line code #02 -- header information
+
+. ${thisDir}/auxiliary/buildMatlabScripts_02
+
+# Use common in-line code #03 -- subject list.
+. ${thisDir}/auxiliary/buildMatlabScripts_03
+
