@@ -1,0 +1,6 @@
+    echo "${helpComment} anatomy path             : $anatomyPATH"
+    echo "${helpComment} name of hisres image     : $HIRESNAME"
+    echo "${helpComment} directory to vbm8        : $anatomyPATH/$coregPATH/"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_options_end

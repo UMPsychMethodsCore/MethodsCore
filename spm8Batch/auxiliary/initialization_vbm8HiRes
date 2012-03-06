@@ -1,0 +1,16 @@
+#
+# Inialization.
+#
+
+# we do things in the top level of the subject, so not 
+# in the func directory.
+
+fmriPATH=./
+
+# Output directory
+
+coregPATH=anatomy/vbm8/
+
+#
+# all done
+#

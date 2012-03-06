@@ -1,0 +1,36 @@
+
+#
+# We must do a graceful exit and clean up everthing that was possibly written.
+#
+
+echo 
+echo "An error was found in your data and/or parameter specification, se we can not proceed. Going to now"
+echo "gently remove any script files partially written."
+echo
+
+if [ ! -z ${FULLSCRIPTNAME} ]
+then
+    for EXT in sh m log
+    do
+	if [ -e ${FULLSCRIPTNAME}.${EXT} ]
+	then
+	    echo -n "Found '${FULLSCRIPTNAME}.${EXT}', removing...."
+	    rm ${FULLSCRIPTNAME}.${EXT} 2> /dev/null
+	    echo 
+	fi
+    done
+fi
+
+# 
+# Now exiting
+#
+
+echo 
+echo "Clean up finished, now exiting."
+echo
+
+exit 1
+
+#
+# all done.
+# 

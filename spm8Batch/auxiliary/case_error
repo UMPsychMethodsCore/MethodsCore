@@ -3,4 +3,4 @@
 	      #
 	      *)
 		  . ${thisDir}/auxiliary/caseError
-		  exit 1
+		  . ${thisDir}/auxiliary/exit_w_removal

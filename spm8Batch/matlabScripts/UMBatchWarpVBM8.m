@@ -12,14 +12,14 @@
 %
 % Version 2.0
 %
+% This should ONLY BE CALLED BY UMBatchWarp and NOT directly.
 % 
 %  Call as :
 %
-%  function results = UMBatchWarp(TemplateImage,ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+%  function results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
 %
 %  To Make this work you need to provide the following input:
 %
-%     TemplateImage    = Image to warp the Parameter image.
 %     ParamImage       = Image to determine warping parameters.
 %     ObjectMask       = Masking Image.
 %     Images2Write     = Images to write normalize.
@@ -47,7 +47,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchWarp(TemplateImage,ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName,WARPMETHOD);
+function results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
 
 % Get the defaults from SPM.
 
@@ -57,7 +57,7 @@ global defaults
 
 UMBatchPrep
 
-fprintf('Entering UMBatchWarp V2.0 SPM8 Compatible\n');
+fprintf('Entering UMBatchWarpVBM8 V2.0 SPM8 Compatible\n');
 
 if TestFlag~=0
     fprintf('\nTesting only, no work to be done\n\n');
@@ -66,11 +66,6 @@ end
 %
 % Set the return status to -1, that is error by default.
 %
-
-if WARPMETHOD
-  results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName,WARPMETHOD);
-  return
-end
 
 results = -1;
 
@@ -88,15 +83,14 @@ if isempty(ParamImage) | exist(ParamImage) == 0
     return
 end
 
-%  
-% Check to see if the template image exists?
-% 
+% We need to make sure tha the VBM8 toolbox is present.
 
-if isempty(TemplateImage) | exist(TemplateImage) == 0
-    DetermineParam = 0;
-else
-    DetermineParam = 1;
+if exist('spm_vbm8.m') ~= 2
+  fprintf('\n\n* * * * * * MISSING THE VBM8 TOOLBOX * * * * * * \n')
+  fprintf('  * * * A B O R T I N G * * *\n\n');
+  return
 end
+  
 
 % 
 % Check to see if they want a mask on the object.

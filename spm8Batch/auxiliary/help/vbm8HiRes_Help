@@ -1,0 +1,18 @@
+    echo
+    echo " A command line command to drive batch processing to VBM8 the 'HIRES' image."
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "   To process the image 'ht1spgr.nii' through VBM8 to create a skull-stripped"
+    echo "   image in the native space do:
+    echo 
+    echo "     vbm8HiRes 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_vbm8HiRes_Options

@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for path name to place results, aborting"
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      coregPATH=$1
 		  fi

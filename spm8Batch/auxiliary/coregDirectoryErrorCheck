@@ -5,6 +5,6 @@
 	echo
 	echo " ABORTING "
 	echo
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
     

@@ -2,6 +2,12 @@
 # Parse the arguments
 #
 
+# permitted arguments
+# 
+# AabDdFfghiMmnOopPRrSsTtUuVvwZ#
+#
+#
+
 while (( $argn < $args ))
 do
   #
@@ -32,7 +38,7 @@ do
 		echo 
 		echo "Option : $curParam : is not allowed for ${thisCommand}"
 		echo
-		exit 1
+	        . ${thisDir}/auxiliary/exit_w_removal
             fi
 	    case "${curParam:1:1}" in
 		
@@ -260,6 +266,13 @@ do
 		  . ${thisDir}/auxiliary/setCoRegPath
 		  ;;
 
+              # case_warp_method
+              #
+              # Use VBM8 for warping
+              #
+              "W")
+                  . ${thisDir}/auxillary/setWarpMethod
+                  ;;
               # case_voxel_size 
 	      #
 	      # Voxel size
@@ -278,7 +291,7 @@ do
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for run number, aborting"
-		      exit 0
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      runNAMES[$nRUN]=$1
 		      let nRUN++
@@ -291,7 +304,7 @@ do
 	      #
 	      *)
 		  . ${thisDir}/auxiliary/caseError
-		  exit 1
+		  . ${thisDir}/auxiliary/exit_w_removal
 		
 	    esac
 	else
@@ -307,14 +320,14 @@ do
 		    echo -e "\a"
 		    echo "Parameter number ${nParam} with a value of $1 is not a valid number"
 		    echo "Buggering out"
-		    exit 1
+	            . ${thisDir}/auxiliary/exit_w_removal
 		fi
 	    else
 	  #
 	  # It is not a directory and not an option, so it will be an error.
 	  #
 		. ${thisDir}/auxiliary/unrecognizedArgument
-		exit 1
+	        . ${thisDir}/auxiliary/exit_w_removal
 	    fi
 	fi
     fi

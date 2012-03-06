@@ -47,7 +47,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchWarp(TemplateImage,ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName,WARPMETHOD);
+function results = UMBatchWarpVBM8(TemplateImage,ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName,WARPMETHOD);
 
 % Get the defaults from SPM.
 

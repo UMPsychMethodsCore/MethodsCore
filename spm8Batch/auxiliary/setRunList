@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		  then
 		      echo "Missing run list option, abortin."
-		      exit 0
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      runLIST=$1
 		      run0=`echo ${runLIST} | awk -F- '{print $1}'`

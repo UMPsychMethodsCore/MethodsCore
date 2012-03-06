@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing standard volume number, aborting"
-		      exit 0
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      standardVolume=$1
 		  fi
