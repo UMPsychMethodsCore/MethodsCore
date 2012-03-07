@@ -282,20 +282,53 @@ for file in $biglist; do
 done
 }
 
+function perms_to_analyze { #Will rewrite all of the weight buckets from the permutation tests as img/hdr pairs for easier readier downstream
+
+    cd $svmdir/perms
+
+    weights=`find -name "weight*HEAD"` #get a list of all your weight buckets
+
+    mkdir $svmdir/perms_analyze
+
+    let "i=1"
+
+    for w in $weights; do
+	3dAFNItoANALYZE -4D $svmdir/perms_analyze/$i $w >/dev/null
+	echo "Converting file $i"
+	let "i=$i+1"
+    done
+
+}
+
+function perms_vizi {
+m64 -nodesktop -nojvm <<EOF
+    Pt = '$svmdir/weightbucket+orig.img'
+    Pdir = '$svmdir/perms_analyze'
+    name= 'permvizi'
+    addpath $thisdir
+    permutation_test.m
+EOF
+
+}
+
+
 function permutation_test { #will perfrom $1 permutations on data, writing out weight buckets at each step
-permute=1
-mkdir $svmdir/perms
-for i in `seq 1 $1`; do
-echo "Running permutation $i of $1"
-svmdir=`echo $svmdir_orig/perms/$i`
-mkdir $svmdir
-cd $svmdir
-ln -s $svmdir_orig/bucketshorttime* .
-cp $svmdir_orig/labels.1D ./labels.1D
-label_permute labels.1D
-set_train_rules
-svm_train "bucketshorttime"
-done
+    permute=1
+    mkdir $svmdir/perms
+    for i in `seq 1 $1`; do
+	echo "Running permutation $i of $1"
+	svmdir=`echo $svmdir_orig/perms/$i`
+	mkdir $svmdir
+	cd $svmdir
+	ln -s $svmdir_orig/bucketshorttime* .
+	cp $svmdir_orig/labels.1D ./labels.1D
+	label_permute labels.1D
+	set_train_rules
+	svm_train "bucketshorttime"
+    done
+perms_to_analyze #Convert all the permutations to image header pairs
+perms_vizi
+    
 }
 
 
