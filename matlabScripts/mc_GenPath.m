@@ -170,10 +170,10 @@ if any(indexstar>0) %% if there are any wildcards present
             switch length(starmatch)
                 case 0
 
-				%Raise error CHECKED
-                  errormsg = sprintf(['Error -- No subdirectories found in "%s" that match your wildcard expression "%s". ' ...
-				      'Please check your use of wildcards.'], ...
-				     preParent, preWild);
+                    %Raise error CHECKED
+                    errormsg = sprintf(['Error -- No subdirectories found in "%s" that match your wildcard expression "%s". ' ...
+                        'Please check your use of wildcards.'], ...
+                        preParent, preWild);
                     errordlg(errormsg,'Path Generation Error')
                     error(errormsg)
                 case 1
@@ -201,31 +201,31 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
     switch length(starmatch)
         case 0
             %Raise error CHECKED
-	  if(exist('suffix')
-             errormsg=sprintf(['Error -- found no files in "%s" matching your wildcard "%s". ' ...
-			       'Note: the suffix "%s" may have been added to your wildcard. ' ...
-			       'Please look at your use of wildcards.'], ...
-			      preParent,preWild,suffix);
-             errordlg(errormsg,'Path Generation Error')
-             error(errormsg)
-	   else
-             errormsg = sprintf(['Error -- No files found in "%s" that match your wildcard expression "%s". ' ...
-				'Please check your use of wildcards.'], ...
-			       preParent, preWild);
-             errordlg(errormsg,'Path Generation Error')
-             error(errormsg)
-	     end
+            if(exist('suffix')
+                errormsg=sprintf(['Error -- found no files in "%s" matching your wildcard "%s". ' ...
+                    'Note: the suffix "%s" may have been added to your wildcard. ' ...
+                    'Please look at your use of wildcards.'], ...
+                    preParent,preWild,suffix);
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
+            else
+                errormsg = sprintf(['Error -- No files found in "%s" that match your wildcard expression "%s". ' ...
+                    'Please check your use of wildcards.'], ...
+                    preParent, preWild);
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
+            end
         case 1
             Parent = fileparts (OutputTemplate) ;
             Match = starmatch.name ;
             OutputTemplate=fullfile(Parent,Match) ;
         otherwise
             if exist('suffix')
-                        errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard "%s". ' ...
-                            'Note: the suffix "%s" may have been added to your wildcard. Please check your use of wildcards.'], ...
-                            preParent, preWild, suffix);
-                        errordlg(errormsg,'Path Generation Error')
-                        error(errormsg)
+                errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard "%s". ' ...
+                    'Note: the suffix "%s" may have been added to your wildcard. Please check your use of wildcards.'], ...
+                    preParent, preWild, suffix);
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
             else
                 %Checked
                 errormsg = sprintf(['More than one file found in "%s" matches your wildcard expression "%s". ' ...
@@ -249,7 +249,7 @@ if strcmpi('check',mode)
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
         errordlg(errormsg,'Path Generation Error');
         error(errormsg)
-        
+
     end
 end
 
