@@ -169,7 +169,7 @@ end
 
 % Precedence Handling
 
-[wildPath wildFile wildExt] = fileparts(OutputTemplate);
+[wildPath, wildFile, wildExt] = fileparts(OutputTemplate);
 wildFile = [wildFile wildExt];
 if(any(strfind(wildFile,'*')>0))
     if(strcmpi('make',mode)) %If currently running in make mode, disable it
@@ -183,7 +183,7 @@ if(any(strfind(wildFile,'*')>0))
     end
 end
 
-%Do actual substitution
+% Do actual substitution
 
 wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
