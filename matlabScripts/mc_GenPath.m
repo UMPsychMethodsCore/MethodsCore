@@ -185,11 +185,9 @@ end
 
 % Do actual substitution
 
-wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
 indexsep=strfind(OutputTemplate,filesep); %return indices of file separators
 if(any(indexstar>0)) %% if there are any wildcards present
-    wildcardflag=1;
     for index=2:length(indexsep) %run over all directory names
         indexsep=strfind(OutputTemplate,filesep); %update indices of separators (they might move around after substitution, but number will not change)
         prePath = OutputTemplate(1:(indexsep(index)-1));
@@ -287,7 +285,7 @@ end
 
 
 %% Make path if it doesn't exist (if supposed to)
-if(strcmpi('makedir',mode) && wildcardflag==0)
+if(strcmpi('makedir',mode))
     if exist(OutputTemplate,'file') == 0
         try
             mkdir(OutputTemplate)
@@ -302,7 +300,7 @@ if(strcmpi('makedir',mode) && wildcardflag==0)
 end
 
 %% Make parent path if it doesn't exist (if supposed to)
-if(strcmpi('makeparentdir',mode) && wildcardflag==0)
+if(strcmpi('makeparentdir',mode))
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
