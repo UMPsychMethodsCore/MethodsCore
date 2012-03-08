@@ -284,21 +284,6 @@ if(strcmpi('makedir',mode))
     end
 end
 
-
-%% Check if path exists (if supposed to)
-if(strcmpi('check',mode))
-    if exist(OutputTemplate,'file') == 0
-        errormsg = sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
-            'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
-        errordlg(errormsg,'Path Generation Error');
-        error(errormsg)
-
-    end
-end
-
-
-
-
 %% Make parent path if it doesn't exist (if supposed to)
 if(strcmpi('makeparentdir',mode))
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
@@ -314,6 +299,21 @@ if(strcmpi('makeparentdir',mode))
         end
     end
 end
+
+
+
+%% Check if path exists (if supposed to)
+if(strcmpi('check',mode))
+    if exist(OutputTemplate,'file') == 0
+        errormsg = sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
+            'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
+        errordlg(errormsg,'Path Generation Error');
+        error(errormsg)
+
+    end
+end
+
+
 
 
 
