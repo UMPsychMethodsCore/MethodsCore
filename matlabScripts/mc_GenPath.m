@@ -166,6 +166,25 @@ end
 
 
 %% Handle cases with wildcards
+
+% Precedence Handling
+
+[wildPath wildFile wildExt] = fileparts(OutputTemplate);
+wildFile = [wildFile wildExt];
+if(any(strfind(wildFile,'*')>0))
+    if(strcmpi('make',mode)) %If currently running in make mode, disable it
+        mode='null';
+    end
+end
+
+if(any(strfind(wildFile,'*')>0))
+    if(strcmpi('makeparentdir',mode)) %If currently running in makeparentdir mode, disable it
+        mode='null';
+    end
+end
+
+%Do actual substitution
+
 wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
 indexsep=strfind(OutputTemplate,filesep); %return indices of file separators
