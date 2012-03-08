@@ -164,14 +164,14 @@ OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 wildcardflag=0;
 indexstar=strfind(OutputTemplate,'*');
 indexsep=strfind(OutputTemplate,filesep); %return indices of file separators
-if any(indexstar>0) %% if there are any wildcards present
+if(any(indexstar>0)) %% if there are any wildcards present
     wildcardflag=1;
     for index=2:length(indexsep) %run over all directory names
         indexsep=strfind(OutputTemplate,filesep); %update indices of separators (they might move around after substitution, but number will not change)
         prePath = OutputTemplate(1:(indexsep(index)-1));
         postPath = OutputTemplate(indexsep(index):end);
 
-        if any(strfind(prePath,'*')>0) %if any wildcards exist in present chunk
+        if(any(strfind(prePath,'*')>0)) %if any wildcards exist in present chunk
             [preParent, preWild, preExt] = fileparts(prePath);
             preWild = [preWild preExt];
             starmatch=dir(prePath);
@@ -202,14 +202,14 @@ if any(indexstar>0) %% if there are any wildcards present
 end
 
 % handle the last piece
-if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must be in a file spec at the end of OutputTemplate)
+if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must be in a file spec at the end of OutputTemplate)
     starmatch=dir(OutputTemplate);
     [preParent, preWild, preExt] = fileparts(OutputTemplate);
     preWild = [preWild preExt];
     switch length(starmatch)
         case 0
             %Raise error CHECKED
-            if(exist('suffix')
+            if(exist('suffix'))
                 errormsg=sprintf(['Error -- found no files in "%s" matching your wildcard "%s". ' ...
                     'Note: the suffix "%s" may have been added to your wildcard. ' ...
                     'Please look at your use of wildcards.'], ...
@@ -228,7 +228,7 @@ if any(strfind(OutputTemplate,'*')>0) %if any wildcards STILL exist (they must b
             Match = starmatch.name ;
             OutputTemplate=fullfile(Parent,Match) ;
         otherwise
-            if exist('suffix')
+            if exist(('suffix'))
                 errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard "%s". ' ...
                     'Note: the suffix "%s" may have been added to your wildcard. Please check your use of wildcards.'], ...
                     preParent, preWild, suffix);
@@ -251,7 +251,7 @@ end
 
 
 %% Check if path exists (if supposed to)
-if strcmpi('check',mode)
+if(strcmpi('check',mode))
     if exist(OutputTemplate,'file') == 0
         errormsg = sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
@@ -263,7 +263,7 @@ end
 
 
 %% Make path if it doesn't exist (if supposed to)
-if strcmpi('makedir',mode) && wildcardflag==0
+if(strcmpi('makedir',mode) && wildcardflag==0)
     if exist(OutputTemplate,'file') == 0
         try
             mkdir(OutputTemplate)
@@ -278,7 +278,7 @@ if strcmpi('makedir',mode) && wildcardflag==0
 end
 
 %% Make parent path if it doesn't exist (if supposed to)
-if strcmpi('makeparentdir',mode) && wildcardflag==0
+if(strcmpi('makeparentdir',mode) && wildcardflag==0)
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
