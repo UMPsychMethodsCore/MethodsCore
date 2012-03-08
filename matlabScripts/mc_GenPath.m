@@ -102,32 +102,35 @@ end
 index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
-for i=1:length(index1)
-    VariableList{i}=Template(index1(i)+1:index2(i)-1);
-end
+if(any(index1>0) && any(index2>0))
 
-%% Parse String to Find Constants to fill TemplatePart
-if index1(1)>1
-    TemplatePart{1}=Template(1:index1-1); %Grab all of the string up to the first [
-else
-    TemplatePart{1}=''; %%% Contains everything before the first wildcard
-end
-
-
-if length(index1)==1
-    k=0;
-else %Fill in all of the strings in the middle
-
-    for k=1:length(index1)-1  %%% you've already gotten everything before the first index
-        TemplatePart{k+1}=horzcat(Template((index2(k)+1):index1(k+1)-1)); %Snag everything after the ith stop, up until the i+1th start
+    for i=1:length(index1)
+        VariableList{i}=Template(index1(i)+1:index2(i)-1);
     end
-end
 
-%%%% this gets the last bit of the template after the final ']'
-if index2(k+1)<size(Template,2)
-    TemplatePart{k+2}=Template(index2(k+1)+1:end);
-else
-    TemplatePart{k+2}='';
+    %% Parse String to Find Constants to fill TemplatePart
+    if index1(1)>1
+        TemplatePart{1}=Template(1:index1-1); %Grab all of the string up to the first [
+    else
+        TemplatePart{1}=''; %%% Contains everything before the first wildcard
+    end
+
+
+    if(length(index1)==1)
+        k=0;
+    else %Fill in all of the strings in the middle
+
+        for k=1:length(index1)-1  %%% you've already gotten everything before the first index
+            TemplatePart{k+1}=horzcat(Template((index2(k)+1):index1(k+1)-1)); %Snag everything after the ith stop, up until the i+1th start
+        end
+    end
+
+    %%%% this gets the last bit of the template after the final ']'
+    if(index2(k+1)<size(Template,2))
+        TemplatePart{k+2}=Template(index2(k+1)+1:end);
+    else
+        TemplatePart{k+2}='';
+    end
 end
 
 %% Check if file ends with suffix. If not, append it.
