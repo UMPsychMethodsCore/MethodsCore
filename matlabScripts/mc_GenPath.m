@@ -144,11 +144,12 @@ end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 
-%% Clean up template based on type
+%% DirCheck: Clean up template based on type
 if(type==1)
-    if(~strcmpi(Template(end),filesep))
-        Template = [Template filesep];
+    if(~strcmpi(OutputTemplate(end),filesep))
+        OutputTemplate = [OutputTemplate filesep];
     end
+    clear('suffix') %Disable suffix mode from running if DirCheck is on
 end
 
 
