@@ -154,9 +154,12 @@ end
 
 
 %% Check if file ends with suffix. If not, append it.
-if(exist('suffix') && ~strcmpi('makedir',mode))
+if(exist('suffix')
     if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
         OutputTemplate = [OutputTemplate suffix];
+    end
+    if(strcmpi('make',mode) %If currently running in make mode, disable it
+        mode='null';
     end
 end
 
