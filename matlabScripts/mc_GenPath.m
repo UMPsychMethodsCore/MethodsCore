@@ -144,18 +144,18 @@ end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
 
-%% Check if file ends with suffix. If not, append it.
-if(exist('suffix') && ~strcmpi('makedir',mode))
-    if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
-        OutputTemplate = [OutputTemplate suffix];
-    end
-end
-
-
 %% Clean up template based on type
 if(type==1)
     if(~strcmpi(Template(end),filesep))
         Template = [Template filesep];
+    end
+end
+
+
+%% Check if file ends with suffix. If not, append it.
+if(exist('suffix') && ~strcmpi('makedir',mode))
+    if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
+        OutputTemplate = [OutputTemplate suffix];
     end
 end
 
