@@ -14,6 +14,24 @@ function OutputTemplate=mc_GenPath(Template)
 %                       with the current value of the variable Exp, etc.
 %                       Wildcards are allowed throughout to signify none,
 %                       one, or many characters.
+% STRUCT.type           Numeric. Can be...
+%
+%                       1 - STRUCT.Template should resolve to a DIRECTORY
+%                       path. This will influence appropriateness of error
+%                       messages when failing to find a particular path.
+%                       Also, if you specify this, it will disable suffix
+%                       mode.
+% STRUCT.suffix         Optional - If you expect the final resolution of the call to
+%                       include be a particular suffix (e.g. .nii) indicate
+%                       it in this slot. This will use the suffix to
+%                       whittle down the list of potential matches when
+%                       working with wildcards, and, if the final result
+%                       does not end in the specified suffix, it will be
+%                       appended. Suffix means suffix, not extension, so if
+%                       you want to make sure a file ends in .nii, include
+%                       the dot in STRUCT.suffix
+%                       NOTE - Specifying a suffix will disable makedir
+%                       mode.
 %
 % STRUCT.mode           Optional - String to specify the run mode. Can be...
 %
@@ -38,26 +56,8 @@ function OutputTemplate=mc_GenPath(Template)
 %                       wildcard in the parent directory specification,
 %                       this mode will be disabled.
 %
-\
 %
-% STRUCT.suffix         Optional - If you expect the final resolution of the call to
-%                       include be a particular suffix (e.g. .nii) indicate
-%                       it in this slot. This will use the suffix to
-%                       whittle down the list of potential matches when
-%                       working with wildcards, and, if the final result
-%                       does not end in the specified suffix, it will be
-%                       appended. Suffix means suffix, not extension, so if
-%                       you want to make sure a file ends in .nii, include
-%                       the dot in STRUCT.suffix
-%                       NOTE - Specifying a suffix will disable makedir mode.
 %
-% STRUCT.type           Numeric. Can be...
-%
-%                       1 - STRUCT.Template should resolve to a DIRECTORY
-%                       path. This will influence appropriateness of error
-%                       messages when failing to find a particular path.
-%                       Also, if you specify this, it will disable suffix
-%                       mode.
 %
 %
 %
