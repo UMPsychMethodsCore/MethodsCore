@@ -97,7 +97,8 @@ if(type==1)
     end
 end
 
-%% Parse Template to Identify Variables
+%% Do bracket expansion
+% Parse Template to Identify Variables
 index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
