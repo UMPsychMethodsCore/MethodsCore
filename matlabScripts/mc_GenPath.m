@@ -89,14 +89,6 @@ if(isstruct(Template))
     if(isfield(Template,'type')) type=Template.type; end;
     Template = Template.Template;
 end
-
-%% Clean up template based on type
-if(type==1)
-    if(~strcmpi(Template(end),filesep))
-        Template = [Template filesep];
-    end
-end
-
 %% Do bracket expansion
 % Parse Template to Identify Variables
 index1=strfind(Template,'[');
@@ -133,15 +125,7 @@ if(any(index1>0) && any(index2>0))
     end
 end
 
-%% Check if file ends with suffix. If not, append it.
-if(exist('suffix') && ~strcmpi('makedir',mode))
-    if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
-        OutputTemplate = [OutputTemplate suffix];
-    end
-end
-
-
-%% Reconstruct the path, piece by piece, substituting in variable values
+% Reconstruct the path, piece by piece, substituting in variable values
 OutputTemplate =[];
 
 for k=1:length(VariableList)
@@ -159,6 +143,23 @@ for k=1:length(VariableList)
 end
 
 OutputTemplate = [OutputTemplate TemplatePart{k+1}];
+
+%% Check if file ends with suffix. If not, append it.
+if(exist('suffix') && ~strcmpi('makedir',mode))
+    if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
+        OutputTemplate = [OutputTemplate suffix];
+    end
+end
+
+
+%% Clean up template based on type
+if(type==1)
+    if(~strcmpi(Template(end),filesep))
+        Template = [Template filesep];
+    end
+end
+
+
 
 %% Handle cases with wildcards
 wildcardflag=0;
