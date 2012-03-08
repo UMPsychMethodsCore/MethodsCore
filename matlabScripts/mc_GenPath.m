@@ -134,8 +134,8 @@ if(any(index1>0) && any(index2>0))
 end
 
 %% Check if file ends with suffix. If not, append it.
-if exist('suffix') && strcmpi('makedir',mode)
-    if ~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix)
+if(exist('suffix') && ~strcmpi('makedir',mode))
+    if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
         OutputTemplate = [OutputTemplate suffix];
     end
 end
