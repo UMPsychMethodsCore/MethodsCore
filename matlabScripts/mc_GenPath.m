@@ -84,9 +84,9 @@ type=0; %default to 0
 mode='null';
 
 if(isstruct(Template))
-    if(isfield(Template,'mode')) mode=Template.mode; end;
-    if(isfield(Template,'suffix')) suffix=Template.suffix; end;
-    if(isfield(Template,'type')) type=Template.type; end;
+    if(isfield(Template,'mode')); mode=Template.mode; end;
+    if(isfield(Template,'suffix')); suffix=Template.suffix; end;
+    if(isfield(Template,'type')); type=Template.type; end;
     Template = Template.Template;
 end
 %% Do bracket expansion
