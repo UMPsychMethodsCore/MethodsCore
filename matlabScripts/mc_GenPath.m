@@ -1,8 +1,8 @@
-function OutputTemplate=GeneratePath(Template)
+function OutputTemplate=mc_GenPath(Template)
 % A tool to assist in generating paths to files and directories from user
 % specified templates, with variable names filled in.
 %
-% FORMAT P = GeneratePath(STRUCT)
+% FORMAT P = mc_GenPath(STRUCT)
 % In this format, a STRUCT(ure) object is passed to GeneratePath.
 %
 % STRUCT                The struct object contains fields for various
@@ -48,7 +48,9 @@ function OutputTemplate=GeneratePath(Template)
 %                       whittle down the list of potential matches when
 %                       working with wildcards, and, if the final result
 %                       does not end in the specified suffix, it will be
-%                       appended.
+%                       appended. Suffix means suffix, not extension, so if
+%                       you want to make sure a file ends in .nii, include
+%                       the dot in STRUCT.suffix
 %                       NOTE - Specifying a suffix will disable makedir mode.
 %
 % STRUCT.type           Numeric. Can be...
@@ -60,8 +62,10 @@ function OutputTemplate=GeneratePath(Template)
 %
 %
 %
-% FORMAT P = GeneratePath(Template)
-% In this simplified format, GeneratePath is passed simply a string.
+% FORMAT P = mc_GenPath(Template)
+% In this simplified format, GeneratePath is passed simply a string. All
+% other options as discussed above are effectively disabled when this
+% format is used.
 %
 % Template              String. For example
 %                       '[Exp]/[Subject]/TASK/func/[Run]/*
