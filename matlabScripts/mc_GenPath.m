@@ -21,13 +21,12 @@ function OutputTemplate=mc_GenPath(Template)
 %                       to extant file or directory, and raise error
 %                       message for user if not.
 %
-%                       'makedir' - Make the directory as specified by the
-%                       path template exactly. Be careful in using this, as
-%                       you could end up with directories named
-%                       'run_01.nii' if your path returns a pointer to what
-%                       should be a file rather than a directory. If
-%                       Template includes any wildcard this mode will be
-%                       disabled.
+%                       'makedir' - After doing bracket and wildcard
+%                       expansion, make the directory returned by the
+%                       function. If you have specified a suffix, this mode
+%                       will be disabled. Also, if, prior to wildcard
+%                       expansion, the template includes a wildcard in the
+%                       final "file" part, this mode will be disabled.
 %
 %                       'makeparentdir' - Parse out the parent path by
 %                       removing the "file" part of your path (anything
@@ -35,12 +34,11 @@ function OutputTemplate=mc_GenPath(Template)
 %                       "/"). This is useful if GeneratePath is returning
 %                       an absolute path to a file you're planning to make
 %                       later, but for now you want it to make a directory
-%                       where you can place this file. If Template includes
-%                       any wildcards this mode will be disabled.
+%                       where you can place this file. If there is a
+%                       wildcard in the parent directory specification,
+%                       this mode will be disabled.
 %
-%                       NOTE - If STRUCT.Template includes any wildcards,
-%                       both makedir and makeparentdir modes will be
-%                       disabled.
+\
 %
 % STRUCT.suffix         Optional - If you expect the final resolution of the call to
 %                       include be a particular suffix (e.g. .nii) indicate
@@ -58,6 +56,8 @@ function OutputTemplate=mc_GenPath(Template)
 %                       1 - STRUCT.Template should resolve to a DIRECTORY
 %                       path. This will influence appropriateness of error
 %                       messages when failing to find a particular path.
+%                       Also, if you specify this, it will disable suffix
+%                       mode.
 %
 %
 %
