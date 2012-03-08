@@ -152,7 +152,6 @@ if(type==1)
     clear('suffix') %Disable suffix mode from running if DirCheck is on
 end
 
-
 %% Check if file ends with suffix. If not, append it.
 if(exist('suffix'))
     if(~strcmp(OutputTemplate((length(OutputTemplate)-length(suffix)+1):length(OutputTemplate)),suffix))
@@ -162,8 +161,6 @@ if(exist('suffix'))
         mode='null';
     end
 end
-
-
 
 %% Handle cases with wildcards
 
@@ -199,7 +196,6 @@ if(any(indexstar>0)) %% if there are any wildcards present
             starmatch=dir(prePath);
             switch length(starmatch)
                 case 0
-
                     %Raise error CHECKED
                     errormsg = sprintf(['Error -- No subdirectories found in "%s" that match your wildcard expression "%s". ' ...
                         'Please check your use of wildcards.'], ...
@@ -267,8 +263,6 @@ if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must 
     end
 end
 
-
-
 %% Make path if it doesn't exist (if supposed to)
 if(strcmpi('makedir',mode))
     if exist(OutputTemplate,'file') == 0
@@ -283,7 +277,6 @@ if(strcmpi('makedir',mode))
         end
     end
 end
-
 %% Make parent path if it doesn't exist (if supposed to)
 if(strcmpi('makeparentdir',mode))
     [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
@@ -299,9 +292,6 @@ if(strcmpi('makeparentdir',mode))
         end
     end
 end
-
-
-
 %% Check if path exists (if supposed to)
 if(strcmpi('check',mode))
     if exist(OutputTemplate,'file') == 0
@@ -312,10 +302,6 @@ if(strcmpi('check',mode))
 
     end
 end
-
-
-
-
 
 %% End the function
 end
