@@ -28,7 +28,7 @@ string "*_template*". It will the loop over these files and do the following
        
        1) Delete all content from %DEVSTART to %DEVSTOP (including these wildcards 
 
-       2) Replace all instances of %[DEVmcRootassign] with mcRoot = 'pwd' where pwd signifies the
+       2) Replace all instances of %[DEVmcRootAssign] with mcRoot = 'pwd' where pwd signifies the
        root of the current MethodsCore clone. This is appropriate for replacement in matlab scripts.
 
        3) Replace all instances of %[DEVmcRoot] with pwd, where pwd signifies the root of the
