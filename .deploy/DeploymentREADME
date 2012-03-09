@@ -1,14 +1,14 @@
 Hello friend!
 
 Thanks for cloning the MethodsCore repository. Many of the scripts in our library require some
-degree of localization, as they usually don't know where they've been cloned. To help with this,
+degree of localization, as they usually don't know where they've been cloned to. To help with this,
 you'll find some scripts and hooks in this directory. Follow the following instructions to enable
 this support.
 
 1. Copy post-checkout to .git/hooks
 2. If this clone is an active deployment (i.e. you expect users to copy templates out of this
-directory before doing work on them, and it's very unlikely that commits will ever occur frmo this
-clone), then touch a regular file named .local/Deployment. This will influence the behavior of
+directory before doing work on them, and it's very unlikely that commits will ever occur from this
+clone), then touch a regular file named .local/deployment. This will influence the behavior of
 deploy.sh which is called from the post-checkout hook.
 
 That's it!
@@ -22,7 +22,7 @@ b) If you have some specific spm8Batch_Global and spm8Setup files, you can put t
 .local/spm8Batch. If this directory exists, these files will be copied to spm8Batch/ so that things
 work properly for your clone.
 
-c) If you have touched the regular file .local/Deployment, some other interesting things will
+c) If you have touched the regular file .local/deployment, some other interesting things will
 happen. deploy.sh will scan all of the files in your repository to identify any that contain the
 string "*_template*". It will the loop over these files and do the following
        
