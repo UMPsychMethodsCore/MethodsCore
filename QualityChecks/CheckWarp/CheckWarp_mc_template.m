@@ -99,6 +99,17 @@ FilePrefix = 'swra';
 '5041/Tx2',50311,[1 2];
 '5042/Tx2',50321,[1 2];   
    };
+
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
+addpath(fullfile(mcRoot,'spm8'))
    
-   addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/QualityChecks/CheckReg
+
    CheckWarp_central

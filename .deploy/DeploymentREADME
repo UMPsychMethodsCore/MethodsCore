@@ -24,7 +24,7 @@ work properly for your clone.
 
 c) If you have touched the regular file .local/deployment, some other interesting things will
 happen. deploy.sh will scan all of the files in your repository to identify any that contain the
-string "*_template*". It will the loop over these files and do the following
+string "*_mc_template*". It will the loop over these files and do the following
        
        1) Delete all content from %DEVSTART to %DEVSTOP (including these wildcards 
 

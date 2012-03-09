@@ -98,5 +98,17 @@ FilePrefix = 'ra';
 '5042/Tx2',50321,[1 2];   
    };
    
-   addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/QualityChecks/CheckReg
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
+addpath(fullfile(mcRoot,'spm8'))
+   
+
+
    CheckReg_central
