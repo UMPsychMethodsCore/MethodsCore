@@ -15,7 +15,7 @@ fi
 # Replace specified wildcards from all files
 
 if [ -f .local/deployment ]; then #Only run this if in a deployment
-    templatelist=`find . -iname "*_template*"`
+    templatelist=`find . -iname "*_mc_template*"`
 
     for file in $templatelist
     do
