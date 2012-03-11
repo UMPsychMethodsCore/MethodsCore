@@ -30,7 +30,7 @@ for iSub = 1:length(UMBatchSubjs)
     %
     ParamImage=UMImg2Warp{iSub};
     if exist(ParamImage) == 2
-      UMBatchWarp(ParamImage);
+      UMBatchVBM8(ParamImage,UMTestFlag);
     else
       fprintf('FATAL ERROR : Image to warpVBM8 process does not exist: %s\n',ParamImage)
       exit

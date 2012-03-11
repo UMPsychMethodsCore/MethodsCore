@@ -114,6 +114,13 @@ do
 		  . ${thisDir}/auxiliary/setHiResName
 		  ;;
 
+              # case_set_referenceImage
+              #
+              # reference image for warpfMRI with vbm8
+              #
+              "I")
+                 . ${thisDir}/auxiliary/setReferenceImage
+                 ;;
               # case_set_run 
 	      # 
 	      # run list

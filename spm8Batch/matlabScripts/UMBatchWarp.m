@@ -67,8 +67,8 @@ end
 % Set the return status to -1, that is error by default.
 %
 
-if WARPMETHOD
-  results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName,WARPMETHOD);
+if exist('WARPMETHOD') == 1 & WARPMETHOD
+  results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
   return
 end
 

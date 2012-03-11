@@ -10,19 +10,15 @@
 % A drivable routine for warping some images using the 
 % batch options of spm2.
 %
-% Version 2.0
-%
-% This should ONLY BE CALLED BY UMBatchWarp and NOT directly.
+% Version 1.0
 % 
 %  Call as :
 %
-%  function results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+%  function results = UMBatchWarpVBM8(ParamImage,TestFlag);
 %
 %  To Make this work you need to provide the following input:
 %
 %     ParamImage       = Image to determine warping parameters.
-%     ObjectMask       = Masking Image.
-%     Images2Write     = Images to write normalize.
 %     TestFlag         = Flag to test file existance but do nothing.
 %
 %    If the TemplateImage is blank then we are doing "Write Normalized Only"
@@ -47,7 +43,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+function results = UMBatchVBM8(ParamImage,TestFlag);
 
 % Get the defaults from SPM.
 
@@ -107,9 +103,9 @@ end
 
 clear matlabbatch
 
-matlabbatch{1}.spm.tools.vmb8.estwrite.data   = {[ParamImage ',1']};
+matlabbatch{1}.spm.tools.vbm8.estwrite.data   = {[ParamImage ',1']};
 matlabbatch{1}.spm.tools.vbm8.estwrite.opts   = vbm8.opts;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output = vbm8.output;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output = rmfield(vbm8.output,'surf');
 
 % But now we also turn on ALL native output.
 
@@ -145,7 +141,39 @@ spm_jobman('run_nogui',matlabbatch);
 
 % Log that we finished this portion.
 
+[ParamImageDirectory ParamImageName ParamImageExt] = fileparts(ParamImage);
+
 UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchVBM8 : VBM8 processed : %s',ParamImage));
+
+% Now create the masked image of the input. We will take the p0 image and
+% use spm_imcalc to create a skull stripped which we will preprend as
+% "bet_"
+
+CURDIR=pwd;
+
+cd(ParamImageDirectory);
+
+% Now create the skull stripped brain.
+
+MaskParam = fullfile(ParamImageDirectory,['p0' ParamImageName ParamImageExt]);
+
+inputImages = strvcat(ParamImage,MaskParam);
+
+Vi = spm_vol(inputImages);
+
+clear Vo
+
+Vo.fname   = fullfile(ParamImageDirectory,['bet_' ParamImageName ParamImageExt]);
+Vo.dim     = Vi(1).dim;
+Vo.mat     = Vi(1).mat;
+Vo.descrip = ['Skull Stripped spm8Batch/VMB8 ' Vi(1).descrip];
+Vo.dt      = Vi(1).dt;
+
+spm_imcalc(Vi,Vo,'i1.*(i2>0)');
+
+% And now log it.
+
+UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchVBM8 : VBM8 created skull stripped : %s',Vo.fname));
 
 clear matlabbatch
     

@@ -91,9 +91,67 @@ if exist('spm_vbm8.m') ~= 2
   return
 end
   
+% 
+
+% Store where we are presently to restore before going back.
+
+CURDIR = pwd;
+
+clear matlabbatch
+
+% grab what we need, first break apart the file name.
+
+[ParamImageDirectory ParamImageName ParamImageExt ParamImageNum] = spm_fileparts(ParamImage);
+
+% Name of the deformation file
+
+matlabbatch{1}.spm.util.defs.comp{1}.def{1} = fullfile(ParamImageDirectory,['y_' ParamImageName ParamImageExt]);
+
+% Check to make sure that the defomation field is there.
+
+if isempty(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) | exist(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) == 0
+    fprintf('\n\nDeformation field is missing!\n');
+    fprintf('  * * * A B O R T I N G * * *\n\n');
+    return
+end
+
+% Size of the data we want to write out.
+
+if VoxelSize > 0
+  matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = VoxelSize*ones(3,1);
+else
+  matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = defaults.normalise.write.vox;
+end
+
+% We use the default bounding box.
+% Though we need to add the option of using a reference images as
+% well.
+
+matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.bb  = defaults.normalise.write.bb;
+
+% No option here.
+
+matlabbatch{1}.spm.util.defs.ofname = '';
+
+% Save to the directory where the times-series data exist.
+
+matlabbatch{1}.spm.util.defs.savedir.savesrc = 1;
+
+% Now get the file/frame names as the utility wants them, which is
+% different from other routines.
+
+matlabbatch{1}.spm.util.defs.fnames = {};
+for iP = 1:size(Images2Write,1)
+  matlabbatch{1}.spm.util.defs.fnames{iP} = strtrim(Images2Write(iP,:));
+end
+
+% Interpolation method:
+
+matlabbatch{1}.spm.util.defs.interp = 1;
 
 % 
-% Check to see if they want a mask on the object.
+% Check to see if they want a mask on the object --- this is NOT
+% implemented in the present work. - RCWelsh 2012-03-09
 %
 
 if isempty(ObjectMask) | ObjectMask == ''
@@ -109,13 +167,11 @@ end
 %
 % Now see about the images to write. Bugger out at ANY error!
 %
-
-WarpMATName = [spm_str_manip(ParamImage,'sd') '_sn.mat'];
-
 if isempty(Images2Write)
-  WriteImage = 0;
+  fprintf('\nYou did not specify any images to write deformed\m');
+  fprintf('\n  * * * A B O R T I N G * * *\n\n');
+  return
 else
-  WriteImage = 1;
   for iP = 1:size(Images2Write,1)
     tmpFile=Images2Write(iP,:);
     commaIDX = findstr(',',tmpFile);
@@ -125,144 +181,80 @@ else
     if exist(tmpFile) == 0
       WriteImage = 0
       fprintf('Error, image file : %s \n does not exist\n',tmpFile);
+      fprintf('\n  * * * A B O R T I N G * * *\n\n');
+      return
     end
   end
-  %
-  % Only require the warping matrix to pre-exist if we are NOT
-  % attempting to determine the warping parameters.
-  %
-  if DetermineParam == 0 & exist(WarpMATName) == 0
-    fprintf('Error, warping matrix file: %s\n does not exist.\n',WarpMATName);
-    WriteImage == 0;
-  end
-  if WriteImage == 0
-    fprintf('\n  * * * A B O R T I N G * * *\n\n');
-  end  
-end
-
-% 
-% Check to see if they actually want anything done?
-%
-
-if DetermineParam == 0 & WriteImage == 0
-    fprintf('You have chosen to do nothing, check your input params.\n');
-    return
-end
-
-%
-% Now if we are determining the warping parameters let's do that.
-%
-
-if DetermineParam == 1
-    if TestFlag ~= 0
-        fprintf('Would be calculating warp for \n%s to\n%s\n',ParamImage,TemplateImage)
-    else
-      % Warping estimating and writing
-      
-      fprintf('Warping %s to \n        %s\n',ParamImage,TemplateImage);
-
-      % We need to add the ",1" to the name for spm to handle
-      % nifti/nifti_gz images.
-
-      % Pull out the directory 
-      
-      ParamImageDirectory = fileparts(ParamImage);
-      
-      % Need to indicate to SPM which frame to use.
-      
-      TemplateImage = [ TemplateImage ',1'];
-      ParamImage    = [ParamImage ',1'];
-      
-      % Set up the estimation
-      
-      matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source{1} = ParamImage;
-      matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
-      matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample{1} = ParamImage;
-      
-      matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions = defaults.normalise.estimate;
-      matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template{1} = TemplateImage;
-
-      % And set up the write options.
-      
-      matlabbatch{1}.spm.spatial.normalise.estwrite.roptions = defaults.normalise.write;
-      
-      % Only override the default if explicitly set > 0
-      
-      if VoxelSize > 0
-	matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.vox ...
-	    = VoxelSize * ones(1,3);
-      else
-	VoxelSize = defaults.normalise.write.vox(1);
-      end
-      
-      % And the output name prefix.
-      
-      matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.prefix ...
-	  = OutputName;
-      
-      % Now call the batch manager.
-      
-      spm_jobman('run_nogui',matlabbatch);
-      
-      % Log that we finished this portion.
-      
-      UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchWarp : Determined parameter for : %s',ParamImage));
-    
-    end
-    clear matlabbatch
 end
 
 %
 % If we are warping some images to write then let's do that.
 %
 
-if WriteImage == 1
-    fprintf('Using warping matrix \n%s\n',WarpMATName);
-    if TestFlag ~= 0
-      fprintf('Would be warping %d images like %s\n',size(Images2Write,1),deblank(Images2Write(1,:)));
-      % Warping writing only.
-    else      
-      matlabbatch{1}.spm.spatial.normalise.write.subj.matname{1} = WarpMATName;
-      matlabbatch{1}.spm.spatial.normalise.write.subj.resample = {};
-      for iP = 1:size(Images2Write,1)
-	matlabbatch{1}.spm.spatial.normalise.write.subj.resample{iP,1} ...
-	    = strtrim(Images2Write(iP,:));
-      end
-      matlabbatch{1}.spm.spatial.normalise.write.roptions = defaults.normalise.write;
-      
-      % Only override the default if explicitly set > 0
+fprintf('Using deformation field \n%s\n',matlabbatch{1}.spm.util.defs.comp{1}.def{1});
 
-      if VoxelSize > 0
-	matlabbatch{1}.spm.spatial.normalise.write.roptions.vox ...
-	    = VoxelSize * ones(1,3);
-      else
-	VoxelSize = defaults.normalise.write.vox(1);
-      end
-      
-      % And the output name prefix.
-      
-      matlabbatch{1}.spm.spatial.normalise.write.roptions.prefix ...
-	  = OutputName;
-      
-      fprintf('Warping %d images like %s to voxel size %f\n',size(Images2Write,1),deblank(Images2Write(1,:)),VoxelSize);
-
-      spm_jobman('run_nogui',matlabbatch);
-
-      % Log that we finished this portion.
-      
-      % Get the directory of the images that we warped.
-      
-      ImageDirectory = fileparts(Images2Write(1,:));
-      
-      UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : Warped images (%04d) : %s -> %s',size(Images2Write,1),Images2Write(1,:),OutputName));
-      
-      if size(Images2Write,1) > 1
-	UMBatchLogProcess(ImageDirectory,sprintf('UMBatchWarp : through image        : %s',Images2Write(end,:)));
-      end
-      
+if TestFlag ~= 0
+  fprintf('Would be warping %d images like %s\n',size(Images2Write,1),deblank(Images2Write(1,:)));
+					   % Warping writing only.
+else      
+  fprintf('Warping %d images like %s to voxel size %f\n',size(Images2Write,1),deblank(Images2Write(1,:)),VoxelSize);
+  
+  spm_jobman('run_nogui',matlabbatch);
+  
+  % Log that we finished this portion.
+  
+  % Get the directory of the images that we warped.
+  
+  % Now let's find out if successful?
+  
+  % We only operate on NIFTI so we can just take the unique ones,
+  % and return the count.
+  
+  [Image2WriteUnique Images2WriteCount] = uniqueNII(Images2Write);
+  
+  for iNII = 1:size(Images2WriteUnique)
+    [d1 d2 d3 d4] = spm_fileparts(Images2WriteUnique(iNII,:));
+    newFile = fullfile(d1,['w' d2 d3]);
+    if exist(newFile) == 0
+      fprintf('\n\n* * * * * * * * * * * * \n\n');
+      fprintf('FATAL ERROR - I CAN''T FIND THE OUTPUT FILE EXPECTED : %s\n',newFile);
+      fprintf('ABORTING\n');
+      fprintf('\n\n* * * * * * * * * * * * \n\n');
+      exit
     end
-    clear matlabbatch
+  end
+  
+  % Everything up to this point is okay
+  % Okay, if the OutputName option is not specified, or it's
+  % already set to 'w', then we do nothing, else we rename the file
+  % for them as moveOutOfSandbox is expecting the new name.
+  
+  newImages2WriteUnique = [];
+  if exist('OutputName') == 1 & strcmp(OutputName,'w') ~= 1
+    % We need to identify all of the files that need to be renamed.
+    for iNII = 1:size(Images2WriteUnique)
+      [d1 d2 d3 d4] = spm_fileparts(Images2WriteUnique(iNII,:));
+      oldFile = fullfile(d1,['w' d2 d3]);
+      newFile = fullfile(d1,[OutoutName d2 d3]);
+      [mS mM mI] = movefile(oldFile,newFile);
+      newImages2WriteUnique = strvcat(newImages2WriteUnique; newFile);
+    end
+  end
+  
+  ImageDirectory = fileparts(Images2Write(1,:));
+  
+  for iNII = 1:size(Images2WriteUnique,1);a
+    UMBatchLogProcess(ImageDirectory,...
+		      sprintf('UMBatchWarp : Warped images (frames:%04d) : %s -> %s',...
+			      Images2WriteCount(iNII),...
+			      Images2WriteUnique(iNII,:),...
+			      newImages2WriteUnique(iNII,:)));
+    
+  end
+
 end
+
+clear matlabbatch
 
 %
 % Set the flag to the amount of time to execute.
@@ -270,7 +262,7 @@ end
 
 results = toc;
 
-fprintf('Warping finished in %f seconds\n',results);
+fprintf('Deformation finished in %f seconds\n',results);
 
 return
 

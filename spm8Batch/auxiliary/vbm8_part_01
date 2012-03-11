@@ -2,7 +2,7 @@
 
 . ${thisDir}/auxiliary/buildMatlabScripts_01
 
-cat ${SPM8B2}/parts/vmb8_part_01.m                            > ${FULLSCRIPTNAME}.m
+cat ${SPM8B2}/parts/vbm8_part_01.m                            > ${FULLSCRIPTNAME}.m
 
 # Use common in-line code #02 -- header information
 

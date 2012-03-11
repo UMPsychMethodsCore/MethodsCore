@@ -1,0 +1,7 @@
+#
+# Set the flag to say we are using VBM8 for 
+# warping of fMRI data.
+#
+
+	WARPMETHOD=1
+
