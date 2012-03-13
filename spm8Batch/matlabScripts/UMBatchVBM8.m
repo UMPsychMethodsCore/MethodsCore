@@ -205,10 +205,17 @@ if exist(ReferenceImage) | VoxelSize(1) > 0 | strcmp(OutputName,'w')==0
   UMCheckFailure(results);
 end
 
-    
-
 clear matlabbatch
     
+% Set the flag to the amount of time to execute.
+%
+
+results = toc;
+
+fprintf('Deformation finished in %f seconds\n',results);
+
+return
+
 %
 % All done.
 %
