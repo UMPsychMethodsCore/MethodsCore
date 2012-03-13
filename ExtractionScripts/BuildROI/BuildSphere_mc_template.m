@@ -34,7 +34,16 @@ JobList = {...
    
    
    
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'ExtractionScripts','BuildROI'))
+addpath(fullfile(mcRoot,'spm8'))
    
    
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/ExtractionScripts/BuildROI/
+
 BuildSphere_central

@@ -1,0 +1,39 @@
+Hello friend!
+
+Thanks for cloning the MethodsCore repository. Many of the scripts in our library require some
+degree of localization, as they usually don't know where they've been cloned to. To help with this,
+you'll find some scripts and hooks in this directory. Follow the following instructions to enable
+this support.
+
+1. Copy post-checkout to .git/hooks
+2. If this clone is an active deployment (i.e. you expect users to copy templates out of this
+directory before doing work on them, and it's very unlikely that commits will ever occur from this
+clone), then touch a regular file named .local/deployment. This will influence the behavior of
+deploy.sh which is called from the post-checkout hook.
+
+That's it!
+
+Once you've done this, you'll get the following behavior everytime you perform a checkout.
+
+a) A file will be created at .local/CurrentVersionSHA which will contain the SHA ID of the commit
+you most recently checked out. This can be useful to be read in for logging features.
+
+b) If you have some specific spm8Batch_Global and spm8Setup files, you can put them in
+.local/spm8Batch. If this directory exists, these files will be copied to spm8Batch/ so that things
+work properly for your clone.
+
+c) If you have touched the regular file .local/deployment, some other interesting things will
+happen. deploy.sh will scan all of the files in your repository to identify any that contain the
+string "*_mc_template*". It will the loop over these files and do the following
+       
+       1) Delete all content from %DEVSTART to %DEVSTOP (including these wildcards 
+
+       2) Replace all instances of %[DEVmcRootAssign] with mcRoot = 'pwd' where pwd signifies the
+       root of the current MethodsCore clone. This is appropriate for replacement in matlab scripts.
+
+       3) Replace all instances of %[DEVmcRoot] with pwd, where pwd signifies the root of the
+       current MethodsCore clone. This is handier for templates that use bash or other languages.
+
+This tool might get fancier in the future (e.g. strip off any leading comment characters in lines
+that contain the search string described in 2 or 3 to give you more flexibility in your use of
+wildcards, but for now this is all that is supported.
