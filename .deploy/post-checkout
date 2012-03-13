@@ -6,4 +6,6 @@
 # To enable this hook, rename this file to "post-commit".
 
 #Run your deployment script
-source .deploy/deploy.sh
+if [ -f .deploy/deploy.sh ]; then
+source .deploy/deploy.sh    
+fi

@@ -3,6 +3,9 @@
 #Grab Current Root
 mcRoot=`pwd`
 
+#Make sure .local directory exists
+mkdir -p .local
+
 #Identify Current Version
 cat .git/`cat .git/HEAD | awk '{print $NF'}` > .local/CurrentVersionSHA
 
