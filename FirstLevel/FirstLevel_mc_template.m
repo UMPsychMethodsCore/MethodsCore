@@ -390,7 +390,7 @@ switch Model
 end
 
 %DEVSTART
-mcRoot = fileparts(fileparts(mfilename('fullpath')));
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]

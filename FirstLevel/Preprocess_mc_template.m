@@ -203,7 +203,7 @@ donormalize = 1;
 dosmooth = 1;
 
 %DEVSTART
-mcRoot = fileparts(fileparts(mfilename('fullpath')));
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
