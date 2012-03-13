@@ -34,7 +34,6 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
 	'run_01/';
-	'run_02/';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,17 +41,17 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
- '5034/Tx2',50342,[1], 0, 0;
- '5035/Tx1',50351,[1 2], 0, 0;
- '5035/Tx2',50352,[1 2], 0, 0;
- '5036/Tx1',50361,[1], 0, 0;
- '5036/Tx2',50362,[1], 0, 0;
- '5037/Tx1',50371,[1], 0, 0;
- '5037/Tx2',50372,[1], 0, 0;
- '5038/Tx1',50381,[1], 0, 0;
- '5038/Tx2',50382,[1], 0, 0;
- '5039/Tx1',50391,[1], 0, 0;
- '5039/Tx2',50392,[1], 0, 0;
+ '5034/Tx2',50342,[1];
+% '5035/Tx1',50351,[1];
+% '5035/Tx2',50352,[1];
+% '5036/Tx1',50361,[1];
+% '5036/Tx2',50362,[1];
+% '5037/Tx1',50371,[1];
+% '5037/Tx2',50372,[1];
+% '5038/Tx1',50381,[1];
+% '5038/Tx2',50382,[1];
+% '5039/Tx1',50391,[1];
+% '5039/Tx2',50392,[1];
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +89,7 @@ imagetype = 'nii';
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [180 180]; 
+NumScan = [180]; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,7 +100,7 @@ NumScan = [180 180];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GrayMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
+GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
 WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
 CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
 
@@ -115,9 +114,37 @@ vox_size = [3 3 3];
 %%% OutputDir is constructed by /Exp/OutputLevel1/subjDir/OutputLevel2/OutputLevel3/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
+OutputName = 'TEST';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leave this blank ('') to turn off explicit masking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-explicitmask = '';
+BrainMaskTemplate = '';
+
+RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*';
+
+
+
+MaskGrey = 0;
+GreyThreshold = 0.75;
+RegressWhite = 1;
+RegressCSF = 1;
+MaskBrain = 1;
+RegressMotion = 1;
+PrincipalComponents = 5;
+RegressGlobal = 0;
+ProcessOrder = 'DCWMB';
+
+DoBandpassFilter = 1;
+DoLinearDetrend = 1;
+LowFrequency = 0.01;
+HighFrequency = 0.1;
+Gentle = 1;
+Padding = 10;
+
+BandpassFilter = 1;
+Fraction = 1;
+
+addpath /net/dysthymia/mangstad/repos/MethodsCore/som
+som_batch_mc_central

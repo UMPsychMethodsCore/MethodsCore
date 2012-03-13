@@ -22,14 +22,14 @@ parameters.csf.MaskFLAG = RegressCSF;
 parameters.epi.File = BrainPath;
 parameters.epi.MaskFLAG = MaskBrain;
 
-parameters.data.run[iRun].P = ImageFiles;
+parameters.data.run(iRun).P = ImageFiles;
 
 RealignmentParameters = load(RealignmentParametersFile);
 RealignmentParametersDeriv = diff(RealignmentParameters);
 RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
 
-parameters.data.run[iRun].MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-parameters.data.run[iRun].nTIME = NumScan(iRun);
+parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
+parameters.data.run(iRun).nTIME = NumScan(iRun);
 parameters.data.MaskFLAG = MaskBrain;
 
 parameters.RegressFLAGS.prinComp = PrincipalComponents;
@@ -39,17 +39,17 @@ parameters.RegressFLAGS.white = RegressWhite;
 parameters.RegressFLAGS.motion = RegressMotion;
 parameters.RegressFLAGS.order = ProcessOrder;
 
-parameters.TIME.run[iRun].TR = TR;
-parameters.TIME.run[iRun].BandFLAG = DoBandpassFilter;
-parameters.TIME.run[iRun].TrendFLAG = DoLinearDetrend;
-parameters.TIME.run[iRun].LowF = LowFrequency;
-parameters.TIME.run[iRun].HiF = HighFrequency;
-parameters.TIME.run[iRun].gentle = Gentle;
-parameters.TIME.run[iRun].padding = Padding;
-parameters.TIME.run[iRun].whichFilter = BandpassFilter;
-parameters.TIME.run[iRun].fraction = Fraction;
+parameters.TIME.run(iRun).TR = TR;
+parameters.TIME.run(iRun).BandFLAG = DoBandpassFilter;
+parameters.TIME.run(iRun).TrendFLAG = DoLinearDetrend;
+parameters.TIME.run(iRun).LowF = LowFrequency;
+parameters.TIME.run(iRun).HiF = HighFrequency;
+parameters.TIME.run(iRun).gentle = Gentle;
+parameters.TIME.run(iRun).padding = Padding;
+parameters.TIME.run(iRun).whichFilter = BandpassFilter;
+parameters.TIME.run(iRun).fraction = Fraction;
 
-parameters.rois.files = ;
+parameters.rois.files = '';
 
 %-OR-
 
