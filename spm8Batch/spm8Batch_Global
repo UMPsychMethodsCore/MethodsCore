@@ -42,17 +42,17 @@ then
     
 # You must point to SPM8 !!!
     
-    SPM8B1=${topDIR}/SPM8/spm8_with_R4290
+    SPM8B1=${topDIR}/SPM8/spm8_with_R4667
     
 # This is Robert Welsh's UNIX batch interface to spm8
     
-    SPM8B2=${topDIR}/spm8Batch_V2.0.4
+    SPM8B2=${topDIR}/spm8Batch/spm8Batch_VBM8.1
     
 # This must point to the place where the SPM8 patch is locally. 
     
-    SPM8B3=${topDIR}/spm8Batch_V2.0.4/matlabScripts
+    SPM8B3=${SPM8B2}/matlabScripts
     
-    AUXPATH=${topDIR}/spm8Batch_V2.0.4/spm8_patch
+    AUXPATH=${SPM8B2}/spm8_patch
     
 #
 # If the sandbox is populated then we copy files to local disk for processing

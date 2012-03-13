@@ -43,12 +43,19 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchVBM8(ParamImage,TestFlag);
+function results = UMBatchVBM8(ParamImage,ReferenceImage,TestFlag,VoxelSize,OutputName);
 
 % Get the defaults from SPM.
 
 global defaults
 global vbm8
+global UMBatch
+
+%
+% Set the return status to -1, that is error by default.
+%
+
+results = -1;
 
 if isempty(vbm8)
   if exist('cg_vbm8_defaults') == 0
@@ -56,7 +63,7 @@ if isempty(vbm8)
     fprintf('    FATAL ERROR \n');
     fprintf('    You do no have the VBM8 toolbox\n');
     fprintf('\n\n* * * * * * * * * * * * \n\n');
-    exit 
+    return
   else
     fprintf('\nConfiguring VBM8 to defaults\n');
     cg_vbm8_defaults
@@ -67,17 +74,18 @@ end
 
 UMBatchPrep
 
+if UMBatch == 0
+  fprintf('UMBatchPrep failed.')
+  return
+end
+
+% Only proceed if successful.
+
 fprintf('Entering UMBatchVBM8 V2.0 SPM8 Compatible\n');
 
 if TestFlag~=0
     fprintf('\nTesting only, no work to be done\n\n');
 end 
-
-%
-% Set the return status to -1, that is error by default.
-%
-
-results = -1;
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -174,6 +182,30 @@ spm_imcalc(Vi,Vo,'i1.*(i2>0)');
 % And now log it.
 
 UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchVBM8 : VBM8 created skull stripped : %s',Vo.fname));
+
+% And now warp the parent image to the specification and with the
+% name specified. But we only do that if they specified anything
+% different.
+
+if exist(ReferenceImage) | VoxelSize(1) > 0 | strcmp(OutputName,'w')==0
+  %
+  % Okay looks like they want us to override what they have, so we
+  % need to build a list and then pass on to UMBatchWarpVBM8
+  %
+  % The images to warp are [ParamImage], bet_[ParamImage],
+  % p0_[ParamImage], p1_[ParamImage], and p2_[ParamImage];
+  %
+  IMAGELIST={'','m','bet_','p0','p1','p2','p3'};
+  PList = [];
+  for iP = 1:length(IMAGELIST)
+    Pthis = spm_select('ExtFPList',ParamImageDirectory,sprintf('^%s%s.nii',IMAGELIST{iP},ParamImageName),[1 inf]);
+    PList = strvcat(PList,Pthis);
+  end
+  results = UMBatchWarpVBM8(ParamImage,ReferenceImage,PList,TestFlag,VoxelSize,OutputName);
+  UMCheckFailure(results);
+end
+
+    
 
 clear matlabbatch
     

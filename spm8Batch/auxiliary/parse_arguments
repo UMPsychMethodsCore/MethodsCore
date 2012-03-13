@@ -40,6 +40,11 @@ do
 		echo
 	        . ${thisDir}/auxiliary/exit_w_removal
             fi
+	    
+	    
+
+	    debugout "Parsing command : ${curParam}" $SuperDebugFlag
+
 	    case "${curParam:1:1}" in
 		
 
@@ -278,7 +283,7 @@ do
               # Use VBM8 for warping
               #
               "W")
-                  . ${thisDir}/auxillary/setWarpMethod
+                  . ${thisDir}/auxiliary/setWarpMethod
                   ;;
               # case_voxel_size 
 	      #

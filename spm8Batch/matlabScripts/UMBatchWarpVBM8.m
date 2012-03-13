@@ -16,7 +16,7 @@
 % 
 %  Call as :
 %
-%  function results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+%  function results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Images2Write,TestFlag,VoxelSize,OutputName);
 %
 %  To Make this work you need to provide the following input:
 %
@@ -47,7 +47,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+function results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Images2Write,TestFlag,VoxelSize,OutputName);
 
 % Get the defaults from SPM.
 
@@ -105,7 +105,7 @@ clear matlabbatch
 
 % Name of the deformation file
 
-matlabbatch{1}.spm.util.defs.comp{1}.def{1} = fullfile(ParamImageDirectory,['y_' ParamImageName ParamImageExt]);
+matlabbatch{1}.spm.util.defs.comp{1}.def{1} = fullfile(ParamImageDirectory,['y_r' ParamImageName ParamImageExt]);
 
 % Check to make sure that the defomation field is there.
 
@@ -115,19 +115,29 @@ if isempty(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) | exist(matlabbatch{1}.s
     return
 end
 
-% Size of the data we want to write out.
+% Now if there is a reference image then we rewrite comp{2}
 
-if VoxelSize > 0
-  matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = VoxelSize*ones(3,1);
+[d1 d2 d3 d4] = spm_fileparts(ReferenceImage);
+
+if exist(fullfile(d1,[d2 d3]))
+  matlabbatch{1}.spm.util.defs.comp{2}.id.space{1} = [fullfile(d1,[d2 d3]),',1'];
+  USINGREF=1;
 else
-  matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = defaults.normalise.write.vox;
+  % Size of the data we want to write out.
+  
+  if VoxelSize > 0
+    matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = VoxelSize*ones(3,1);
+  else
+    matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox = defaults.normalise.write.vox;
+  end
+  
+  % We use the default bounding box.
+  % Though we need to add the option of using a reference images as
+  % well.
+  
+  matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.bb  = defaults.normalise.write.bb;
+  USINGREF=0;
 end
-
-% We use the default bounding box.
-% Though we need to add the option of using a reference images as
-% well.
-
-matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.bb  = defaults.normalise.write.bb;
 
 % No option here.
 
@@ -149,24 +159,10 @@ end
 
 matlabbatch{1}.spm.util.defs.interp = 1;
 
-% 
-% Check to see if they want a mask on the object --- this is NOT
-% implemented in the present work. - RCWelsh 2012-03-09
-%
-
-if isempty(ObjectMask) | ObjectMask == ''
-    ObjectMask = '';
-else
-    if exist(ObjectMask) == 0
-        fprintf('Object mask specified is missing\n');
-        fprintf('  * * * A B O R T I N G * * *\n\n');
-        return
-    end
-end
-
 %
 % Now see about the images to write. Bugger out at ANY error!
 %
+
 if isempty(Images2Write)
   fprintf('\nYou did not specify any images to write deformed\m');
   fprintf('\n  * * * A B O R T I N G * * *\n\n');
@@ -197,8 +193,13 @@ if TestFlag ~= 0
   fprintf('Would be warping %d images like %s\n',size(Images2Write,1),deblank(Images2Write(1,:)));
 					   % Warping writing only.
 else      
-  fprintf('Warping %d images like %s to voxel size %f\n',size(Images2Write,1),deblank(Images2Write(1,:)),VoxelSize);
-  
+  if USINGREF
+    fprintf('Warping %d images like %s to space of %s\n',size(Images2Write,1),...
+      deblank(Images2Write(1,:)),matlabbatch{1}.spm.util.defs.comp{2}.id.space{1});
+  else
+    fprintf('Warping %d images like %s to voxel size %f\n',size(Images2Write,1),...
+      deblank(Images2Write(1,:)),matlabbatch{1}.spm.util.defs.comp{2}.idbbvox.vox(1));
+  end
   spm_jobman('run_nogui',matlabbatch);
   
   % Log that we finished this portion.
@@ -210,17 +211,17 @@ else
   % We only operate on NIFTI so we can just take the unique ones,
   % and return the count.
   
-  [Image2WriteUnique Images2WriteCount] = uniqueNII(Images2Write);
+  [Images2WriteUnique Images2WriteCount] = uniqueNII(Images2Write);
   
-  for iNII = 1:size(Images2WriteUnique)
-    [d1 d2 d3 d4] = spm_fileparts(Images2WriteUnique(iNII,:));
+  for iNII = 1:size(Images2WriteUnique,1)
+    [d1 d2 d3 d4] = spm_fileparts(strtrim(Images2WriteUnique(iNII,:)));
     newFile = fullfile(d1,['w' d2 d3]);
     if exist(newFile) == 0
       fprintf('\n\n* * * * * * * * * * * * \n\n');
       fprintf('FATAL ERROR - I CAN''T FIND THE OUTPUT FILE EXPECTED : %s\n',newFile);
       fprintf('ABORTING\n');
       fprintf('\n\n* * * * * * * * * * * * \n\n');
-      exit
+      return
     end
   end
   
@@ -231,19 +232,26 @@ else
   
   newImages2WriteUnique = [];
   if exist('OutputName') == 1 & strcmp(OutputName,'w') ~= 1
-    % We need to identify all of the files that need to be renamed.
-    for iNII = 1:size(Images2WriteUnique)
-      [d1 d2 d3 d4] = spm_fileparts(Images2WriteUnique(iNII,:));
-      oldFile = fullfile(d1,['w' d2 d3]);
-      newFile = fullfile(d1,[OutoutName d2 d3]);
-      [mS mM mI] = movefile(oldFile,newFile);
-      newImages2WriteUnique = strvcat(newImages2WriteUnique; newFile);
-    end
+      % We need to identify all of the files that need to be renamed.
+      for iNII = 1:size(Images2WriteUnique,1)
+          [d1 d2 d3 d4] = spm_fileparts(strtrim(Images2WriteUnique(iNII,:)));
+          oldFile = fullfile(d1,['w' d2 d3]);
+          newFile = fullfile(d1,[OutputName d2 d3]);
+          [mS mM mI] = movefile(oldFile,newFile);
+          if ~mS
+              fprintf('\n\n* * * * * * * * * * * * \n\n');
+              fprintf('FATAL ERROR - I CAN''T NAME OUTPUT FILE AS EXPECTED : \n   %s\n   %s\n',oldFile,newFile);
+              fprintf('ABORTING\n');
+              fprintf('\n\n* * * * * * * * * * * * \n\n');
+              return
+          end
+          newImages2WriteUnique = strvcat(newImages2WriteUnique, newFile);
+      end
   end
   
   ImageDirectory = fileparts(Images2Write(1,:));
   
-  for iNII = 1:size(Images2WriteUnique,1);a
+  for iNII = 1:size(Images2WriteUnique,1);
     UMBatchLogProcess(ImageDirectory,...
 		      sprintf('UMBatchWarp : Warped images (frames:%04d) : %s -> %s',...
 			      Images2WriteCount(iNII),...

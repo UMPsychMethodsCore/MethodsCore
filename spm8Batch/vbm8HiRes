@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="aDdhMntUWwz"
+allowedOptions="aDdhIMntUwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -128,7 +128,7 @@ do
     debugout "HiRes name is : ${SOURCENAME}"   $SuperDebugFLAG
     debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
 
-    . ${thisDir}/auxiliary/coregFindSourceAndMove
+    . ${thisDir}/auxiliary/vbm8FindSourceAndMove
 
   echo "'${SOURCEIMG}';..."                               >> ${FULLSCRIPTNAME}.m
 

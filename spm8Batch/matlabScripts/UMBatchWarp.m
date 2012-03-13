@@ -21,7 +21,7 @@
 %
 %     TemplateImage    = Image to warp the Parameter image.
 %     ParamImage       = Image to determine warping parameters.
-%     ObjectMask       = Masking Image.
+%     ObjectMask       = Masking Image/ReferenceImage for VBM8
 %     Images2Write     = Images to write normalize.
 %     TestFlag         = Flag to test file existance but do nothing.
 %
@@ -52,10 +52,18 @@ function results = UMBatchWarp(TemplateImage,ParamImage,ObjectMask,Images2Write,
 % Get the defaults from SPM.
 
 global defaults
+global UMBatch
 
 % Make the call to prepare the system for batch processing.
 
 UMBatchPrep
+
+if UMBatch == 0
+  fprintf('UMBatchPrep failed.')
+  return
+end
+
+% Only proceed if successful.
 
 fprintf('Entering UMBatchWarp V2.0 SPM8 Compatible\n');
 

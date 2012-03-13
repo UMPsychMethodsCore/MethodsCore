@@ -23,7 +23,8 @@ for iSub = 1:length(UMBatchSubjs)
     [CS SandBoxPID Images2Write] = moveToSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID);
     %P = spm_select('ExtFPList',UMImgDIRS{iSub}{iRun},['^' UMVolumeWild '.*.nii'],inf);
     fprintf('Smoothing %d "%s" images in %s with %2.1f %2.1f %2.1f\n',size(Images2Write,1),UMImgWildCard,UMImgDIRS{iSub}{iRun},UMKernel(1),UMKernel(2),UMKernel(3));
-    UMBatchSmooth(Images2Write,UMKernel,OutputName,UMTestFlag);
+    results = UMBatchSmooth(Images2Write,UMKernel,OutputName,UMTestFlag);
+    UMCheckFailure(results);
     %
     % Now move back out of sandbox if so specified
     %

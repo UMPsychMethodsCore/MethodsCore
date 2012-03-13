@@ -8,6 +8,12 @@ cat ${SPM8B2}/parts/vbm8_part_01.m                            > ${FULLSCRIPTNAME
 
 . ${thisDir}/auxiliary/buildMatlabScripts_02
 
+echo "VoxelSize      = ${voxelSize};"                         >> ${FULLSCRIPTNAME}.m
+
+echo "VBM8RefImage   = '${VBM8ReferenceImage}';"              >> ${FULLSCRIPTNAME}.m
+
+echo "OutputName     = '${outputName}';"                      >> ${FULLSCRIPTNAME}.m
+
 # Use common in-line code #03 -- subject list.
 . ${thisDir}/auxiliary/buildMatlabScripts_03
 

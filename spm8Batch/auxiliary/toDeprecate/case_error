@@ -1,6 +1,0 @@
-	      #
-	      # Anything should result in an error.
-	      #
-	      *)
-		  . ${thisDir}/auxiliary/caseError
-		  . ${thisDir}/auxiliary/exit_w_removal

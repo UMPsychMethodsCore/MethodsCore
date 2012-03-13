@@ -38,6 +38,7 @@
 function results = UMBatchSegment(Image2Segment,TestFlag,NormedAlready);
 
 global defaults
+global UMBatch
 
 results = -1;
 
@@ -48,6 +49,13 @@ tic;
 % Make the call to prepare the system for batch processing.
 
 UMBatchPrep
+
+if UMBatch == 0
+  fprintf('UMBatchPrep failed.')
+  return
+end
+
+% Only proceed if successful.
 
 fprintf('Entering UMBatchSegment V0.1\n');
 

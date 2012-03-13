@@ -1,3 +1,3 @@
     echo "    -h HiResName         name of high resolution file, "
-    echo "                         default is 'eht1spgr'"
+    echo "                         default is '${HIRESNAME}'"
     echo 

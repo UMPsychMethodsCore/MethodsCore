@@ -12,7 +12,12 @@
 
 % Turn off progress bar.
 
+function UMBatchPrep
+
 global UMBatch
+global UMBatchInit
+
+% Success code.
 
 UMBatch = 1;
 
@@ -20,14 +25,16 @@ UMBatch = 1;
 
 if exist('spm') ~= 2
   fprintf('\nFATAL ERROR, no SPM in the matlab path!!!\n');
-  exit
+  UMBatch = 0;
+  return
 end
 
 % Check for SPM8
 
 if strcmp(spm('ver'),'SPM8') == 0
   fprintf('\nFATAL ERROR, these scripts only are SPM8 specific!!!\n');
-  exit
+  UMBatch = 0;
+  return
 end
 
 % Make sure spm_defaults has been called.
@@ -43,20 +50,24 @@ if isempty(defaults)
   if isempty(defaults)
       fprintf('\n\n* * * * * \nAre you not running SPM8?\n\n* * * * * \n\n');
       fprintf('        A B O R T I N G\n\n');
-      exit
+      UMBatch = 0;
       return
   end
 end
 
 % Initialize the batch processing system.
 
-fprintf('Initializing the job manager in SPM\n');
-
-spm_jobman('initcfg');
+if isempty(UMBatchInit)
+  fprintf('Initializing the job manager in SPM8\n');
+  spm_jobman('initcfg');
+  UMBatchInit = 1;
+end
 
 % Turn off annoying warnings.
 
 warning off
+
+return
 
 %
 % That is all.

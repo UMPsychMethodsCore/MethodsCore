@@ -5,3 +5,12 @@
 
 	WARPMETHOD=1
 
+# If using VBM8 then we can default to using the vbm8_ outputname
+# We force it to be "w", unless the person specifies "w" after 
+# they have specified VBM8 as the warping method.
+
+        if [ "${outputName}" == "w" ]
+        then
+           outputName=vbm8_
+        fi
+

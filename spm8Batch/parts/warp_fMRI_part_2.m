@@ -34,7 +34,12 @@ for iSub = 1:length(UMBatchSubjs)
     % 
     % The other step to apply the normalization to the SPGR.
     %
-    UMBatchWarp([],ParamImage,[],Images2Write,UMTestFlag,VoxelSize,OutputName,WARPMETHOD);      
+    if WARPMETHOD
+      results = UMBatchWarp([],ParamImage,VBM8RefImage,Images2Write,UMTestFlag,VoxelSize,OutputName,WARPMETHOD);      
+    else
+      results = UMBatchWarp([],ParamImage,[],Images2Write,UMTestFlag,VoxelSize,OutputName,WARPMETHOD);      
+    end
+    UMCheckFailure(results);
     %
     % Now move back out of sandbox if so specified
     %
