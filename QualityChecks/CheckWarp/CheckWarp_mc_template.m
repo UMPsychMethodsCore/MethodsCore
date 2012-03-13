@@ -36,22 +36,24 @@ RunDir = {
 %% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
 
-HiResTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
+
 
 ImageTemplate=    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
-
+WarpTemplate = '/net/dysthymia/mangstad/spm8//templates/T1.nii'  %%% Use this if images are scalped and you want ADULT canonical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set the file prefix for the file that you want displayed. In most cases this
-%% will be 'ra' for file that has gone through realignment.
+%% will be 'swra' for files that have been warped and smoothed.
 %%
 %% The program will display the first five scans in the .nii file with this
 %% file prefix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        
-FilePrefix = 'ra';
+FilePrefix = 'swra';
+
+
+
 
 
 
@@ -81,13 +83,13 @@ FilePrefix = 'ra';
 % '5020/Tx2',50202,[1 2];
 % '5021/Tx1',50211,[1 2];
 % '5023/Tx2',50232,[1 2];
-% '5024/Tx1',50241,[1 2];
-% '5025/Tx2',50252,[1 2];
-% '5026/Tx2',50262,[1 2];
-% '5028/Tx1',50281,[1 2];
-% '5029/Tx1',50291,[1 2];
-% '5031/Tx1',50311,[1 2];
- '5032/Tx1',50321,[1 2];
+'5024/Tx1',50241,[1 2];
+'5025/Tx2',50252,[1 2];
+'5026/Tx2',50262,[1 2];
+'5028/Tx1',50281,[1 2];
+'5029/Tx1',50291,[1 2];
+'5031/Tx1',50311,[1 2];
+'5032/Tx1',50321,[1 2];
 '5034/Tx2',50232,[1 2];
 '5035/Tx2',50241,[1 2];
 '5036/Tx2',50252,[1 2];
@@ -97,6 +99,17 @@ FilePrefix = 'ra';
 '5041/Tx2',50311,[1 2];
 '5042/Tx2',50321,[1 2];   
    };
+
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
+addpath(fullfile(mcRoot,'spm8'))
    
-   addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/QualityChecks/CheckReg
-   CheckReg_central
+
+   CheckWarp_central

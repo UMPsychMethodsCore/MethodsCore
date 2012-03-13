@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# An example hook script that is called after a successful
+# commit is made.
+#
+# To enable this hook, rename this file to "post-commit".
+
+#Run your deployment script
+if [ -f .deploy/deploy.sh ]; then
+source .deploy/deploy.sh    
+fi

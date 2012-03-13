@@ -34,7 +34,15 @@ ExtractionJobs = {...
  } ;
     
     
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'ExtractionScripts','ExtractROI'))
+addpath(fullfile(mcRoot,'spm8'))
     
     
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/ExtractionScripts/ExtractROI/
 ExtractROI_central

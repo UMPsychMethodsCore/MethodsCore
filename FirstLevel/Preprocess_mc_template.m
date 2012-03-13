@@ -202,8 +202,17 @@ docoreg = 1;
 donormalize = 1;
 dosmooth = 1;
 
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'FirstLevel'))
+addpath(fullfile(mcRoot,'spm8'))
 
 
-addpath(pwd);
+
 Processing = [1 0];
 PreprocessFirstLevel_central
