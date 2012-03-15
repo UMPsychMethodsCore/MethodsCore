@@ -7,3 +7,5 @@
 		  else
 		      anatomyPATH=$1
 		  fi
+
+		  debugout "Anatomy path set to: $anatomyPATH" $SuperDebugFLAG
