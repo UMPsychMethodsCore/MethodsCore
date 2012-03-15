@@ -161,9 +161,11 @@ CURDIR=pwd;
 
 cd(ParamImageDirectory);
 
-% Now create the skull stripped brain.
+% Get the masking image, which is the "p0" image.
 
 MaskParam = fullfile(ParamImageDirectory,['p0' ParamImageName ParamImageExt]);
+
+% Now create the skull stripped brain.
 
 inputImages = strvcat(ParamImage,MaskParam);
 
@@ -175,6 +177,24 @@ Vo.fname   = fullfile(ParamImageDirectory,['bet_' ParamImageName ParamImageExt])
 Vo.dim     = Vi(1).dim;
 Vo.mat     = Vi(1).mat;
 Vo.descrip = ['Skull Stripped spm8Batch/VMB8 ' Vi(1).descrip];
+Vo.dt      = Vi(1).dt;
+
+spm_imcalc(Vi,Vo,'i1.*(i2>0)');
+
+% Now create an intensity normalized stripped brain.
+
+ParamImageNorm = fullfile(ParamImageDirectory,['m' ParamImageName ParamImageExt]);
+
+inputImages = strvcat(ParamImageNorm,MaskParam);
+
+Vi = spm_vol(inputImages);
+
+clear Vo
+
+Vo.fname   = fullfile(ParamImageDirectory,['bet_m' ParamImageName ParamImageExt]);
+Vo.dim     = Vi(1).dim;
+Vo.mat     = Vi(1).mat;
+Vo.descrip = ['Skull Stripped spm8Batch/VMB8 (intensity normalized)' Vi(1).descrip];
 Vo.dt      = Vi(1).dt;
 
 spm_imcalc(Vi,Vo,'i1.*(i2>0)');
