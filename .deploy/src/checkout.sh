@@ -3,7 +3,6 @@
 #Grab Current Root
 mcRoot=`pwd`
 
-#Make sure .local directory exists
 mkdir -p .local
 
 #Identify Current Version
