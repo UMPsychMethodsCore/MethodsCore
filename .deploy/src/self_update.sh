@@ -15,7 +15,7 @@ branch=`cat $thisdir/../../.local/branch`
 
 git reset HEAD --hard
 
-git pull github/universe $branch
+git pull github/universe $branch:$branch
 
 git checkout $branch
 
