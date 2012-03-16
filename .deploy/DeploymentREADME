@@ -5,13 +5,36 @@ degree of localization, as they usually don't know where they've been cloned to.
 you'll find some scripts and hooks in this directory. Follow the following instructions to enable
 this support.
 
-1. Copy post-checkout to .git/hooks
-2. If this clone is an active deployment (i.e. you expect users to copy templates out of this
-directory before doing work on them, and it's very unlikely that commits will ever occur from this
-clone), then touch a regular file named .local/deployment. This will influence the behavior of
-deploy.sh which is called from the post-checkout hook.
+If this is a development repository, consider running
+setup_developer.sh. At present, this will just copy the hook from
+.deploy/src/post-checkout to .git/hooks/. 
 
-That's it!
+If this is a deployment repository, run setup_deployment.sh
+
+This will
+1. Add a remote called github/universe to point to the
+UMPsychMethodsCore/MethodsCore repo on github
+2. Copy the post-checkout hook up to where it will be active
+3. Make a .local directory in your repo (this is ignored by a
+.gitignore file)
+4. Create a file called deployment in .local (this affects behavior of
+the hook)
+5. Generate a keypair for you in .local called deploy and deploy.pub
+6. Create a file in .local called branch, and echo "public" into it
+
+After you run this, you need to 
+
+1. Grab the content of .local/deploy.pub and add it as a deployment
+key at Github.
+2. Edit .local/branch to contain the content of the branch that you
+want this repository to automatically update to
+3. Run at regular intervals, or schedule with cron, the process
+.deploy/src/self_update.sh which will automatically pull the latest
+version of the file specified in .local/branch from universe, update
+your working tree, and then run the hook to clean paths up for users.
+
+
+###Here is what the hook does###
 
 Once you've done this, you'll get the following behavior everytime you perform a checkout.
 
