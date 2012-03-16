@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-
-#Run your checkout script
-if [ -f .deploy/checkout.sh ]; then
-source .deploy/checkout.sh
-fi
