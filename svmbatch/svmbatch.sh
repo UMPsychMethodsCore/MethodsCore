@@ -282,6 +282,29 @@ for file in $biglist; do
 done
 }
 
+function L20CV { #no arguments. Performs L2O-CV manually, and saves predictions. Directory names based on omitted arg from first list
+    svmdir_orig=$svmdir
+    #Check that number of lines in two filelists are equivalent
+    if [ echo "$filelist1" | grep -cve '^\s*$' != echo "$filelist2" | grep -cve '^\s*$' ]; then
+	echo "The number of lines in your two filelists are different, so I'm not sure how to pair them up."
+    else
+	range={1..`echo "$filelist1" | grep -cve '^\s*$'`}
+	for i in $range
+	do
+	    minilist1=`echo "$filelist1" | sed "$i d"`
+	    minilist2=`echo "$filelist2" | sed "$i d"`
+	    Out1=`echo $filelist1" | sed -n "$i p"` 
+	    Out2=`echo $filelist2" | sed -n "$i p"` 
+	    svmdir=`echo $svmdir_orig/L2OCV/$i`
+	    svm_batchtrain
+	    pname=`hdr_strip \`slash_strip $Out1 \` ` #Make file into a dirname
+	    svm_batchtest "model" "$Out1"
+	    pname=`hdr_strip \`slash_strip $Out2 \` ` #Make file into a dirname
+	    svm_batchtest "model" "$Out2"
+	done
+    fi
+}
+
 function perms_to_analyze { #Will rewrite all of the weight buckets from the permutation tests as img/hdr pairs for easier readier downstream
 
     cd $svmdir/perms
