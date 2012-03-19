@@ -40,7 +40,7 @@ while [ "$1" != "" ]; do
 	    svmdir=$1
 	    ;;
 	-2 | --L2O ) #Leave 2 out cross validation
-	    l20=1
+	    scrossv=2
 	    ;;
 	--nomodelmask ) 
 	    nomodelmask=1
@@ -285,7 +285,7 @@ for file in $biglist; do
 done
 }
 
-function L20CV { #no arguments. Performs L2O-CV manually, and saves predictions. Directory names based on omitted arg from first list
+function L2OCV { #no arguments. Performs L2O-CV manually, and saves predictions. Directory names based on omitted arg from first list
     svmdir_orig=$svmdir
     #Check that number of lines in two filelists are equivalent
     if [ echo "$filelist1" | grep -cve '^\s*$' != echo "$filelist2" | grep -cve '^\s*$' ]; then
@@ -367,15 +367,21 @@ totem_batch
     
 fi
 
+case $scrossv in
+    1)
+	echo "Entering Super Cross Validation Mode!"
+	super_crossvalid	
+	;;
+    2)
+	echo "Entering Leave Two Out Cross Validation"
+	L2OCV
+	;;
+    *)
+	echo "Not doing any manual cross-validation"
+	svm_batchtrain	
+esac
 
 
-if [ "$scrossv" != "1" ]; then
-    echo "Training one and only model"
-    svm_batchtrain
-else
-    echo "Entering Super Cross Validation Mode!"
-    super_crossvalid
-fi
 
 if [ "$permutationmode" = "1" ]; then
     echo "Entering permutation mode"
