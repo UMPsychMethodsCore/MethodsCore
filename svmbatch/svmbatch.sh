@@ -39,6 +39,9 @@ while [ "$1" != "" ]; do
 	    shift
 	    svmdir=$1
 	    ;;
+	-2 | --L2O ) #Leave 2 out cross validation
+	    l20=1
+	    ;;
 	--nomodelmask ) 
 	    nomodelmask=1
 	    ;;
