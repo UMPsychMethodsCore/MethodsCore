@@ -3,7 +3,7 @@
 %%% Instead make a copy of PreprocessingFirstLevel_template.m 
 %%% and edit that to match your data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -340,7 +340,7 @@ if (Processing(1) == 1)
             end
             Run=RunDir{r};
             iRun=num2str(r);
-            ImageDir=eval(generate_PathCommand(ImageTemplate));
+            ImageDir=mc_GenPath(ImageTemplate);
 		scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
 		%subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
         subjpath = ImageDir;
@@ -360,6 +360,7 @@ if (Processing(1) == 1)
 	    wscan = wscan';
 	    sscan = sscan';
 
+        Run = RunDir{1};
 	    switch (normmethod)
 		case 'func'
 		    if (strcmp(spmver,'SPM8'))
@@ -367,7 +368,7 @@ if (Processing(1) == 1)
 			    job{2}.spm.spatial.realign.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDir=eval(generate_PathCommand(ImageTemplate));
+                ImageDir=mc_GenPath(ImageTemplate);
 			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -391,7 +392,7 @@ if (Processing(1) == 1)
 			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDir=eval(generate_PathCommand(ImageTemplate));
+                ImageDir=mc_GenPath(ImageTemplate);
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -422,9 +423,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];	    
-                ImageDir=eval(generate_PathCommand(ImageTemplate));
-                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
-                HiresDir=eval(generate_PathCommand(HiresTemplate));
+                ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDir=mc_GenPath(OverlayTemplate);
+                HiresDir=mc_GenPath(HiresTemplate);
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -462,9 +463,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                ImageDir=eval(generate_PathCommand(ImageTemplate));
-                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
-                HiresDir=eval(generate_PathCommand(HiresTemplate));
+                ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDir=mc_GenPath(OverlayTemplate);
+                HiresDir=mc_GenPath(HiresTemplate);
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
@@ -505,9 +506,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-			    ImageDir=eval(generate_PathCommand(ImageTemplate));
-                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
-                HiresDir=eval(generate_PathCommand(HiresTemplate));
+			    ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDir=mc_GenPath(OverlayTemplate);
+                HiresDir=mc_GenPath(HiresTemplate);
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -559,9 +560,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                ImageDir=eval(generate_PathCommand(ImageTemplate));
-                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
-                HiresDir=eval(generate_PathCommand(HiresTemplate));
+                ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDir=mc_GenPath(OverlayTemplate);
+                HiresDir=mc_GenPath(HiresTemplate);
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
@@ -627,10 +628,10 @@ if (Processing(2) == 1)
 	%%%%      Paths and Filenames           %%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	MasterFile = eval(generate_PathCommand(MasterTemplate));
+	MasterFile = mc_GenPath(MasterTemplate);
     %fullfile(Exp,MasterLevel1,MasterLevel2);
 
-	RegFile = eval(generate_PathCommand(RegTemplate));
+	RegFile = mc_GenPath(RegTemplate);
     %fullfile(Exp,RegLevel1,RegLevel2);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -946,7 +947,7 @@ end % loop through runs
 
 
 
-		OutputDir = eval(generate_PathCommand(OutputTemplate));
+		OutputDir = mc_GenPath(OutputTemplate);
         display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
         %fullfile(Exp,OutputLevel1,SubjDir{iSubject,1},OutputLevel2,OutputLevel3);
 
@@ -1131,7 +1132,7 @@ end % loop through runs
 			% directory of images in a subject
             
             Run=RunDir{iRun};
-			ImageDir = eval(generate_PathCommand(ImageTemplate));
+			ImageDir = mc_GenPath(ImageTemplate);
             %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
 CheckPath(ImageDir,'Check your ImageTemplate');
 
