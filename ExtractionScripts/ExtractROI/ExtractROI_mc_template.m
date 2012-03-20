@@ -46,7 +46,7 @@ ExtractionJobs = {...
     
     
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
