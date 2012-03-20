@@ -3,14 +3,14 @@
 
 
 
- addpath /net/dysthymia/spm8/
- addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
- addpath('/net/data4/MAS/marsbar-0.42/')
+ %addpath /net/dysthymia/spm8/
+ %addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
+ %addpath('/net/data4/MAS/marsbar-0.42/')
 % addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
 
  %%%%%%  initialize variables
  
-
+spm_jobman('initcfg');  % hopefully add marsbar to MATLAB path
 
 clear CombinedData
 clear SPMList;
@@ -22,7 +22,12 @@ UseSPM=1;
 iCol=1;  
 SPMPrevious.SPM.xY.P=   {}; 
 
-FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
+%FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
+FullFileNameStruct = struct('Template',OutputPathTemplate,...
+                            'suffix','.csv',...
+                            'mode','makeparentdir');
+
+FullFileName = mc_GenPath(FullFileNameStruct);
        
  for ijob = 1 : size(ExtractionJobs,1)
 % %      
@@ -31,9 +36,12 @@ FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
 % %  alldata(iSubject,1)=iSubject;
 % % end   
 %      end
-     ConditionPath=eval(GeneratePathCommand(ExtractionJobs{ijob,1}));
+     %ConditionPath=eval(GeneratePathCommand(ExtractionJobs{ijob,1}));
    
-     ROIPath=eval(GeneratePathCommand(ExtractionJobs{ijob,2}));
+     %ROIPath=eval(GeneratePathCommand(ExtractionJobs{ijob,2}));
+     
+     ConditionPath = mc_GenPath(ExtractionJobs{ijob,1});
+     ROIPath       = mc_GenPath(ExtractionJobs{ijob,2});
   
 
 
@@ -43,7 +51,7 @@ FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
 %if UseSPM==1
 
 
-    spm_name = [ConditionPath '/SPM.mat'] ;
+    spm_name = mc_GenPath( strcat(ConditionPath,'/SPM.mat') );
  %   SPMList{iJob}=spm_name;
 %end
 
@@ -145,11 +153,11 @@ end
 
      
   
-  [pn fn en] = fileparts(FullFileName);
-  eval(sprintf('!mkdir -p %s', pn))
+  %[pn fn en] = fileparts(FullFileName); done above
+  %eval(sprintf('!mkdir -p %s', pn))
 
 
-  theFID = fopen([FullFileName, '.csv'],'w');
+  theFID = fopen(FullFileName,'w');
 
 if theFID < 0
     fprintf('Error opening the csv file\n');
