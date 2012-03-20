@@ -1,10 +1,11 @@
 
-addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
+%addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 display ('-----')
-pathcallcmd=GeneratePathCommand(OutputPathTemplate);
-OutputPathFile = eval(pathcallcmd);
+%pathcallcmd=GeneratePathCommand(OutputPathTemplate);
+OutputPath = mc_GenPath(OutputPathTemplate);
+% OutputPathFile = eval(pathcallcmd);
 display('I am going to generate motion regressors');
-display(sprintf('The output will be stored here: %s', OutputPathFile));
+display(sprintf('The output will be stored here: %s', OutputPath));
 display('These are the subjects:')
 display(SubjDir)
 display ('-----')
@@ -28,9 +29,10 @@ for iSubject = 1: size(SubjDir,1)
         Run = RunDir{iRun};
 
 
-        pathcallcmd=GeneratePathCommand(MotionPathTemplate);
-        MotionPath = eval(pathcallcmd);
-        CheckPath(MotionPath, 'a realignment file')
+        %pathcallcmd=GeneratePathCommand(MotionPathTemplate);
+        %MotionPath = eval(pathcallcmd);
+        MotionPath = mc_GenPath(MotionPathTemplate);
+        % CheckPath(MotionPath, 'a realignment file') exist anymore?
         MotionParameters = load (MotionPath);
 
 
@@ -52,12 +54,19 @@ end; %subjects
 
 %%%%%%% Save results to CSV file
 
-OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
-[OutputPath OutputName] = fileparts(OutputPathFull);
+%OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
+%[OutputPath OutputName] = fileparts(OutputPathFull);
 
-eval(sprintf('!mkdir -p %s',OutputPath));
-OutputPathFile=[OutputPath '/' OutputName];
-theFID = fopen([OutputPathFile,'.csv'],'w');
+OutputPathStruct = struct('Template',strcat(OutputPathTemplate,OutputName),...
+                          'suffix','.csv',...
+                          'mode','makeparentdir');
+
+OutputPathFile   = mc_GenPath(OutputPathStruct);                      
+
+%eval(sprintf('!mkdir -p %s',OutputPath));
+%OutputPathFile=[OutputPath '/' OutputName];
+%theFID = fopen([OutputPathFile,'.csv'],'w');
+theFID = fopen(OutputPathFile);
 if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return
