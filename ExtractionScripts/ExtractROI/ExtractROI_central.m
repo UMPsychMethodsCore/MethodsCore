@@ -27,7 +27,7 @@ FullFileNameStruct = struct('Template',OutputPathTemplate,...
                             'suffix','.csv',...
                             'mode','makeparentdir');
 
-FullFileName = mc_GenPath(FullFileNameStruct);
+FullFileName       = mc_GenPath(FullFileNameStruct);
        
  for ijob = 1 : size(ExtractionJobs,1)
 % %      
