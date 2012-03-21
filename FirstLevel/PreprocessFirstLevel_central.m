@@ -237,7 +237,6 @@ if (Processing(1) == 1)
 	smooth.im = 0;
 	smooth.prefix = smp;
 
-
 	if (strcmp(spmver,'SPM8'))
 	    spm_jobman('initcfg');
 	    spm_get_defaults('cmdline',true);
@@ -267,7 +266,6 @@ if (Processing(1) == 1)
 
 		NumRun= size(NumScan,2); % number of runs
 		ImageNumRun=size(RunDir,1); %number of image folders
-
 
 	    nj = 0;
 	    switch (normmethod) 
@@ -333,28 +331,31 @@ if (Processing(1) == 1)
 	    sscan = {};
 	    scancell = {};
 
-	    for r = 1:size(RunDir,1)
+        for r = 1:size(RunDir,1)
 	    	frames = [1];
-	    	if (strcmp(imagetype,'nii'))
+            if strcmp(imagetype,'nii')
 	    		frames = [1:NumScan(r)];
             end
+            
             Run=RunDir{r};
             iRun=num2str(r);
             ImageDir=mc_GenPath(ImageTemplate);
-		scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
-		%subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
-        subjpath = ImageDir;
-		for s = 1:size(scan{r},1)
-		    scancell{end+1} = strtrim([subjpath scan{r}(s,:) suffix]);
-		    ascan{r}{s} = strtrim([subjpath scan{r}(s,:) suffix]);
-		    rscan{r}{s} = strtrim([subjpath Pa scan{r}(s,:) suffix]);
-		    wscan{end+1} = strtrim([subjpath Pra scan{r}(s,:) suffix]);
-		    sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
-		end
-	    end
+            scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
+            %subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
+            subjpath = ImageDir;
+            
+            for s = 1:size(scan{r},1)
+                scancell{end+1} = strtrim([subjpath scan{r}(s,:) suffix]);
+                ascan{r}{s} = strtrim([subjpath scan{r}(s,:) suffix]);
+                rscan{r}{s} = strtrim([subjpath Pa scan{r}(s,:) suffix]);
+                wscan{end+1} = strtrim([subjpath Pra scan{r}(s,:) suffix]);
+                sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
+            end
+        end
+        
 	    for r = 1:size(RunDir,1)
-		ascan{r} = ascan{r}';
-		rscan{r} = rscan{r}';
+            ascan{r} = ascan{r}';
+            rscan{r} = rscan{r}';
 	    end
 
 	    wscan = wscan';
@@ -676,21 +677,21 @@ if (Processing(2) == 1)
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	if strcmp(MasterFile(end-3:end),'.csv')
-        CheckPath(MasterFile,'Check your MasterTemplate')
+        %CheckPath(MasterFile,'Check your MasterTemplate')
         MasterData = csvread([MasterFile],MasterDataSkipRows,MasterDataSkipCols);
     else
-            CheckPath([MasterFile '.csv'],'Check your MasterTemplate')
-	MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
+        %CheckPath([MasterFile '.csv'],'Check your MasterTemplate')
+        MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
 	end
 
 	% regressor line
 	if RegOp ==1;
-        	if strcmp(RegFile(end-3:end),'.csv')
-                CheckPath(RegFile,'Check your RegTemplate')
-           RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
+            if strcmp(RegFile(end-3:end),'.csv')
+                %CheckPath(RegFile,'Check your RegTemplate')
+                RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
             else
-                CheckPath([RegFile '.csv'],'Check your RegTemplate')
-	    RegMasterData = csvread ([RegFile, '.csv'],RegDataSkipRows,RegDataSkipCols);
+                %CheckPath([RegFile '.csv'],'Check your RegTemplate')
+                RegMasterData = csvread ([RegFile, '.csv'],RegDataSkipRows,RegDataSkipCols);
             end
 	end
 
@@ -892,22 +893,26 @@ display('***********************************************')
 display(sprintf('I am working on Subject: %s', SubjDir{iSubject,1}));
 display(sprintf('The number of runs is: %s', num2str(NumRun)));
 display(sprintf('For each run, here are the onsets, durations, and parameters: '));
+        
         for iRun=1:NumRun
-
-          fprintf('\nRun: %g',iRun)
+            
+            fprintf('\nRun: %g',iRun)
             for iCond=1:NumCond
-          fprintf('\nCondition %g: ',iCond)  %%%% (Onset, Duration, Parameter Vals)
+                fprintf('\nCondition %g: ',iCond)  %%%% (Onset, Duration, Parameter Vals)
           
-          for iVal = 1: CondLength(iRun,iCond)
-          fprintf('(%g, ',Timing{iRun}{1,iCond}(iVal))
-          fprintf('%g',Duration{iRun}{1,iCond}(iVal))
-             for iPar = 1: NumPar
-             fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
-             end;
-         fprintf(') ');     
-          end  % loop through iVals
+                for iVal = 1: CondLength(iRun,iCond)
+                    
+                    fprintf('(%g, ',Timing{iRun}{1,iCond}(iVal))
+                    fprintf('%g',Duration{iRun}{1,iCond}(iVal))
+                    for iPar = 1: NumPar
+                        fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
+                    end;
+                    
+                fprintf(') ');     
+                
+                end  % loop through iVals
             end  % loop through conditions
-end % loop through runs
+        end % loop through runs
         
         
         
@@ -919,19 +924,18 @@ end % loop through runs
 		    iRun;
 		    for iCond=1:NumCond
 
-		      iCond;
+              iCond;
 			  Timing{iRun}{1,iCond}= Timing{iRun}{1,iCond}(isnan(Timing{iRun}{1,iCond})==0);
-			   Duration{iRun}{1,iCond}= Duration{iRun}{1,iCond}(isnan(Duration{iRun}{1,iCond})==0);
-
+			  Duration{iRun}{1,iCond}= Duration{iRun}{1,iCond}(isnan(Duration{iRun}{1,iCond})==0);
 
 			  Timing{iRun}{1,iCond};
 			  Duration{iRun}{1,iCond};
 
 			  for iPar = 1: NumPar
-			       Parameter{iPar,iRun}{1,iCond} = Parameter{iPar,iRun}{1,iCond}(isnan(Parameter{iPar,iRun}{1,iCond})==0);
+                  
+                Parameter{iPar,iRun}{1,iCond} = Parameter{iPar,iRun}{1,iCond}(isnan(Parameter{iPar,iRun}{1,iCond})==0);
 
-			      Parameter{iPar,iRun}{1,iCond};
-
+                Parameter{iPar,iRun}{1,iCond};
 
 			  end % loop through parameters
 		    end  % loop through conditions       
@@ -952,7 +956,9 @@ end % loop through runs
         %fullfile(Exp,OutputLevel1,SubjDir{iSubject,1},OutputLevel2,OutputLevel3);
 
 		if (Mode == 1 | Mode ==2) 
-		    eval(sprintf('!mkdir -p %s', OutputDir))
+		    %eval(sprintf('!mkdir -p %s', OutputDir))
+            mc_GenPath( struct('Template',OutputDir,...
+                               'mode','makeparentdir') );
 		    cd(OutputDir)
 		end
 
@@ -1125,31 +1131,30 @@ end % loop through runs
 		%%%% for SPM2 %%%%
 		%%%%%%%%%%%%%%%%%%
 		    for iRun = 1:ImageNumRun
-			frames = [1];
-			if (strcmp(imagetype,'nii'))
-				frames = [1:NumScanTotal(RunList(iRun))];
-			end
-			% directory of images in a subject
+                frames = [1];
+                if (strcmp(imagetype,'nii'))
+                    frames = [1:NumScanTotal(RunList(iRun))];
+                end
+                % directory of images in a subject
             
-            Run=RunDir{iRun};
-			ImageDir = mc_GenPath(ImageTemplate);
-            %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
-CheckPath(ImageDir,'Check your ImageTemplate');
+                Run=RunDir{iRun};
+                ImageDir = mc_GenPath(ImageTemplate);
+                %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
+                %CheckPath(ImageDir,'Check your ImageTemplate');
 
 
-			% for SPM2
-			if (spm2)
-				tmpP = spm_get('files',ImageDir,[Pwra basefile '*.img']); 
-			else
-				tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
-			end
-			P = strvcat(P,tmpP);
+                % for SPM2
+                if (spm2)
+                    tmpP = spm_get('files',ImageDir,[Pwra basefile '*.img']); 
+                else
+                    tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+                end
+                P = strvcat(P,tmpP);
 
-            if isempty(P)
-                display(sprintf('Sorry friend. I was looking for your functional images here: %s. I could not find any images there.', ImageDir));
-                error('');
-            end
-            
+                if isempty(P)
+                    display(sprintf('Sorry friend. I was looking for your functional images here: %s. I could not find any images there.', ImageDir));
+                    error('');
+                end
 		    end
 		%%%%%%%%%%%%%%%%%%
 

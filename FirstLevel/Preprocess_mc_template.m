@@ -18,14 +18,12 @@ Exp = '/oracle7/Researchers/heffjos/Mock_Data/fMRI/MYDATA';
 %%  Path where your images are located
 %%
 %%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
+%%       Exp      = path to your experiment directory
 %%       iSubject = index for subject
-%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%       Run = name of run from RunDir (using iRun as index of row)
-%%        * = wildcard (can only be placed in final part of template)
+%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%       Run      = name of run from RunDir (using iRun as index of row)
+%%        *       = wildcard (can only be placed in final part of template)
 %% Examples:
-%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
