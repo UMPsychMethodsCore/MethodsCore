@@ -22,18 +22,21 @@ RunDir = {
      
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Set the needed paths
+%% OverlayTemplate: Path to overlay template
+%% HiResTemplate  : Path to hires template
+%% ImageTemplate  : Path to image locations
 %%
 %%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
+%%       Exp      = path to your experiment directory
 %%       iSubject = index for subject
-%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%       Run = name of run from RunDir (using iRun as index of row)
-%%        * = wildcard (can only be placed in final part of template)
+%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%       iRun     = index of run (listed in Column 3 of SubjDir)
+%%       Run      = name of run from RunDir (using iRun as index of row)
+%%        *       = wildcard (can only be placed in final part of template)
 %% Examples:
-%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
-%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
+%% OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
+%% HiResTemplate   = '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii'
+%% ImageTemplate   = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
@@ -60,7 +63,7 @@ FilePrefix = 'ra';
 
 
 
-   SubjDir = {
+SubjDir = {
 
 % '5001/Tx2',50012,[1 2];
 % '5002/Tx2',50022,[1 2];
@@ -108,7 +111,5 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
 addpath(fullfile(mcRoot,'spm8'))
-   
 
-
-   CheckReg_central
+CheckReg_central
