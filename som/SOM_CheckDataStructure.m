@@ -94,13 +94,13 @@ for iRUN = 1:length(data.run)
   
   if exist(data.run(iRUN),'censorVector')
     if length(data.run(iRUN).censorVector) ~= data.run(iRUN).nTIME
-      SOM_LOG(sprintf('FATAL : Specified censorVector of length %d
-                                                                %for
-                                                                %run
-                                                                %%d
-                                                                %s
+      SOM_LOG(sprintf('FATAL : Specified censorVector of length %d for run %d does not match %d'),iRUN,data.run(iRUN).nTIME)
+      return
+    end
+  end  
+      
   % Check to see if the motion parameters are there
-
+      
   if isfield(data.run(iRUN),'MotionParameters') == 1
     if size(data.run(iRUN).MotionParameters,1) ~= data.run(iRUN).nTIME
       SOM_LOG('WARNING : Motion parameters length does not match expected number of time points');
