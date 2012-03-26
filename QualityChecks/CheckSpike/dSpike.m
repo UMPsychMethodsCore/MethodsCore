@@ -11,33 +11,21 @@ end
 P    = nifti(inputData);
 data = P.dat(:,:,:,:);
 
-X = size(data,1);
-Y = size(data,2);
-Z = size(data,3);
-T = size(data,4);
+[X Y Z T] = size(data);
 
 % Remove whole mean
 mu_whole = mean( data(:) );
 data     = data - mu_whole;
 
-series = zeros(T,1);
 % Remove temporal trend, then compute temporal Z-score for each voxel
 for z=1:Z
-    for y=1:Y
-        for x=1:X
-            % detrend
-            series(:) = data(x,y,z,:);
-            d_series  = spm_detrend(series,detOpt);
-            
-            % compute Z-score
-            s_mu     = mean(d_series);
-            s_std    = std(d_series);
-            z_series = (d_series - s_mu)./(s_std + eps);
-            
-            % reassign values
-            data(x,y,z,:) = abs( z_series(:) );
-        end
-    end
+    % detrend
+    slice = squeeze(data(:,:,z,:));
+    reSlice = reshape(slice,X*Y,T)';
+    detrendSlice = spm_detrend(reSlice,detOpt);    
+    %get z score
+    zScoreSlice = zscore(detrendSlice);    
+    data(:,:,z,:) = abs( reshape(zScoreSlice',X,Y,1,T) );   
 end
 
 AAZ  = zeros(Z,T);
@@ -46,7 +34,7 @@ for t=1:T
     for z=1:Z
         AAZ(z,t) = sum(sum(data(:,:,z,t)))/(X*Y);
     end
-end
+end    
 
 AJKZ    = zeros(Z,T);
 indexes = [1:Z]';
@@ -56,8 +44,8 @@ for z=1:Z
     included = AAZ(loc,:);
     mu_i = mean(included,1);
     std_i = std(included,1);
-    
-    AJKZ(z,:) = (AAZ(z,:) - mu_i)./(std_i + eps);
+    std_i(std_i==0) = 1;
+    AJKZ(z,:) = (AAZ(z,:) - mu_i)./(std_i);
 end
     
 results = abs(AJKZ);    
