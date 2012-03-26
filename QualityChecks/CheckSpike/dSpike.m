@@ -25,9 +25,6 @@ if nargin < 2
     detOpt = [];
 end
 
-% Read in data
-inputData = P.dat(:,:,:,:);
-
 [xDim yDim nSlice nTime] = size(inputData);
 
 % Remove whole mean
