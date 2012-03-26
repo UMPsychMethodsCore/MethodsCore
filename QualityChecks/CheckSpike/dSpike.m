@@ -2,44 +2,63 @@ function results = dSpike(inputData,detOpt)
 
 results = -1;
 
-if exist(inputData,'file') ~= 2
-    fprintf('Invalid file.\n');
+if ischar(inputData)
+    inputData = strtrim(inputData);
+    % Check if file exists
+    if exist(inputData,'file') ~= 2
+        fprintf('Input data "%s"\n does not exist.\n',inputData);
+        fprintf('  * * * A B O R T I N G * * *\n\n');
+        return
+    end
+    P = nifti(inputData);
+    inputData = P.dat(:,:,:,:);
+end
+
+% support only 4D arrays for now
+if ndims(inputData) ~= 4
+    fprintf('Expected 4D time series\n');
+    fprintf('  * * * A B O R T I N G * * *\n\n');
     return
 end
 
-% Read in data
-P    = nifti(inputData);
-data = P.dat(:,:,:,:);
-
-[X Y Z T] = size(data);
-
-% Remove whole mean
-mu_whole = mean( data(:) );
-data     = data - mu_whole;
-
-% Remove temporal trend, then compute temporal Z-score for each voxel
-for z=1:Z
-    % detrend
-    slice = squeeze(data(:,:,z,:));
-    reSlice = reshape(slice,X*Y,T)';
-    detrendSlice = spm_detrend(reSlice,detOpt);    
-    %get z score
-    zScoreSlice = zscore(detrendSlice);    
-    data(:,:,z,:) = abs( reshape(zScoreSlice',X,Y,1,T) );   
+if nargin < 2
+    detOpt = [];
 end
 
-AAZ  = zeros(Z,T);
+% Read in data
+inputData = P.dat(:,:,:,:);
+
+[xDim yDim nSlice nTime] = size(inputData);
+
+% Remove whole mean
+mu_whole  = mean( inputData(:) );
+inputData = inputData - mu_whole;
+
+% Remove temporal trend, then compute temporal Z-score for each voxel
+for z=1:nSlice
+    slice = squeeze(inputData(:,:,z,:));
+    reSlice = reshape(slice,xDim*yDim,nTime)';
+    % detrend
+    if ~isempty(detOpt)
+        reSlice = spm_detrend(reSlice,detOpt);    
+    end
+    %get z score
+    zScoreSlice = zscore(reSlice);    
+    inputData(:,:,z,:) = abs( reshape(zScoreSlice',xDim,yDim,1,nTime) );   
+end
+
+AAZ  = zeros(nSlice,nTime);
 % Average the Z-scores across slices and time
-for t=1:T
-    for z=1:Z
-        AAZ(z,t) = sum(sum(data(:,:,z,t)))/(X*Y);
+for t=1:nTime
+    for z=1:nSlice
+        AAZ(z,t) = sum(sum(inputData(:,:,z,t)))/(xDim*yDim);
     end
 end    
 
-AJKZ    = zeros(Z,T);
-indexes = [1:Z]';
+AJKZ    = zeros(nSlice,nTime);
+indexes = [1:nSlice]';
 % Calculate AJKZ
-for z=1:Z
+for z=1:nSlice
     loc = (indexes ~= z);
     included = AAZ(loc,:);
     mu_i = mean(included,1);
