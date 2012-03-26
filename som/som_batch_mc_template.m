@@ -100,9 +100,9 @@ NumScan = [180];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
-WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
-CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/';
+GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
+WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rwhite.img';
+CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/rcsf.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The voxel size to reslice your images to after normalization
@@ -130,7 +130,7 @@ MaskGrey = 0;
 GreyThreshold = 0.75;
 RegressWhite = 1;
 RegressCSF = 1;
-MaskBrain = 1;
+MaskBrain = 0;
 RegressMotion = 1;
 PrincipalComponents = 5;
 RegressGlobal = 0;
@@ -146,5 +146,12 @@ Padding = 10;
 BandpassFilter = 1;
 Fraction = 1;
 
+ROISize = 2;
+
+addpath /net/dysthymia/mangstad/repos/MethodsCore/matlabScripts
 addpath /net/dysthymia/mangstad/repos/MethodsCore/som
+addpath /net/dysthymia/spm8
+Subject = SubjDir{1,1};
+Run = RunDir{1};
+Pswra = 'swra';
 som_batch_mc_central

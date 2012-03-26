@@ -4,9 +4,14 @@ GreyPath = mc_GenPath(GreyMatterTemplate);
 WhitePath = mc_GenPath(WhiteMatterTemplate);
 CSFPath = mc_GenPath(CSFTemplate);
 BrainPath = mc_GenPath(BrainMaskTemplate);
-OutputPath = mc_GenPath(OutputTemplate);
+
+output.Template = OutputTemplate;
+output.type = 1;
+output.mode = 'makedir';
+
+OutputPath = mc_GenPath(output);
 ImagePath = mc_GenPath(ImageTemplate);
-ImageFiles = spm_select('FPList',ImagePath, ['^' Pswra basefile '*.' imagetype]);
+ImageFiles = spm_select('FPList',ImagePath, ['^' Pswra basefile '.*.' imagetype]);
 RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
 parameters.grey.File = GreyPath;
@@ -53,14 +58,14 @@ parameters.rois.files = '';
 
 %-OR-
 
-parameters.rois.mni.coordinates = [];
+parameters.rois.mni.coordinates = [0 0 0];
 XYZ = SOM_MakeSphereROI(ROISize);
 parameters.rois.mni.size.XROI = XYZ(1,:);
 parameters.rois.mni.size.YROI = XYZ(2,:);
 parameters.rois.mni.size.ZROI = XYZ(3,:);
 
 parameters.rois.mask.File = BrainPath;
-parameters.rois.mask.MaskFLAG = BrainMask;
+parameters.rois.mask.MaskFLAG = MaskBrain;
 
 parameters.Output.correlation = 'images'; %or maps
 parameters.Output.description = 'description of output';
@@ -69,7 +74,7 @@ parameters.Output.name = 'result file name';
 
 
 
-global SOM
+global SOM;
 SOM.silent = 1;
 SOM_LOG('STATUS : 01');
 
@@ -79,12 +84,12 @@ SOM_LOG('STATUS : 01');
 
 
 [D0 parameters] = SOM_PreProcessData(parameters);
-if D0 == -1
-    SOM_LOG('FATAL ERROR : No data returned');
-else
-    results = SOM_CalculateCorrelations(D0,parameters);
-    if isnumeric(results)
-        SOM_LOG('FATAL ERROR : ');
-    end
-end
+%if D0 == -1
+%    SOM_LOG('FATAL ERROR : No data returned');
+%else
+%    results = SOM_CalculateCorrelations(D0,parameters);
+%    if isnumeric(results)
+%        SOM_LOG('FATAL ERROR : ');
+%    end
+%end
 
