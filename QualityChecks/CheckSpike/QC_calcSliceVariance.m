@@ -1,3 +1,32 @@
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%  QC_calcSlicerVariance
+% 
+%  A routine for calculating some statistical properties for slices in a
+%  time series
+% 
+%   Call as :
+% 
+%   function results = QC_calcSliceVariance(inputData,options)
+% 
+%   To Make this work you need to provide the following input:
+% 
+%      inputData = Either a 4D matrix or file name% 
+%      options   = polynomial order used in spm_detrend (OPTIONAL)
+% 
+%   Output
+%   
+%      results   
+%        = -1 if failure
+%               OR
+%        = struct {
+%            globalMean    - scalar mean of whole volume
+%            sliceMean     - nSlice x 1 array mean of each slice over time
+%            sliceSTD      - nSlice x 1 array std of each slice over time
+%            sliceVariance - nSlice x nTime array mean slice intensity at 
+%                            given timepoint / std (slice)
+%          }
+% 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function results = QC_calcSliceVariance(inputData,options)
 
 results = -1;

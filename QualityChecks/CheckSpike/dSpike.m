@@ -1,3 +1,34 @@
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%  dSpike
+% 
+%  A routine that implements the spike detection algorithm from "Automatic
+%  Spike Detection for fMRI" by Greve et al.
+% 
+%   Call as :
+% 
+%   function results = dSpike(inputData,options)
+% 
+%   To Make this work you need to provide the following input:
+% 
+%      inputData = Either a 4D matrix or file name
+%      options   = polynomial order used in spm_detrend (OPTIONAL)
+% 
+%   Output
+%   
+%      results   
+%        = -1 if failure
+%               OR
+%        = nSlice x nTime array of the absolute measure of the jackknife
+%          z-score for each slice in each timepoint (AJKZ)
+%
+%   Comments
+%
+%      Obvious spikes will be obvious in the output.  The paper classifies
+%      any AJKZ > 25 as a spike.  It seems reasonable.  Figure 1 in paper
+%      was not exactly reproduced.  The distrubution of AJKZ was shifted
+%      further left.
+% 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function results = dSpike(inputData,detOpt)
 
 results = -1;
