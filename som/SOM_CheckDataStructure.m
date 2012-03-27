@@ -92,7 +92,7 @@ for iRUN = 1:length(data.run)
     SOM_LOG(sprintf('STATUS : Determined that for run %d, there are %d time-points.',iRUN,nTIME));
   end
   
-  if exist(data.run(iRUN),'censorVector')
+  if isfield(data.run(iRUN),'censorVector')
     if length(data.run(iRUN).censorVector) ~= data.run(iRUN).nTIME
       SOM_LOG(sprintf('FATAL : Specified censorVector of length %d for run %d does not match %d'),iRUN,data.run(iRUN).nTIME)
       return
