@@ -29,8 +29,12 @@ for iSub = 1:length(UMBatchSubjs)
     % Make sure the image exists.
     %
     ParamImage=UMImg2Warp{iSub};
+    Img2Write=[];
+    for iW = 1:length(UMOtherImages{iSub})
+      Img2Write = strvcat(Img2Write,[UMOtherImages{iSub}{iW},',1']);
+    end
     if exist(ParamImage) == 2
-      results = UMBatchVBM8(ParamImage,VBM8RefImage,UMTestFlag,VoxelSize,OutputName);
+      results = UMBatchVBM8(ParamImage,VBM8RefImage,Img2Write,UMTestFlag,VoxelSize,OutputName);
       UMCheckFailure(results);
     else
       fprintf('FATAL ERROR : Image to warpVBM8 process does not exist: %s\n',ParamImage)

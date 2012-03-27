@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="aDdhIMntUwz"
+allowedOptions="aDdhIMnOtUwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -137,6 +137,8 @@ done
 echo "                };"                                 >> ${FULLSCRIPTNAME}.m
 
 echo
+
+. ${thisDir}/auxiliary/warpPrepOtherImages
 
 echo "    4) finalizing matlab scripts"
 

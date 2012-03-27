@@ -43,7 +43,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchVBM8(ParamImage,ReferenceImage,TestFlag,VoxelSize,OutputName);
+function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
 
 % Get the defaults from SPM.
 
@@ -222,6 +222,13 @@ if exist(ReferenceImage) | VoxelSize(1) > 0 | strcmp(OutputName,'w')==0
     PList = strvcat(PList,Pthis);
   end
   results = UMBatchWarpVBM8(ParamImage,ReferenceImage,PList,TestFlag,VoxelSize,OutputName);
+  UMCheckFailure(results);
+end
+
+% Now warp other images that might be speficied.
+
+if length(Img2Write) > 0
+  results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
   UMCheckFailure(results);
 end
 

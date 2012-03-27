@@ -117,9 +117,15 @@ end
 
 % Now if there is a reference image then we rewrite comp{2}
 
-[d1 d2 d3 d4] = spm_fileparts(ReferenceImage);
+if length(ReferenceImage) > 0
+  [d1 d2 d3 d4] = spm_fileparts(ReferenceImage);
+else
+  d1 = '';
+  d2 = '';
+  d3 = '';
+end
 
-if exist(fullfile(d1,[d2 d3]))
+if length(ReferenceImage) > 0 & exist(fullfile(d1,[d2 d3]))
   matlabbatch{1}.spm.util.defs.comp{2}.id.space{1} = [fullfile(d1,[d2 d3]),',1'];
   USINGREF=1;
 else
