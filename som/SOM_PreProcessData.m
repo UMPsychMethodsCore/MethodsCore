@@ -282,7 +282,7 @@ curDir = pwd;
 
 if parameters.data.MaskFLAG == 1
     if parameters.epi.MaskFLAG == 0
-        fprint('Calculating subject specific epi mask');
+        SOM_LOG('Calculating subject specific epi mask');
         % Create the mask from the very first/only run.
         parameters.maskHdr = SOM_CreateMask(parameters.data.run(1).P);
     else

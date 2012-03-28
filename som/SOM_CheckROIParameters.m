@@ -124,7 +124,7 @@ end
 if isempty(rois.mask.File)
     try
         PMask = parameters.data.run(1).P(1,:);
-        SOM_LOG(sprintf('STATUS : Using %s as a masking image',P(1,:)));
+        SOM_LOG(sprintf('STATUS : Using %s as a masking image',parameters.data.run(1).P(1,:)));
     catch
         SOM_LOG('FATAL ERROR : No time series data specified yet.');
         return
