@@ -98,7 +98,7 @@ NumScan = [180];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Paths to your anatomical images
+%%%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
 WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rwhite.img';
@@ -130,7 +130,7 @@ MaskGrey = 0;
 GreyThreshold = 0.75;
 RegressWhite = 1;
 RegressCSF = 1;
-MaskBrain = 0;
+MaskBrain = 1;
 RegressMotion = 1;
 PrincipalComponents = 5;
 RegressGlobal = 0;

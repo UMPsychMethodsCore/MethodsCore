@@ -12,6 +12,7 @@ output.mode = 'makedir';
 OutputPath = mc_GenPath(output);
 ImagePath = mc_GenPath(ImageTemplate);
 ImageFiles = spm_select('FPList',ImagePath, ['^' Pswra basefile '.*.' imagetype]);
+SOM_Mask = fullfile(ImagePath,'som_mask.img');
 RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
 parameters.grey.File = GreyPath;
@@ -25,7 +26,12 @@ parameters.csf.File = CSFPath;
 parameters.csf.MaskFLAG = RegressCSF;
 
 parameters.epi.File = BrainPath;
-parameters.epi.MaskFLAG = MaskBrain;
+if (isempty(BrainMaskTemplate))
+    parameters.epi.MaskFLAG = 0;
+else
+    paramters.epi.MaskFLAG = 1;
+end
+
 
 parameters.data.run(iRun).P = ImageFiles;
 
@@ -64,7 +70,11 @@ parameters.rois.mni.size.XROI = XYZ(1,:);
 parameters.rois.mni.size.YROI = XYZ(2,:);
 parameters.rois.mni.size.ZROI = XYZ(3,:);
 
-parameters.rois.mask.File = BrainPath;
+if (isempty(BrainMaskTemplate))
+    parameters.rois.mask.File = SOM_Mask;
+else
+    parameters.rois.mask.File = BrainPath;
+end
 parameters.rois.mask.MaskFLAG = MaskBrain;
 
 parameters.Output.correlation = 'images'; %or maps
