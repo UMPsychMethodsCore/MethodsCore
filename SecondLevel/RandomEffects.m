@@ -126,15 +126,21 @@ function [jobs jobs2] = RandomEffects_central(file)
 			con.consess{end+1}.tcon.name = [cov(c).cname ' neg'];
 			con.consess{end}.tcon.convec = [zeros(1,[desmtxcols + (c-1)]) -1 zeros(1,nc-c)];
 			con.consess{end}.tcon.sessrep = 'none';
-		end
-		factorial_design.dir = {[options.other.OutputDir '/' options.models(N).outputpath]};
-		if (exist(factorial_design.dir{1}) ~= 7)
-			mkdir(factorial_design.dir{1});
-		end
+        end
+        factorial_designCheck.Template = fullfile(options.other.OutputDir,options.models(N).outputpath);
+        factorial_designCheck.Mode = 'makeparentdir';
+        factorial_design.dir = { mc_GenPath(factorial_designCheck) } ;        
+		%factorial_design.dir = {[options.other.OutputDir '/' options.models(N).outputpath]};
+		%if (exist(factorial_design.dir{1}) ~= 7)
+		%	mkdir(factorial_design.dir{1});
+		%end
 		if (options.models(N).type == 6)
-			if (exist([factorial_design.dir{1} '/ME_Group']) ~=7 )
-				mkdir([factorial_design.dir{1} '/ME_Group']);	
-			end
+            factorial_designCheck.Template = fullfile(factorial_design.dir{1},'ME_Group');
+            factorial_designCheck.Mode = 'makeparentdir';
+            mc_GenPath(factorial_designCheck);
+			%if (exist([factorial_design.dir{1} '/ME_Group']) ~=7 )
+			%	mkdir([factorial_design.dir{1} '/ME_Group']);	
+			%end
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
 			jobs2{n2}.stats{1}.factorial_design.des = des2;
 			jobs2{n2}.stats{1}.factorial_design.cov = [];
@@ -171,7 +177,8 @@ function path = make_path(model,columns)
 	path = model.outputpath;
 	switch (model.type)
 		case 1
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+			%path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            path = strcat(path,columns(model.pathcolumn).description,'_',columns(model.factor(1).column).description,'_',columns(model.imagecolumn).description);
 		case 2	  
 			if (~strcmp(columns(model.factor(1).column).description,'') & ~isempty(strfind(columns(model.factor(1).column).description,' ')))
 				temp = textscan(columns(model.factor(1).column).description,'%s %s');
@@ -181,37 +188,50 @@ function path = make_path(model,columns)
 				grp1 = 'Group1';
 				grp2 = 'Group2';
 			end
-			path = [path columns(model.pathcolumn).description '_' grp1 'v' grp2 '_' columns(model.imagecolumn).description];
+			% path = [path columns(model.pathcolumn).description '_' grp1 'v' grp2 '_' columns(model.imagecolumn).description];
+            path = strcat(path,columns(model.pathcolumn).description,'_',grp1,'v',grp2,'_',columns(model.imagecolumn).description);
 		case 3
 			if (length(model.imagecolumn) > 1)         
-				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn(1)).description 'v' columns(model.imagecolumn(2)).description];
+				% path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn(1)).description 'v' columns(model.imagecolumn(2)).description];
+                path = strcat(path,column(model.pathcolumn).description,'_',columns(model.factor(1).column).description,'_',columns(model.imagecolumn(1)).description,'v',columns(model.imagecolumn(2)).description);
 			elseif (length(model.pathcolumn) > 1)        
-				path = [path columns(model.pathcolumn(1)).description 'v' columns(model.pathcolumn(2)).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+				% path = [path columns(model.pathcolumn(1)).description 'v' columns(model.pathcolumn(2)).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+                path = strcat(path,columns(model.pathcolumn(1)).description,'v',columns(model.pathcolumn(2)).description,'_',columns(model.factor(1).column).description,'_',columns(model.imagecolumn).description);
 			else
-				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];             
+				% path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];             
+                path = strcat(path,columns(model.pathcolumn).description,'_',columns(model.factor(1).column).description,'_',columns(model.imagecolumn).description);
 			end		
 		case 4
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+			% path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            path = strcat(path,columns(model.pathcolumn).description,'_',columns(model.factor(1).column).description,'_',columns(model.imagecolumn).description);
 		case 5
-			path = [path 'Full_' columns(model.pathcolumn).description '_' model.factor(1).name ];
+			% path = [path 'Full_' columns(model.pathcolumn).description '_' model.factor(1).name ];
+            path = strcat(path,'Full_',columns(model.pathcolumn).description,'_',model.factor(1).name);
 			for n = 2:size(model.factor,2)
-				path = [path 'x' model.factor(n).name];
+				% path = [path 'x' model.factor(n).name];
+                path = strcat(path,'x',model.factor(n).name);
 			end
-			path = [path '_' columns(model.imagecolumn).description];
+			% path = [path '_' columns(model.imagecolumn).description];
+            path = strcat(path,'_',columns(model.imagecolumn).description);
 		case 6
-			path = [path 'Flex_'];
+			% path = [path 'Flex_'];
+            path = strcat(path,'Flex_');
 			ng = max(columns(model.factor(1).column).data);
 			if (ng > 1)
-				path = [path model.factor(1).name 'x'];
+				% path = [path model.factor(1).name 'x'];
+                path = strcat(path,model.factor(1).name,'x');
 			end
-			path = [path model.withinnames{1}];
+			% path = [path model.withinnames{1}];
+            path = strcat(path,model.withinnames{1});
 			for n = 2:size(model.withinnames,2)
-				path = [path 'x' model.withinnames{n}];
+				% path = [path 'x' model.withinnames{n}];
+                path = strcat(path,'x',model.withinnames{n});
 			end
 	end
 	if (isfield(model,'reg'))
 		for n = 1:size(model.reg,2)
-			path = [path '_' model.reg(n).name];
+			% path = [path '_' model.reg(n).name];
+            path = strcat(path,'_',model.reg(n).name);
 		end
 	end
 
@@ -260,6 +280,8 @@ function cov = covariates(model,columns,type)
     
 function [models columns] = parse_scans(options)
     %read in model job file
+    jobFileCheck = struct('Template',options.jobfile,'mode','check');
+    mc_GenPath(jobFileCheck);
     fid = fopen(options.jobfile);
     n = 1;
     while 1
@@ -343,6 +365,8 @@ function [models columns] = parse_scans(options)
             col = col + 4;
         end
     end
+    scanFileCheck = struct('Template',options.scanfile,'mode','check');
+    mc_GenPath(scanFileCheck);
     fid = fopen(options.scanfile);
     n = 1;
     while 1
@@ -664,7 +688,11 @@ function [specall con icell] = get_within_images3(model,columns)
 					for i2 = 1:size(model.imagecolumn,2)
 						p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
 						i = columns(model.imagecolumn(i1,i2)).data(include(s));
-						scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
+                        scanCheck.Template = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                        scan.Mode = 'check';
+                        scan = mc_GenPath(scanCheck);
+                        scans{end+1} = strcat(scan,',1');
+						% scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
 					end
 				end
 			end
@@ -697,10 +725,13 @@ function [specall con icell] = get_within_images3(model,columns)
 	%auto calculate average image per subject for use in full factorial anova
 	icell = [];
 	if (ng > 1)
-		meg_outputdir = {[options.other.OutputDir '/' model.outputpath '/ME_Group']};
-		if (exist(meg_outputdir{1} ) ~=7 )
-			mkdir(meg_outputdir{1});	
-		end
+        meg_outputdirCheck.Template = fullfile(options.other.OutputDir,model.outputpath,'ME_Group');
+        meg_outputdirCheck.mode = 'makeparentdir';
+        meg_outputdir = { mc_GenPath(meg_outputdirCheck) };        
+		%meg_outputdir = {[options.other.OutputDir '/' model.outputpath '/ME_Group']};
+% 		if (exist(meg_outputdir{1} ) ~=7 )
+% 			mkdir(meg_outputdir{1});	
+% 		end
 		
 		numlevels = max(columns(model.factor(1).column).data);
 		for l = 1:numlevels
@@ -1123,15 +1154,19 @@ function [images matrix] = get_within_images(model,columns,subfact)
 function images = get_images(p,i)
     global options;
     for n = 1:length(i)
-        zeros = '';
-        if (i(n) < 10)
-            zeros = '000';
-        elseif (i(n) < 100)
-            zeros = '00';
-        elseif (i(n) < 1000)
-            zeros = '0';
-        end
-        images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
+%         zeros = '';
+%         if (i(n) < 10)
+%             zeros = '000';
+%         elseif (i(n) < 100)
+%             zeros = '00';
+%         elseif (i(n) < 1000)
+%             zeros = '0';
+%         end
+        imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,options.other.ContrastPrefix,sprintf('%04d',i),'.img');
+        imageCheck.Mode = 'check';
+        image = mc_GenPath(imageCheck);
+        images{n} = strcat(image,',1');
+        % images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
     end
     images = images';
     
