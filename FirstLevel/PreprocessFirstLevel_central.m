@@ -339,7 +339,10 @@ if (Processing(1) == 1)
             
             Run=RunDir{r};
             iRun=num2str(r);
-            ImageDir=mc_GenPath(ImageTemplate);
+            ImageDirCheck = struct('Template',ImageTemplate,...
+                                   'type',1,...
+                                   'mode','check');
+            ImageDir=mc_GenPath(ImageDirCheck);
             scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
             %subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
             subjpath = ImageDir;
@@ -369,7 +372,7 @@ if (Processing(1) == 1)
 			    job{2}.spm.spatial.realign.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDir=mc_GenPath(ImageTemplate);
+                % ImageDir=mc_GenPath(ImageTemplate);
 			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -393,7 +396,7 @@ if (Processing(1) == 1)
 			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDir=mc_GenPath(ImageTemplate);
+                % ImageDir=mc_GenPath(ImageTemplate);
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -424,9 +427,15 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];	    
-                ImageDir=mc_GenPath(ImageTemplate);
-                OverlayDir=mc_GenPath(OverlayTemplate);
-                HiresDir=mc_GenPath(HiresTemplate);
+                % ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                         'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+                
+                HiresDirCheck = struct('Template',HiresTemplate,...
+                                       'mode','check');
+                HiresDir=mc_GenPath(HiresDirCheck);
+                
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -464,9 +473,15 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                ImageDir=mc_GenPath(ImageTemplate);
-                OverlayDir=mc_GenPath(OverlayTemplate);
-                HiresDir=mc_GenPath(HiresTemplate);
+                % ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                         'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+                
+                HiresDirCheck = struct('Template',HiresTemplate,...
+                                       'mode','check');
+                HiresDir=mc_GenPath(HiresDirCheck);
+                
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
@@ -507,9 +522,15 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-			    ImageDir=mc_GenPath(ImageTemplate);
-                OverlayDir=mc_GenPath(OverlayTemplate);
-                HiresDir=mc_GenPath(HiresTemplate);
+			    % ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                         'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+                
+                HiresDirCheck = struct('Template',HiresTemplate,...
+                                       'mode','check');
+                HiresDir=mc_GenPath(HiresDirCheck);
+                
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -561,9 +582,15 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                ImageDir=mc_GenPath(ImageTemplate);
-                OverlayDir=mc_GenPath(OverlayTemplate);
-                HiresDir=mc_GenPath(HiresTemplate);
+                % ImageDir=mc_GenPath(ImageTemplate);
+                OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                         'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+                
+                HiresDirCheck = struct('Template',HiresTemplate,...
+                                       'mode','check');
+                HiresDir=mc_GenPath(HiresDirCheck);
+                
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
@@ -629,10 +656,14 @@ if (Processing(2) == 1)
 	%%%%      Paths and Filenames           %%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	MasterFile = mc_GenPath(MasterTemplate);
+    MasterFileCheck = struct('Template',MasterTemplate,...
+                             'mode','check');
+	MasterFile = mc_GenPath(MasterFileCheck);
     %fullfile(Exp,MasterLevel1,MasterLevel2);
 
-	RegFile = mc_GenPath(RegTemplate);
+    RegFileCheck = struct('Template',RegTemplate,...
+                          'mode','check');
+	RegFile = mc_GenPath(RegFileCheck);
     %fullfile(Exp,RegLevel1,RegLevel2);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1138,7 +1169,9 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
                 % directory of images in a subject
             
                 Run=RunDir{iRun};
-                ImageDir = mc_GenPath(ImageTemplate);
+                ImageDirCheck = struct('Template',ImageTemplate,...
+                                       'mode','check');
+                ImageDir = mc_GenPath(ImageDirCheck);
                 %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
                 %CheckPath(ImageDir,'Check your ImageTemplate');
 
