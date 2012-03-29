@@ -19,22 +19,29 @@ for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject};
     fprintf('\n\n\nPerforming check registration for subject: %s\n\n\n', Subject);
 
-    Run=RunDir{1}; % only one dir?
+    Run=RunDir{1};
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %pathcallcmd=GeneratePathCommand(ImageTemplate);
     %ImagePath=eval(pathcallcmd);
-    ImagePath = mc_GenPath(ImageTemplate);
+    ImagePathCheck = struct('Template',ImageTemplate,...
+                            'mode','check');
+    ImagePath = mc_GenPath(ImagePathCheck);
 
     %pathcallcmd=GeneratePathCommand(OverlayTemplate);
     %OverlayPathFile=eval(pathcallcmd);
-    OverlayPathFile = mc_GenPath(OverlayTemplate);
+    OverlayPathCheck = struct('Template',OverlayTemplate,...
+                              'mode','check');
+    OverlayPathFile = mc_GenPath(OverlayPathCheck);
 
     %pathcallcmd=GeneratePathCommand(HiResTemplate);
     %HiResPathFile=eval(pathcallcmd);
-    HiResPathFile = mc_GenPath(HiResTemplate);
+    HiResPathCheck = struct('Template',HiResTemplate,...
+                            'mode','check');
+    HiResPathFile = mc_GenPath(HiResPathCheck);
 
-    ImagePathFile=dir([ImagePath  FilePrefix '*.nii']);
+    fileName = fullfile(ImagePath,strcat(FilePrefix,'*.nii'));
+    ImagePathFile=dir(fileName);
     ImagePathName=ImagePathFile(1).name;
 
     data = {
