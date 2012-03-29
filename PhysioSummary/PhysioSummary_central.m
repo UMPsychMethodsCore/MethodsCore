@@ -29,7 +29,9 @@ for iSubject = 1:size(SubjDir,1)
         %pathcallcmd=GeneratePathCommand(PhysioPathTemplate);
         %PhysioPath = eval(pathcallcmd);
         %CheckPath(PhysioPath, 'Check the PhysioPathTemplate, your subject directory, and your run directory.');
-        PhysioPath = mc_GenPath(PhysioPathTemplate);
+        PhysioPathCheck = struct('Template',PhysioPathTemplate,...
+                                 'mode','check');
+        PhysioPath = mc_GenPath(PhysioPathCheck);
         
         PhysioParameters = load (PhysioPath);
         %Output=euclideanDisplacement(MotionParameters,LeverArm);
