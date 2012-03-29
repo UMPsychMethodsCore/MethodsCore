@@ -20,16 +20,22 @@ for iSubject = 1:size(SubjDir,1)
 
     fprintf('\n\n\nPerforming check registration for subject: %s\n\n\n', Subject);
 
-    Run=RunDir{1}; % Only one dir?
+    Run=RunDir{1};
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %pathcallcmd=GeneratePathCommand(ImageTemplate);
     %ImagePath=eval(pathcallcmd);
-    ImagePath = mc_GenPath(ImageTemplate);
+    ImagePathCheck = struct('Template',ImageTemplate,...
+                            'mode','check');
+    ImagePath = mc_GenPath(ImagePathCheck);
 
-    ImagePathFile=dir([ImagePath  FilePrefix '*.nii']);
+    fileName = fullfile( ImagePath, strcat(FilePrefix,'*.nii') );
+    ImagePathFile=dir(fileName);
     ImagePathName=ImagePathFile(1).name;
 
+    WarpTemplateCheck = struct('Template',WarpTemplate,...
+                               'mode','check');
+    WarpTemplate = mc_GenPath(WarpTemplateCheck);
     data = {
             [WarpTemplate];
             [ImagePath ImagePathName ',1'];
