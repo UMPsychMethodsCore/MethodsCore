@@ -12,7 +12,7 @@ Exp='/net/data4/OXT/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Output path for analysis 
+%%  Output file for analysis (leave off the .csv)
 %%
 %%  Variables you can use in your template are:
 %%       Exp = path to your experiment directory

@@ -39,9 +39,14 @@ FullFileName       = mc_GenPath(FullFileNameStruct);
      %ConditionPath=eval(GeneratePathCommand(ExtractionJobs{ijob,1}));
    
      %ROIPath=eval(GeneratePathCommand(ExtractionJobs{ijob,2}));
+     ConditionPathCheck.Template = ExtractionJobs{ijob,1};
+     ConditionPathCheck.mode = 'check';
+     ConditionPathCheck.type = 1;
+     ConditionPath = mc_GenPath(ConditionPathCheck);
      
-     ConditionPath = mc_GenPath(ExtractionJobs{ijob,1});
-     ROIPath       = mc_GenPath(ExtractionJobs{ijob,2});
+     ROIPathCheck.Template = ExtractionJobs{ijob,2};
+     ROIPathCheck.mode = 'check';
+     ROIPath = mc_GenPath(ROIPathCheck);
   
 
 
@@ -51,7 +56,9 @@ FullFileName       = mc_GenPath(FullFileNameStruct);
 %if UseSPM==1
 
 
-    spm_name = mc_GenPath( strcat(ConditionPath,'/SPM.mat') );
+    spm_nameCheck.Template = fullfile(ConditionPath,'SPM.mat');
+    spm_nameCheck.mode = 'check';
+    spm_name = mc_GenPath(spm_nameCheck);
  %   SPMList{iJob}=spm_name;
 %end
 
