@@ -37,16 +37,14 @@ PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% OuputPathTemplate: file path to output
+%% OuputPathTemplate: file path to output (leave out .csv)
 %%
 %%  Variables you can use in your template are:
 %%       Exp        = path to your experiment directory
-%%       OutputName = file name (REQUIRED)
 %% Examples:
 %% PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputName = 'RestingPhysio_bothsessions_test';
-OutputPathTemplate = '[Exp]/Output/Physio/[OutputName]';
+OutputPathTemplate = '[Exp]/Output/Physio/RestingPhysio_bothsessions_test';
 
 
 
