@@ -33,7 +33,7 @@ global SOM
 results = [];
 
 rMap    = zeros(size(D0,1),1);
-rMapVol = zeros(parameters.maskHdr.dim(1:3));
+rMapVol = zeros(parameters.maskHdr.dim(1:3)); %this fails if user specified no masking
 
 for iROI = 1 : parameters.rois.nroisRequested
     

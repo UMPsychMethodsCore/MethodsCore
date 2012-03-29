@@ -282,7 +282,7 @@ curDir = pwd;
 
 if parameters.data.MaskFLAG == 1
     if parameters.epi.MaskFLAG == 0
-        fprint('Calculating subject specific epi mask');
+        SOM_LOG('Calculating subject specific epi mask');
         % Create the mask from the very first/only run.
         parameters.maskHdr = SOM_CreateMask(parameters.data.run(1).P);
     else
@@ -555,13 +555,13 @@ SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPAC
 enTIME = [];
 
 for iRUN = length(parameters.data.run)
-  if isfield(paramaters.data.run(iRUN),'censorVector')
+  if isfield(parameters.data.run(iRUN),'censorVector')
     D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN.D0),parameters.data.run(iRUN).censorVector);
     if D0RUN(iRUN).D0 == -1
       SOM_LOG('FATAL : SOM_editTimeSeries failed.');
       exit
     else
-      SOM_LOG(sprintf(['STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
+      SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
       enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
     end
   end
@@ -573,7 +573,7 @@ if length(enTIME) > 0
   cenTIME = cumsum(enTIME);
   SOM_LOG(sprintf('STATUS : Edited data to : %d space by total  %d time-points',nSPACE(1),cenTIME(end)));
 else
-  enTIME=nTIME;
+  cenTIME=nTIME;
   SOM_LOG(sprintf('STATUS : No editing of data : %d space by total % time-points',nSPACE(1),cnTIME(end)));
 end
 
@@ -584,8 +584,9 @@ parameters.data.enTIME = enTIME;
 
 % Now contactenate the data.
 
-D0 = zeros(nSPACE(1),sum(enTIME));
+D0 = zeros(nSPACE(1),sum(cenTIME));
 
+cenTIME = [0 cenTIME];
 for iRUN = 1:length(parameters.data.run)
   D0(:,cenTIME(iRUN)+1:cenTIME(iRUN+1)) = D0RUN(iRUN).D0;
 end
