@@ -46,7 +46,7 @@ FullFileName       = mc_GenPath(FullFileNameStruct);
     
     ROIPathCheck = struct('Template',ExtractionJobs{ijob,2},...
                           'mode','check');
-    ROIPath      = mc_GenPath(ROIPath);
+    ROIPath      = mc_GenPath(ROIPathCheck);
      
  
 
