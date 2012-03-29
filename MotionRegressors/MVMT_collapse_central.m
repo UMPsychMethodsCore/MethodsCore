@@ -31,7 +31,9 @@ for iSubject = 1: size(SubjDir,1)
 
         %pathcallcmd=GeneratePathCommand(MotionPathTemplate);
         %MotionPath = eval(pathcallcmd);
-        MotionPath = mc_GenPath(MotionPathTemplate);
+        MotionPathCheck.Template = MotionPathTemplate;
+        MotionPathCheck.mode = 'check';
+        MotionPath = mc_GenPath(MotionPathCheck);
         % CheckPath(MotionPath, 'a realignment file') exist anymore?
         MotionParameters = load (MotionPath);
 
