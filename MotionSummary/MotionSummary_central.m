@@ -2,8 +2,8 @@
 
 display ('-----')
 %OutputPathFile = GeneratePath(OutputPathTemplate,Exp);
-OutputPathFile = mc_GenPath( sturct('Template',OutputPathTemplate,...
-                                    'suffix','.cxv',...
+OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
+                                    'suffix','.csv',...
                                     'mode','makeparentdir') );
                                 
 display('I am going to compute summary motion summary statistics');
@@ -27,7 +27,9 @@ for iSubject = 1:size(SubjDir,1)
 
         %pathcallcmd=GeneratePathCommand(MotionPathTemplate);
         %MotionPath = eval(pathcallcmd);
-        MotionPath = mc_GenPath(MotionPathTemplate);
+        MotionPathCheck = struct('Template',MotionPathTemplate,...
+                                 'mode','check');
+        MotionPath = mc_GenPath(MotionPathCheck);
 
         
         MotionParameters = load (MotionPath);
