@@ -14,11 +14,14 @@ spm_jobman('initcfg'); % hopefully this adds marsbar to path
 
 %InputROIDir = eval(GeneratePathCommand(JobList{iJob,1}))
 %OutputROIDir = eval(GeneratePathCommand(JobList{iJob,2}))
-InputROIDir        = mc_GenPath(JobList{iJob,1});
+
+InputROIDirCheck = struct('Template',JobList{iJob,1},...
+                          'mode','check',...
+                          'type',1);     
+InputROIDir      = mc_GenPath(InputROIDirCheck);
 
 OutputROIDirStruct = struct('Template',JobList{iJob,2},...
                             'mode','makeparentdir');
-                        
 OutputROIDir       = mc_GenPath(OutputROIDirStruct);
 
 
