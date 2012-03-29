@@ -372,7 +372,9 @@ if (Processing(1) == 1)
 			    job{2}.spm.spatial.realign.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                % ImageDir=mc_GenPath(ImageTemplate);
+                ImageDirCheck = struct('Template',ImageTmeplate,...
+                                       'mode','check');
+                ImageDir=mc_GenPath(ImageDirCheck);
 			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -396,7 +398,9 @@ if (Processing(1) == 1)
 			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                % ImageDir=mc_GenPath(ImageTemplate);
+                ImageDirCheck = struct('Template',ImageTmeplate,...
+                                       'mode','check');
+                ImageDir=mc_GenPath(ImageDirCheck);
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -426,8 +430,12 @@ if (Processing(1) == 1)
 			    if (strcmp(b(1),'r') & alreadydone(2))
 			    	b = b(2:end);
 			    end
-			    normsource = ['mean' b c];	    
-                % ImageDir=mc_GenPath(ImageTemplate);
+			    normsource = ['mean' b c];
+                
+                ImageDirCheck = struct('Template',ImageTemplate,...
+                                       'mode','check');
+                ImageDir=mc_GenPath(ImageDirCheck);
+                
                 OverlayDirCheck = struct('Template',OverlayTemplate,...
                                          'mode','check');
                 OverlayDir=mc_GenPath(OverlayDirCheck);
@@ -473,7 +481,11 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                % ImageDir=mc_GenPath(ImageTemplate);
+                
+                ImageDirCheck = struct('Template',ImageTmeplate,...
+                                       'mode','check');
+                ImageDir=mc_GenPath(ImageDirCheck);
+                
                 OverlayDirCheck = struct('Template',OverlayTemplate,...
                                          'mode','check');
                 OverlayDir=mc_GenPath(OverlayDirCheck);
@@ -522,7 +534,11 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-			    % ImageDir=mc_GenPath(ImageTemplate);
+                
+                ImageDirCheck = struct('Template',ImageTmeplate,...
+                                       'mode','check');
+			    ImageDir=mc_GenPath(ImageDirCheck);
+                
                 OverlayDirCheck = struct('Template',OverlayTemplate,...
                                          'mode','check');
                 OverlayDir=mc_GenPath(OverlayDirCheck);
@@ -582,7 +598,11 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                % ImageDir=mc_GenPath(ImageTemplate);
+                
+                ImageDirCheck = struct('Template',ImageTmeplate,...
+                                       'mode','check');
+                ImageDir=mc_GenPath(ImageDirCheck);
+                
                 OverlayDirCheck = struct('Template',OverlayTemplate,...
                                          'mode','check');
                 OverlayDir=mc_GenPath(OverlayDirCheck);
