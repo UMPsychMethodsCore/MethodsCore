@@ -561,8 +561,8 @@ for iRUN = length(parameters.data.run)
       SOM_LOG('FATAL : SOM_editTimeSeries failed.');
       exit
     else
-      SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
       enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
+      SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
     end
   end
 end
@@ -570,12 +570,13 @@ end
 % Now calculate the new length, that is if we need to.
 
 if length(enTIME) > 0
-  cenTIME = cumsum(enTIME);
   SOM_LOG(sprintf('STATUS : Edited data to : %d space by total  %d time-points',nSPACE(1),cenTIME(end)));
 else
-  cenTIME=nTIME;
+  enTIME=nTIME;
   SOM_LOG(sprintf('STATUS : No editing of data : %d space by total % time-points',nSPACE(1),cnTIME(end)));
 end
+
+cenTIME = [0 cumsum(enTIME)];
 
 % We can store all of this for posterity
 
@@ -584,9 +585,8 @@ parameters.data.enTIME = enTIME;
 
 % Now contactenate the data.
 
-D0 = zeros(nSPACE(1),sum(cenTIME));
+D0 = zeros(nSPACE(1),cenTIME(end)));
 
-cenTIME = [0 cenTIME];
 for iRUN = 1:length(parameters.data.run)
   D0(:,cenTIME(iRUN)+1:cenTIME(iRUN+1)) = D0RUN(iRUN).D0;
 end
