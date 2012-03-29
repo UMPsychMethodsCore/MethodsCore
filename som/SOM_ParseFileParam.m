@@ -8,6 +8,8 @@
 % Validate the time parameters
 % pass for SOM_PreProcessData
 %
+% In general you should just set the ".File" field and let the code
+% determine the rest of the fields.
 %
 % function type = SOM_ParseFileParam(type)
 %
@@ -34,8 +36,8 @@ type.OK = 1;
 
 if isfield(type,'File') == 0
     SOM_LOG('WARNING : No file information, skipping.');
-    type.File = [];
-    type.MaskFLAG = 0;
+    type.File         = [];
+    type.MaskFLAG     = 0;
     type.ImgThreshold = SOM.defaults.MaskImgThreshold;
     return
 end
@@ -49,7 +51,7 @@ end
 
 if exist(type.File,'file') == 0
     type.OK = -1;
-    SOM_LOG('FATAL Error : Masking file specified doesn''t exist');
+    SOM_LOG(sprintf('FATAL Error : Masking file %s specified doesn''t exist',type.File);
     return
 end
 

@@ -85,7 +85,7 @@ for iROI = 1 : parameters.rois.nroisRequested
         if exist(rMapHdr.fname) == 2
             clear Vo
             Vi         = spm_vol(rMapHdr.fname);
-            Vo.fname   = sprintf('zmap_%s_%03d.nii',parameters.Output.name,iROI);
+            Vo.fname   = fullfile(parameters.Output.directory,sprintf('zmap_%s_%03d.nii',parameters.Output.name,iROI));
             Vo.mat     = Vi.mat;
             Vo.dim     = Vi.dim;
             Vo.dt      = [16 0];
