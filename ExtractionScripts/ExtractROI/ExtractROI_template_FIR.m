@@ -21,7 +21,7 @@ Model1='/SecondLevel/MSIT/FIR/fixdur/Congruency_noRT/Tx1vTx2';
 Model2='/SecondLevel/MSIT/FIR/fixdur/TwelveBin/Congruency_noRT/ANOVA_Cells/Tx2_S1';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Output path for analysis 
+%%  Output file for analysis (leave off the .csv)
 %%
 %%  Variables you can use in your template are:
 %%       Exp = path to your experiment directory
