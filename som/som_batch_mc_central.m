@@ -64,11 +64,13 @@ parameters.rois.files = '';
 
 %-OR-
 
-parameters.rois.mni.coordinates = [0 0 0];
+parameters.rois.mni.coordinates = [0 0 0;20 20 20];
 XYZ = SOM_MakeSphereROI(ROISize);
 parameters.rois.mni.size.XROI = XYZ(1,:);
 parameters.rois.mni.size.YROI = XYZ(2,:);
 parameters.rois.mni.size.ZROI = XYZ(3,:);
+
+
 
 if (isempty(BrainMaskTemplate))
     parameters.rois.mask.File = SOM_Mask;
@@ -78,6 +80,7 @@ end
 parameters.rois.mask.MaskFLAG = MaskBrain;
 
 parameters.Output.correlation = 'images'; %or maps
+parameters.Output.correlation = 'maps';
 parameters.Output.description = 'description of output';
 parameters.Output.directory = OutputPath;
 parameters.Output.name = 'result file name';
