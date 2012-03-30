@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 % opt.masking.tm.tm_none = [];
 % opt.masking.im = 1;
 % opt.masking.em = '';
@@ -29,10 +28,7 @@
 % 
 % RandomEffects(opt);
 
-
 %%%%%
-
-
 
 %%%% addpath /net/dysthymia/spm5_64b
 %%%% cd /net/data4/CCMB08/Scripts/SecondLevel/EmoReg
@@ -51,18 +47,20 @@ opt.masking.im = 1;
 opt.masking.em = {''};
 % opt.masking.em = {'/net/data4/OXT/Scripts/SecondLevel/mask.img'};
 
-=======
 masking.tm.tm_none = [];
 masking.im = 1;
 masking.em = '';
->>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
+
+opt.masking.tm.tm_none = [];
+opt.masking.im = 1;
+opt.masking.em = '';
+
 
 globalc.g_omit = [];
 
 globalm.gmsca.gmsca_no = [];
 globalm.glonorm = 1;
 
-<<<<<<< HEAD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Model = 'Congruency';
@@ -87,37 +85,14 @@ opt.other.ContrastPrefix = 'con';
 opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
+opt.other.jobfile = 'jobfile.csv';
+opt.other.scanfile = 'scanfile.csv';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-   case {'Congruency_X_Run'}     
-
-opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency_X_Run.csv';
-opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
-opt.other.ImColflag = 1; % 1 = images present, 0 = numbers
-
-opt.other.MainDir = '/net/data4/MAS/FirstLevel';
+opt.other.MainDir = '/data/SIM/ANOVA/Flexible';
 opt.other.ModelDir = '';
 opt.other.ContrastPrefix = 'con';
 
-opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-   case {'Congruency_PairedCov'}     
-
-opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency.csv';
-opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
-opt.other.ImColflag = 1; % 1 = images present, 0 = numbers
-
-opt.other.MainDir = '/net/data4/MAS/FirstLevel';
-opt.other.ModelDir = '';
-opt.other.ContrastPrefix = 'don';
-
-opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
-end  %% switch on Model
-
+opt.other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
 
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
@@ -129,7 +104,6 @@ addpath(fullfile(mcRoot,'SecondLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 
 RandomEffects(opt);
-=======
 other.jobfile = 'jobfile.csv';
 other.scanfile = 'scanfile.csv';
 
@@ -138,4 +112,4 @@ other.ModelDir = '';
 other.ContrastPrefix = 'con';
 
 other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
->>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
+RandomEffects(opt);

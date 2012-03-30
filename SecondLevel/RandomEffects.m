@@ -259,28 +259,6 @@ function cov = covariates(model,columns,type)
     end
     
 function [models columns] = parse_scans(options)
-%{
-    Post:   creates models structure from jobfile, columns structure from 
-            scanfile
-
-    struct models {
-                    include
-                    type
-                    outputpath
-                    pathcolumn
-                    imagenumber
-                    imagecolumn
-                    withinnames
-                    factor
-                    ImColFlag: 1 for actual number, otherwise reference scanfile column
-                  }
-
-    struct columns {
-                    columntype
-                    data
-                    description
-                   }
-%}
     %read in model job file
     fid = fopen(options.jobfile);
     n = 1;
@@ -300,22 +278,21 @@ function [models columns] = parse_scans(options)
         model(n-1).type = str2num(joblist{n}{2});
         model(n-1).outputpath = joblist{n}{3};
         model(n-1).pathcolumn = str2num(joblist{n}{4});
-        model(n-1).imagenumber = str2num(joblist{n}{5});
-        model(n-1).imagecolumn = str2num(joblist{n}{6});
+        model(n-1).imagecolumn = str2num(joblist{n}{5});
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
         %model(n-1).withinnames = joblist{n}{6};
         model(n-1).withinnames = {};
-        if (isempty(joblist{n}{7}))
-        	model(n-1).withinnames{1} = joblist{n}{7};
+        if (isempty(joblist{n}{6}))
+        	model(n-1).withinnames{1} = joblist{n}{6};
         else
-        	[model(n-1).withinnames{1} r] = strtok(joblist{n}{7});
+        	[model(n-1).withinnames{1} r] = strtok(joblist{n}{6});
         	while (~isempty(r))
         		[model(n-1).withinnames{end+1} r] = strtok(r);
         	end
         end
-        col = 8;
+        col = 7;
         for x = 1:3
-            offset = 7;
+            offset = 6;
             if (size(joblist{n},1) >= col)
                 if (~strcmp(joblist{n}{col},''))
                     model(n-1).factor(x).name = joblist{n}{col};
@@ -365,19 +342,9 @@ function [models columns] = parse_scans(options)
             model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
             col = col + 4;
         end
-        
-        if exist(options.ImColFlag,'var') && options.ImColFlag == 1
-            model(n-1).ImColFlag = 1;
-        else
-            model(n-1).ImColFlag = 0;
-        end
     end
-<<<<<<< HEAD
-    
     scanFileCheck = struct('Template',options.scanfile,'mode','check');
     mc_GenPath(scanFileCheck);
-=======
->>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
     fid = fopen(options.scanfile);
     n = 1;
     while 1
@@ -421,13 +388,7 @@ function des = t1(model,columns)
     if (~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    
-    if model.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data,model.imagenumber);
-    else
-        images = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn).data);
-    end
-    
+    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
@@ -457,13 +418,7 @@ function [des model columns] = t2(model,columns)
     if (~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    
-    if model.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data,model.imagenumber);
-    else
-        images = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn).data);
-    end
-    
+    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     scan1{1} = [];
     scan2{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
@@ -519,21 +474,11 @@ function des = pt(model,columns)
     end
     switch (type)
      case 'path'
-         if model.ImColFlag == 1
-            images1 = get_images(columns(model.pathcolumn(1)).data,model.imagenumber);
-            images2 = get_images(columns(model.pathcolumn(2)).data,model.imagenumber);
-         else
-            images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
-            images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
-         end
+      images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
+      images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
      case 'image'
-         if model.ImColFlag == 2
-            images1 = get_images(columns(model.pathcolumn.data,model.imagenumber(1)));
-            images2 = get_images(columns(model.pathcolumn.data,model.imagenumber(2)));
-         else
-            images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
-            images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
-         end
+      images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
+      images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
     end
     pair = [];
     for n = 1:length(columns(model.factor(1).column).data)
@@ -566,12 +511,7 @@ function des = mreg(model,columns)
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
     
-    if model.ImColFlag == 1
-        images = get_images(columns(model.pathcolumns).data,model.imagenumber);
-    else
-        images = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn).data);
-    end
-    
+    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
@@ -604,11 +544,7 @@ function des = fd(model,columns)
     if (~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    if model.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data,model.imagenumber);
-    else
-        images = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn).data);
-    end
+    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     fact = [];
     for n = 1:num_factors
         fact(n).levels = max(columns(model.factor(n).column).data);
@@ -1188,7 +1124,6 @@ function [images matrix] = get_within_images(model,columns,subfact)
     
 function images = get_images(p,i)
     global options;
-<<<<<<< HEAD
     for n=1:size(p,1)
 %         zeros = '';
 %         if (i(n) < 10)
@@ -1203,7 +1138,6 @@ function images = get_images(p,i)
         image = mc_GenPath(imageCheck);
         images{n} = strcat(image,',1');
         % images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
-=======
     for n = 1:length(i)
         zeros = '';
         if (i(n) < 10)
@@ -1214,7 +1148,6 @@ function images = get_images(p,i)
             zeros = '0';
         end
         images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
->>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
     end
     images = images';
     
