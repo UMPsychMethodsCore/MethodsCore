@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 % opt.masking.tm.tm_none = [];
 % opt.masking.im = 1;
 % opt.masking.em = '';
@@ -50,12 +51,18 @@ opt.masking.im = 1;
 opt.masking.em = {''};
 % opt.masking.em = {'/net/data4/OXT/Scripts/SecondLevel/mask.img'};
 
+=======
+masking.tm.tm_none = [];
+masking.im = 1;
+masking.em = '';
+>>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
 
-opt.globalc.g_omit = [];
+globalc.g_omit = [];
 
-opt.globalm.gmsca.gmsca_no = [];
-opt.globalm.glonorm = 1;
+globalm.gmsca.gmsca_no = [];
+globalm.glonorm = 1;
 
+<<<<<<< HEAD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Model = 'Congruency';
@@ -122,3 +129,13 @@ addpath(fullfile(mcRoot,'SecondLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 
 RandomEffects(opt);
+=======
+other.jobfile = 'jobfile.csv';
+other.scanfile = 'scanfile.csv';
+
+other.MainDir = '/data/SIM/ANOVA/Flexible';
+other.ModelDir = '';
+other.ContrastPrefix = 'con';
+
+other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
+>>>>>>> parent of c07a10f... RandomEffects.m is fully supported by mc_GenPath.m
