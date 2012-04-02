@@ -279,7 +279,7 @@ function [results models columns] = parse_scans(options)
         model(n-1).outputpath = joblist{n}{3};
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
-        if options.ImColFlag == 1
+        if isfield(options,'ImColFlag') && options.ImColFlag == 1
             [results ImNum Des] = ImColTokenizer(joblist{n}{5});
             if results == -1
                 return;
