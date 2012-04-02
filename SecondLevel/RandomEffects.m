@@ -322,6 +322,7 @@ function [results models columns] = parse_scans(options)
             results = 1;
             model(n-1).imagecolumn = str2num(joblist{n}{5});
             model(n-1).NumDes = [];
+            options.ImColFlag = 0;
         end
         
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
@@ -503,6 +504,7 @@ function [des model columns] = t2(model,columns)
     des.t2.ancova = model.factor(1).ancova;
     
 function des = pt(model,columns)
+    global options;
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
         error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
     end
@@ -513,11 +515,11 @@ function des = pt(model,columns)
         if (~strcmp(columns(model.pathcolumn(2)).columntype,'path'))
             error(['The type of column ' num2str(model.pathcolumn(2)) 'does not match type path']);
         end
-        if (~strcmp(columns(model.imagecolumn).columntype,'image'))
+        if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
             error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
         end 
         type = 'path';
-    elseif (length(model.imagecolumn) > 1)
+    elseif (options.other.ImColFlag ~= 1 && length(model.imagecolumn) > 1)
         if (~strcmp(columns(model.pathcolumn).columntype,'path'))
             error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
         end
@@ -528,6 +530,11 @@ function des = pt(model,columns)
             error(['The type of column ' num2str(model.imagecolumn(2)) 'does not match type image']);
         end   
         type = 'image';
+    elseif options.other.ImColFlag == 1
+        if (~strcmp(columns(model.pathcolumn).columntype,'path'))
+            error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+        end
+        type = 'image';
     else
         error(['Your paired samples T-test is not set up correctly. You need either 2 entries in the Path column or 2 entries in the Image column']);
     end
@@ -536,8 +543,13 @@ function des = pt(model,columns)
       images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
       images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
      case 'image'
-      images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
-      images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
+      if options.other.ImColFlag == 1
+          images1 = get_images(columns(model.pathcolumn).data,model.NumDes(1).ImNum);
+          images2 = get_images(columns(model.pathcolumn).data,model.NumDes(2).ImNum);
+      else
+          images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
+          images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
+      end
     end
     pair = [];
     for n = 1:length(columns(model.factor(1).column).data)
