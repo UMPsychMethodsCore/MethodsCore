@@ -1261,7 +1261,7 @@ function mtx = recurse_loop(mtx, n, m, d)
     
 function [results,ImageNumber,Description] = ImColTokenizer(input)
     results     = -1;
-    ImageNumber = {};
+    ImageNumber = [];
     Description = {};
     Delimiters  = '[,;]';
     DelimLoc    = regexp(input,Delimiters);
@@ -1287,9 +1287,9 @@ function [results,ImageNumber,Description] = ImColTokenizer(input)
                 fprintf('   * * * A B O R T I N G * * *');
                 return;
             end
-            ImageNumber{end+1} = {ImageNumber; input(InputIndex:i-1)};
-            InputIndex         = i + 1;
-            State              = StateEnum.COMMA;
+            ImageNumber = [ImageNumber; str2double(input(InputIndex:i-1))];
+            InputIndex  = i + 1;
+            State       = StateEnum.COMMA;
         end
     end
     results = 1;
