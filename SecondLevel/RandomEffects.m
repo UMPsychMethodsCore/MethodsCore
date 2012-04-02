@@ -20,10 +20,11 @@ function [jobs jobs2] = RandomEffects_central(file)
     global defaults;
     global options;
     %options = load('re_default_options.mat');
-        options = [];
+    options = [];
     options = parse_options(file,options);
     factorial_design = common(options);
-    [options.models options.columns] = parse_scans(options.other);
+    [results options.models options.columns] = parse_scans(options.other);
+    if results == -1; return; end;
     options.spmver = spm('Ver');
     if (strcmp(options.spmver,'SPM8')==1)
 	    spm_jobman('initcfg');
@@ -39,31 +40,28 @@ function [jobs jobs2] = RandomEffects_central(file)
         con.consess = [];
         models = options.models;
         columns = options.columns;
-
-        if options.other.ImColFlag == 1
-            ImData = models(n).NumDes.ImNum;
-            ImDes  = models(n).NumDes.ImDes;
-        else
-            ImData = columns(models(N).imagecolumn).data;
-            ImDes  = columns(models(N).imagecolumn).description;
-        end
         
         if (options.models(N).include)
-		if (isempty(options.models(N).outputpath) | strcmp(options.models(N).outputpath(end),'/'))
-			%output path is empty or a folder, construct it from column headers
-			options.models(N).outputpath = make_path(options.models(N),options.columns);
-		end
+            if (isempty(options.models(N).outputpath) | strcmp(options.models(N).outputpath(end),'/'))
+                %output path is empty or a folder, construct it from column headers
+                options.models(N).outputpath = make_path(options.models(N),options.columns);
+            end
         	desmtxcols = 0;
 		switch (options.models(N).type)
 		 case 1
-		  des = t1(options.models(N),options.columns);
-		  con.consess{1}.tcon.name = [columns(models(N).imagecolumn).description ' positive'];
-		  con.consess{1}.tcon.convec = [1];
-		  con.consess{1}.tcon.sessrep = 'none';
-		  con.consess{2}.tcon.name = [columns(models(N).imagecolumn).description ' negative'];
-		  con.consess{2}.tcon.convec = [-1];
-		  con.consess{2}.tcon.sessrep = 'none';
-		  desmtxcols = 1;
+          if options.other.ImColFlag == 1 % Assume only 1 description
+              ImDes  = options.models(n).NumDes(1).ImDes;
+          else
+              ImDes  = options.columns(models(N).imagecolumn).description;
+          end             
+          des = t1(options.models(N),options.columns);
+          con.consess{1}.tcon.name = [ImDes ' positive'];
+          con.consess{1}.tcon.convec = [1];
+          con.consess{1}.tcon.sessrep = 'none';
+          con.consess{2}.tcon.name = [ImDes ' negative'];
+          con.consess{2}.tcon.convec = [-1];
+          con.consess{2}.tcon.sessrep = 'none';
+          desmtxcols = 1;
 		 case 2
 		  [des m c] = t2(options.models(N),options.columns);
 		  models(N) = m;
@@ -82,29 +80,32 @@ function [jobs jobs2] = RandomEffects_central(file)
 		  con.consess{2}.tcon.sessrep = 'none';
 		  desmtxcols = 2;
 		 case 3
-		  des = pt(options.models(N),options.columns);
-		  if (length(models(N).imagecolumn) > 1)
-		      con.consess{1}.tcon.name = [columns(models(N).imagecolumn(1)).description ' > ' columns(models(N).imagecolumn(2)).description];
-		      con.consess{2}.tcon.name = [columns(models(N).imagecolumn(2)).description ' > ' columns(models(N).imagecolumn(1)).description];          
-		  elseif (length(models(N).pathcolumn) > 1)
-		      con.consess{1}.tcon.name = [columns(models(N).pathcolumn(1)).description ' > ' columns(models(N).pathcolumn(2)).description];
-		      con.consess{2}.tcon.name = [columns(models(N).pathcolumn(2)).description ' > ' columns(models(N).pathcolumn(1)).description];            
-		  else
-		      con.consess{1}.tcon.name = ['image 1 > image 2'];
-		      con.consess{2}.tcon.name = ['image 2 > image 1'];                 
-		  end
-		  if (isfield(models(N),'reg'))
-			  con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
-			  con.consess{1}.tcon.sessrep = 'none';
-			  con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
-			  con.consess{2}.tcon.sessrep = 'none';
-		  else
-			  con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
-			  con.consess{1}.tcon.sessrep = 'none';
-			  con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
-			  con.consess{2}.tcon.sessrep = 'none';
-		  end
-		  desmtxcols = length(des.pt.pair);
+          des = pt(options.models(N),options.columns);   
+          if (options.other.ImColflag ~= 1 && length(models(N).imagecolumn) > 1)
+              con.consess{1}.tcon.name = [columns(models(N).imagecolumn(1)).description ' > ' columns(models(N).imagecolumn(2)).description];
+              con.consess{2}.tcon.name = [columns(models(N).imagecolumn(2)).description ' > ' columns(models(N).imagecolumn(1)).description];
+          elseif options.other.ImColFlag == 1 && length(options.models(N).NumDes) > 1
+              con.consess{1}.tcon.name = [options.models(N).NumDes(1).ImDes ' > ' options.models(N).NumDes(2).ImDes];
+              con.consess{2}.tcon.name = [options.models(N).NumDes(2).ImDes ' > ' options.models(N).NumDes(1).ImDes];
+          elseif (length(models(N).pathcolumn) > 1)
+              con.consess{1}.tcon.name = [columns(models(N).pathcolumn(1)).description ' > ' columns(models(N).pathcolumn(2)).description];
+              con.consess{2}.tcon.name = [columns(models(N).pathcolumn(2)).description ' > ' columns(models(N).pathcolumn(1)).description];            
+          else
+              con.consess{1}.tcon.name = ['image 1 > image 2'];
+              con.consess{2}.tcon.name = ['image 2 > image 1'];                 
+          end
+          if (isfield(models(N),'reg'))
+              con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
+              con.consess{1}.tcon.sessrep = 'none';
+              con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
+              con.consess{2}.tcon.sessrep = 'none';
+          else
+              con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
+              con.consess{1}.tcon.sessrep = 'none';
+              con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
+              con.consess{2}.tcon.sessrep = 'none';
+          end
+              desmtxcols = length(des.pt.pair);
 		 case 4
 		  des = mreg(options.models(N),options.columns);
 		  cn = 1;
@@ -136,7 +137,7 @@ function [jobs jobs2] = RandomEffects_central(file)
 			con.consess{end}.tcon.convec = [zeros(1,[desmtxcols + (c-1)]) -1 zeros(1,nc-c)];
 			con.consess{end}.tcon.sessrep = 'none';
 		end
-		factorial_design.dir = {[options.other.OutputDir '/' options.models(N).outputpath]};
+		factorial_design.dir = {fullfile(options.other.OutputDir,options.models(N).outputpath)};
 		if (exist(factorial_design.dir{1}) ~= 7)
 			mkdir(factorial_design.dir{1});
 		end
@@ -147,22 +148,22 @@ function [jobs jobs2] = RandomEffects_central(file)
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
 			jobs2{n2}.stats{1}.factorial_design.des = des2;
 			jobs2{n2}.stats{1}.factorial_design.cov = [];
-			jobs2{n2}.stats{1}.factorial_design.dir = {[factorial_design.dir{1} '/ME_Group/']};
-			jobs2{n2}.stats{2}.fmri_est.spmmat = {[factorial_design.dir{1} '/ME_Group/SPM.mat']};
+			jobs2{n2}.stats{1}.factorial_design.dir = {fullfile(factorial_design.dir{1},'ME_Group/')};
+			jobs2{n2}.stats{2}.fmri_est.spmmat = {fullfile(factorial_design.dir{1},'ME_Group/SPM.mat')};
 			jobs2{n2}.stats{2}.fmri_est.method.Classical = 1;
 			job{1} = jobs2{n2};
-			save([job{1}.stats{1}.factorial_design.dir{1} '/me_group.mat'],'job');
+			save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'me_group.mat'),'job');
 			n2 = n2 + 1;
 		end
-		con.spmmat = {[factorial_design.dir{1} '/SPM.mat']};
+		con.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{1}.factorial_design = factorial_design;
 		jobs{n}.stats{1}.factorial_design.des = des;
 		jobs{n}.stats{1}.factorial_design.cov = cov;
-		jobs{n}.stats{2}.fmri_est.spmmat = {[factorial_design.dir{1} '/SPM.mat']};
+		jobs{n}.stats{2}.fmri_est.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{2}.fmri_est.method.Classical = 1;
 		jobs{n}.stats{3}.con = con;
 		job{1} = jobs{n};
-		save([job{1}.stats{1}.factorial_design.dir{1} '/second_level.mat'],'job');
+		save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'job');
 		n = n + 1;
 	end
     end
@@ -434,7 +435,7 @@ function des = t1(model,columns)
 function [des model columns] = t2(model,columns)
     global options;
     if options.other.ImColFlag == 1
-        ImData = model.ImNum;
+        ImData = model.NumDes.ImNum;
     else
         ImData = columns(model.imagecolumn).data;
     end
