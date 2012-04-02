@@ -1285,7 +1285,7 @@ function [results TheTokens] = ImColTokenizer(input)
                 TheTokens = [];
                 return;
             end
-            Token.ImDes = input(InputIndex:i-1);
+            Token.ImDes = strtrim( input(InputIndex:i-1) );
             InputIndex  = i + 1;
             State       = StateEnum.SEMICOLON;
         elseif State == StateEnum.SEMICOLON
@@ -1296,7 +1296,7 @@ function [results TheTokens] = ImColTokenizer(input)
                 TheTokens = [];
                 return;
             end
-            Token.ImNum = str2double(input(InputIndex:i-1));
+            Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
             InputIndex  = i + 1;
             State       = StateEnum.COMMA;
             TheTokens = [TheTokens; Token];
