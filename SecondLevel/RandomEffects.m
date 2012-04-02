@@ -178,10 +178,16 @@ function [jobs jobs2] = RandomEffects_central(file)
     end
 
 function path = make_path(model,columns)
+    global options;
 	path = model.outputpath;
 	switch (model.type)
 		case 1
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            if options.other.ImColFlag == 1
+                ImDes = model.NumDes(1).ImDes;
+            else
+                ImDes = columns(model.imagecolumn).description;
+            end
+			path = strcat(path,columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', ImDes);
 		case 2	  
 			if (~strcmp(columns(model.factor(1).column).description,'') & ~isempty(strfind(columns(model.factor(1).column).description,' ')))
 				temp = textscan(columns(model.factor(1).column).description,'%s %s');
@@ -190,24 +196,39 @@ function path = make_path(model,columns)
 			else
 				grp1 = 'Group1';
 				grp2 = 'Group2';
-			end
-			path = [path columns(model.pathcolumn).description '_' grp1 'v' grp2 '_' columns(model.imagecolumn).description];
-		case 3
-			if (length(model.imagecolumn) > 1)         
-				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn(1)).description 'v' columns(model.imagecolumn(2)).description];
+            end
+            if options.other.ImColFlag == 1
+                ImDes = model.NumDes(1).ImDes;
+            else
+                ImDes = columns(model.imagecolumn).description;
+            end
+			path = strcat(path, columns(model.pathcolumn).description, '_', grp1, 'v', grp2, '_', ImDes);
+		case 3            
+			if (options.other.ImColFlag ~= 1 && length(model.imagecolumn) > 1)
+				path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', columns(model.imagecolumn(1)).description, 'v', columns(model.imagecolumn(2)).description);
+            elseif option.other.ImColFlag == 1 && length(model.NumDes) > 1
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).Des, 'v', model.NumDes(2).Des);
 			elseif (length(model.pathcolumn) > 1)        
 				path = [path columns(model.pathcolumn(1)).description 'v' columns(model.pathcolumn(2)).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
 			else
 				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];             
 			end		
 		case 4
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            if options.other.ImColFlag == 1
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).ImDes);
+            else
+                path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            end
 		case 5
 			path = [path 'Full_' columns(model.pathcolumn).description '_' model.factor(1).name ];
 			for n = 2:size(model.factor,2)
 				path = [path 'x' model.factor(n).name];
-			end
-			path = [path '_' columns(model.imagecolumn).description];
+            end
+            if options.other.ImColflag == 1
+                path = strcat(path, '_', model.NumDes(1).ImDes);
+            else
+                path = [path '_' columns(model.imagecolumn).description];
+            end
 		case 6
 			path = [path 'Flex_'];
 			ng = max(columns(model.factor(1).column).data);
