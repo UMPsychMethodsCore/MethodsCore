@@ -395,16 +395,23 @@ function [results models columns] = parse_scans(options)
     columns = column;
     
 function des = t1(model,columns)
+    global options;
+    if options.other.ImColFlag == 1
+        ImData = model.ImNum;
+    else
+        ImData = columns(model.imagecolumn).data;
+    end
+
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
         error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
         error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    images = get_images(columns(model.pathcolumn).data, ImData);
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
@@ -1141,7 +1148,7 @@ function [images matrix] = get_within_images(model,columns,subfact)
 function images = get_images(p,i)
     global options;
     for n=1:size(p,1)
-        imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,options.other.ContrastPrefix,sprintf('%04d',i),'.img');
+        imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,options.other.ContrastPrefix,sprintf('%04d',i(1)),'.img');
         imageCheck.Mode = 'check';
         image = mc_GenPath(imageCheck);
         images{n} = strcat(image,',1');
