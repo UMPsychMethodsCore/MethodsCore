@@ -289,19 +289,17 @@ function [results models columns] = parse_scans(options)
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
         if isfield(options,'ImColFlag') && options.ImColFlag == 1
-            [results ImNum Des] = ImColTokenizer(joblist{n}{5});
+            [results NumDes] = ImColTokenizer(joblist{n}{5});
             if results == -1
                 return;
             else
-                model(n-1).ImNum = ImNum;
-                model(n-1).Des   = Des;
+                model(n-1).NumDes = NumDes;
                 model(n-1).imagecolumn = [];
             end
         else
             results = 1;
             model(n-1).imagecolumn = str2num(joblist{n}{5});
-            model(n-1).ImNum = [];
-            model(n-1).Des   = [];
+            model(n-1).NumDes = [];
         end
         
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
