@@ -41,8 +41,8 @@ function [jobs jobs2] = RandomEffects_central(file)
         columns = options.columns;
 
         if options.other.ImColFlag == 1
-            ImData = models(n).ImNum;
-            ImDes  = models(n).Des;
+            ImData = models(n).NumDes.ImNum;
+            ImDes  = models(n).NumDes.ImDes;
         else
             ImData = columns(models(N).imagecolumn).data;
             ImDes  = columns(models(N).imagecolumn).description;
@@ -404,7 +404,7 @@ function [results models columns] = parse_scans(options)
 function des = t1(model,columns)
     global options;
     if options.other.ImColFlag == 1
-        ImData = model.ImNum;
+        ImData = model.NumDes.ImNum;
     else
         ImData = columns(model.imagecolumn).data;
     end
