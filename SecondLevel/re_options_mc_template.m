@@ -76,7 +76,7 @@ switch Model
 
 opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency.csv';
 opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
-opt.other.ImColflag = 1; % 1 = images present, 0 = numbers
+opt.other.ImColflag = 1; % 1 = image numbers, 0 = column numbers
 
 opt.other.MainDir = '/net/data4/MAS/FirstLevel';
 opt.other.ModelDir = '';

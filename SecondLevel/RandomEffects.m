@@ -1230,41 +1230,39 @@ function mtx = recurse_loop(mtx, n, m, d)
     end
     
 function [results,ImageNumber,Description] = ImColTokenizer(input)
+    results     = -1;
+    ImageNumber = {};
+    Description = {};
+    Delimiters  = '[,;]';
+    DelimLoc    = regexp(input,Delimiters);
+    InputIndex  = 1;
+    StateEnum   = struct('COMMA',1,'SEMICOLON',2);
 
-results = -1;
-
-ImageNumber = {};
-Description = {};
-Delimiters  = '[,;]';
-DelimLoc    = regexp(input,Delimiters);
-InputIndex  = 1;
-StateEnum   = struct('COMMA',1,'SEMICOLON',2);
-
-State = StateEnum.COMMA;
-for i=DelimLoc
-    if State == StateEnum.COMMA
-        if input(i) ~= ','
-            fprintf('Waring: Invalid ImCol syntax\n');
-            fprintf('Expected '','' at index %d\n',input(i));
-            fprintf('   * * * A B O R T I N G * * *');
-            return;
+    State = StateEnum.COMMA;
+    for i=DelimLoc
+        if State == StateEnum.COMMA
+            if input(i) ~= ','
+                fprintf('Waring: Invalid ImCol syntax\n');
+                fprintf('Expected '','' at index %d\n',input(i));
+                fprintf('   * * * A B O R T I N G * * *');
+                return;
+            end
+            Description{end+1} = {input(InputIndex:i-1)};
+            InputIndex         = i + 1;
+            State              = StateEnum.SEMICOLON;
+        elseif State == StateEnum.SEMICOLON
+            if input(i) ~= ';'
+                fprintf('Waring: Invalid ImCol syntax\n');
+                fprintf('Expected '';'' at index %d\n',input(i));
+                fprintf('   * * * A B O R T I N G * * *');
+                return;
+            end
+            ImageNumber{end+1} = {ImageNumber; input(InputIndex:i-1)};
+            InputIndex         = i + 1;
+            State              = StateEnum.COMMA;
         end
-        Description{end+1} = {input(InputIndex:i-1)};
-        InputIndex         = i + 1;
-        State              = StateEnum.SEMICOLON;
-    elseif State == StateEnum.SEMICOLON
-        if input(i) ~= ';'
-            fprintf('Waring: Invalid ImCol syntax\n');
-            fprintf('Expected '';'' at index %d\n',input(i));
-            fprintf('   * * * A B O R T I N G * * *');
-            return;
-        end
-        ImageNumber{end+1} = {ImageNumber; input(InputIndex:i-1)};
-        InputIndex         = i + 1;
-        State              = StateEnum.COMMA;
     end
-end
-results = 1;
+    results = 1;
     
     
     
