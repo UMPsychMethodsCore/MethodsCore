@@ -29,6 +29,7 @@ function [jobs jobs2] = RandomEffects_central(file)
 	    spm_jobman('initcfg');
 	    spm_get_defaults('cmdline',true);
     end
+    
     n = 1;
     n2 = 1;
     jobs = [];
@@ -39,6 +40,14 @@ function [jobs jobs2] = RandomEffects_central(file)
         models = options.models;
         columns = options.columns;
 
+        if options.other.ImColFlag == 1
+            ImData = models(n).ImNum;
+            ImDes  = models(n).Des;
+        else
+            ImData = columns(models(N).imagecolumn).data;
+            ImDes  = columns(models(N).imagecolumn).description;
+        end
+        
         if (options.models(N).include)
 		if (isempty(options.models(N).outputpath) | strcmp(options.models(N).outputpath(end),'/'))
 			%output path is empty or a folder, construct it from column headers
@@ -1259,14 +1268,14 @@ function mtx = recurse_loop(mtx, n, m, d)
 		end
     end
     
-function [results,ImageNumber,Description] = ImColTokenizer(input)
+function [results TheTokens] = ImColTokenizer(input)
     results     = -1;
-    ImageNumber = [];
-    Description = {};
     Delimiters  = '[,;]';
     DelimLoc    = regexp(input,Delimiters);
     InputIndex  = 1;
     StateEnum   = struct('COMMA',1,'SEMICOLON',2);
+    Token       = struct('ImNum',[],'ImDes',[]);
+    TheTokens   = [];
 
     State = StateEnum.COMMA;
     for i=DelimLoc
@@ -1275,21 +1284,24 @@ function [results,ImageNumber,Description] = ImColTokenizer(input)
                 fprintf('Waring: Invalid ImCol syntax\n');
                 fprintf('Expected '','' at index %d\n',input(i));
                 fprintf('   * * * A B O R T I N G * * *');
+                TheTokens = [];
                 return;
             end
-            Description{end+1} = {input(InputIndex:i-1)};
-            InputIndex         = i + 1;
-            State              = StateEnum.SEMICOLON;
+            Token.ImDes = input(InputIndex:i-1);
+            InputIndex  = i + 1;
+            State       = StateEnum.SEMICOLON;
         elseif State == StateEnum.SEMICOLON
             if input(i) ~= ';'
                 fprintf('Waring: Invalid ImCol syntax\n');
                 fprintf('Expected '';'' at index %d\n',input(i));
                 fprintf('   * * * A B O R T I N G * * *');
+                TheTokens = [];
                 return;
             end
-            ImageNumber = [ImageNumber; str2double(input(InputIndex:i-1))];
+            Token.ImNum = str2double(input(InputIndex:i-1));
             InputIndex  = i + 1;
             State       = StateEnum.COMMA;
+            TheTokens = [TheTokens; Token];
         end
     end
     results = 1;
