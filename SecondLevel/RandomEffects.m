@@ -425,6 +425,13 @@ function des = t1(model,columns)
     des.t1.scans = scans';
     
 function [des model columns] = t2(model,columns)
+    global options;
+    if options.other.ImColFlag == 1
+        ImData = model.ImNum;
+    else
+        ImData = columns(model.imagecolumn).data;
+    end
+
     if (size(model.factor(1).column,2)>1)
     	newcol = size(columns,2) + 1;
     	columns(newcol).columntype = 'factor';
@@ -438,10 +445,10 @@ function [des model columns] = t2(model,columns)
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
         error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    images = get_images(columns(model.pathcolumn).data, ImData);
     scan1{1} = [];
     scan2{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
