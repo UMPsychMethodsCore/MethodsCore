@@ -1125,28 +1125,10 @@ function [images matrix] = get_within_images(model,columns,subfact)
 function images = get_images(p,i)
     global options;
     for n=1:size(p,1)
-%         zeros = '';
-%         if (i(n) < 10)
-%             zeros = '000';
-%         elseif (i(n) < 100)
-%             zeros = '00';
-%         elseif (i(n) < 1000)
-%             zeros = '0';
-%         end
         imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,options.other.ContrastPrefix,sprintf('%04d',i),'.img');
         imageCheck.Mode = 'check';
         image = mc_GenPath(imageCheck);
         images{n} = strcat(image,',1');
-        % images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
-    for n = 1:length(i)
-        zeros = '';
-        if (i(n) < 10)
-            zeros = '000';
-        elseif (i(n) < 100)
-            zeros = '00';
-        elseif (i(n) < 1000)
-            zeros = '0';
-        end
         images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
     end
     images = images';
