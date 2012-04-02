@@ -258,7 +258,7 @@ function cov = covariates(model,columns,type)
         end
     end
     
-function [models columns] = parse_scans(options)
+function [results models columns] = parse_scans(options)
     %read in model job file
     fid = fopen(options.jobfile);
     n = 1;
@@ -278,7 +278,23 @@ function [models columns] = parse_scans(options)
         model(n-1).type = str2num(joblist{n}{2});
         model(n-1).outputpath = joblist{n}{3};
         model(n-1).pathcolumn = str2num(joblist{n}{4});
-        model(n-1).imagecolumn = str2num(joblist{n}{5});
+        
+        if options.ImColFlag == 1
+            [results ImNum Des] = ImColTokenizer(joblist{n}{5});
+            if results == -1
+                return;
+            else
+                model(n-1).ImNum = ImNum;
+                model(n-1).Des   = Des;
+                model(n-1).imagecolumn = [];
+            end
+        else
+            results = 1;
+            model(n-1).imagecolumn = str2num(joblist{n}{5});
+            model(n-1).ImNum = [];
+            model(n-1).Des   = [];
+        end
+        
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
         %model(n-1).withinnames = joblist{n}{6};
         model(n-1).withinnames = {};
