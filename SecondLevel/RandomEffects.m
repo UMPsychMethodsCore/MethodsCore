@@ -1300,8 +1300,7 @@ function mtx = recurse_loop(mtx, n, m, d)
 		end
     end
     
-function [results TheTokens] = ImColTokenizer(input)
-    results     = -1;
+function TheTokens = ImColTokenizer(input)
     Delimiters  = '[,;]';
     DelimLoc    = regexp(input,Delimiters);
     InputIndex  = 1;
@@ -1313,30 +1312,36 @@ function [results TheTokens] = ImColTokenizer(input)
     for i=DelimLoc
         if State == StateEnum.COMMA
             if input(i) ~= ','
-                fprintf('Waring: Invalid ImCol syntax\n');
-                fprintf('Expected '','' at index %d\n',input(i));
-                fprintf('   * * * A B O R T I N G * * *');
-                TheTokens = [];
-                return;
+                error(['Warning: Invalid ImCol syntax\n'...
+                       'Expected '','' at index %d\n'...
+                       '   * * * A B O R T I N G * * *'],input(i));
             end
-            Token.ImDes = strtrim( input(InputIndex:i-1) );
+            if i-1 < InputIndex
+                Token.ImDes = '';
+            else
+                Token.ImDes = strtrim( input(InputIndex:i-1) );
+            end
             InputIndex  = i + 1;
             State       = StateEnum.SEMICOLON;
         elseif State == StateEnum.SEMICOLON
             if input(i) ~= ';'
-                fprintf('Waring: Invalid ImCol syntax\n');
-                fprintf('Expected '';'' at index %d\n',input(i));
-                fprintf('   * * * A B O R T I N G * * *');
-                TheTokens = [];
-                return;
+                error(['Warning: Invalid ImCol syntax\n'...
+                       'Expected '';'' at index %d\n'...
+                       '   * * * A B O R T I N G * * *'],input(i));
             end
+            
+            if i-1 < InputIndex
+                error(['Warning: Invalid ImCol syntax\n'...
+                       'Missing image number at index %d\n'...
+                       '   * * * A B O R T I N G * * *'],input(i));
+            end
+                      
             Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
             InputIndex  = i + 1;
             State       = StateEnum.COMMA;
             TheTokens = [TheTokens; Token];
         end
     end
-    results = 1;
     
     
     
