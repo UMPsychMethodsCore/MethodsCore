@@ -135,15 +135,14 @@ function [jobs jobs2] = RandomEffects_central(file)
 			con.consess{end+1}.tcon.name = [cov(c).cname ' neg'];
 			con.consess{end}.tcon.convec = [zeros(1,[desmtxcols + (c-1)]) -1 zeros(1,nc-c)];
 			con.consess{end}.tcon.sessrep = 'none';
-		end
-		factorial_design.dir = {fullfile(options.other.OutputDir,options.models(N).outputpath)};
-		if (exist(factorial_design.dir{1}) ~= 7)
-			mkdir(factorial_design.dir{1});
-		end
+        end
+        FactorialDesignName = fullfile(options.other.OutputDir,options.models(N).outputpath);
+        FactorialDesignCheck = struct('Template',FactorialDesignName,'mode','makeparentdir');
+        factorial_desgin.dir = {mc_GenPath(FactorialDesignCheck)};
+
 		if (options.models(N).type == 6)
-			if (exist([factorial_design.dir{1} '/ME_Group']) ~=7 )
-				mkdir([factorial_design.dir{1} '/ME_Group']);	
-			end
+            mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
+                               'mode','makeparentdir') );
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
 			jobs2{n2}.stats{1}.factorial_design.des = des2;
 			jobs2{n2}.stats{1}.factorial_design.cov = [];
@@ -1052,7 +1051,7 @@ function [des con des2] = fblock(model,columns)
 	
 	des.fblock.fac = fac;
 	des.fblock.fsuball = fsuball;
-    	des.fblock.maininters = maininters;
+    des.fblock.maininters = maininters;
 
 %currently hardcoded, need to improve
 	num_factors = 1;
