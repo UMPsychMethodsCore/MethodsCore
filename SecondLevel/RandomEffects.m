@@ -566,17 +566,23 @@ function des = pt(model,columns)
     des.pt.ancova = model.factor(1).ancova;
     
 function des = mreg(model,columns)
+    global options;
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
         error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
         error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
     
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    if options.other.ImColFlag == 1
+        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum);
+    else
+        images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    end
+    
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
