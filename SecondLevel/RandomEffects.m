@@ -603,6 +603,7 @@ function des = mreg(model,columns)
     des.mreg.mcov = mcov;
     
 function des = fd(model,columns)
+    global options;
     num_factors = length(model.factor);
     for n = 1:num_factors
         if (~strcmp(columns(model.factor(n).column).columntype,'factor'))
@@ -612,10 +613,16 @@ function des = fd(model,columns)
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
         error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
         error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    
+    if options.other.ImColFlag == 1
+        images = get_images(columns(model.pathcolumn).data, model.NumDes(1).ImNum);
+    else
+        images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    end
+    
     fact = [];
     for n = 1:num_factors
         fact(n).levels = max(columns(model.factor(n).column).data);
