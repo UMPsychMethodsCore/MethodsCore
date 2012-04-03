@@ -351,13 +351,13 @@ function [models columns] = parse_scans(options)
                         	offset = offset - 1;
                         end
                     else
-			    if (~strcmp(joblist{1}{col+4},'GMSCA'))
-				offset = offset - 1;
-			    end
-			    if (~strcmp(joblist{1}{col+5},'ANCOVA'))
-				offset = offset - 1;
-			    end
-		   end
+                        if (~strcmp(joblist{1}{col+4},'GMSCA'))
+                            offset = offset - 1;
+                        end
+                        if (~strcmp(joblist{1}{col+5},'ANCOVA'))
+                            offset = offset - 1;
+                        end
+                     end
                 else
                     if (~strcmp(joblist{1}{col+4},'GMSCA'))
                     	offset = offset - 1;
