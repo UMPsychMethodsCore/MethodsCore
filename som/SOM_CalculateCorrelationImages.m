@@ -33,7 +33,7 @@ global SOM
 results = [];
 
 rMap    = zeros(size(D0,1),1);
-rMapVol = zeros(parameters.maskHdr.dim(1:3)); %this fails if user specified no masking
+rMapVol = zeros(parameters.maskHdr.dim(1:3)); %this fails if user specified no masking %% This should now be fixed with change in SOM_PreProcessData - 2012-03-29 - RCWelsh
 
 for iROI = 1 : parameters.rois.nroisRequested
     

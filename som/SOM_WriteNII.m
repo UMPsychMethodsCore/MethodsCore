@@ -29,7 +29,7 @@ function results = SOM_WriteNII(TemplateImage,NewName,Volume,dtype)
 results = -1;
 
 % First get the dimensions of what we want to write, and we need to
-% pad with 1's for 3D to beome the propoer.0
+% pad with 1's for 3D to become the proper order.
 
 volDIM = size(Volume);
 
@@ -50,14 +50,12 @@ if any(volDIM(1:3)-size(niftiIn.dat(:,:,:,1)))
 end
 
 % data area.
-
 niftiOutData          = file_array;
 
 niftiOutData.fname    = NewName;
 niftiOutData.dim      = volDIM;
 
 % No error checking on that they pass in!!!
-
 if exist('dtype') == 0
   niftiOutData.dtype    = niftiIn.dat.dtype;
 else
@@ -75,13 +73,24 @@ niftiOut.mat0_intent  = niftiIn.mat0_intent;
 niftiOut.descrip      = [niftiIn.descrip ', SOM Create Nifti file']; 
 niftiOut.timing       = niftiIn.timing; 
 
+% Clear the hook to the template image.
+clear niftiIn;
+
+% Put the data onto disk.
 niftiOut.dat          = niftiOutData;
 
+% create the file.
 create(niftiOut);
 
+% Actually write the data now, first reserving some zeros. -- Not sure if we 
+% need to do this step.
 niftiOut.dat(:,:,:,:) = zeros(niftiOutData.dim);
 
+% data to disk.
 niftiOut.dat(:,:,:,:) = Volume;
+
+% Close our connection to the output file.
+clear niftiOut
 
 % All done
 

@@ -51,7 +51,7 @@ end
 
 if exist(type.File,'file') == 0
     type.OK = -1;
-    SOM_LOG(sprintf('FATAL Error : Masking file %s specified doesn''t exist',type.File);
+    SOM_LOG(sprintf('FATAL Error : Masking file %s specified doesn''t exist',type.File));
     return
 end
 

@@ -73,7 +73,7 @@ for iRUN = 1:length(data.run)
   % Now check to see if the input files actually exist.
   
   if exist(data.run(iRUN).P(1,:),'file') == 0
-    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(1,:));
+    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist',data.run(iRUN).P(1,:)));
     return
   end
   
@@ -104,7 +104,7 @@ for iRUN = 1:length(data.run)
   if isfield(data.run(iRUN),'MotionParameters') == 1
     if size(data.run(iRUN).MotionParameters,1) ~= data.run(iRUN).nTIME
       SOM_LOG('WARNING : Motion parameters length does not match expected number of time points');
-      if size(data.run(iRUN).MotionParameters,1) < data.run(iRUN).nTIME
+      if length(data.run(iRUN).MotionParameters) > 0 & size(data.run(iRUN).MotionParameters,1) < data.run(iRUN).nTIME
 	SOM_LOG(sprintf('FATAL ERROR : Motion parameter array is too short for run %d',iRUN));
         return
       end	

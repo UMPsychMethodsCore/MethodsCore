@@ -69,8 +69,9 @@ end
 if length(TIME.run) == 1 & length(parameters.data.run) > 1 
   SOM_LOG('STATUS : Replicating timing parameters for all runs.\n');
   % Make the passed the new defaults.
-  SOM.defaults.TIME = TIME.run;
-  TIME.run = [];
+  SOM.defaults.TIME = TIME.run(1);
+  TIME = rmfield(TIME,'run');
+  %TIME.run = [];
   for iRUN = 1:length(parameters.data.run)
     TIME.run(iRUN) = SOM.defaults.TIME;
   end
