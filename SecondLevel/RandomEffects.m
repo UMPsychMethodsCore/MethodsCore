@@ -737,20 +737,34 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 	end
 	scans = {};
-	for s = 1:size(include,1) %loop over included subject rows
-		for p1 = 1:size(model.pathcolumn,1) %loop over paths
-			for p2 = 1:size(model.pathcolumn,2)
-				for i1 = 1:size(model.imagecolumn,1) %loop over images
-					for i2 = 1:size(model.imagecolumn,2)
-						p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
-						i = columns(model.imagecolumn(i1,i2)).data(include(s));
-						scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
-					end
-				end
-			end
-		end
-	end
-	
+    
+    if options.other.ImColFlag == 1
+        for s=1:size(include,1) %loop over included subject rows
+            for p1=1:size(model.pathcolumn,1) % loop over paths
+                for p2=1:size(model.pathcolumn,2)
+                    for i1=1:size(model.NumDes,1)
+                        p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
+                        i = model.NumDes(i1);
+                    end
+                end
+            end
+        end
+    else                
+        for s = 1:size(include,1) %loop over included subject rows
+            for p1 = 1:size(model.pathcolumn,1) %loop over paths
+                for p2 = 1:size(model.pathcolumn,2)
+                    for i1 = 1:size(model.imagecolumn,1) %loop over images
+                        for i2 = 1:size(model.imagecolumn,2)
+                            p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
+                            i = columns(model.imagecolumn(i1,i2)).data(include(s));
+                            scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
 	n = size(include,1);
 	ng = size(unique(between(include)),1);
 	for i = 1:ng
