@@ -743,8 +743,13 @@ function [specall con icell] = get_within_images3(model,columns)
             for p1=1:size(model.pathcolumn,1) % loop over paths
                 for p2=1:size(model.pathcolumn,2)
                     for i1=1:size(model.NumDes,1)
+                        VecImNum = repmat(model.NumDes(i1).ImNum,length(between),1);
                         p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
-                        i = model.NumDes(i1);
+                        i = VecImNum(include(s));
+                        ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                        ImNameCheck = struct('Template',ImName,'mode','check');
+                        ImName = mc_GenPath(ImNameCheck);
+                        scans{end+1} = strcat(ImName,',1');
                     end
                 end
             end
@@ -757,7 +762,10 @@ function [specall con icell] = get_within_images3(model,columns)
                         for i2 = 1:size(model.imagecolumn,2)
                             p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
                             i = columns(model.imagecolumn(i1,i2)).data(include(s));
-                            scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                            ImNameCheck = struct('Template',ImName,'mode','check');
+                            ImName = mc_GenPath(ImNameCheck);
+                            scans{end+1} = strcat(ImName,',1');
                         end
                     end
                 end
@@ -791,10 +799,9 @@ function [specall con icell] = get_within_images3(model,columns)
 	%auto calculate average image per subject for use in full factorial anova
 	icell = [];
 	if (ng > 1)
-		meg_outputdir = {[options.other.OutputDir '/' model.outputpath '/ME_Group']};
-		if (exist(meg_outputdir{1} ) ~=7 )
-			mkdir(meg_outputdir{1});	
-		end
+        meg_outputdir = fullfile(options.other.OutputDir,model.outputpath,'ME_Group');
+        MegOutputDirCheck = struct('Template',meg_outputdir,'mode','makeparentdir');
+        meg_outputdir = {mc_GenPath(MegOutputDirCheck)};
 		
 		numlevels = max(columns(model.factor(1).column).data);
 		for l = 1:numlevels
