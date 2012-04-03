@@ -578,7 +578,7 @@ function des = mreg(model,columns)
     end
     
     if options.other.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum);
+        images = get_images(columns(model.pathcolumn).data, model.NumDes(1).ImNum); % Assume only one image number
     else
         images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     end
