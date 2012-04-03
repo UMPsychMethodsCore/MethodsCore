@@ -23,8 +23,7 @@ function [jobs jobs2] = RandomEffects_central(file)
     options = [];
     options = parse_options(file,options);
     factorial_design = common(options);
-    [results options.models options.columns] = parse_scans(options.other);
-    if results == -1; return; end;
+    [options.models options.columns] = parse_scans(options.other);
     options.spmver = spm('Ver');
     if (strcmp(options.spmver,'SPM8')==1)
 	    spm_jobman('initcfg');
@@ -289,7 +288,7 @@ function cov = covariates(model,columns,type)
         end
     end
     
-function [results models columns] = parse_scans(options)
+function [models columns] = parse_scans(options)
     %read in model job file
     fid = fopen(options.jobfile);
     n = 1;
@@ -311,15 +310,10 @@ function [results models columns] = parse_scans(options)
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
         if isfield(options,'ImColFlag') && options.ImColFlag == 1
-            [results NumDes] = ImColTokenizer(joblist{n}{5});
-            if results == -1
-                return;
-            else
-                model(n-1).NumDes = NumDes;
-                model(n-1).imagecolumn = [];
-            end
+            NumDes = ImColTokenizer(joblist{n}{5});
+            model(n-1).NumDes = NumDes;
+            model(n-1).imagecolumn = [];
         else
-            results = 1;
             model(n-1).imagecolumn = str2num(joblist{n}{5});
             model(n-1).NumDes = [];
             options.ImColFlag = 0;
