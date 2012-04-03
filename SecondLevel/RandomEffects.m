@@ -308,14 +308,13 @@ function [models columns] = parse_scans(options)
         model(n-1).outputpath = joblist{n}{3};
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
-        if isfield(options,'ImColFlag') && options.ImColFlag == 1
+        if options.ImColFlag == 1
             NumDes = ImColTokenizer(joblist{n}{5});
             model(n-1).NumDes = NumDes;
             model(n-1).imagecolumn = [];
         else
             model(n-1).imagecolumn = str2num(joblist{n}{5});
             model(n-1).NumDes = [];
-            options.ImColFlag = 0;
         end
         
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
@@ -1294,6 +1293,9 @@ function options = parse_options(file,opt)
 	    end
 	    options = opt;
     else
+        if ~isfield(file.other,'ImColFlag')
+            file.other.ImColFlag = 0;
+        end
 	    options = file;
     end
     
