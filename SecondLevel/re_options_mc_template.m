@@ -28,16 +28,6 @@
 % 
 % RandomEffects(opt);
 
-%%%%%
-
-%%%% addpath /net/dysthymia/spm5_64b
-%%%% cd /net/data4/CCMB08/Scripts/SecondLevel/EmoReg
-%%%% make the output directory, dude!!!
-%%%% jobs = RandomEffects ('EmoReg_options')
-%%%% spm_jobman('run',jobs);
-%%%% addpath /net/dysthymia/spm8
-%%%% addpath /net/dysthymia/matlabScripts
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Defaults %%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,23 +37,19 @@ opt.masking.im = 1;
 opt.masking.em = {''};
 % opt.masking.em = {'/net/data4/OXT/Scripts/SecondLevel/mask.img'};
 
-masking.tm.tm_none = [];
-masking.im = 1;
-masking.em = '';
 
-opt.masking.tm.tm_none = [];
-opt.masking.im = 1;
-opt.masking.em = '';
+opt.globalc.g_omit = [];
 
-
-globalc.g_omit = [];
-
-globalm.gmsca.gmsca_no = [];
-globalm.glonorm = 1;
+opt.globalm.gmsca.gmsca_no = [];
+opt.globalm.glonorm = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
 Model = 'Congruency';
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%  Specify Models    %%% %%%%%%%%%%%%%%%%%%%%
@@ -76,7 +62,7 @@ switch Model
 
 opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency.csv';
 opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
-opt.other.ImColflag = 1; % 1 = image numbers, 0 = column numbers
+opt.other.ImColFlag = 1; % 1 = image numbers, 0 = columns numbers
 
 opt.other.MainDir = '/net/data4/MAS/FirstLevel';
 opt.other.ModelDir = '';
@@ -85,31 +71,40 @@ opt.other.ContrastPrefix = 'con';
 opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-opt.other.jobfile = 'jobfile.csv';
-opt.other.scanfile = 'scanfile.csv';
 
-opt.other.MainDir = '/data/SIM/ANOVA/Flexible';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+   case {'Congruency_X_Run'}     
+
+opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency_X_Run.csv';
+opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
+opt.other.ImColFlag = 1; % 1 = image number, 0 = column numbers
+
+opt.other.MainDir = '/net/data4/MAS/FirstLevel';
 opt.other.ModelDir = '';
 opt.other.ContrastPrefix = 'con';
 
-opt.other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
+opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-%DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
-%DEVSTOP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+   case {'Congruency_PairedCov'}     
 
-%[DEVmcRootAssign]
-addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'SecondLevel'))
-addpath(fullfile(mcRoot,'spm8'))
+opt.other.jobfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Jobfile_Congruency.csv';
+opt.other.scanfile = '/net/data4/MAS/Scripts/SecondLevel/MSIT/MikeSecondLevel/MSIT_Scanfile.csv';
+opt.other.ImColFlag = 1; % 1 = image number, 0 = column numbers
 
-RandomEffects(opt);
-other.jobfile = 'jobfile.csv';
-other.scanfile = 'scanfile.csv';
+opt.other.MainDir = '/net/data4/MAS/FirstLevel';
+opt.other.ModelDir = '';
+opt.other.ContrastPrefix = 'don';
 
-other.MainDir = '/data/SIM/ANOVA/Flexible';
-other.ModelDir = '';
-other.ContrastPrefix = 'con';
+opt.other.OutputDir = '/net/data4/MAS/SecondLevel/';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
-RandomEffects(opt);
+
+ 
+
+end  %% switch on Model
+
+
+jobs = RandomEffects(opt);
+
