@@ -1330,45 +1330,109 @@ function mtx = recurse_loop(mtx, n, m, d)
     end
     
 function TheTokens = ImColTokenizer(input)
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% ImColTokenizer
+%
+% A routine that parses the 'ImCol' column in the job file when ImColFlag =
+% 1.
+%
+% Call as :
+%
+%   function TheTokens = ImColtokenizer(input)
+%
+% To Make this work you need to provide the following input:
+%
+%   input = a string that adheres to the following syntax:
+%            1. Descriptions are optional
+%            2. Descriptions are always followed by a ',' -- whitespace is
+%               ignored
+%            3. Image numbers are mandotory
+%            4. Image numbers are followed by a ';' except may be omitted
+%               for the last image number -- whitespace is again ignored
+%           Examples: '1'
+%                     '1;2;3;4'
+%                     'asdf, 1; 2; 3; qwerty, 4'
+%                     'asdf, 1; 2; 3; qwerty, 4;'
+%                     '1;'
+%
+% Output
+%
+%   TheTokens = an array of Token structures
+%
+% Structures
+%
+%   struct Token {
+%                  double ImNum;
+%                  string ImDes;
+%                 };
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    input       = strtrim(input);
     Delimiters  = '[,;]';
     DelimLoc    = regexp(input,Delimiters);
     InputIndex  = 1;
     StateEnum   = struct('COMMA',1,'SEMICOLON',2);
     Token       = struct('ImNum',[],'ImDes',[]);
     TheTokens   = [];
+    
+    if isempty(DelimLoc)
+        % Single input
+        if isempty(input)
+            error(['Warning: Missing ImCol input\n'...
+                   '   * * * A B O R T I N G * * *\n'],[]);
+        else
+            Token.ImNum = str2double(input);
+            Token.ImDes = '';
+            TheTokens   = Token;
+        end
+    else
+        % Multiple inputs
+        State = StateEnum.SEMICOLON;
+        for i=DelimLoc
+            if input(i) == ','
+                if State == StateEnum.COMMA
+                    error(['Warning: Invalid ImCol syntax\n'...
+                           'Repeated '','' for input: %s\n'...
+                           '   * * * A B O R T I N G * * *\n'],input);
+                end
+                if i-1 < InputIndex
+                    Token.ImDes = '';
+                else
+                    Token.ImDes = strtrim( input(InputIndex:i-1) );
+                end
+                InputIndex  = i + 1;
+                State       = StateEnum.COMMA;
+            elseif input(i) == ';'
+                if i-1 < InputIndex
+                    error(['Warning: Invalid ImCol syntax\n'...
+                           'Missing image number for input: %s\n'...
+                           '   * * * A B O R T I N G * * *\n'],input);
+                end
 
-    State = StateEnum.COMMA;
-    for i=DelimLoc
-        if State == StateEnum.COMMA
-            if input(i) ~= ','
-                error(['Warning: Invalid ImCol syntax\n'...
-                       'Expected '','' at index %d\n'...
-                       '   * * * A B O R T I N G * * *'],input(i));
-            end
-            if i-1 < InputIndex
-                Token.ImDes = '';
+                if State == StateEnum.SEMICOLON
+                    Token.ImDes = '';
+                end
+
+                Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
+                InputIndex  = i + 1;
+                State       = StateEnum.SEMICOLON;
+                TheTokens   = [TheTokens; Token];
             else
-                Token.ImDes = strtrim( input(InputIndex:i-1) );
+                error(['Warning: Invalid choice ImColTokenizer\n'...
+                       '   * * * A B O R T I N G * * *\n'],[]);
             end
-            InputIndex  = i + 1;
-            State       = StateEnum.SEMICOLON;
-        elseif State == StateEnum.SEMICOLON
-            if input(i) ~= ';'
-                error(['Warning: Invalid ImCol syntax\n'...
-                       'Expected '';'' at index %d\n'...
-                       '   * * * A B O R T I N G * * *'],input(i));
+        end
+
+        % Handle dangling image numbers without ';'
+        if i ~= length(input)
+            if State == StateEnum.SEMICOLON
+                Token.ImDes = '';
             end
-            
-            if i-1 < InputIndex
-                error(['Warning: Invalid ImCol syntax\n'...
-                       'Missing image number at index %d\n'...
-                       '   * * * A B O R T I N G * * *'],input(i));
-            end
-                      
-            Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
-            InputIndex  = i + 1;
-            State       = StateEnum.COMMA;
-            TheTokens = [TheTokens; Token];
+            Token.ImNum = str2double( strtrim( input(i+1:end) ) );
+            TheTokens   = [TheTokens; Token];
+        elseif State == StateEnum.COMMA
+            error(['Warning: Invalid ImCol syntax\n'...
+                   'Dangling '','' for input: %s\n'...
+                   '   * * * A B O R T I N G * * *\n'],input);
         end
     end
     
