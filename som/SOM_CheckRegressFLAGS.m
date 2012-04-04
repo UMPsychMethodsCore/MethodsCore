@@ -13,21 +13,19 @@
 %      prinComp       = 0 use average if available
 %                       # use [N] principle components specified
 %
-%      global         = 0 no global regression
-%                       1 do global regression
-%
-%      csf            = 0 no CSF regression
-%                       1 CSF regression if 'csf' is filled
-%                       above.
-%
-%      white          = 0 no white matter regresson
-%                       1 white matter regression if 'white' is filled
-%                       above.
-%
 %      motion         = 0 no motion regression
 %                       1 motion regression (default if MotionParameters
 %                       are present)
+%                       THIS IS AN INTERNAL FLAG
 %
+%      order          = alphabetic order of signal processing.
+%                       D = detrend
+%                       G = global
+%                       C = CSF
+%                       W = white matter
+%                       M = motion
+%                       B = band pass
+%                       
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % Modified Nov 8, 2011 to have nTIME be part of data.run

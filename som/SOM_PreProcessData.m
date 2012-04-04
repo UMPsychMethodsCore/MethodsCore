@@ -318,6 +318,7 @@ for iRUN = 1:length(parameters.data.run)
       % operator. This will also mean center the data.
       %
       
+      SOM_LOG('STATUS : Doing detrending.');
       parameters.startCPU.run(iRUN).detrend = cputime;
       
       if parameters.TIME.run(iRUN).TrendFLAG > 0
@@ -382,7 +383,9 @@ for iRUN = 1:length(parameters.data.run)
 	end
       else
 	parameters.masks.csf.run(iRUN).regressors = [];
-	SOM_LOG('WARNING : CSF speficied but no CSF regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : CSF regression speficied but no CSF regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).csf = cputime;
@@ -427,7 +430,9 @@ for iRUN = 1:length(parameters.data.run)
 	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
       else
 	parameters.masks.white.run(iRUN).regressors = [];
-	SOM_LOG('WARNING : WM speficied but no WM regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).white = cputime;
@@ -445,7 +450,9 @@ for iRUN = 1:length(parameters.data.run)
 	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
 	SOM_LOG('STATUS : Motion Correction Implemented');
       else
-	SOM_LOG('WARNING : Motion speficied by motion regression internally turned off???');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : Motion regression speficied, but motion regression internally turned off???');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).motion = cputime;
@@ -492,7 +499,10 @@ end
 
 if length(nSPACE>1)
   if any(diff(nSPACE))
-    SOM_LOG(sprintf('FATAL : regression step not recongnized : %s',parameters.RegressFLAGS.order));
+    SOM_LOG(sprintf('FATAL : Resulting number of voxels in each run is inconsistent'));
+    for iRUN=1:length(nSPACE)
+      SOM_LOG(sprintf('FATAL : Run %d has %d voxels',iRUN,nSPACE(iRUN)));
+    end
     return
   end
 end
