@@ -1213,7 +1213,7 @@ function TheTokens = ImColTokenizer(input)
     Delimiters  = '[.;]';
     DelimLoc    = regexp(input,Delimiters);
     InputIndex  = 1;
-    StateEnum   = struct('COMMA',1,'SEMICOLON',2);
+    StateEnum   = struct('PERIOD',1,'SEMICOLON',2);
     Token       = struct('ImNum',[],'ImDes',[]);
     TheTokens   = [];
     
@@ -1232,7 +1232,7 @@ function TheTokens = ImColTokenizer(input)
         State = StateEnum.SEMICOLON;
         for i=DelimLoc
             if input(i) == '.'
-                if State == StateEnum.COMMA
+                if State == StateEnum.PERIOD
                     error(['Warning: Invalid ImCol syntax\n'...
                            'Repeated '','' for input: %s\n'...
                            '   * * * A B O R T I N G * * *\n'],input);
@@ -1243,7 +1243,7 @@ function TheTokens = ImColTokenizer(input)
                     Token.ImDes = strtrim( input(InputIndex:i-1) );
                 end
                 InputIndex  = i + 1;
-                State       = StateEnum.COMMA;
+                State       = StateEnum.PERIOD;
             elseif input(i) == ';'
                 if i-1 < InputIndex
                     error(['Warning: Invalid ImCol syntax\n'...
@@ -1272,7 +1272,7 @@ function TheTokens = ImColTokenizer(input)
             end
             Token.ImNum = str2double( strtrim( input(i+1:end) ) );
             TheTokens   = [TheTokens; Token];
-        elseif State == StateEnum.COMMA
+        elseif State == StateEnum.PERIOD
             error(['Warning: Invalid ImCol syntax\n'...
                    'Dangling '','' for input: %s\n'...
                    '   * * * A B O R T I N G * * *\n'],input);
