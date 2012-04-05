@@ -1187,15 +1187,15 @@ function TheTokens = ImColTokenizer(input)
 %
 %   input = a string that adheres to the following syntax:
 %            1. Descriptions are optional
-%            2. Descriptions are always followed by a ',' -- whitespace is
+%            2. Descriptions are always followed by a '.' -- whitespace is
 %               ignored
 %            3. Image numbers are mandotory
 %            4. Image numbers are followed by a ';' except may be omitted
 %               for the last image number -- whitespace is again ignored
 %            Examples: '1'
 %                      '1;2;3;4'
-%                      'asdf, 1; 2; 3; qwerty, 4'
-%                      'asdf, 1; 2; 3; qwerty, 4;'
+%                      'asdf. 1; 2; 3; qwerty. 4'
+%                      'asdf. 1; 2; 3; qwerty. 4;'
 %                      '1;'
 %
 % Output
@@ -1210,7 +1210,7 @@ function TheTokens = ImColTokenizer(input)
 %                 };
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     input       = strtrim(input);
-    Delimiters  = '[,;]';
+    Delimiters  = '[.;]';
     DelimLoc    = regexp(input,Delimiters);
     InputIndex  = 1;
     StateEnum   = struct('COMMA',1,'SEMICOLON',2);
@@ -1231,7 +1231,7 @@ function TheTokens = ImColTokenizer(input)
         % Multiple inputs
         State = StateEnum.SEMICOLON;
         for i=DelimLoc
-            if input(i) == ','
+            if input(i) == '.'
                 if State == StateEnum.COMMA
                     error(['Warning: Invalid ImCol syntax\n'...
                            'Repeated '','' for input: %s\n'...
