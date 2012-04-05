@@ -336,8 +336,18 @@ function [models columns] = parse_scans(options)
                     model(n-1).factor(x).name = joblist{n}{col};
                     model(n-1).factor(x).column = str2num(joblist{n}{col+1});
                     if (model(n-1).type > 1)
-                        model(n-1).factor(x).independent = str2num(joblist{n}{col+2});
-                        model(n-1).factor(x).variance = str2num(joblist{n}{col+3});
+                        if (strcmp(joblist{1}{col+2},'Dep'))
+                            model(n-1).factor(x).independent = str2num(joblist{n}{col+2});
+                        else
+                            model(n-1).factor(x).independent = 0;
+                            offset = offset - 1;
+                        end
+                        if strcmp(joblist{1}{col+3},'Var')
+                            model(n-1).factor(x).variance = str2num(joblist{n}{col+3});
+                        else
+                            model(n-1).factor(x).variance = 1;
+                            offset = offset - 1;
+                        end
                         if (strcmp(joblist{1}{col+4},'GMSCA'))
                         	model(n-1).factor(x).gmsca = str2num(joblist{n}{col+4});
                         else
@@ -351,6 +361,12 @@ function [models columns] = parse_scans(options)
                         	offset = offset - 1;
                         end
                     else
+                        if ~strcmp(joblist{1}{col+2},'Dep')
+                            offset = offset - 1;
+                        end
+                        if ~strcmp(joblist{1}{col+3},'Var')
+                            offset = offset - 1;
+                        end
                         if (~strcmp(joblist{1}{col+4},'GMSCA'))
                             offset = offset - 1;
                         end
@@ -359,6 +375,12 @@ function [models columns] = parse_scans(options)
                         end
                      end
                 else
+                    if ~strcmp(joblist{1}{col+2},'Dep')
+                        offset = offset - 1;
+                    end
+                    if ~strcmp(joblist{1}{col+3},'Var')
+                        offset = offset - 1;
+                    end
                     if (~strcmp(joblist{1}{col+4},'GMSCA'))
                     	offset = offset - 1;
                     end
@@ -369,16 +391,33 @@ function [models columns] = parse_scans(options)
             end
             col = col+offset;
         end
-        num_reg = (length(joblist{n}) - (col-1)) / 4;
-        for x = 1:num_reg
+        
+        x = 1;
+        while size(joblist{n},1) >= col
+            % num_reg = (length(joblist{n}) - (col-1)) / 4;
+            offset = 4;
             if (isempty(joblist{n}{col}))
                 break;
             end
             model(n-1).reg(x).name = joblist{n}{col};
             model(n-1).reg(x).column = str2num(joblist{n}{col+1});
-            model(n-1).reg(x).iCFI = str2num(joblist{n}{col+2});
-            model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
-            col = col + 4;
+            
+            if strcmp(joblist{1}{col+2},'iCFI')
+                model(n-1).reg(x).iCFI = str2num(joblist{n}{col+2});
+            else
+                model(n-1).reg(x).iCFI = 1;
+                offset = offset - 1;
+            end
+            
+            if strcmp(joblist{1}{col+3},'iCC')
+                model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
+            else
+                model(n-1).reg(x).iCC = 1;
+                offset = offset - 1;
+            end
+            
+            col = col + offset;
+            x = x + 1;
         end
     end
     scanFileCheck = struct('Template',options.scanfile,'mode','check');
