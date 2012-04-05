@@ -205,6 +205,7 @@ kernelrule="-bucket weightbucket"
 if [ "$kernelmode" = "1" ]; then #if running in kernel mode
     kernelrule="-kernel $kernel"
 fi
+
 }
 
 function svm_train { #Train on timeshort labeled in $1
@@ -215,8 +216,8 @@ function svm_train { #Train on timeshort labeled in $1
     $maskrule \
     -model  model \
     $kernelrule \
-    $crossvrule
-
+    $crossvrule \
+    $extrarules
 }
 
 function svm_batchtrain { #Based on curval of $filelists and $svmdir, does all the lifting
@@ -290,6 +291,7 @@ done
 }
 
 function L2OCV { #no arguments. Performs L2O-CV manually, and saves predictions. Directory names based on omitted arg from first list
+    extrarules="-b 0"
     svmdir_orig=$svmdir
     filelist1_orig=$filelist1
     filelist2_orig=$filelist2
