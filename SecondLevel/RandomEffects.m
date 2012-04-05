@@ -1349,17 +1349,17 @@ function TheTokens = ImColTokenizer(input)
 %            3. Image numbers are mandotory
 %            4. Image numbers are followed by a ';' except may be omitted
 %               for the last image number -- whitespace is again ignored
-%           Examples: '1'
-%                     '1;2;3;4'
-%                     'asdf, 1; 2; 3; qwerty, 4'
-%                     'asdf, 1; 2; 3; qwerty, 4;'
-%                     '1;'
+%            Examples: '1'
+%                      '1;2;3;4'
+%                      'asdf, 1; 2; 3; qwerty, 4'
+%                      'asdf, 1; 2; 3; qwerty, 4;'
+%                      '1;'
 %
 % Output
 %
 %   TheTokens = an array of Token structures
 %
-% Structures
+% Return structures
 %
 %   struct Token {
 %                  double ImNum;
