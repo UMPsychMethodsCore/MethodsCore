@@ -138,7 +138,7 @@ function [jobs jobs2] = RandomEffects_central(file)
         end
         FactorialDesignName = fullfile(options.other.OutputDir,options.models(N).outputpath);
         FactorialDesignCheck = struct('Template',FactorialDesignName,'mode','makeparentdir');
-        factorial_desgin.dir = {mc_GenPath(FactorialDesignCheck)};
+        factorial_design.dir = {mc_GenPath(FactorialDesignCheck)};
 
 		if (options.models(N).type == 6)
             mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
