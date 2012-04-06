@@ -389,6 +389,16 @@ switch Model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 end
 
-addpath(pwd);
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'FirstLevel'))
+addpath(fullfile(mcRoot,'spm8'))
+
+
 Processing = [0 1];
 PreprocessFirstLevel_central

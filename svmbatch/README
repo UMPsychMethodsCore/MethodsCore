@@ -1,0 +1,27 @@
+SVM Batch
+
+Written 2011 by Daniel Kessler, kesslerd@umich.edu
+
+**Prerequisites**
+This was code was written and tested in AFNI_2011_05_26_1457
+
+
+This batch script should not require any modification by you. Instead, you customize it by editing the support text files that come with it, namely:
+
+*svmdir
+This file should contain a path to an extant directory where the script should store all of its intermediates and results
+
+*filelist1
+This should contain a whitespace-delimted list of (ideally absolute) paths to files that 3dsvm will consider to be examples of class 1. If you are giving it data from img/hdr pairs, be sure to point to the hdr (it will figure out where the img is based on the hdr).
+
+*filelist2
+Just like filelist1, except these are files that represent examples from class 2.
+
+That's it. Other support files may be added as we extend functionality.
+
+
+**Likely future additions
+
+1) Automatic testing of model on training set
+2) Automated partitioning of examples into training set and test set for model cross-validation
+3) Permutation testing. This will be computationally intensive, but not too hard to implement.

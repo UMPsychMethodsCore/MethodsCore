@@ -88,9 +88,18 @@ SubjDir = {
 
 
 
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'MotionRegressors'))
+addpath(fullfile(mcRoot,'spm8'))
 
 
 
 
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/MotionRegressors/
+
 MVMT_collapse_central

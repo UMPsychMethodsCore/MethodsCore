@@ -168,7 +168,17 @@ SubjDir = {
 '5042/Tx2',50321,[1], 0, 0; 
    }
    
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..')
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'PhysioSummary'))
+addpath(fullfile(mcRoot,'spm8'))
+    
    
 
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/PhysioSummary
+
 PhysioSummary_central
