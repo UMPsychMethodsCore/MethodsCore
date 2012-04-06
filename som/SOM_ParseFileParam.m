@@ -44,6 +44,7 @@ end
 
 if isempty(type.File)
     SOM_LOG('WARNING : No file information, skipping.');
+    type.MaskFLAG     = 0;     % Since the file name is empty, force the flag to be 0.
     return
 end
 
