@@ -1070,7 +1070,7 @@ function [des con des2] = fblock(model,columns)
 function images = get_images(p,i)
     global options;
     for n=1:size(p,1)
-        imageName = strcat(ContrastPrefix,'_',sprintf('%04d',i(1)),'.img');
+        imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),'.img');
         imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,imageName);
         imageCheck.Mode = 'check';
         image = mc_GenPath(imageCheck);
