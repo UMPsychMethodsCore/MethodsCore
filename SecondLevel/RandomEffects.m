@@ -137,12 +137,12 @@ function [jobs jobs2] = RandomEffects_central(file)
 			con.consess{end}.tcon.sessrep = 'none';
         end
         FactorialDesignName = fullfile(options.other.OutputDir,options.models(N).outputpath);
-        FactorialDesignCheck = struct('Template',FactorialDesignName,'mode','makeparentdir');
+        FactorialDesignCheck = struct('Template',FactorialDesignName,'mode','makedir');
         factorial_design.dir = {mc_GenPath(FactorialDesignCheck)};
 
 		if (options.models(N).type == 6)
             mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
-                               'mode','makeparentdir') );
+                               'mode','makedir') );
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
 			jobs2{n2}.stats{1}.factorial_design.des = des2;
 			jobs2{n2}.stats{1}.factorial_design.cov = [];
@@ -793,7 +793,7 @@ function [specall con icell] = get_within_images3(model,columns)
 	icell = [];
 	if (ng > 1)
         meg_outputdir = fullfile(options.other.OutputDir,model.outputpath,'ME_Group');
-        MegOutputDirCheck = struct('Template',meg_outputdir,'mode','makeparentdir');
+        MegOutputDirCheck = struct('Template',meg_outputdir,'mode','makedir');
         meg_outputdir = {mc_GenPath(MegOutputDirCheck)};
 		
 		numlevels = max(columns(model.factor(1).column).data);
