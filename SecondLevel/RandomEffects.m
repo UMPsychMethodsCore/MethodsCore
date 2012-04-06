@@ -570,8 +570,13 @@ function des = pt(model,columns)
     end
     switch (type)
      case 'path'
-      images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
-      images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
+      if options.other.ImColFlag == 1
+          images1 = get_images(columns(model.pathcolumn(1)).data,model.NumDes(1).ImNum);
+          images2 = get_images(columns(model.pathcolumn(2)).data,model.NumDes(1).ImNum);
+      else
+          images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
+          images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
+      end
      case 'image'
       if options.other.ImColFlag == 1
           images1 = get_images(columns(model.pathcolumn).data,model.NumDes(1).ImNum);
