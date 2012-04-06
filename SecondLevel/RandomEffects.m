@@ -775,8 +775,11 @@ function [specall con icell] = get_within_images3(model,columns)
 	ng = size(unique(between(include)),1);
 	for i = 1:ng
 		npg(i) = sum(between(include)==i);
-	end
-	m = p1 * p2 * i1 * i2;
+    end
+	m = p1 * p2 * i1;
+    if options.other.ImColFlag ~= 1
+        m = m * i2;
+    end
 	repl = [1:(n*m)]';
 	group = [];
 	for g = 1:ng
