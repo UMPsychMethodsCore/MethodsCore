@@ -80,7 +80,7 @@ function [jobs jobs2] = RandomEffects_central(file)
 		  desmtxcols = 2;
 		 case 3
           des = pt(options.models(N),options.columns);   
-          if (options.other.ImColflag ~= 1 && length(models(N).imagecolumn) > 1)
+          if (options.other.ImColFlag ~= 1 && length(models(N).imagecolumn) > 1)
               con.consess{1}.tcon.name = [columns(models(N).imagecolumn(1)).description ' > ' columns(models(N).imagecolumn(2)).description];
               con.consess{2}.tcon.name = [columns(models(N).imagecolumn(2)).description ' > ' columns(models(N).imagecolumn(1)).description];
           elseif options.other.ImColFlag == 1 && length(options.models(N).NumDes) > 1
