@@ -20,9 +20,11 @@ if CS == 1
     % Now remove the original file.
     FILESTOMOVE=dir([SandBoxPID '/' sourceVolume '*.nii']);
     delete(fullfile(SandBoxPID,FILESTOMOVE(1).name));
-    % Now remove the original file.
-    FILESTOMOVE=dir([SandBoxPID '/' OutputName sourceVolume '*.mat']);
-    delete(fullfile(SandBoxPID,FILESTOMOVE(1).name));
+    % Now remove any mat file that was created.
+    FILESTOMOVE=dir([SandBoxPID '/' '*' sourceVolume '*.mat']);
+    for iFILE=1:length(FILESTOMOVE)
+      delete(fullfile(SandBoxPID,FILESTOMOVE(iFILE).name));
+    end
   else
     fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
     fprintf('I could not move the file out of the sandbox,\n');
@@ -32,6 +34,8 @@ if CS == 1
     fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
     exit
   end	
+else
+  fprintf('No need to try to move out of sandbox, it is presently disabled.\n');
 end
 
 return
