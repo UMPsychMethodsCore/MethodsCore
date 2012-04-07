@@ -25,6 +25,12 @@ if CS == 1
     for iFILE=1:length(FILESTOMOVE)
       delete(fullfile(SandBoxPID,FILESTOMOVE(iFILE).name));
     end
+    results = moveLogOutOfSandBox(sourceDir,SandBoxPID);
+    if results ~= 1
+      fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
+      fprintf('ERROR moving the hidden log file out of the sandbox\n');
+      fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
+    end
   else
     fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
     fprintf('I could not move the file out of the sandbox,\n');
