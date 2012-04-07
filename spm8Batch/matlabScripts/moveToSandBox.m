@@ -35,6 +35,8 @@ if exist(SandBoxPID) == 7
     fprintf('; It took %f seconds\n',xtoc);
     if CS == 1
       Images2Write = spm_select('ExtFPList',SandBoxPID,['^' sourceVolume '.*.nii'],inf);
+      % Log in the process log that we are using the sand box.
+      UMBatchLogProcess(sourceDir,sprintf('Using sandbox : %s to work on file %s',SandBoxPID,FILESTOMOVE(1).name));
     else
       fprintf('Failed to move to sandbox, turning off sandbox\n');      
       SandBoxPID='';

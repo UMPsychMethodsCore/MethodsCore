@@ -16,6 +16,7 @@ if CS == 1
   fprintf('; It took %f seconds\n',xtoc);
   if CSBACK == 1
     % Delete the copy.
+    UMBatchLogProcess(SandBoxPID,sprintf('Moved file out of sandbox %s and back to %s',SandBoxPID,fullfile(sourceDir,FILESTOMOVE(1).name)));
     delete(fullfile(SandBoxPID,FILESTOMOVE(1).name));
     % Now remove the original file.
     FILESTOMOVE=dir([SandBoxPID '/' sourceVolume '*.nii']);
