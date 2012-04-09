@@ -58,9 +58,15 @@ end
 
 [xDim yDim nSlice nTime] = size(inputData);
 
-% Remove whole mean
-mu_whole  = mean( inputData(:) );
-inputData = inputData - mu_whole;
+% Remove mean per slice per time
+for z=1:nSlice
+    slice = inputData(:,:,z,:);
+    mu_slice = mean( slice(:) );
+    inputData(:,:,z,:) = slice - mu_slice;
+end
+    
+%mu_whole  = mean( inputData(:) );
+%inputData = inputData - mu_whole;
 
 % Remove temporal trend, then compute temporal Z-score for each voxel
 for z=1:nSlice
