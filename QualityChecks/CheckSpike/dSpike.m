@@ -11,15 +11,13 @@
 %   To Make this work you need to provide the following input:
 % 
 %      inputData = Either a 4D matrix or file name
-%      options   = polynomial order used in spm_detrend (OPTIONAL)
+%      detOpt    = polynomial order used in spm_detrend (OPTIONAL)
 % 
 %   Output
 %   
-%      results   
-%        = -1 if failure
-%               OR
-%        = nSlice x nTime array of the absolute measure of the jackknife
-%          z-score for each slice in each timepoint (AJKZ)
+%      success = seconds for operation if no errors; otherwise, -1
+%      results = nSlice x nTime array of the absolute measure of the 
+%                jackknife z-score for each slice in each timepoint (AJKZ)
 %
 %   Comments
 %
@@ -29,10 +27,10 @@
 %      further left.
 % 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function [results ajkz]= dSpike(inputData,detOpt)
+function [success results]= dSpike(inputData,detOpt)
 
-results = -1;
-ajkz    = [];
+success = -1;
+results = [];
 tic;
 
 if ischar(inputData)
@@ -103,7 +101,7 @@ for z=1:nSlice
     AJKZ(z,:) = (AAZ(z,:) - mu_i)./(std_i);
 end
     
-ajkz = abs(AJKZ);    
-results = toc;
+results = abs(AJKZ);    
+success = toc;
     
 return
