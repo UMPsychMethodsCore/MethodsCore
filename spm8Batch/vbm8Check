@@ -30,7 +30,7 @@ thisDir=`dirname $theCommand`
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
 #allowedOptions="abhMu"
-allowedOptions="aDdhM"
+allowedOptions="aDdfhIMv0123"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -59,19 +59,49 @@ do
 	exit 0
     fi
     cd ${SUBJECTANATOMY}
-    IMG1=`ls ${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii 2> /dev/null`
-    IMG2=`ls ${SUBJECTANATOMY}/m${HIRESNAME}*.nii  2> /dev/null`
+    case "${VBM8CHECKOPT}" in
+	"0")
+	    # checking skull stripping
+	    IMG1NAME="${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii*"
+	    IMG2NAME="${SUBJECTANATOMY}/m${HIRESNAME}*.nii*"
+	    IMG1=`ls ${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii* 2> /dev/null`
+	    IMG2=`ls ${SUBJECTANATOMY}/m${HIRESNAME}*.nii*  2> /dev/null`
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,2000"
+	    ;;
+	"1")
+	    IMG1NAME="${SUBJECTANATOMY}/${HIRESNAME}*.nii*"
+	    IMG2NAME="${VBM8ReferenceImage}"
+	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
+	    IMG2=${VBM8ReferenceImage}
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,1"
+	    ;;
+	"2")
+	    IMG1NAME="${SUBJECTANATOMY}/${HIRESNAME}*.nii*"
+	    IMG2NAME="${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
+	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
+	    IMG2=`ls ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii* 2> /dev/null | head -1`
+	    echo "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,2000"
+	    ;;
+	*)
+	    echo "Impossible error in vbm8Check, VBM8CHECKOPT=${VBM8CHECK}"
+	    exit 0
+    esac
+
     if [ -z "${IMG1}" ]
     then
-	echo " ${SUBJECTANATOMY}: I can't find bet_m${HIRESNAME}*.nii"
+	echo " ${SUBJECTANATOMY}: I can't find ${IMG1NAME}"
     else
 	if [ -z "${IMG2}" ]
 	then
-	    echo " ${SUBJECTANATOMY}: I can't find bet_m${HIRESNAME}*.nii"
+	    echo " ${SUBJECTANATOMY}: I can't find ${IMG2NAME}"
 	else
 	    echo ${SUBJECTANATOMY}
 	    #fslview ${IMG2} -b 0,2000 & ${IMG1} -l Copper -t .7 -b 0,2000 
-	    fslview ${IMG2} -b 0,2000 ${IMG1} -l Copper -t .7 -b 0,2000 
+	    fslview ${IMG2} ${FSLVIEWOPT2} ${IMG1} ${FSLVIEWOPT1}
 	fi
     fi
 done

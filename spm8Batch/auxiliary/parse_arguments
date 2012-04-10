@@ -313,6 +313,21 @@ do
 		    fi
 		    ;;
 
+             # case_0 for vbm8Check
+             #
+		"0")
+		    VBM8CHECKOPT=0
+                    ;;    
+             # case_1 for vbm8Check
+             #
+		"1")
+		    VBM8CHECKOPT=1
+                    ;;    
+             # case_2 for vbm8Check
+             #
+		"2")
+		    VBM8CHECKOPT=2
+                    ;;    
               # case_error 
 	      #
 	      # Anything should result in an error.
@@ -320,7 +335,6 @@ do
 		*)
 		    . ${thisDir}/auxiliary/caseError
 		    . ${thisDir}/auxiliary/exit_w_removal
-		    
 	    esac
 	else
             if [ "${thisCommand}" == "smoothfMRI" ]

@@ -147,6 +147,15 @@
 	    "#") 
 	        . ${thisDir}/auxiliary/help/help_case_run_number
 	        ;;
+	    "0") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_stripping
+	        ;;
+	    "1") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_warp2MNI
+	        ;;
+	    "2") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_warpfMRI
+	        ;;
 	    "*") 
 	        echo
 	        echo "     Unrecognized option : ${allowedOptions:$iOPT:1}"

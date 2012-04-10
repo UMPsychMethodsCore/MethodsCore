@@ -8,6 +8,10 @@ BATCHCOMMAND=0
 HIRESNAME=ht1spgr
 HIRESEXT=
 
+# Which checking option
+
+VBM8CHECKOPT=0
+
 #
 # all done
 #
