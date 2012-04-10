@@ -29,9 +29,11 @@
 %      further left.
 % 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function results = dSpike(inputData,detOpt)
+function [results ajkz]= dSpike(inputData,detOpt)
 
 results = -1;
+ajkz    = [];
+tic;
 
 if ischar(inputData)
     inputData = strtrim(inputData);
@@ -101,6 +103,7 @@ for z=1:nSlice
     AJKZ(z,:) = (AAZ(z,:) - mu_i)./(std_i);
 end
     
-results = abs(AJKZ);    
+ajkz = abs(AJKZ);    
+results = toc;
     
 return
