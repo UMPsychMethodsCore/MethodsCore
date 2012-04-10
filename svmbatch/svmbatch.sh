@@ -47,6 +47,14 @@ while [ "$1" != "" ]; do
 	    shift
 	    permcount=$1
 	    ;;
+	-f1 ) #Provide path to filelist1
+	    shift
+	    filelist1file=$1
+	    ;;
+	-f2 ) #Provide path to filelist2
+	    shift
+	    filelist2file=$1
+	    ;;
 
     esac
     shift
@@ -88,9 +96,20 @@ filelist2=`hdr_append "$filelist2"`
 
 
 function svm_prep { #Read in filelists, svmdir, and make svmdir
-filelist1=`cat filelist1`
-filelist2=`cat filelist2`
-if [ -f svmdir ]; then
+if [ -z "$filelist1file" ]; then
+    filelist1=`cat filelist1`
+else
+    filelist1=`cat $filelist1file`
+fi
+
+if [-z "filelist2file"] ; then
+    filelist2=`cat filelist2`
+else
+    filelist2=`cat $filelist2file`
+fi
+
+
+if [ -z "$svmdir" ]; then
     svmdir=`cat svmdir`
 fi
 
