@@ -103,7 +103,7 @@ end
 
 % Now see if they specified a mask to constrain the ROI's
 % The rois will ALSO be constrained by the mask as defined in
-% parameters.epi
+% parameters.masks.epi
 
 if isfield(rois,'mask') == 0
     rois.mask = [];
