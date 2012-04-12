@@ -18,12 +18,11 @@ Exp = '/net/data4/MAS/';
 %%  Path where your images are located
 %%
 %%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
+%%       Exp      = path to your experiment directory
 %%       iSubject = index for subject
-%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%       Run = name of run from RunDir (using iRun as index of row)
-%%        * = wildcard (can only be placed in final part of template)
+%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%       Run      = name of run from RunDir (using iRun as index of row)
+%%        *       = wildcard (can only be placed in final part of template)
 %% Examples:
 %% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
@@ -204,9 +203,17 @@ CondThreshold = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CondModifier = 0;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Where to output the data
-%%% OutputDir is constructed by /Exp/OutputLevel1/subjDir/OutputLevel2/OutputLevel3/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Path where your images are located
+%%
+%%  Variables you can use in your template are:
+%%       Exp        = path to your experiment directory
+%%       Subject    = name of subject from SubjDir (using iSubject as index of row)
+%%       Run        = name of run from RunDir (using iRun as index of row)
+%%        *         = wildcard (can only be placed in final part of template)
+%%       OutputName = output directory
+%% Examples:
+%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
@@ -215,18 +222,31 @@ OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
 % OutputLevel2 = '';
 % OutputLevel3 = '';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path to CSV MasterData file
-%%% MasterFile will be constructed as /Exp/MasterLevel1/MasterLevel2.csv
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Location of master data CSV file
+%%
+%%  Variables you can use in your template are:
+%%       Exp            = path to your experiment directory
+%%       MasterDataName = master data file name
+%%        *             = wildcard (can only be placed in final part of template)
+%% Examples:
+%% MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 % MasterLevel1 = 'MasterData/';
 % MasterLevel2 = '';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Location of the regressor CSV file
-%%% RegFile is created by /Exp/RegLevel1/RegLevel2.csv
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Location of the regressor CSV file
+%%  RegFile is created by /Exp/RegLevel1/RegLevel2.csv
+%%
+%%  Variables you can use in your template are:
+%%       Exp         = path to your experiment directory
+%%       RegDataName = regressor CSV file name
+%%        *          = wildcard (can only be placed in final part of template)
+%% Examples:
+%% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 RegTemplate='[Exp]/MasterData/[RegDataName].csv';
