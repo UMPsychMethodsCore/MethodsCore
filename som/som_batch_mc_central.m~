@@ -14,7 +14,6 @@ if (alreadydone(4))
     basefile = [smp basefile];
 end
 
-
 RunMode = [0 0];
 if (strcmpi(Mode,'full'))
     RunMode = [1 1];
@@ -147,21 +146,16 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = 'result file name';
-        
-        ParameterPath = mc_GenPath(fullfile(OutputPath,ParameterFilename));
-        save(ParameterFilename,'parameters');
+
         
     end
 end
 
 if (RunMode(2))
     for iSubject = 1:size(SubjDir,1)
-        Subject=SubjDir{iSubject,1};
         %load existing parameter file
-        OutputPath = mc_GenPath(OutputTemplate);
-        if (~RunMode(1))
-            load(fullfile(OutputPath,ParameterFilename));
-        end
+        OutputPath = mc_GenPath(OutputTemplate)
+        parameters = load(fullfile(OutputTemplate,ParameterFilename));
         global SOM;
         SOM.silent = 1;
         SOM_LOG('STATUS : 01');
