@@ -535,7 +535,7 @@ if (Processing(1) == 1)
 			    end
 			    normsource = ['mean' b c];
                 
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
 			    ImageDir=mc_GenPath(ImageDirCheck);
                 
@@ -559,7 +559,7 @@ if (Processing(1) == 1)
 		    	    
 		    	    %job{6}.spm.util.defs.comp{1}.def = {fullfile(subjdir,anatdir,['y_r' hires '.' imagetype])};
                     
-                    [HiResPath HiResName]=fileparts(HiResTemplate);
+                    [HiResPath HiResName]=fileparts(HiresTemplate);
                     
 		    	    job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
 		    	    job{6}.spm.util.defs.fnames = wscan;
