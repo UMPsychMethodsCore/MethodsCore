@@ -66,6 +66,7 @@ do
 	    IMG2NAME="${SUBJECTANATOMY}/m${HIRESNAME}*.nii*"
 	    IMG1=`ls ${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii* 2> /dev/null`
 	    IMG2=`ls ${SUBJECTANATOMY}/m${HIRESNAME}*.nii*  2> /dev/null`
+	    LOGDIR=${SUBJECTANATOMY}
 	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
 	    FSLVIEWOPT2="-b 0,2000"
 	    ;;
@@ -74,6 +75,7 @@ do
 	    IMG2NAME="${VBM8ReferenceImage}"
 	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
 	    IMG2=${VBM8ReferenceImage}
+	    LOGDIR=${SUBJECTANATOMY}
 	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
 	    FSLVIEWOPT2="-b 0,1"
 	    ;;
@@ -82,6 +84,7 @@ do
 	    IMG2NAME="${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
 	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
 	    IMG2=`ls ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii* 2> /dev/null | head -1`
+	    LOGDIR=`dirname $IMG2`
 	    echo "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
 	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
 	    FSLVIEWOPT2="-b 0,2000"
@@ -102,6 +105,8 @@ do
 	    echo ${SUBJECTANATOMY}
 	    #fslview ${IMG2} -b 0,2000 & ${IMG1} -l Copper -t .7 -b 0,2000 
 	    fslview ${IMG2} ${FSLVIEWOPT2} ${IMG1} ${FSLVIEWOPT1}
+	    cd $LOGDIR
+	    logTheUMProcess vbm8Check vbm8Check ${VBM8CHECKOPT} ${IMG1} ${IMG2}
 	fi
     fi
 done
