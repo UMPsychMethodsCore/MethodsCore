@@ -1,3 +1,0 @@
-    echo "    -t                   enable testing flag, script will be built"
-    echo "                         but not run."
-    echo 
