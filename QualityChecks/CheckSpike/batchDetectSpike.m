@@ -17,12 +17,12 @@
 %    success = seconds for operation is success; otherwise, -1
 %    data    = Nx2 cell array where column1:ImageName, column2:Results
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function [success data only_data] = batchDetectSpike(TextFile,DetrendOpt)
+function [success data only_data] = batchDetectSpike(TextFile,DetrendOpt,Thres)
 
 success = -1;
 data    = [];
 fid     = fopen(TextFile,'r');
-tic;
+time    = 0;
 
 if fid == -1
     fprintf('Invalid textfile: %s\n',TextFile);
@@ -34,9 +34,10 @@ images = textscan(fid,'%s');
 images = images{1};
 fclose(fid);
 
-data = cell( size(images,1),2 );
+data = cell( size(images,1),4 );
 totalSlices = 0;
 for i=1:size(images,1)
+    data{i,1} = images(i,:);
     [SpikeSuccess results] = dSpike(images{i,:},DetrendOpt);
     
     if SpikeSuccess == -1
@@ -44,8 +45,13 @@ for i=1:size(images,1)
         return;
     end
     
+    time = time + SpikeSuccess;
     data{i,2} = results;
-    totalSlices = totalSlices + numel(results); 
+    totalSlices = totalSlices + numel(results);
+
+    [row col] = find( results > Thres );
+    data{i,3} = row; 
+    data{i,4} = col;
 end
 
 only_data  = zeros(totalSlices,1);
@@ -56,4 +62,4 @@ for i=1:size(data,1)
     BeginIndex = EndIndex + 1;
 end
 
-success = toc;
+success = time;
