@@ -372,7 +372,7 @@ if (Processing(1) == 1)
 			    job{2}.spm.spatial.realign.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
                 ImageDir=mc_GenPath(ImageDirCheck);
 			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
@@ -398,7 +398,7 @@ if (Processing(1) == 1)
 			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
                 ImageDir=mc_GenPath(ImageDirCheck);
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
@@ -482,7 +482,7 @@ if (Processing(1) == 1)
 			    end
 			    normsource = ['mean' b c];
                 
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
                 ImageDir=mc_GenPath(ImageDirCheck);
                 
@@ -535,7 +535,7 @@ if (Processing(1) == 1)
 			    end
 			    normsource = ['mean' b c];
                 
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
 			    ImageDir=mc_GenPath(ImageDirCheck);
                 
@@ -599,7 +599,7 @@ if (Processing(1) == 1)
 			    end
 			    normsource = ['mean' b c];
                 
-                ImageDirCheck = struct('Template',ImageTmeplate,...
+                ImageDirCheck = struct('Template',ImageTemplate,...
                                        'mode','check');
                 ImageDir=mc_GenPath(ImageDirCheck);
                 
