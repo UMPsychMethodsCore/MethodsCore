@@ -1,9 +1,6 @@
 
-%addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 display ('-----')
-%pathcallcmd=GeneratePathCommand(OutputPathTemplate);
 OutputPath = mc_GenPath(OutputPathTemplate);
-% OutputPathFile = eval(pathcallcmd);
 display('I am going to generate motion regressors');
 display(sprintf('The output will be stored here: %s', OutputPath));
 display('These are the subjects:')
@@ -28,13 +25,9 @@ for iSubject = 1: size(SubjDir,1)
 
         Run = RunDir{iRun};
 
-
-        %pathcallcmd=GeneratePathCommand(MotionPathTemplate);
-        %MotionPath = eval(pathcallcmd);
         MotionPathCheck.Template = MotionPathTemplate;
         MotionPathCheck.mode = 'check';
         MotionPath = mc_GenPath(MotionPathCheck);
-        % CheckPath(MotionPath, 'a realignment file') exist anymore?
         MotionParameters = load (MotionPath);
 
 
@@ -61,13 +54,10 @@ end; %subjects
 
 OutputPathStruct = struct('Template',strcat(OutputPathTemplate,OutputName),...
                           'suffix','.csv',...
-                          'mode','makeparentdir');
+                          'mode','makedir');
 
 OutputPathFile   = mc_GenPath(OutputPathStruct);                      
 
-%eval(sprintf('!mkdir -p %s',OutputPath));
-%OutputPathFile=[OutputPath '/' OutputName];
-%theFID = fopen([OutputPathFile,'.csv'],'w');
 theFID = fopen(OutputPathFile);
 if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
