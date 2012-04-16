@@ -559,7 +559,7 @@ if (Processing(1) == 1)
 		    	    
 		    	    %job{6}.spm.util.defs.comp{1}.def = {fullfile(subjdir,anatdir,['y_r' hires '.' imagetype])};
                     
-                    [HiResPath HiResName]=fileparts(HiResTemplate);
+                    [HiResPath HiResName]=fileparts(HiresDir);
                     
 		    	    job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
 		    	    job{6}.spm.util.defs.fnames = wscan;
@@ -617,7 +617,7 @@ if (Processing(1) == 1)
 			    job{4}.spatial{1}.coreg{1}.estimate.source = {HiresDir};
 
 			    job{5}.tools{1}.vbm{1}.estwrite.data = {HiresDir};
-                [HiResPath HiResName]=fileparts(HiResTemplate);
+                [HiResPath HiResName]=fileparts(HiresDir);
 			    job{6}.spatial{1}.normalise{1}.write.subj.matname = {fullfile(HiResPath,[HiResName '_seg_sn.mat'])}; %Mike needs to check this
 			    job{6}.spatial{1}.normalise{1}.write.subj.resample = wscan;
 			    
@@ -1009,7 +1009,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		if (Mode == 1 | Mode ==2) 
 		    %eval(sprintf('!mkdir -p %s', OutputDir))
             mc_GenPath( struct('Template',OutputDir,...
-                               'mode','makeparentdir') );
+                               'mode','makedir') );
 		    cd(OutputDir)
 		end
 
