@@ -1,7 +1,4 @@
-% addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts  %%%% this is for GeneratePath
-
 display ('-----')
-%OutputPathFile = GeneratePath(OutputPathTemplate,Exp);
 OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
                                     'suffix','.csv',...
                                     'mode','makeparentdir') );
@@ -25,8 +22,6 @@ for iSubject = 1:size(SubjDir,1)
         %       CharjRun = sprintf('%02d',jRun);
         Run = RunDir{iRun};
 
-        %pathcallcmd=GeneratePathCommand(MotionPathTemplate);
-        %MotionPath = eval(pathcallcmd);
         MotionPathCheck = struct('Template',MotionPathTemplate,...
                                  'mode','check');
         MotionPath = mc_GenPath(MotionPathCheck);
@@ -41,12 +36,6 @@ for iSubject = 1:size(SubjDir,1)
 end %%% loop over subjects
 
 %%%%%%% Save results to CSV file
-
-%OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
-%[OutputPath OutputName] = fileparts(OutputPathFull);
-
-%eval(sprintf('!mkdir -p %s',OutputPath));
-%OutputPathFile=[OutputPath '/' OutputName]; done in beginning
 
 theFID = fopen(OutputPathFile,'w');
 if theFID < 0
