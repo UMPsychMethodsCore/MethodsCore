@@ -309,7 +309,19 @@ function [models columns] = parse_scans(options)
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
         if options.ImColFlag == 1
-            NumDes = ImColTokenizer(joblist{n}{5});
+            Statements = ImColStatements(joblist{n}{5});
+            NumDes = ImColTokenizer(Statements{1});
+            if size(Statements,2) > 1
+                for k=2:size(Statements,2)
+                    tempND = ImColTokenizer(Statements{k});
+                    if size(NumDes,2) == size(tempND,2)
+                        NumDes = [NumDes; tempND];
+                    else
+                        error(['Warning: Unbalanced array in ImCol\n'...
+                               '   * * * A B O R T I N G * * *\n']);
+                    end
+                end
+            end
             model(n-1).NumDes = NumDes;
             model(n-1).imagecolumn = [];
         else
@@ -1267,7 +1279,7 @@ function TheTokens = ImColTokenizer(input)
                 Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
                 InputIndex  = i + 1;
                 State       = StateEnum.SEMICOLON;
-                TheTokens   = [TheTokens; Token];
+                TheTokens   = [TheTokens Token];
             else
                 error(['Warning: Invalid choice ImColTokenizer\n'...
                        '   * * * A B O R T I N G * * *\n'],[]);
@@ -1280,7 +1292,7 @@ function TheTokens = ImColTokenizer(input)
                 Token.ImDes = '';
             end
             Token.ImNum = str2double( strtrim( input(i+1:end) ) );
-            TheTokens   = [TheTokens; Token];
+            TheTokens   = [TheTokens Token];
         elseif State == StateEnum.COLON
             error(['Warning: Invalid ImCol syntax\n'...
                    'Dangling '','' for input: %s\n'...
@@ -1288,7 +1300,71 @@ function TheTokens = ImColTokenizer(input)
         end
     end
     
-    
+function Statements = ImColStatements(input)
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% ImColStatments
+%
+% A routine that parses the 'ImCol' column into statements in the job file 
+% when ImColFlag = 1.
+%
+% Call as :
+%
+%   function Statements = ImColStatments(input)
+%
+% To Make this work you need to provide the following input:
+%
+%   input = a string that adheres to the following syntax:
+%            1. Statments that are separate by brackets '[]' which
+%               is optional for only one statment
+%            Examples: 'statement1'
+%                      '[statement1]'
+%                      '[statement1] [statement2]'
+%
+% Output
+%
+%   Statements = a cell array where each row is a statement
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    input      = strtrim(input);
+    InputIndex = 1;
+    Delimiters = '[\[\]]';
+    DelimLoc   = regexp(input,Delimiters);
+    StateEnum  = struct('LEFT',1,'RIGHT',2);
+    Statements = {};
+
+    if isempty(DelimLoc)
+        % Brackets not present
+        if isempty(input)
+            error(['Warning: Missing ImCol input\n'...
+                   '   * * * A B O R T I N G * * *\n'],[]);
+        end
+        Statements{end+1} = input;
+    else
+        % Brackets present
+        State = StateEnum.LEFT;
+        for i=DelimLoc
+            if State == StateEnum.LEFT
+                if input(i) ~= '['
+                    error(['Warning: Invalid ImCol syntax\n'...
+                           'Expected ''['' for input: %s\n'...
+                           '   * * * A B O R T I N G * * *\n'],input);
+                end
+                InputIndex = i;
+                State = StateEnum.RIGHT;
+            elseif State == StateEnum.RIGHT
+                if input(i) ~= ']'
+                    error(['Warning: Invalid ImCol syntax\n'...
+                           'Expected '']'' for input: %s\n'...
+                           '   * * * A B O R T I N G * * *\n'],input);
+                end
+                Statements{end+1}= [input(InputIndex+1:i-1)];
+                State = StateEnum.LEFT;
+            end
+        end
+        if State ~= StateEnum.LEFT
+            error(['Warning: Imbalanced brackets in ImCol\n'...
+                   '   * * * A B O R T I N G * * *\n']);
+        end
+    end
     
     
     
