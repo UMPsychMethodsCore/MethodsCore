@@ -874,18 +874,28 @@ function [specall con icell] = get_within_images3(model,columns)
 		withinfactors{end}.levels = size(model.pathcolumn,2);
 		m = [m size(model.pathcolumn,2)];
 	end
-	if (size(model.imagecolumn,1)>1)
+	if options.other.ImColFlag ~= 1 && (size(model.imagecolumn,1)>1)
 		wf = wf + 1;	
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,1);
 		m = [m size(model.imagecolumn,1)];
+    else
+        wf = wf + 1;
+        withinfactors{end+1}.name = model.withinnames{wf};
+        withinfactors{end}.levels = size(model.NumDes,1);
+        m = [m size(model.NumDes,1)];
 	end
-	if (size(model.imagecolumn,2)>1)
+	if options.other.ImColFlag ~= 1 && (size(model.imagecolumn,2)>1)
 		wf = wf + 1;
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,2);	
 		m = [m size(model.imagecolumn,2)];
-	end	
+    else
+        wf = wf + 1;
+        withinfactors{end+1}.name = model.withinnames{wf};
+        withinfactors{end}.levels = size(model.NumDes,2);
+        m = [m size(model.NumDes,2)];
+    end
 	connum = 1;
 
 	%main effect of within
