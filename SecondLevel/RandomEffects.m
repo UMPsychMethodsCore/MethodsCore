@@ -1322,7 +1322,7 @@ function Statements = ImColStatements(input)
 %
 % Output
 %
-%   Statements = a cell array where each row is a statement
+%   Statements = a cell array where each column is a statement
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     input      = strtrim(input);
     InputIndex = 1;
