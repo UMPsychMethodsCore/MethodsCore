@@ -1,7 +1,4 @@
-%addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts   %%%% this is for GeneratePath
-
 display ('-----')
-%OutputPathFile = eval(GeneratePathCommand(OutputPathTemplate));
 OutputPathFile = mc_GenPath(OutputPathTemplate);
 display('I am going to compute physio summary statistics');
 display(sprintf('The output will be stored here: %s', OutputPathFile));
@@ -26,9 +23,6 @@ for iSubject = 1:size(SubjDir,1)
         %       CharjRun = sprintf('%02d',jRun);
         Run  = RunDir{iRun};
 
-        %pathcallcmd=GeneratePathCommand(PhysioPathTemplate);
-        %PhysioPath = eval(pathcallcmd);
-        %CheckPath(PhysioPath, 'Check the PhysioPathTemplate, your subject directory, and your run directory.');
         PhysioPathCheck = struct('Template',PhysioPathTemplate,...
                                  'mode','check');
         PhysioPath = mc_GenPath(PhysioPathCheck);
@@ -47,16 +41,11 @@ end %%% loop over subjects
 
 %%%%%%% Save results to CSV file
 
-%OutputPathFull=eval(GeneratePathCommand(OutputPathTemplate));
 OutputPathFullStruct = struct('Template',OuputPathTemplate,...
                               'suffix','.csv',...
                               'mode','makeparentdir');
                           
 OuputPathFile        = mc_GenPath(OutputPathFullStruct);
-
-%[OutputPath OutputName] = fileparts(OutputPathFull);
-%eval(sprintf('!mkdir -p %s',OutputPath));
-%OutputPathFile=[OutputPath '/' OutputName];
 
 theFID = fopen(OutputPathFile,'w');
 if theFID < 0
