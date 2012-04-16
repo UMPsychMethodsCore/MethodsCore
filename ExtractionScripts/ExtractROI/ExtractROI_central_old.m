@@ -1,14 +1,4 @@
-
-
-
-
-
- %addpath /net/dysthymia/spm8/
- %addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
- %addpath('/net/data4/MAS/marsbar-0.42/')
-% addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
-
- %%%%%%  initialize variables
+%%%%%%  initialize variables
  
 spm_jobman('initcfg');  % Hopefully add marsbar to path
 
@@ -18,7 +8,6 @@ clear SPMList;
 
 UseSPM=1;
 
-% FullFileName=eval(generate_PathCommand(OuputPathTemplate));
 FullFileNameStruct = struct('Template',OutputPathTemplate,...
                             'suffix','.csv',...
                             'mode','makeparentdir');
@@ -33,10 +22,6 @@ FullFileName       = mc_GenPath(FullFileNameStruct);
 % %  alldata(iSubject,1)=iSubject;
 % % end   
 %      end
-     %pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,1});
-     %ConditionPath=eval(pathcallcmd);
-     %pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,2});
-     %ROIPath = eval(pathcallcmd);
     % ROIName = ExtractionJobs{ijob,3};
     
     ConditionPathCheck = struct('Template',ExtractionJobs{ijob,1},...
@@ -126,16 +111,7 @@ end
 
 
 %%%% write the results to a single file
-
-
-
-     
-  
-  %[pn fn en] = fileparts(FullFileName); done at beginning
-  %eval(sprintf('!mkdir -p %s', pn))
-
-
-  theFID = fopen(FullFileName,'w');
+theFID = fopen(FullFileName,'w');
 
 if theFID < 0
     fprintf('Error opening the csv file\n');
