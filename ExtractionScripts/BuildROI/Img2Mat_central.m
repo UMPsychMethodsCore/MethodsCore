@@ -1,9 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%addpath /net/dysthymia/spm8/
-% addpath('/net/data4/MAS/marsbar-0.42/')
-%addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for GeneratePath
 
 spm_jobman('initcfg'); % hopefully this adds marsbar to path
 
@@ -21,7 +18,7 @@ InputROIDirCheck = struct('Template',JobList{iJob,1},...
 InputROIDir      = mc_GenPath(InputROIDirCheck);
 
 OutputROIDirStruct = struct('Template',JobList{iJob,2},...
-                            'mode','makeparentdir');
+                            'mode','makedir');
 OutputROIDir       = mc_GenPath(OutputROIDirStruct);
 
 
