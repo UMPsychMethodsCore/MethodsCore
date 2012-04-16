@@ -1,14 +1,4 @@
-
-
-
-
-
- %addpath /net/dysthymia/spm8/
- %addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
- %addpath('/net/data4/MAS/marsbar-0.42/')
-% addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
-
- %%%%%%  initialize variables
+%%%%%%  initialize variables
  
 spm_jobman('initcfg');  % hopefully add marsbar to MATLAB path
 
@@ -22,7 +12,6 @@ UseSPM=1;
 iCol=1;  
 SPMPrevious.SPM.xY.P=   {}; 
 
-%FullFileName=eval(GeneratePathCommand(OuputPathTemplate));
 FullFileNameStruct = struct('Template',OutputPathTemplate,...
                             'suffix','.csv',...
                             'mode','makeparentdir');
@@ -36,9 +25,7 @@ FullFileName       = mc_GenPath(FullFileNameStruct);
 % %  alldata(iSubject,1)=iSubject;
 % % end   
 %      end
-     %ConditionPath=eval(GeneratePathCommand(ExtractionJobs{ijob,1}));
-   
-     %ROIPath=eval(GeneratePathCommand(ExtractionJobs{ijob,2}));
+
      ConditionPathCheck.Template = ExtractionJobs{ijob,1};
      ConditionPathCheck.mode = 'check';
      ConditionPathCheck.type = 1;
@@ -155,14 +142,6 @@ end
 
 
 %%%% write the results to a single file
-
-
-
-     
-  
-  %[pn fn en] = fileparts(FullFileName); done above
-  %eval(sprintf('!mkdir -p %s', pn))
-
 
   theFID = fopen(FullFileName,'w');
 
