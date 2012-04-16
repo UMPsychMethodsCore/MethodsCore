@@ -8,8 +8,6 @@ end
 global defaults;
 global UFp;
 
-%addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
-
 display('*****************************************************************');
 display('Starting Check Warp to examine registration of canonical template and first five functional.');
 display('*****************************************************************');
@@ -23,8 +21,6 @@ for iSubject = 1:size(SubjDir,1)
     Run=RunDir{1};
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %pathcallcmd=GeneratePathCommand(ImageTemplate);
-    %ImagePath=eval(pathcallcmd);
     ImagePathCheck = struct('Template',ImageTemplate,...
                             'mode','check');
     ImagePath = mc_GenPath(ImagePathCheck);
