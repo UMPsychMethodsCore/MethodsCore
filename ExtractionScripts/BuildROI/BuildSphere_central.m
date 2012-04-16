@@ -1,10 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%addpath /net/dysthymia/spm8/
-%addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
-%addpath('/net/dysthymia/matlabScripts/') %%% for generate path
-%addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
  
 spm_jobman('initcfg'); % hopefully load marsbar
 
@@ -14,9 +10,8 @@ filename = JobList{iJob,1};
 coordinates = JobList{iJob,2};
 
 r=JobList{iJob,3};
-%OutputROIDir = eval(GeneratePathCommand(JobList{iJob,4}));
 OutputROIDirStruct = sturct('Template',JobList{ijob,4},...
-                            'mode','makeparentdir');
+                            'mode','makedir');
 
 OutputROIDir       = mc_GenPath(OutputROIDirStruct);
 
