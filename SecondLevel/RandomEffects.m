@@ -49,7 +49,7 @@ function [jobs jobs2] = RandomEffects_central(file)
 		switch (options.models(N).type)
 		 case 1
           if options.other.ImColFlag == 1 % Assume only 1 description
-              ImDes  = options.models(n).NumDes(1).ImDes;
+              ImDes  = options.models(N).NumDes(1).ImDes;
           else
               ImDes  = options.columns(models(N).imagecolumn).description;
           end             
