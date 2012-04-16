@@ -753,13 +753,15 @@ function [specall con icell] = get_within_images3(model,columns)
             for p1=1:size(model.pathcolumn,1) % loop over paths
                 for p2=1:size(model.pathcolumn,2)
                     for i1=1:size(model.NumDes,1)
-                        VecImNum = repmat(model.NumDes(i1).ImNum,length(between),1);
-                        p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
-                        i = VecImNum(include(s));
-                        ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
-                        ImNameCheck = struct('Template',ImName,'mode','check');
-                        ImName = mc_GenPath(ImNameCheck);
-                        scans{end+1} = strcat(ImName,',1');
+                        for i2=1:size(model.NumDes,2)
+                            VecImNum = repmat(model.NumDes(i1,i2).ImNum,length(between),1);
+                            p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
+                            i = VecImNum(include(s));
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                            ImNameCheck = struct('Template',ImName,'mode','check');
+                            ImName = mc_GenPath(ImNameCheck);
+                            scans{end+1} = strcat(ImName,',1');
+                        end
                     end
                 end
             end
@@ -788,10 +790,7 @@ function [specall con icell] = get_within_images3(model,columns)
 	for i = 1:ng
 		npg(i) = sum(between(include)==i);
     end
-	m = p1 * p2 * i1;
-    if options.other.ImColFlag ~= 1
-        m = m * i2;
-    end
+	m = p1 * p2 * i1 * i2;
 	repl = [1:(n*m)]';
 	group = [];
 	for g = 1:ng
