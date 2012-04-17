@@ -46,10 +46,10 @@ function [jobs jobs2] = RandomEffects_central(file)
                 options.models(N).outputpath = make_path(options.models(N),options.columns);
             end
         	desmtxcols = 0;
-		switch (options.models(N).type)
+        switch (options.models(N).type)
 		 case 1
           if options.other.ImColFlag == 1 % Assume only 1 description
-              ImDes  = options.models(N).NumDes(1).ImDes;
+              ImDes  = options.models(N).NumDes.ImDes;
           else
               ImDes  = options.columns(models(N).imagecolumn).description;
           end             
@@ -181,7 +181,7 @@ function path = make_path(model,columns)
 	switch (model.type)
 		case 1
             if options.other.ImColFlag == 1
-                ImDes = model.NumDes(1).ImDes;
+                ImDes = model.NumDes.ImDes;
             else
                 ImDes = columns(model.imagecolumn).description;
             end
@@ -196,7 +196,7 @@ function path = make_path(model,columns)
 				grp2 = 'Group2';
             end
             if options.other.ImColFlag == 1
-                ImDes = model.NumDes(1).ImDes;
+                ImDes = model.NumDes.ImDes;
             else
                 ImDes = columns(model.imagecolumn).description;
             end
@@ -205,7 +205,7 @@ function path = make_path(model,columns)
 			if (options.other.ImColFlag ~= 1 && length(model.imagecolumn) > 1)
 				path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', columns(model.imagecolumn(1)).description, 'v', columns(model.imagecolumn(2)).description);
             elseif option.other.ImColFlag == 1 && length(model.NumDes) > 1
-                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).Des, 'v', model.NumDes(2).Des);
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).ImDes, 'v', model.NumDes(2).ImDes);
 			elseif (length(model.pathcolumn) > 1)        
 				path = [path columns(model.pathcolumn(1)).description 'v' columns(model.pathcolumn(2)).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
 			else
@@ -213,7 +213,7 @@ function path = make_path(model,columns)
 			end		
 		case 4
             if options.other.ImColFlag == 1
-                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).ImDes);
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes.ImDes);
             else
                 path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
             end
@@ -223,7 +223,7 @@ function path = make_path(model,columns)
 				path = [path 'x' model.factor(n).name];
             end
             if options.other.ImColflag == 1
-                path = strcat(path, '_', model.NumDes(1).ImDes);
+                path = strcat(path, '_', model.NumDes.ImDes);
             else
                 path = [path '_' columns(model.imagecolumn).description];
             end
@@ -309,20 +309,7 @@ function [models columns] = parse_scans(options)
         model(n-1).pathcolumn = str2num(joblist{n}{4});
         
         if options.ImColFlag == 1
-            Statements = ImColStatements(joblist{n}{5});
-            NumDes = ImColTokenizer(Statements{1});
-            if size(Statements,2) > 1
-                for k=2:size(Statements,2)
-                    tempND = ImColTokenizer(Statements{k});
-                    if size(NumDes,2) == size(tempND,2)
-                        NumDes = [NumDes; tempND];
-                    else
-                        error(['Warning: Unbalanced array in ImCol\n'...
-                               '   * * * A B O R T I N G * * *\n']);
-                    end
-                end
-            end
-            model(n-1).NumDes = NumDes;
+            model(n-1).NumDes = ImColTokenizer(joblist{n}{5},model(n-1).type);
             model(n-1).imagecolumn = [];
         else
             model(n-1).imagecolumn = str2num(joblist{n}{5});
@@ -584,7 +571,7 @@ function des = pt(model,columns)
      case 'path'
       if options.other.ImColFlag == 1
           images1 = get_images(columns(model.pathcolumn(1)).data,model.NumDes(1).ImNum);
-          images2 = get_images(columns(model.pathcolumn(2)).data,model.NumDes(1).ImNum);
+          images2 = get_images(columns(model.pathcolumn(2)).data,model.NumDes(2).ImNum);
       else
           images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
           images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
@@ -631,7 +618,7 @@ function des = mreg(model,columns)
     end
     
     if options.other.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data, model.NumDes(1).ImNum); % Assume only one image number
+        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum); % Assume only one image number
     else
         images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     end
@@ -671,7 +658,7 @@ function des = fd(model,columns)
     end
     
     if options.other.ImColFlag == 1
-        images = get_images(columns(model.pathcolumn).data, model.NumDes(1).ImNum);
+        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum);
     else
         images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
     end
@@ -752,9 +739,9 @@ function [specall con icell] = get_within_images3(model,columns)
         for s=1:size(include,1) %loop over included subject rows
             for p1=1:size(model.pathcolumn,1) % loop over paths
                 for p2=1:size(model.pathcolumn,2)
-                    for i1=1:size(model.NumDes,1)
-                        for i2=1:size(model.NumDes,2)
-                            VecImNum = repmat(model.NumDes(i1,i2).ImNum,length(between),1);
+                    for i1=1:size(model.NumDes.ImNum,1)
+                        for i2=1:size(model.NumDes.ImNum,2)
+                            VecImNum = repmat(model.NumDes.ImNum(i1,i2),length(between),1);
                             p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
                             i = VecImNum(include(s));
                             ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
@@ -879,22 +866,22 @@ function [specall con icell] = get_within_images3(model,columns)
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,1);
 		m = [m size(model.imagecolumn,1)];
-    else
+    elseif options.other.ImColFlag == 1 && (size(model.NumDes.ImNum,1)>1)
         wf = wf + 1;
         withinfactors{end+1}.name = model.withinnames{wf};
-        withinfactors{end}.levels = size(model.NumDes,1);
-        m = [m size(model.NumDes,1)];
+        withinfactors{end}.levels = size(model.NumDes.ImNum,1);
+        m = [m size(model.NumDes.ImNum,1)];
 	end
 	if options.other.ImColFlag ~= 1 && (size(model.imagecolumn,2)>1)
 		wf = wf + 1;
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,2);	
 		m = [m size(model.imagecolumn,2)];
-    else
+    elseif options.other.ImColFlag == 1 && (size(model.NumDes,ImNum,2)>1)
         wf = wf + 1;
         withinfactors{end+1}.name = model.withinnames{wf};
-        withinfactors{end}.levels = size(model.NumDes,2);
-        m = [m size(model.NumDes,2)];
+        withinfactors{end}.levels = size(model.NumDes.ImNum,2);
+        m = [m size(model.NumDes.ImNum,2)];
     end
 	connum = 1;
 
@@ -1202,7 +1189,7 @@ function mtx = recurse_loop(mtx, n, m, d)
 		end
     end
     
-function TheTokens = ImColTokenizer(input)
+function TheTokens = ImColTokenizer(input,type)
 %- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % ImColTokenizer
 %
@@ -1217,16 +1204,16 @@ function TheTokens = ImColTokenizer(input)
 %
 %   input = a string that adheres to the following syntax:
 %            1. Descriptions are optional
-%            2. Descriptions are always followed by a '.' -- whitespace is
+%            2. Descriptions are always followed by a ':' -- whitespace is
 %               ignored
 %            3. Image numbers are mandotory
-%            4. Image numbers are followed by a ';' except may be omitted
-%               for the last image number -- whitespace is again ignored
-%            Examples: '1'
-%                      '1;2;3;4'
-%                      'asdf: 1; 2; 3; qwerty: 4'
-%                      'asdf:1; 2; 3; qwerty : 4;'
-%                      '1;'
+%            4. If type == 3, either both image numbers are missing their
+%               descriptions or both have their descriptions
+%            5. No descriptions should be present for type == 6
+%            Examples: 'asdf:1'
+%                      '1 2'
+%                      'asdf:1 qwerty:2'
+%   type = the model type
 %
 % Output
 %
@@ -1234,146 +1221,55 @@ function TheTokens = ImColTokenizer(input)
 %
 % Return structures
 %
-%   struct Token {
-%                  double ImNum;
-%                  string ImDes;
-%                 };
+%   struct NumDes {
+%                   array double ImNum;
+%                   string ImDes;
+%                  };
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    input       = strtrim(input);
-    Delimiters  = '[:;]';
-    DelimLoc    = regexp(input,Delimiters);
-    InputIndex  = 1;
-    StateEnum   = struct('COLON',1,'SEMICOLON',2);
-    Token       = struct('ImNum',[],'ImDes',[]);
-    TheTokens   = [];
-    
-    if isempty(DelimLoc)
-        % Single input
-        if isempty(input)
-            error(['Warning: Missing ImCol input\n'...
-                   '   * * * A B O R T I N G * * *\n'],[]);
+NumDes = struct('ImNum',[],'ImDes','');
+input  = strtrim(input);
+
+switch type
+    case {1, 2, 4, 5}
+        ColonLoc = regexp(input,':');
+        if length(ColonLoc) == 0
+            NumDes.ImNum = str2num(input);
+        elseif length(ColonLoc) == 1
+            NumDes.ImDes = strtrim( input(1:ColonLoc-1) );
+            NumDes.ImNum = str2num( input(ColonLoc+1:end) );
         else
-            Token.ImNum = str2double(input);
-            Token.ImDes = '';
-            TheTokens   = Token;
+            error(['\nWarning: Invalid ImCol syntax: %s\n'...
+                   '   * * * A B O R T I N G * * * \n'],input);
         end
-    else
-        % Multiple inputs
-        State = StateEnum.SEMICOLON;
-        for i=DelimLoc
-            if input(i) == ':'
-                if State == StateEnum.COLON
-                    error(['Warning: Invalid ImCol syntax\n'...
-                           'Repeated '','' for input: %s\n'...
-                           '   * * * A B O R T I N G * * *\n'],input);
-                end
-                if i-1 < InputIndex
-                    Token.ImDes = '';
-                else
-                    Token.ImDes = strtrim( input(InputIndex:i-1) );
-                end
-                InputIndex  = i + 1;
-                State       = StateEnum.COLON;
-            elseif input(i) == ';'
-                if i-1 < InputIndex
-                    error(['Warning: Invalid ImCol syntax\n'...
-                           'Missing image number for input: %s\n'...
-                           '   * * * A B O R T I N G * * *\n'],input);
-                end
-
-                if State == StateEnum.SEMICOLON
-                    Token.ImDes = '';
-                end
-
-                Token.ImNum = str2double( strtrim( input(InputIndex:i-1) ) );
-                InputIndex  = i + 1;
-                State       = StateEnum.SEMICOLON;
-                TheTokens   = [TheTokens Token];
-            else
-                error(['Warning: Invalid choice ImColTokenizer\n'...
-                       '   * * * A B O R T I N G * * *\n'],[]);
-            end
-        end
-
-        % Handle dangling image numbers without ';'
-        if i ~= length(input)
-            if State == StateEnum.SEMICOLON
-                Token.ImDes = '';
-            end
-            Token.ImNum = str2double( strtrim( input(i+1:end) ) );
-            TheTokens   = [TheTokens Token];
-        elseif State == StateEnum.COLON
-            error(['Warning: Invalid ImCol syntax\n'...
-                   'Dangling '','' for input: %s\n'...
+    case {3} % PairedSamplesT
+        ColonLoc = regexp(input,':');
+        if length(ColonLoc) == 0
+            NumDes.ImNum = str2num(input);
+        elseif length(ColonLoc) == 1 % Only supports when 1 image number is present, otherwise things will break
+            NumDes.ImDes = strtrim( input(1:ColonLoc-1) );
+            NumDes.ImNum = str2num( input(ColonLoc+1:end) );
+        elseif length(ColonLoc) == 2
+            Spaces  = regexp(input,' ');
+            NumDes2 = NumDes;
+            NumDes.ImDes = strtrim( input(1:ColonLoc(1)-1) );
+            NumDes.ImNum = str2num( input(ColonLoc(1)+1:Spaces(1)-1) );
+            NumDes2.ImDes = strtrim( input(Spaces(end)+1:ColonLoc(2)-1) );
+            NumDes2.ImNum = str2num( input(ColonLoc(2)+1:end) );
+            NumDes = [NumDes NumDes2];
+        else
+            error(['\nWarnig: Invalid ImCol syntax: %s\n'...
+                   'Too many '':'' in argument\n'...
                    '   * * * A B O R T I N G * * *\n'],input);
         end
-    end
+    case {6} % Flexible factorial, header is not used
+        NumDes.ImNum = str2num(input);
+    otherwise
+        error(['\nUnknown model type\n'...
+               '   * * * A B O R T I N G * * *\n'],[]);
+end
+TheTokens = NumDes;
     
-function Statements = ImColStatements(input)
-%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% ImColStatments
-%
-% A routine that parses the 'ImCol' column into statements in the job file 
-% when ImColFlag = 1.
-%
-% Call as :
-%
-%   function Statements = ImColStatments(input)
-%
-% To Make this work you need to provide the following input:
-%
-%   input = a string that adheres to the following syntax:
-%            1. Statments that are separate by brackets '[]' which
-%               is optional for only one statment
-%            Examples: 'statement1'
-%                      '[statement1]'
-%                      '[statement1] [statement2]'
-%
-% Output
-%
-%   Statements = a cell array where each column is a statement
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    input      = strtrim(input);
-    InputIndex = 1;
-    Delimiters = '[\[\]]';
-    DelimLoc   = regexp(input,Delimiters);
-    StateEnum  = struct('LEFT',1,'RIGHT',2);
-    Statements = {};
 
-    if isempty(DelimLoc)
-        % Brackets not present
-        if isempty(input)
-            error(['Warning: Missing ImCol input\n'...
-                   '   * * * A B O R T I N G * * *\n'],[]);
-        end
-        Statements{end+1} = input;
-    else
-        % Brackets present
-        State = StateEnum.LEFT;
-        for i=DelimLoc
-            if State == StateEnum.LEFT
-                if input(i) ~= '['
-                    error(['Warning: Invalid ImCol syntax\n'...
-                           'Expected ''['' for input: %s\n'...
-                           '   * * * A B O R T I N G * * *\n'],input);
-                end
-                InputIndex = i;
-                State = StateEnum.RIGHT;
-            elseif State == StateEnum.RIGHT
-                if input(i) ~= ']'
-                    error(['Warning: Invalid ImCol syntax\n'...
-                           'Expected '']'' for input: %s\n'...
-                           '   * * * A B O R T I N G * * *\n'],input);
-                end
-                Statements{end+1}= [input(InputIndex+1:i-1)];
-                State = StateEnum.LEFT;
-            end
-        end
-        if State ~= StateEnum.LEFT
-            error(['Warning: Imbalanced brackets in ImCol\n'...
-                   '   * * * A B O R T I N G * * *\n']);
-        end
-    end
     
     
     
