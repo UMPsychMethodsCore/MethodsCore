@@ -135,15 +135,14 @@ if (RunMode(1) | sum(RunMode) == 0)
 
         %-OR-
 
-        parameters.rois.mni.coordinates = [0 0 0;20 20 20];
+        parameters.rois.mni.coordinates = ROICenters;
         XYZ = SOM_MakeSphereROI(ROISize);
         parameters.rois.mni.size.XROI = XYZ(1,:);
         parameters.rois.mni.size.YROI = XYZ(2,:);
         parameters.rois.mni.size.ZROI = XYZ(3,:);
 
 
-        parameters.Output.correlation = 'images'; %or maps
-        parameters.Output.correlation = 'maps';
+        parameters.Output.correlation = ROIOutput;
         parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = 'result file name';

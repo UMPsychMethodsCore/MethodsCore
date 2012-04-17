@@ -7,7 +7,7 @@
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/net/data4/MAS/';
-Exp = '/dysthymia/sandbox/MAS/';
+%Exp = '/dysthymia/sandbox/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -131,7 +131,7 @@ alreadydone = [1 1 1 1];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'run';
+basefile = 'restrun';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -165,7 +165,7 @@ NumScan = [180];
 %%%        will be loaded from the already existing parameter file for each
 %%%        subject.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mode = 'som';
+Mode = 'test';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The filename to use for saving/loading parameters
@@ -176,8 +176,8 @@ ParameterFilename = 'parameters';
 %%%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
-WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rwhite.img';
-CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/rcsf.img';
+WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/wm_mask.nii';
+CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/csf_mask.nii';
 
 
 
@@ -191,12 +191,12 @@ OutputName = 'TEST';
 %%% Path and name of explicit mask to use at first level.
 %%% Leave this blank ('') to turn off explicit masking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '';
+BrainMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*';
+RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arestrun_*';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
@@ -246,11 +246,31 @@ BandpassFilter = 1;
 Fraction = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Centers of ROI spheres (in mm)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ROICenters = [
+    0 0 0;
+    10 10 10;
+    20 20 20;
+    ];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Radius (in mm) of ROI spheres.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROISize = 2;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Type of output
+%%%         images - output R and Z images of correlation with each seed
+%%%         maps   - output R and P matrix of correlations between seeds
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ROIOutput = 'images'
 
+ROITemplate = '[Exp]/ROIS';
+ROIImages = {
+    'image1.nii';
+    'image2.nii';
+    };
 
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCore');
