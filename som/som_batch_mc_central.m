@@ -131,36 +131,56 @@ if (RunMode(1) | sum(RunMode) == 0)
         else
             OutputPath = mc_GenPath(OutputTemplate);
         end
-        parameters.rois.files = '';
-
-        %-OR-
-
-        parameters.rois.mni.coordinates = ROICenters;
-        XYZ = SOM_MakeSphereROI(ROISize);
-        parameters.rois.mni.size.XROI = XYZ(1,:);
-        parameters.rois.mni.size.YROI = XYZ(2,:);
-        parameters.rois.mni.size.ZROI = XYZ(3,:);
-
+        
+        switch (ROIInput)
+            case 'files'
+                ROIFolder = mc_GenPath(ROITemplate);
+                for iROIs = 1:size(ROIImages,1)
+                    ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
+                end
+                parameters.rois.files = char(ROI);
+            
+            case 'coordinates'
+                parameters.rois.mni.coordinates = ROICenters;
+                XYZ = SOM_MakeSphereROI(ROISize);
+                parameters.rois.mni.size.XROI = XYZ(1,:);
+                parameters.rois.mni.size.YROI = XYZ(2,:);
+                parameters.rois.mni.size.ZROI = XYZ(3,:);
+            case 'grid'
+                ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
+                ROIGridMaskHdr = spm_vol(ROIGridMask);
+                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                inOut = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                inOutIDX = find(inOut);
+                grid_coord = grid_coord_cand(inOutIDX,:);
+                parameters.rois.mni.coordinates = grid_coord;
+                XYZ = SOM_MakeSphereROI(ROIGridRadius);
+                parameters.rois.mni.size.XROI = XYZ(1,:);
+                parameters.rois.mni.size.YROI = XYZ(2,:);
+                parameters.rois.mni.size.ZROI = XYZ(2,:);
+        end
 
         parameters.Output.correlation = ROIOutput;
-        parameters.Output.description = 'description of output';
+        %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
-        parameters.Output.name = 'result file name';
+        parameters.Output.name = OutputName;
         
         ParameterPath = mc_GenPath(fullfile(OutputPath,ParameterFilename));
-        save(ParameterFilename,'parameters');
+        save(ParameterPath,'parameters');
         
     end
 end
 
 if (RunMode(2))
     for iSubject = 1:size(SubjDir,1)
+        clear D0 parameters results;
         Subject=SubjDir{iSubject,1};
         %load existing parameter file
         OutputPath = mc_GenPath(OutputTemplate);
-        if (~RunMode(1))
+        %if (~RunMode(1))
             load(fullfile(OutputPath,ParameterFilename));
-        end
+        %end
         global SOM;
         SOM.silent = 1;
         SOM_LOG('STATUS : 01');
@@ -178,8 +198,6 @@ if (RunMode(2))
         end        
     end
 end
-
-
 
 
 
