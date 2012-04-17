@@ -877,7 +877,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,2);	
 		m = [m size(model.imagecolumn,2)];
-    elseif options.other.ImColFlag == 1 && (size(model.NumDes,ImNum,2)>1)
+    elseif options.other.ImColFlag == 1 && (size(model.NumDes.ImNum,2)>1)
         wf = wf + 1;
         withinfactors{end+1}.name = model.withinnames{wf};
         withinfactors{end}.levels = size(model.NumDes.ImNum,2);
