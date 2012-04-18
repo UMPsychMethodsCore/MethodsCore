@@ -1244,7 +1244,15 @@ switch type
     case {3} % PairedSamplesT
         ColonLoc = regexp(input,':');
         if length(ColonLoc) == 0
-            NumDes.ImNum = str2num(input);
+            Spaces = regexp(input,' ');
+            if isempty(Spaces) % Only one image number
+                NumDes.ImNum = str2num(input);
+            else               % Two image numbers
+                NumDes2 = NumDes;
+                NumDes.ImNum = str2num( input(1:Spaces(1)-1) );
+                NumDes2.ImNum = str2num( input(Spaces(end)+1:end) );
+                NumDes = [NumDes NumDes2];
+            end
         elseif length(ColonLoc) == 1 % Only supports when 1 image number is present, otherwise things will break
             NumDes.ImDes = strtrim( input(1:ColonLoc-1) );
             NumDes.ImNum = str2num( input(ColonLoc+1:end) );
