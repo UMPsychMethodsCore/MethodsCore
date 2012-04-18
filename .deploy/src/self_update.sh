@@ -2,12 +2,12 @@
 
 
 
-thisdir=`dirname $0`
+thisdir=`dirname $0` #Directory that contains this script
 
-origdir=`pwd`
+origdir=`pwd` #working directory from whence this script was called
 cd $thisdir
 harddir=`pwd`
-cd $origdir
+
 
 export GIT_SSH=${harddir}/git_ssh.sh
 
