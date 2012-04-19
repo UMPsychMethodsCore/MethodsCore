@@ -1,0 +1,1 @@
+connectivity_grid_flatten([1 .2 .3; .2 1 4; .3 4 1;],'~/contest',-1)
