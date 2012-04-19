@@ -11,33 +11,6 @@ function xY = mc_VOI_Extract(path,contrast,threshold,extent,name,session,def,spe
 % xyz = the center of the sphere, or [] for image
 % adjust# = contrast number of F contrast to use for adjustment, 0 for no adjustment
 
-
-
-%spm8 structure
-% matlabbatch{1}.spm.util.voi
-%         spmmat: {[1x60 char]}
-%         adjust: 0
-%        session: 1
-%           name: 'test'
-%            roi{1}
-%             .spm
-%                  spmmat: {''}
-%                contrast: 1
-%             conjunction: 1
-%              threshdesc: 'none'
-%                  thresh: 1.0000e-03
-%                  extent: 0
-%                    mask: [0x0 struct]
-%            .sphere
-%                 centre: [0 0 0]
-%                 radius: 5
-%                   move.fixed = 1
-%           .mask
-%                 image: {'/net/dysthymia/mangstad/eht1spgr.nii,1'}
-%             threshold: 0.5000
-%         
-%     expression: 'i1&i2'
-
 xY = [];
 
 spm('defaults','fmri');
