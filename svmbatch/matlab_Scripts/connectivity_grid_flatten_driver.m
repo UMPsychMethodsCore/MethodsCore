@@ -127,4 +127,4 @@ end
 
 
 
-system(['svm_learn ' outPath ' ~/model'])
+system(['svm_learn ' outPath ' ~/model -x 1'])
