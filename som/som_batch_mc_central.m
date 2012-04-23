@@ -142,30 +142,37 @@ if (RunMode(1) | sum(RunMode) == 0)
             
             case 'coordinates'
                 parameters.rois.mni.coordinates = ROICenters;
-                XYZ = SOM_MakeSphereROI(ROISize);
-                parameters.rois.mni.size.XROI = XYZ(1,:);
-                parameters.rois.mni.size.YROI = XYZ(2,:);
-                parameters.rois.mni.size.ZROI = XYZ(3,:);
+                if (iscell(ROISize))
+                    parameters.rois.mni.size = ROISize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROISize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(3,:);
+                end
             case 'grid'
                 ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
                 ROIGridMaskHdr = spm_vol(ROIGridMask);
                 ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                inOut = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                inOutIDX = find(inOut);
+                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
                 grid_coord = grid_coord_cand(inOutIDX,:);
                 parameters.rois.mni.coordinates = grid_coord;
-                XYZ = SOM_MakeSphereROI(ROIGridRadius);
-                parameters.rois.mni.size.XROI = XYZ(1,:);
-                parameters.rois.mni.size.YROI = XYZ(2,:);
-                parameters.rois.mni.size.ZROI = XYZ(2,:);
+                if (iscell(ROIGridSize))
+                    parameters.rois.mni.size = ROIGridSize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROIGridSize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                end
         end
 
         parameters.Output.correlation = ROIOutput;
         %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = OutputName;
-        
+        ParameterFilename = [OutputName '_parameters'];
         ParameterPath = mc_GenPath(fullfile(OutputPath,ParameterFilename));
         save(ParameterPath,'parameters');
         
@@ -178,9 +185,8 @@ if (RunMode(2))
         Subject=SubjDir{iSubject,1};
         %load existing parameter file
         OutputPath = mc_GenPath(OutputTemplate);
-        %if (~RunMode(1))
-            load(fullfile(OutputPath,ParameterFilename));
-        %end
+        load(fullfile(OutputPath,ParameterFilename));
+        clear global SOM;
         global SOM;
         SOM.silent = 1;
         SOM_LOG('STATUS : 01');

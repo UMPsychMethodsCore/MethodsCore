@@ -4,15 +4,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The version of SPM to use
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spmversion = 'spm8';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/net/data4/MAS/';
-%Exp = '/dysthymia/sandbox/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -42,8 +36,6 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-  
-%     '5034/Tx2',50342,[1];  
 '5001/Tx1',50011,[1];
 '5002/Tx1',50021,[1];
 '5003/Tx1',50031,[1];
@@ -109,7 +101,6 @@ SubjDir = {
 '5040/Tx2',50402,[1];
 '5041/Tx2',50412,[1];
 '5042/Tx2',50422,[1];
-
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,7 +109,7 @@ SubjDir = {
 TR = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, normalization, and smoothing (spm8 only)
+%%% Prefixes for slicetiming, realignment, normalization, and smoothing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 stp = 'a';
 rep = 'r';
@@ -173,28 +164,22 @@ NumScan = [180];
 Mode = 'full';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The filename to use for saving/loading parameters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ParameterFilename = '12mmGrid_parameters';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
 WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/wm_mask.nii';
 CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/csf_mask.nii';
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName = '12mmGrid';
+OutputName = 'PCC';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
-%%% Leave this blank ('') to turn off explicit masking
+%%% Leaving this blank ('') will use a subject-specific mask
+%%% NOTE: Subject-specific masks are not recommended for grid usage below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BrainMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 
@@ -257,16 +242,19 @@ Fraction = 1;
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'grid';
+ROIInput = 'coordinates';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% If specifying ROI coordinates you need to provide a list of centers and
-%%% a radius both in mm.
+%%% If specifying ROI coordinates you need to provide a list of centers in 
+%%% MNI coordinates (mm) and a radius in voxels.
+%%% NOTE: ROISize will be used as the radius of a sphere at each point. If 
+%%% you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will 
+%%% need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROICenters = [
     0 -53 26;
     ];
-ROISize = 4;
+ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
@@ -279,19 +267,24 @@ ROIImages = {
     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% If specifying ROI gri you need to provide a spacing as well as a
-%%% mask for point inclusion
+%%% If specifying ROI grid you need to provide a spacing and ROI size as
+%%% well as an optional mask for grid point inclusion (a mask is strongly 
+%%% encouraged as not using one will return coordinates from across the entire
+%%% bounding box).
+%%% NOTE: ROIGridSize will be used as the radius of a sphere at each grid
+%%% point.  If you'd prefer to use the predefined 1,7,19, or 27 voxel sizes
+%%% you will need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing = 12;
-ROIGridRadius = 4;
-ROIGridMaskTemplate = '[Exp]/ROIS/ravg_gm_mask.nii';
-
+ROIGridSize = {19};
+ROIGridMaskTemplate = '[Exp]/ROIS/ravg_gm_mask_and_EPI_mask.img';
+ROIGridMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output
 %%%         images - output R and Z images of correlation with each seed
 %%%         maps   - output R and P matrix of correlations between seeds
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIOutput = 'maps';
+ROIOutput = 'images';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -306,6 +299,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCore');
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'som'));
-addpath(fullfile(mcRoot,spmversion));
+addpath(fullfile(mcRoot,'spm8'));
 
 som_batch_mc_central
