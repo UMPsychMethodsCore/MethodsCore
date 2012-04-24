@@ -174,7 +174,7 @@ CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/csf_mask.nii';
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName = 'PCC';
+OutputName = 'Striatum';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
@@ -252,7 +252,19 @@ ROIInput = 'coordinates';
 %%% need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROICenters = [
-    0 -53 26;
+    %0 -53 26; %pcc seed
+    9 9 -8; %VSi right
+    -9 9 -8; %VSi left
+    10 15 0; %VSs right
+    -10 15 0; %VSs left
+    13 15 9; %DC right
+    -13 15 9; %DC left
+    28 1 3; %DCP right
+    -28 1 3; %DCP left
+    25 8 6; %DRP right
+    -25 8 6; %DRP left
+    20 12 -3; %VRP right
+    -20 12 -3; %VRP left
     ];
 ROISize = {19};
 
@@ -278,7 +290,7 @@ ROIImages = {
 ROIGridSpacing = 12;
 ROIGridSize = {19};
 ROIGridMaskTemplate = '[Exp]/ROIS/ravg_gm_mask_and_EPI_mask.img';
-ROIGridMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+%ROIGridMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output
 %%%         images - output R and Z images of correlation with each seed
