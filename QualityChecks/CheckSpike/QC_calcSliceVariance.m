@@ -66,7 +66,14 @@ if ~isempty(options)
     for z=1:nSlice
         slice = squeeze(inputData(:,:,z,:));
         optSlice = reshape(slice,voxelsPerPlane,scans)';
-        detrendSlice = spm_detrend(optSlice,options);
+        if options ~= 0
+            detrendSlice = spm_detrend(optSlice,options);
+        else
+            for t=1:scans
+                optSlice(:,t) = optSlice(:,t) - mean(optSlice(:,t));
+            end
+            detrendSlice = optSlice;
+        end
         inputData(:,:,z,:) = reshape(detrendSlice',xDim,yDim,1,scans);        
     end
 end
