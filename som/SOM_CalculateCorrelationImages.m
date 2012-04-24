@@ -63,7 +63,7 @@ for iROI = 1 : parameters.rois.nroisRequested
         
         clear rMapHdr;
         
-        rMapHdr.fname = fullfile(parameters.Output.directory,sprintf('rmap_%s_%03d.nii',parameters.Output.name,iROI));
+        rMapHdr.fname = fullfile(parameters.Output.directory,sprintf('rmap_%s_%04d.nii',parameters.Output.name,iROI));
         rMapHdr.mat   = parameters.maskHdr.mat;
         
         % Make sure we write out float32.....
@@ -75,7 +75,7 @@ for iROI = 1 : parameters.rois.nroisRequested
 	% Now the probability map.
 
         pMapHdr       = rMapHdr;
-	pMapHdr.fname = fullfile(parameters.Output.directory,sprintf('pmap_%s_%03d.nii',parameters.Output.name,iROI));
+	pMapHdr.fname = fullfile(parameters.Output.directory,sprintf('pmap_%s_%04d.nii',parameters.Output.name,iROI));
 
         spm_write_vol(rMapHdr,rMapVol);
         spm_write_vol(pMapHdr,pMapVol);
@@ -85,7 +85,7 @@ for iROI = 1 : parameters.rois.nroisRequested
         if exist(rMapHdr.fname) == 2
             clear Vo
             Vi         = spm_vol(rMapHdr.fname);
-            Vo.fname   = fullfile(parameters.Output.directory,sprintf('zmap_%s_%03d.nii',parameters.Output.name,iROI));
+            Vo.fname   = fullfile(parameters.Output.directory,sprintf('zmap_%s_%04d.nii',parameters.Output.name,iROI));
             Vo.mat     = Vi.mat;
             Vo.dim     = Vi.dim;
             Vo.dt      = [16 0];
