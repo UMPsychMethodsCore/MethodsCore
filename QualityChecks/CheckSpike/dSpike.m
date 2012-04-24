@@ -64,9 +64,6 @@ for z=1:nSlice
     mu_slice = mean( slice(:) );
     inputData(:,:,z,:) = slice - mu_slice;
 end
-    
-%mu_whole  = mean( inputData(:) );
-%inputData = inputData - mu_whole;
 
 % Remove temporal trend, then compute temporal Z-score for each voxel
 for z=1:nSlice
@@ -74,7 +71,13 @@ for z=1:nSlice
     reSlice = reshape(slice,xDim*yDim,nTime)';
     % detrend
     if ~isempty(detOpt)
-        reSlice = spm_detrend(reSlice,detOpt);    
+        if detOpt ~= 0
+            reSlice = spm_detrend(reSlice,detOpt);
+        else % do this because spm_detrend is just too slow when detOpt = 0
+            for t=1:nTime
+                reSlice(:,t) = reSlice(:,t) - mean(reSlice(:,t));
+            end
+        end
     end
     %get z score
     zScoreSlice = zscore(reSlice);    
