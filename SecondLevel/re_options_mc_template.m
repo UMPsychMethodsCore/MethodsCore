@@ -13,7 +13,10 @@ opt.globalc.g_omit = [];
 opt.globalm.gmsca.gmsca_no = [];
 opt.globalm.glonorm = 1;
 
-opt.other.InputImgExt = '.nii';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Image Type should be either '.nii' or '.img'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+opt.other.InputImgExt = '.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
