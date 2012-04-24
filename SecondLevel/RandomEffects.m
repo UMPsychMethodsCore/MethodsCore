@@ -744,7 +744,7 @@ function [specall con icell] = get_within_images3(model,columns)
                             VecImNum = repmat(model.NumDes.ImNum(i1,i2),length(between),1);
                             p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
                             i = VecImNum(include(s));
-                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) options.other.InputImgExt]);
                             ImNameCheck = struct('Template',ImName,'mode','check');
                             ImName = mc_GenPath(ImNameCheck);
                             scans{end+1} = strcat(ImName,',1');
@@ -761,7 +761,7 @@ function [specall con icell] = get_within_images3(model,columns)
                         for i2 = 1:size(model.imagecolumn,2)
                             p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
                             i = columns(model.imagecolumn(i1,i2)).data(include(s));
-                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img']);
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) options.other.InputImgExt]);
                             ImNameCheck = struct('Template',ImName,'mode','check');
                             ImName = mc_GenPath(ImNameCheck);
                             scans{end+1} = strcat(ImName,',1');
@@ -1081,7 +1081,7 @@ function [des con des2] = fblock(model,columns)
 function images = get_images(p,i)
     global options;
     for n=1:size(p,1)
-        imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),'.img');
+        imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),options.other.InputImgExt);
         imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,imageName);
         imageCheck.mode = 'check';
         image = mc_GenPath(imageCheck);
@@ -1155,6 +1155,10 @@ function options = parse_options(file,opt)
     else
         if ~isfield(file.other,'ImColFlag')
             file.other.ImColFlag = 0;
+        end
+        
+        if ~isfield(file.other,'InputImgExt')
+            file.other.InputImgExt = '.img';
         end
 	    options = file;
     end
