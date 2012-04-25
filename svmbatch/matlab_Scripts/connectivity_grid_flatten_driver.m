@@ -136,13 +136,31 @@ outPathTemplate.Template=OutputTemplate;
 outPathTemplate.mode='makeparentdir';
 outPath=mc_GenPath(outPathTemplate);
 
+%% Loop 1 to figure out valid connection points
+
+for iSub=1:size(SubjDir,1)
+    Subject = SubjDir{iSub,1};
+    conPath=mc_GenPath(conPathTemplate);
+    conmat=load(conPath);
+    rmat=conmat.rMatrix;
+    if iSub==1
+        cleanconMat=ones(size(rmat));
+    end
+
+    cleanconMat(isnan(rmat)) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
+    cleanconMat(isinf(rmat)) = 0;
+    cleanconMat(rmat==0) = 0;
+end
+
+%% Loop 2 to write out flattened results
+
 for iSub=1:size(SubjDir,1)
     Subject = SubjDir{iSub,1};
     Example=SubjDir{iSub,2};
     conPath=mc_GenPath(conPathTemplate);
     conmat=load(conPath);
     rmat=conmat.rMatrix;
-    connectivity_grid_flatten(rmat,outPath,Example)
+    connectivity_grid_flatten(rmat,outPath,Example, cleanconMat)
     
 end
 
