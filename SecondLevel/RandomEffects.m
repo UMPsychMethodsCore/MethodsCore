@@ -335,7 +335,7 @@ function [models columns] = parse_scans(options)
                     model(n-1).factor(x).name = joblist{n}{col};
                     model(n-1).factor(x).column = str2num(joblist{n}{col+1});
                     if (model(n-1).type > 1)
-                        if (strcmp(joblist{1}{col+2},'Dep'))
+                        if any(strcmp(joblist{1}{col+2},{'Indep','Dep'}))
                             model(n-1).factor(x).independent = str2num(joblist{n}{col+2});
                         else
                             model(n-1).factor(x).independent = 0;
@@ -360,7 +360,7 @@ function [models columns] = parse_scans(options)
                         	offset = offset - 1;
                         end
                     else
-                        if ~strcmp(joblist{1}{col+2},'Dep')
+                        if ~any(strcmp(joblist{1}{col+2},{'Indep','Dep'}))
                             offset = offset - 1;
                         end
                         if ~strcmp(joblist{1}{col+3},'Var')
@@ -374,7 +374,7 @@ function [models columns] = parse_scans(options)
                         end
                      end
                 else
-                    if ~strcmp(joblist{1}{col+2},'Dep')
+                    if ~any( strcmp(joblist{1}{col+2},{'Indep','Dep'}) )
                         offset = offset - 1;
                     end
                     if ~strcmp(joblist{1}{col+3},'Var')
@@ -1157,13 +1157,14 @@ function options = parse_options(file,opt)
             file.other.ImColFlag = 0;
         end
         
-        if isfield(file.other,'InputImgExt') && ...
-           ( ~strcmp(file.other.InputImgExt,'.nii') && ~strcmp(file.other.InputImgExt,'.img') )
-       
-            mc_Error(['Warning: Invalid opt.other.InputImgExt\n',...
-                      'Expected ''.nii'' or ''.img'', but found %s\n',...
-                      ' * * * A B O R T I N G * * *\n'],file.other.InputImgExt);
-        
+        if isfield(file.other,'InputImgExt')
+            if ~any( strcmp(file.other.InputImgExt,{'.nii','.img'}) )
+
+                mc_Error(['Warning: Invalid opt.other.InputImgExt\n',...
+                          'Expected ''.nii'' or ''.img'', but found %s\n',...
+                          ' * * * A B O R T I N G * * *\n'],file.other.InputImgExt);
+                      
+            end
         else
             file.other.InputImgExt = '.img';
         end
