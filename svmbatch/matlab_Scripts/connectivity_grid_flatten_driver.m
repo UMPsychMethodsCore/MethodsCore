@@ -165,5 +165,7 @@ for iSub=1:size(SubjDir,1)
 end
 
 
-tick
-% system(['svm_learn ' outPath ' ~/model -x 1'])
+tic
+system(['svm_learn -x 1 ' outPath ' ~/model'])
+
+totaltime=toc
