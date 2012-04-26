@@ -1,12 +1,20 @@
-function [ output_args ] = connectivity_grid_flatten( conmat , filename, exampletype, cleanconMat)
+function [ output_args ] = connectivity_grid_flatten( conmat , filename, exampletype, cleanconMat, mode)
 %CONNECTIVITY_GRID_FLATTEN Summary of this function goes here
-%   [ output_args ] = connectivity_grid_flatten( conmat , filename, exampletype)
+%   [ output_args ] = connectivity_grid_flatten( conmat , filename,
+%   exampletype)
+%       mode    -   1: write out a file, with bad elements censored
+%                   2: return a matrix with bad elements zeroed
 
 
 flatmat = flatten_diagonal (conmat);
 cleanconMat_flat = flatten_diagonal (cleanconMat);
-
-write_lines();
+switch mode
+    case 1
+        write_lines();
+    case 2
+        flatmat(~logical(cleanconMat_flat))=0;
+        output_args=flatmat;
+end
 
 
 

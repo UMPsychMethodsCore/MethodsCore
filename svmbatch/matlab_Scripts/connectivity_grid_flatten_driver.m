@@ -11,6 +11,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/net/data4/MAS/';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% How you want to call the SVM routine.
+%%%     'classic'   -   Write the flattened connectivity matrices to a file
+%%%                     which will be read by svm_light. This mode is
+%%%                     pretty inefficient and takes a long time for the
+%%%                     file to be read in
+%%%     'mex'       -   Instead of writing things to a file, simply call
+%%%                     svm_light as a compiled mex routine. This will
+%%%                     allow matlab to directly pass its connectivity
+%%%                     matrices to the C++ code, which should sidestep the
+%%%                     inefficiencies of reading in the text file that
+%%%                     would otherwise be created in classic mode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+svmmode='mex' ;
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Path where your images are located
@@ -160,12 +176,23 @@ for iSub=1:size(SubjDir,1)
     conPath=mc_GenPath(conPathTemplate);
     conmat=load(conPath);
     rmat=conmat.rMatrix;
-    connectivity_grid_flatten(rmat,outPath,Example, cleanconMat)
+    switch svmmode
+        case 'classic'
+            connectivity_grid_flatten(rmat,outPath,Example, cleanconMat,1)
+        case 'mex'
+            superflatmat(iSub,:)=connectivity_grid_flatten(rmat,outPath,Example, cleanconMat,2);
+            superlabel(iSub)=Example;
+    end
     
 end
 
-
 tic
-system(['svm_learn -x 1 ' outPath ' ~/model'])
+switch svmmode
+    case 'classic'
+        
+        system(['svm_learn -x 1 ' outPath ' ~/model'])
+    case 'mex'
+        model=svmlearn(superflatmat,superlabel,' -c 2000 -m 2000' )
+end
 
 totaltime=toc
