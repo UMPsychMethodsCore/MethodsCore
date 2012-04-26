@@ -181,7 +181,7 @@ for iSub=1:size(SubjDir,1)
             connectivity_grid_flatten(rmat,outPath,Example, cleanconMat,1)
         case 'mex'
             superflatmat(iSub,:)=connectivity_grid_flatten(rmat,outPath,Example, cleanconMat,2);
-            superlabel(iSub)=Example;
+            superlabel(iSub,1)=Example;
     end
     
 end
