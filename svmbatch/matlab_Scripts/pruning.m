@@ -111,16 +111,16 @@ model_test=svmclassify(minimat_2,superlabels_paired_2,model_train)
 superflatmat_pbompd=superflatmat(1:2:end,:)-superflatmat(2:2:end,:);
 superflatmat_mpdpbo=superflatmat(2:2:end,:)-superflatmat(1:2:end,:);
 
-superflatmat_paired(1:2:60,:)=superflatmat_pbompd;
-superflatmat_paired(2:2:60,:)=superflatmat_mpdpbo;
+superflatmat_paired(1:2:64,:)=superflatmat_pbompd;
+superflatmat_paired(2:2:64,:)=superflatmat_mpdpbo;
 
-pruneLOO=zeros(30,size(superflatmat,2));
+pruneLOO=zeros(32,size(superflatmat,2));
 
 models_train={};
 models_test={};
 
-for iL=1:30
-    subjects=[1:(iL-1) (iL+1):30];
+for iL=1:32
+    subjects=[1:(iL-1) (iL+1):32];
     indices=sort([subjects*2 subjects*2-1]);
     
     
@@ -128,7 +128,7 @@ for iL=1:30
     train=superflatmat_paired(indices,:);
     trainlabels=repmat([1; -1],size(train,1)/2,1);
     
-    prune=ttest(train(1:2:end,:),0,.0001);
+    prune=ttest(train(1:2:end,:),0,.01);
     prune(isnan(prune))=0;
     pruneLOO(iL,:)=prune;
     
@@ -137,15 +137,15 @@ for iL=1:30
     
     models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
     
-    models_test{iL}=svmclassify(test,[1 ; -1],model_train);
+    models_test{iL}=svmclassify(test,[1 ; -1],models_train{iL})
 
 end
 
 pruneIntersect=sum(pruneLOO,1);
-pruneIntersect(pruneIntersect~=30)=0;
-pruneIntersect(pruneIntersect==30)=1;
+pruneIntersect(pruneIntersect~=32)=0;
+pruneIntersect(pruneIntersect==32)=1;
 
 supertrain = superflatmat_paired(:,logical(pruneIntersect));
-superlabels=repmat([1; -1],30,1);
+superlabels=repmat([1; -1],32,1);
 
 supermodel = svmlearn(supertrain,superlabel,'-o 100 -x 1')
