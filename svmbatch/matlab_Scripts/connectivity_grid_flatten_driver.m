@@ -192,7 +192,8 @@ switch svmmode
         
         system(['svm_learn -x 1 ' outPath ' ~/model'])
     case 'mex'
-        model=svmlearn(superflatmat,superlabel,' -c 2000 -m 2000' )
+        
+%         model=svmlearn(superflatmat,superlabel,' -c 2000 -m 2000' )
 end
 
 totaltime=toc
