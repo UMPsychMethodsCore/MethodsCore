@@ -39,8 +39,8 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
         clear firstImage
         
         for i=1:size(Images,1)
-            dumImage      = nifti( strtim(Images(i,:)) );
-            data(:,:,:,i) = dumImage.dat(:,:,:,i);
+            dumImage      = nifti( strtrim(Images(i,:)) );
+            data(:,:,:,i) = dumImage.dat(:,:,:,1);
             clear dumImage
         end
     else
@@ -78,7 +78,7 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
             fprintf(fid,'Slice:%d,Timepoint:%d,AJKZ:%f\n',Slice(i),Timepoint(i),results( Slice(i), Timepoint(i) ) );
         end
     end
-    
+    fprintf(fid,'\n');
     fclose(fid);
     results = 1;
 end
