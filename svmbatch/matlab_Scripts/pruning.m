@@ -70,3 +70,30 @@ minimat_2=superflatmat_paired_2(:,logical(ts));
 model_train=svmlearn(minimat_1,superlabels_paired_1,'-o 100 -x 1')
 
 model_test=svmclassify(minimat_2,superlabels_paired_2,model_train)
+
+%% Think about doing this with randomly labeled cases
+% Paired Halves, with random labels
+superflatmat_pbompd=superflatmat(1:2:end,:)-superflatmat(2:2:end,:);
+superflatmat_mpdpbo=superflatmat(2:2:end,:)-superflatmat(1:2:end,:);
+
+superflatmat_paired(1:2:64,:)=superflatmat_pbompd;
+superflatmat_paired(2:2:64,:)=superflatmat_mpdpbo;
+
+superflatmat_paired_1=superflatmat_paired(1:32,:);
+superflatmat_paired_2=superflatmat_paired(33:64,:);
+
+superlabels_paired_1=repmat([1; -1],16,1);
+superlabels_paired_2=repmat([1; -1],16,1);
+
+superlabels_paired_1=randsample(superlabels_paired_1,32)
+superlabels_paired_2=randsample(superlabels_paired_2,32)
+
+ts=ttest(superflatmat_paired_1(1:2:end,:),.01);
+ts(isnan(ts))=0;
+
+minimat_1=superflatmat_paired_1(:,logical(ts));
+minimat_2=superflatmat_paired_2(:,logical(ts));
+
+model_train=svmlearn(minimat_1,superlabels_paired_1,'-o 100 -x 1')
+
+model_test=svmclassify(minimat_2,superlabels_paired_2,model_train)
