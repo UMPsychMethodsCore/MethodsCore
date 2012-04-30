@@ -43,7 +43,8 @@ svmmode='mex' ;
 % ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
+ConnTemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_corr.mat';
+% ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
 
 OutputTemplate = '[Exp]/SVM/Connectivity/12mmGrid_19/Train.dat';
 
@@ -64,10 +65,10 @@ SubjDir = {
 
 '5001/Tx1',+1;
 '5001/Tx2',-1;
-'5002/Tx1',+1;
-'5002/Tx2',-1;
-'5003/Tx1',+1;
-'5003/Tx2',-1;
+% '5002/Tx1',+1;
+% '5002/Tx2',-1;
+% '5003/Tx1',+1;
+% '5003/Tx2',-1;
 '5004/Tx1',+1;
 '5004/Tx2',-1;
 '5005/Tx1',+1;
@@ -176,6 +177,7 @@ for iSub=1:size(SubjDir,1)
     conPath=mc_GenPath(conPathTemplate);
     conmat=load(conPath);
     rmat=conmat.rMatrix;
+%     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
     switch svmmode
         case 'classic'
             connectivity_grid_flatten(rmat,outPath,Example, cleanconMat,1)
