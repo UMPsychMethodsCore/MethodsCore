@@ -1,0 +1,6 @@
+    echo "${helpComment} volumeWILD               : $volumeWILD"
+    echo "${helpComment} functioanl path          : $fmriPATH"
+    echo "${helpComment} functional sub-dir       : $subPATH"
+    echo
+
+    . ${thisDir}/auxiliary/help/help_options_end

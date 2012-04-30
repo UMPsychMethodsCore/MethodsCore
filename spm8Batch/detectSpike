@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# A command to make it easier on the user to detect 
+# spikes in the fmri time-series.
+#
+# This command will build a script to run and will also 
+# run the script in background.
+#
+#   e.g.    detectSpike
+#
+#
+# detectSpike
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main detectSpike function.
+#
+
+VERSION="2.1"
+VERSIONDATE="2012-04-28"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="AfMsUv#"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# This is the common in-line code for the warping steps. ###
+. ${thisDir}/auxiliary/commonCode_Detect_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+# Make the sandbox if possible.
+
+. ${thisDir}/auxiliary/make_sandbox
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# Ok, lets do the business.
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Now start building the automatic scripts.
+
+#
+# the following environmental variables are from spm8Batch_Global
+#
+#    HOSTCOMPUTER     - name of the computer.
+#    SCRIPTNAME       - name of the scripts to write.
+#    MATLABDIR        - location of the scripts.
+#    UMBatchMatcher   - present working directory.
+#    FULLSCRIPTNAME   - full path and name of scripts to write.
+# 
+
+. ${thisDir}/auxiliary/detectSpikePart_01
+
+# Name of the functional volumes to find.
+
+echo "UMVolumeWild  = '${volumeWILD}';"                   >> ${FULLSCRIPTNAME}.m
+
+# Now build the list of directories for each subject.
+
+. ${thisDir}/auxiliary/createDirectoryList
+
+echo "    4) finalizing matlab scripts"
+
+cat ${thisDir}/parts/detect_spike_part_2.m                   >> ${FULLSCRIPTNAME}.m ###
+
+echo "    5) building shell script"
+
+
+# Now build the shell script command that will get launched into the background.
+
+# Common start to all shell scripts
+. ${thisDir}/auxiliary/shellScriptStart
+
+# Add the matlab code to the shell script
+
+. ${thisDir}/auxiliary/shellScriptMATLABCall
+
+# Finalize the shell script.
+
+. ${thisDir}/auxiliary/shellScriptFinalize
+
+# Now launch into the background if desired.
+
+. ${thisDir}/auxiliary/shellScriptLaunch
+
+#
+# all done.
+#
