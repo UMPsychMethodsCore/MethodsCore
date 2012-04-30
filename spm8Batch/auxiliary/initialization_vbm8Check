@@ -1,0 +1,13 @@
+# Inialization.
+
+FSL_COMMENT_B="fsl check reging between best BET and original hi res from VBM8"
+
+BATCHCOMMAND=0
+
+# Hiresolution image
+HIRESNAME=ht1spgr
+HIRESEXT=
+
+#
+# all done
+#

@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for voxel size, aborting"
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      voxelSize=$1
 		  fi

@@ -1,0 +1,3 @@
+    echo "    -W                   Enable VBM8 warping for fMRI, you need to run vbm8HiRes first."
+    echo "                         Default is to use standard SPM8 normalization."
+    echo

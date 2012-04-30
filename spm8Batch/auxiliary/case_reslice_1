@@ -1,6 +1,0 @@
-	      #
-	      # reslice the geometry?
-	      #
-	      "r")
-		  resliceFLAG=1
-		  ;;

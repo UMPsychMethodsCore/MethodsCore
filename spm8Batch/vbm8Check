@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Pull up the ht1spgr and the best BET
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-13"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+#allowedOptions="abhMu"
+allowedOptions="aDdhM"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+    SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}
+    if [ ! -d "${SUBJECTANATOMY}" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	echo
+	echo
+	exit 0
+    fi
+    cd ${SUBJECTANATOMY}
+    IMG1=`ls ${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii 2> /dev/null`
+    IMG2=`ls ${SUBJECTANATOMY}/m${HIRESNAME}*.nii  2> /dev/null`
+    if [ -z "${IMG1}" ]
+    then
+	echo " ${SUBJECTANATOMY}: I can't find bet_m${HIRESNAME}*.nii"
+    else
+	if [ -z "${IMG2}" ]
+	then
+	    echo " ${SUBJECTANATOMY}: I can't find bet_m${HIRESNAME}*.nii"
+	else
+	    echo ${SUBJECTANATOMY}
+	    #fslview ${IMG2} -b 0,2000 & ${IMG1} -l Copper -t .7 -b 0,2000 
+	    fslview ${IMG2} -b 0,2000 ${IMG1} -l Copper -t .7 -b 0,2000 
+	fi
+    fi
+done
+

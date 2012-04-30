@@ -2,6 +2,15 @@
 # Parse the arguments
 #
 
+# permitted arguments
+# 
+# AabDdFfghiMmnOopPRrSsTtUuVvwZ#
+#
+#
+
+echo "Parsing commands:"
+echo
+
 while (( $argn < $args ))
 do
   #
@@ -9,6 +18,8 @@ do
   # this means you need to specify the subject
   # master directory first. ( SUBJDIR )
   #
+    debugout "Current param: $1" $SuperDebugFLAG
+
     if [ -d "./${SUBJDIR}/$1" ]
     then
 	let nSubjects++
@@ -32,8 +43,11 @@ do
 		echo 
 		echo "Option : $curParam : is not allowed for ${thisCommand}"
 		echo
-		exit 1
+	        . ${thisDir}/auxiliary/exit_w_removal
             fi
+	    
+	    debugout "Parsing command : ${curParam}" $SuperDebugFLAG
+	    
 	    case "${curParam:1:1}" in
 		
 
@@ -41,258 +55,272 @@ do
 	      #
 	      # All runs in func
 	      #
-	      "A")
-		  ALLRUNSFLAG=1
-		  ;;
+		"A")
+		    ALLRUNSFLAG=1
+		    ;;
 
               # case_anatomy_path 
  	      #
 	      # Path name to find virgin anatomy files.
 	      #
-	      "a")
-		  . ${thisDir}/auxiliary/setAnatomyPath
-		  ;;
+		"a")
+		    . ${thisDir}/auxiliary/setAnatomyPath
+		    ;;
 
               # case_bet_best_flag 
 	      #
 	      # look at the BET best flag
 	      #
-	      "b")
-		  . ${thisDir}/auxiliary/setBETFLAG
-		  ;;
-
+		"b")
+		    . ${thisDir}/auxiliary/setBETFLAG
+		    ;;
+		
               # case_super_debug_flag 
 	      #
 	      # super debug flag
 	      #
-	      "D")
-		  . ${thisDir}/auxiliary/setSuperDebugFlag
-		  ;;
+		"D")
+		    . ${thisDir}/auxiliary/setSuperDebugFlag
+		    ;;
 
               # case_debug_flag 
 	      #
 	      # debug flag
 	      #
-	      "d")
-		  . ${thisDir}/auxiliary/setDebugFlag
-		  ;;
+		"d")
+		    . ${thisDir}/auxiliary/setDebugFlag
+		    ;;
 
               # case_fmri_tr 
 	      #
 	      # Set the TR
 	      #
-	      "F")
-		  . ${thisDir}/auxiliary/setVolumeTR
-		  ;;                	         
+		"F")
+		    . ${thisDir}/auxiliary/setVolumeTR
+		    ;;                	         
 
               # case_functional_path 
  	      #
 	      # Path name to search for functional images.
 	      #
-	      "f")
-		  . ${thisDir}/auxiliary/setFunctionalPath
-		  ;;
-
+		"f")
+		    . ${thisDir}/auxiliary/setFunctionalPath
+		    ;;
+		
               # case_set_BET_gradient
               #
               # Set the gradient scale for bestBET
               #
-              "g")
-                  . ${thisDir}/auxiliary/setGradientValue
-                  ;;
+		"g")
+                    . ${thisDir}/auxiliary/setGradientValue
+                    ;;
               # case_hires_name 
  	      # 
 	      # SPGR (hiRES) name to use 
 	      #
-	      "h")
-		  . ${thisDir}/auxiliary/setHiResName
-		  ;;
+		"h")
+		    . ${thisDir}/auxiliary/setHiResName
+		    ;;
 
+              # case_set_referenceImage
+              #
+              # reference image for warpfMRI with vbm8
+              #
+		"I")
+                    . ${thisDir}/auxiliary/setReferenceImage
+                    ;;
               # case_set_run 
 	      # 
 	      # run list
 	      #
-	      "i")
-		  . ${thisDir}/auxiliary/setRunList
-		  ;;
-
+		"i")
+		    . ${thisDir}/auxiliary/setRunList
+		    ;;
+		
               # case_subject_dir 
 	      # 
 	      # subject directory name to use
 	      #
-	      "M")
-		  . ${thisDir}/auxiliary/setSubjectsMasterDir
-		  ;;
-
+		"M")
+		    . ${thisDir}/auxiliary/setSubjectsMasterDir
+		    ;;
+		
               # case_flirt_options 
 	      # 
 	      # find the flirt options
 	      #
-	      "m")
-		  . ${thisDir}/auxiliary/setMCFlirtOptions
-		  ;;
-
+		"m")
+		    . ${thisDir}/auxiliary/setMCFlirtOptions
+		    ;;
+		
               # case_output_name 
 	      #
 	      # Set the name to add.
 	      #
-	      "n")
-		  . ${thisDir}/auxiliary/setOutputName
-		  ;;
-
+		"n")
+		    . ${thisDir}/auxiliary/setOutputName
+		    ;;
+		
               # case_other_names 
 	      #
 	      # Simliar Other images
 	      # 
-	      "O")
-		  . ${thisDir}/auxiliary/setOtherNames
-		  ;;
+		"O")
+		    . ${thisDir}/auxiliary/setOtherNames
+		    ;;
 
               # case_overlay_name 
 	      # 
 	      # overlay name to use
 	      #
-	      "o")
-		  . ${thisDir}/auxiliary/setOverlayName
-		  ;;
-
+		"o")
+		    . ${thisDir}/auxiliary/setOverlayName
+		    ;;
+		
               # case_physfile_name
 	      # 
 	      # physio phys file table
 	      #
-	      "p")
-		  . ${thisDir}/auxiliary/setPhysioName
-		  ;;
+		"p")
+		    . ${thisDir}/auxiliary/setPhysioName
+		    ;;
 
               # case_physio_options
 	      # 
 	      # physio options
 	      #
-	      "P")
-		  . ${thisDir}/auxiliary/setPhysioOptions
-		  ;;
+		"P")
+		    . ${thisDir}/auxiliary/setPhysioOptions
+		    ;;
 
               # case_reslice_2 
 	      #
 	      # reslice the geometry only with no estimation?
 	      #
-	      "R")
-		  resliceFLAG=2
-		  ;;
+		"R")
+		    resliceFLAG=2
+		    ;;
 
               # case_reslice_1 
 	      #
 	      # reslice the geometry?
 	      #
-	      "r")
-		  resliceFLAG=1
-		  ;;
+		"r")
+		    resliceFLAG=1
+		    ;;
 
               # case_standard_volume 
 	      # 
 	      # find the standard volume number.
 	      #
-	      "S")
-		  . ${thisDir}/auxiliary/setStandardVolumeNumber
-		  ;;
+		"S")
+		    . ${thisDir}/auxiliary/setStandardVolumeNumber
+		    ;;
 
               # case_sub_path 
  	      #
 	      # sub-Path name to search for functional images.
 	      #
-	      "s")
-		  . ${thisDir}/auxiliary/setFunctionalSubPathName
-		  ;;
+		"s")
+		    . ${thisDir}/auxiliary/setFunctionalSubPathName
+		    ;;
 
               # case_template_name 
 	      #
 	      # Template Image.
 	      #
-	      "T")
-		  . ${thisDir}/auxiliary/setTemplateImageName
-		  ;;
+		"T")
+		    . ${thisDir}/auxiliary/setTemplateImageName
+		    ;;
 
               # case_test_flag 
 	      #
 	      # Test FLAG
 	      #
-	      "t")
-		  . ${thisDir}/auxiliary/setTestFlag
-		  ;;
+		"t")
+		    . ${thisDir}/auxiliary/setTestFlag
+		    ;;
 
               # case_user_email 
 	      # 
 	      # Where to send email when finished
 	      #
-	      "U")
-		  . ${thisDir}/auxiliary/setUserEmail
-		  ;;
+		"U")
+		    . ${thisDir}/auxiliary/setUserEmail
+		    ;;
 
               # case_set_bet
 	      # 
 	      # Pick up the best BET threshold
 	      #
-	      "u")
-		  . ${thisDir}/auxiliary/setBestBET
-		  ;;
+		"u")
+		    . ${thisDir}/auxiliary/setBestBET
+		    ;;
 
               # case_verify_flag
 	      # 
 	      # Set the verify flag
 	      #
-	      "V")
-		  . ${thisDir}/auxiliary/setVerifyFLAG
-		  ;;
+		"V")
+		    . ${thisDir}/auxiliary/setVerifyFLAG
+		    ;;
 
               # case_volume_name 
 	      # 
 	      # wildcard name to use for which to co-reg.
 	      #
-	      "v")
-		  . ${thisDir}/auxiliary/setVolumeWildCard
-		  ;;
+		"v")
+		    . ${thisDir}/auxiliary/setVolumeWildCard
+		    ;;
 
               # case_coreg_path 
  	      #
 	      # Path name to place coregistration results, our output of anatomy routines.
 	      #
-	      "w")
-		  . ${thisDir}/auxiliary/setCoRegPath
-		  ;;
+		"w")
+		    . ${thisDir}/auxiliary/setCoRegPath
+		    ;;
 
+              # case_warp_method
+              #
+              # Use VBM8 for warping
+              #
+		"W")
+                    . ${thisDir}/auxiliary/setWarpMethod
+                    ;;
               # case_voxel_size 
 	      #
 	      # Voxel size
 	      #
-	      "z")
-		  . ${thisDir}/auxiliary/setVoxelSize
-		  ;;
+		"z")
+		    . ${thisDir}/auxiliary/setVoxelSize
+		    ;;
 
               # case_run_number 
 	      #
 	      # run numbers
 	      # 
-	      "#")
-		  shift
-		  let argn++
-		  if (( $argn >= $args ))
-		      then
-		      echo "Missing parameter for run number, aborting"
-		      exit 0
-		  else
-		      runNAMES[$nRUN]=$1
-		      let nRUN++
-		  fi
-		  ;;
+		"#")
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing parameter for run number, aborting"
+			. ${thisDir}/auxiliary/exit_w_removal
+		    else
+			runNAMES[$nRUN]=$1
+			let nRUN++
+		    fi
+		    ;;
 
               # case_error 
 	      #
 	      # Anything should result in an error.
 	      #
-	      *)
-		  . ${thisDir}/auxiliary/caseError
-		  exit 1
-		
+		*)
+		    . ${thisDir}/auxiliary/caseError
+		    . ${thisDir}/auxiliary/exit_w_removal
+		    
 	    esac
 	else
             if [ "${thisCommand}" == "smoothfMRI" ]
@@ -307,14 +335,14 @@ do
 		    echo -e "\a"
 		    echo "Parameter number ${nParam} with a value of $1 is not a valid number"
 		    echo "Buggering out"
-		    exit 1
+	            . ${thisDir}/auxiliary/exit_w_removal
 		fi
 	    else
 	  #
 	  # It is not a directory and not an option, so it will be an error.
 	  #
 		. ${thisDir}/auxiliary/unrecognizedArgument
-		exit 1
+	        . ${thisDir}/auxiliary/exit_w_removal
 	    fi
 	fi
     fi

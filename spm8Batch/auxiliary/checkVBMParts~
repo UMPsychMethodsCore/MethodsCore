@@ -1,0 +1,14 @@
+# validate that we have what we need.
+
+for CRITICALMATLAB in warp_part_1.m warp_fMRI_part_2.m warp_HIRES_part_2.m
+do
+    if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
+    then
+	echo
+        echo "Validate that you have 'warp_part_1.m' and 'warp_part_2.m' "
+ 	echo "Missing a critical component '${CRITICALMATLAB}'"
+	echo     
+	exit 0
+    fi
+done
+
