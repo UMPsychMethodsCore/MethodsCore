@@ -33,12 +33,16 @@ for iSub = 1:length(UMBatchSubjs)
     if isempty(index)
         OutputFile = fullfile( UMImgDIRS{iSub}{iRun},[UMBatchSubjs{iSub} '_ds.txt'] );
     else
+        %
+        % Find out what run it is and put in in OutputFile name
+        %
         temp   = UMImgDIRS{iSub}{iRun};
-        index2 = strfind(temp(index(1):end),filesep);
+        temp   = temp(index(1):end);
+        index2 = strfind(temp,filesep);
         if isempty(index2)
-            RunStr = temp( index(1):end );
+            RunStr = strtrim(temp);
         else
-            RunStr = temp( index(1):index2(1)-1 );
+            RunStr = temp( 1:index2(1)-1 );
         end
         OutputFile = fullfile( UMImgDIRS{iSub}{iRun},[UMBatchSubjs{iSub} '_' RunStr '_ds.txt'] );
     end
