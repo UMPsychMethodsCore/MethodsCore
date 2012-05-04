@@ -128,7 +128,7 @@ for iL=1:30
     train=superflatmat_paired(indices,:);
     trainlabels=repmat([1; -1],size(train,1)/2,1);
     
-    prune=ttest(train(1:2:end,:),0,.01);
+    prune=ttest(train(1:2:end,:),0,.001);
     prune(isnan(prune))=0;
     pruneLOO(iL,:)=prune;
     
