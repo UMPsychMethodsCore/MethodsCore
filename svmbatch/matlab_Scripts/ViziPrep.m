@@ -5,9 +5,6 @@ NodeImplication=zeros(1139,1139);
 
 NodeImplication(logical(cleanconMat))=pruneIntersect;
 
-size(NodeImplication(~logical(cleanconMat)))
-
-size(cleanconMat)
 
 %% Build index matrix
 
@@ -47,7 +44,7 @@ goodROIs=ROIlist(logical(ROIs)',:);
 
 dlmwrite('nodes.node',ROIlist,'\t')
 dlmwrite('edges.edge',pruneIntersect_square,'\t')
-
+cell2mat
 
 
 %% Invert the flattening
