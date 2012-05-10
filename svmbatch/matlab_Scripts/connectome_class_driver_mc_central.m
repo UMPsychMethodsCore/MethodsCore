@@ -91,7 +91,7 @@ if pairedSVM==1
         LOOCV_pruning(iL,pruneID) = 1;
         
 %         prune=ttest(train(1:2:end,:),0,.00001);
-        %% Add tau-b support here
+        % Add tau-b support here
 %         prune(isnan(prune))=0;
 %         pruneLOO(iL,:)=prune;
 
@@ -101,7 +101,10 @@ if pairedSVM==1
         models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
 
         models_test(iL)=svmclassify(test,[1 ; -1],models_train{iL});
-
+        
+        fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+            iL-sum(models_test),...
+            iL);
 
     end
      fprintf(1,'\nLOOCV Done\n\n');
