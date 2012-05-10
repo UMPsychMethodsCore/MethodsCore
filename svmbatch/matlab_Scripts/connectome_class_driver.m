@@ -36,7 +36,9 @@ pairedSVM=1;
 ConnTemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_corr.mat';
 % ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
 
-OutputTemplate = '[Exp]/SVM/Connectivity/12mmGrid_19/Train.dat';
+ROITemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_parameters.mat';
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,9 +146,6 @@ addpath(genpath(fullfile(mcRoot,'svmbatch')))
 conPathTemplate.Template = ConnTemplate;
 conPathTemplate.mode='check';
 
-outPathTemplate.Template=OutputTemplate;
-outPathTemplate.mode='makeparentdir';
-outPath=mc_GenPath(outPathTemplate);
 
 %% Loop 1 to figure out valid connection points
 
@@ -185,7 +184,7 @@ for iSub=1:size(SubjDir,1)
 
 end
 
-%% Organize your paired data
+%% Organize your paired data, and deal with pruning and stuff
 
 if pairedSVM==1
 
@@ -199,6 +198,10 @@ if pairedSVM==1
 
     models_train={};
     models_test=[];
+    
+    
+    LOOCV_fractions=zeros(size(superflatmat,1)/2,size(superflatmat,2));
+    LOOCV_pruning=zeros(size(superflatmat,1)/2,size(superflatmat,2));
     
     for iL=1:(size(superflatmat,1)/2)
         fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat,1)/2)
@@ -218,8 +221,17 @@ if pairedSVM==1
         
         fractions=max(  [sum(train(1:2:end,:)>0,1)/size(train(1:2:end,:),1) ;sum(train(1:2:end,:)<0,1)/size(train(1:2:end,:),1)]  );
         
+        LOOCV_fractions(iL,:) = fractions;
+        
+        
+        
+        LOOCV_fractions(iL,:) = fractions;
+        
         [d pruneID] = sort(fractions);
+               
         pruneID=pruneID((end-(nFeatPrune-1)):end);
+        
+        LOOCV_pruning(iL,pruneID) = 1;
         
 %         prune=ttest(train(1:2:end,:),0,.00001);
         %% Add tau-b support here
@@ -245,10 +257,43 @@ fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',..
     size(models_test,2),...
     100*(size(models_test,2)-sum(models_test))/size(models_test,2));
 
-%% Identification of Consensus Connectome
 
 
-pruneIntersect=all(pruneLOO,1);
+%% Visualization Write-out
 
+%% Load ROIs file from representative subject
 
-    
+roiPathTemplate.Template = ROITemplate;
+roiPathTemplate.mode='check';
+
+roiPath=mc_GenPath(roiPathTemplate);
+roimat=load(roiPath);
+roiMNI=roimat.parameters.rois.mni.coordinates;
+nROI=size(roiMNI,1);
+
+%% Calc Discriminative Power of Edges
+
+LOOCV_consensus=all(LOOCV_pruning,1);
+LOOCV_discrimpower=mean(LOOCV_fractions);
+
+%% Reconstruct Discrim Power into Edges File
+
+NodeImplication=zeros(nROI);
+
+% features=1:size(pruneIntersect,2);
+
+NodeImplication(:)=1:(nROI^2);
+
+NodeImplication_flat=connectivity_grid_flatten(NodeImplication,ones(nROI));
+
+% NodeImplication_flat_sparse=NodeImplication_flat(NodeImplication_flat~=0);
+
+pruneIntersect_square=zeros(nROI);
+
+pruneIntersect_square(NodeImplication_flat)=LOOCV_discrimpower;
+
+ROIs=sum(pruneIntersect_square);
+
+ROIs(ROIs~=0)=1;
+
+dlmwrite('edges.edge',pruneIntersect_square,'\t')

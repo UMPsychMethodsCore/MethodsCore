@@ -57,4 +57,3 @@ size(roimat(logical(cleanconMat_flat)))
 
 roimat(find(cleanconMat_flat)
 
-%% A different
