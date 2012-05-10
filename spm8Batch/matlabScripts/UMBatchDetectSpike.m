@@ -65,7 +65,9 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
     % Common header first
     fprintf(fid,'%s\n\n',ImagePath);
     fprintf(fid,'Slices:%d\n',nSlice);
-    fprintf(fid,'nTime :%d\n\n',nTime);
+    fprintf(fid,'nTime :%d\n',nTime);
+    fprintf(fid,'Thres :%d\n',Thres);
+    fprintf(fid,'detOpt:%d\n\n',detOpt);
     
     % Write detected spikes now
     [Slice Timepoint] = find(results > Thres);
