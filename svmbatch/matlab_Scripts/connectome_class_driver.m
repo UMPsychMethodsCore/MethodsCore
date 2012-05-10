@@ -273,27 +273,44 @@ nROI=size(roiMNI,1);
 
 %% Calc Discriminative Power of Edges
 
+%ID the consensus implicated edges
 LOOCV_consensus=all(LOOCV_pruning,1);
+
+%Calc Mean discriminative power for all features
 LOOCV_discrimpower=mean(LOOCV_fractions);
 
-%% Reconstruct Discrim Power into Edges File
+%Zero out mean discriminative power for all features not in consensus set
+LOOCV_discrimpower_consensus=LOOCV_discrimpower;
+LOOCV_discrimpower_consensus(~logical(LOOCV_consensus))=0;
 
-NodeImplication=zeros(nROI);
+%% Reconstruct Consensus Discrim Power into Edges File
 
-% features=1:size(pruneIntersect,2);
+% Identify linear indices of elements that survive flattening
+connectomeIDx=zeros(nROI);
+connectomeIDx(:)=1:(nROI^2);
+connectomeIDx_flat = connectivity_grid_flatten(connectomeIDx,ones(nROI));
 
-NodeImplication(:)=1:(nROI^2);
+% Build square matrix, and use linear indices above to insert discrim power
+LOOCV_discrimpower_consensus_square = zeros(nROI);
+LOOCV_discrimpower_consensus_square(connectomeIDx_flat) = LOOCV_discrimpower_consensus;
+LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
+LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
 
-NodeImplication_flat=connectivity_grid_flatten(NodeImplication,ones(nROI));
+% Write out the edge file
+dlmwrite('edges.edge',LOOCV_discrimpower_consensus_square,'\t');
 
-% NodeImplication_flat_sparse=NodeImplication_flat(NodeImplication_flat~=0);
+%% Build the ROI list
 
-pruneIntersect_square=zeros(nROI);
+% Add color labels for roiMNI object. For now, just set to 1 until we have
+% a network atlas
+roiMNI(:,4) = 1 ;
 
-pruneIntersect_square(NodeImplication_flat)=LOOCV_discrimpower;
+% Count how many times ROIs are touched by an edge, append to roiMNI object
+roi_RegionWeights=sum(LOOCV_discrimpower_consensus_square_binarized);
+roiMNI(:,5)=roi_RegionWeights;
 
-ROIs=sum(pruneIntersect_square);
+% Write out nodes file
+dlmwrite('nodes.node',roiMNI,'\t');
 
-ROIs(ROIs~=0)=1;
-
-dlmwrite('edges.edge',pruneIntersect_square,'\t')
+% Apend tab and - to indicate no label, for now...
+! sed -i 's/$/\t-/' nodes.node
