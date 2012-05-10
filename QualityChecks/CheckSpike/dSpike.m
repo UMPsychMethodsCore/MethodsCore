@@ -87,9 +87,8 @@ end
 AAZ  = zeros(nSlice,nTime);
 % Average the Z-scores across slices and time
 for t=1:nTime
-    for z=1:nSlice
-        AAZ(z,t) = sum(sum(inputData(:,:,z,t)))/(xDim*yDim);
-    end
+    temp = sum(sum(inputData(:,:,:,t)))./(xDim*yDim);
+    AAZ(:,t) = temp(:);
 end    
 
 AJKZ    = zeros(nSlice,nTime);
