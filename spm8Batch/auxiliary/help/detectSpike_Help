@@ -11,11 +11,6 @@
     echo 
     echo "     detectSpike -f func/MSIT 050126zz"
     echo
-    echo 
-    echo "*NOTE: This code will actually hunt out rapruns's (or those specified in the -v flag)"
-    echo "       The code does not actually care where the files live. However you can narrow"
-    echo "       the search by supplying the '-s subdir' option which will then require that"
-    echo "       'subdir' is a string contained in the list of directories returned for warping."
     echo
     echo " Current command default configuration is:"
     echo 
