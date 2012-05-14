@@ -1,5 +1,5 @@
-function xY = mc_VOI_Extract(path,contrast,threshold,extent,name,session,def,spec,xyz,adjust)
-% usage: xY = mc_VOI_Extract(path, contrast, threshold, extent, name, session, def, spec, xyz, adjust#);
+function [Y xY] = mc_VOI_Extract(path,contrast,threshold,extent,name,session,def,spec,xyz,adjust)
+% usage: [Y xY] = mc_VOI_Extract(path, contrast, threshold, extent, name, session, def, spec, xyz, adjust#);
 % path = path to SPM.mat file
 % contrast = contrast number to extract from
 % threshold = p threshold to use for contrast
@@ -9,7 +9,24 @@ function xY = mc_VOI_Extract(path,contrast,threshold,extent,name,session,def,spe
 % def = type of ROI to extract: 'sphere','image'
 % spec = for 'sphere' the radius of the sphere, for 'image' the path to the ROI
 % xyz = the center of the sphere, or [] for image
-% adjust# = contrast number of F contrast to use for adjustment, 0 for no adjustment
+% adjust# = contrast number of F contrast to use for adjustment, 0
+% for no adjustment
+% Output:
+%        Y  - first eigenvariate of data in VOI
+%        xY - structure containing VOI informationl (fully
+%        described in help for spm_regions.m but summarized here)
+%              .xyz   - center for VOI
+%              .name  - name of VOI
+%              .Ic    - contrast used to adjust data
+%              .Sess  - which run the data is from
+%              .def   - VOI type
+%              .spec  - VOI parameters
+%              .XYZmm - coordinates of each voxel in VOI
+%              .y     - filtered voxel-wise data
+%              .u     - first eigenvariate (should match Y above)
+%              .v     - first eigenimage
+%              .s     - eigenvalues
+%              .X0    - confounds
 
 xY = [];
 
