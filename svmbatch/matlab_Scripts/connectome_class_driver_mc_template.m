@@ -139,3 +139,6 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
+
+% Run the central script
+connectome_class_driver_mc_central ;
