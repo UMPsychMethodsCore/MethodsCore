@@ -65,7 +65,7 @@ if pairedSVM==1
     for iL=1:(size(superflatmat,1)/2)
         fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat,1)/2)
         
-        subjects=[1:(iL-1) (iL+1):30];
+        subjects=[1:(iL-1) (iL+1):(size(superflatmat,1)/2)];
         indices=sort([subjects*2 subjects*2-1]);
 
 
