@@ -82,10 +82,6 @@ if pairedSVM==1
         
         LOOCV_fractions(iL,:) = fractions;
         
-        
-        
-        LOOCV_fractions(iL,:) = fractions;
-        
         [d pruneID] = sort(fractions);
                
         pruneID=pruneID((end-(nFeatPrune-1)):end);
