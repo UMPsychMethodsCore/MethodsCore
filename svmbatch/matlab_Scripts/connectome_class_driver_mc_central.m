@@ -5,7 +5,7 @@ conPathTemplate.mode='check';
 
 
 %% Loop 1 to figure out valid connection points
-
+fprintf('\nLooping over all files to identify those with valid values....');
 nSubs=size(SubjDir,1);
 
 for iSub=1:size(SubjDir,1)
@@ -21,8 +21,10 @@ for iSub=1:size(SubjDir,1)
     cleanconMat(isnan(rmat) | isinf(rmat) | rmat==0) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
 end
 
-%% Loop 2 to write out flattened results
+fprintf('Done\n');
 
+%% Loop 2 to write out flattened results
+fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
 
 superlabel=zeros(nSubs,1);
 
@@ -40,9 +42,9 @@ for iSub=1:size(SubjDir,1)
     superlabel(iSub,1)=Example;
 
 end
-
+fprintf('Done\n');
 %% Organize your paired data, and deal with pruning and stuff
-
+fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
 if pairedSVM==1
 
     superflatmat_p1=superflatmat(1:2:end,:)-superflatmat(2:2:end,:);
