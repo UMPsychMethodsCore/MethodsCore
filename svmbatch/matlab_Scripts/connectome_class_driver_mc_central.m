@@ -112,6 +112,77 @@ if pairedSVM==1
      fprintf(1,'\nLOOCV Done\n\n');
 end
 
+%% NonPaired SVM
+fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
+if pairedSVM==0
+
+
+
+    pruneLOO=zeros(size(superflatmat));
+
+    models_train={};
+    models_test=[];
+    
+    labels=cell2mat(SubjDir{:,2});
+    
+    LOOCV_fractions=zeros(size(superflatmat));
+    LOOCV_pruning=zeros(size(superflatmat));
+    
+    for iL=1:(size(superflatmat,1))
+        fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat,1))
+        
+        subjects=[1:(iL-1) (iL+1):size(superflatmat,1)];
+        indices=subjects;
+
+
+
+        train=superflatmat(indices,:);
+        trainlabels=labels(indices,:);
+
+        % Identify the fraction of features that are greater than zero, or
+        % less than zero (whichever is larger). This indicates a consistent
+        % signed direction. Do it just for one pair, since the second pair
+        % is the first * -1
+        
+        [h,p] = ttest2(superflatmat(trainlabels==+1,:),superflatmat(trainlabels==-1,:));
+        
+        % To keep the direction of discriminative power consistent, take
+        % complement to your p-values
+        
+        p=1-p;
+        
+        
+        LOOCV_fractions(iL,:) = p;
+        
+        
+        
+        
+        [d pruneID] = sort(fractions);
+               
+        pruneID=pruneID((end-(nFeatPrune-1)):end);
+        
+        LOOCV_pruning(iL,pruneID) = 1;
+        
+%         prune=ttest(train(1:2:end,:),0,.00001);
+        % Add tau-b support here
+%         prune(isnan(prune))=0;
+%         pruneLOO(iL,:)=prune;
+
+        train=train(:,pruneID);
+        test=superflatmat(iL,pruneID);
+
+        models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
+
+        models_test(iL)=svmclassify(test,labels(iL),models_train{iL});
+        
+        fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+            iL-sum(models_test),...
+            iL);
+
+    end
+     fprintf(1,'\nLOOCV Done\n\n');
+end
+
 %% Report performance
 
 fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
