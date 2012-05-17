@@ -44,9 +44,9 @@ for iSub=1:size(SubjDir,1)
 end
 fprintf('Done\n');
 %% Organize your paired data, and deal with pruning and stuff
-fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
-if pairedSVM==1
 
+if pairedSVM==1
+fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
     superflatmat_p1=superflatmat(1:2:end,:)-superflatmat(2:2:end,:);
     superflatmat_p2=superflatmat(2:2:end,:)-superflatmat(1:2:end,:);
 
@@ -109,9 +109,9 @@ if pairedSVM==1
 end
 
 %% NonPaired SVM
-fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
-if pairedSVM==0
 
+if pairedSVM==0
+fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
 
 
     pruneLOO=zeros(size(superflatmat));
