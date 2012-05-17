@@ -119,7 +119,7 @@ if pairedSVM==0
     models_train={};
     models_test=[];
     
-    labels=cell2mat(SubjDir{:,2});
+    labels=cell2mat(SubjDir(:,2));
     
     LOOCV_fractions=zeros(size(superflatmat));
     LOOCV_pruning=zeros(size(superflatmat));
@@ -151,8 +151,9 @@ if pairedSVM==0
         
         p=1-p;
         
+        fractions=p;
         
-        LOOCV_fractions(iL,:) = p;
+        LOOCV_fractions(iL,:) = fractions;
         
         
         
