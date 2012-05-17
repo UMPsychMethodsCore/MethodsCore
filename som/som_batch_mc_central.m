@@ -39,7 +39,6 @@ if (RunMode(1) | sum(RunMode) == 0)
 
     MaskBrain = 1;
 
-
     RegressGlobal = any(strfind(upper(RegressOrder),'G'));
     RegressWhite = any(strfind(upper(RegressOrder),'W'));
     RegressCSF = any(strfind(upper(RegressOrder),'C'));
@@ -47,15 +46,17 @@ if (RunMode(1) | sum(RunMode) == 0)
     RegressMotion = any(strfind(upper(RegressOrder),'M'));
     DoLinearDetrend = any(strfind(upper(RegressOrder),'D'));
 
-    parameters.RegressFLAGS.prinComp = PrincipalComponents;
-    parameters.RegressFLAGS.global = RegressGlobal;
-    parameters.RegressFLAGS.csf = RegressCSF;
-    parameters.RegressFLAGS.white = RegressWhite;
-    parameters.RegressFLAGS.motion = RegressMotion;
-    parameters.RegressFLAGS.order = RegressOrder;
-
-
     for iSubject = 1:size(SubjDir,1)
+        clear parameters;
+        clear global SOM;
+        
+        parameters.RegressFLAGS.prinComp = PrincipalComponents;
+        parameters.RegressFLAGS.global = RegressGlobal;
+        parameters.RegressFLAGS.csf = RegressCSF;
+        parameters.RegressFLAGS.white = RegressWhite;
+        parameters.RegressFLAGS.motion = RegressMotion;
+        parameters.RegressFLAGS.order = RegressOrder;  
+    
         Subject=SubjDir{iSubject,1};
         RunList=SubjDir{iSubject,3};
 
