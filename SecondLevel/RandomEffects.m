@@ -1081,8 +1081,9 @@ function [des con des2] = fblock(model,columns)
 function images = get_images(p,i)
     global options;
     for n=1:size(p,1)
+        subject = strtrim( p(n,:) );
         imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),options.other.InputImgExt);
-        imageCheck.Template = fullfile(options.other.MainDir,p(n,:),options.other.ModelDir,imageName);
+        imageCheck.Template = fullfile(options.other.MainDir,subject,options.other.ModelDir,imageName);
         imageCheck.mode = 'check';
         image = mc_GenPath(imageCheck);
         images{n} = strcat(image,',1');
@@ -1240,6 +1241,11 @@ function TheTokens = ImColTokenizer(input,type)
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NumDes = struct('ImNum',[],'ImDes','');
 input  = strtrim(input);
+
+if isempty(type)
+    TheTokens = NumDes;
+    return;
+end
 
 switch type
     case {1, 2, 4, 5}
