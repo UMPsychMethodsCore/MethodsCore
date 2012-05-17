@@ -44,6 +44,13 @@ ROITemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_parame
 %%% pruning?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nFeatPrune = 100;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Would you like the program to also write out node and edge files for
+%%% visualization with BrainNet Viewer? If so, set Vizi to 1.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Vizi = 1;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
