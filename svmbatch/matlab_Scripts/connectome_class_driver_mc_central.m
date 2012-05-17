@@ -194,57 +194,58 @@ fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',..
 
 
 %% Visualization Write-out
+if Vizi==1
+    %% Load ROIs file from representative subject
 
-%% Load ROIs file from representative subject
+    roiPathTemplate.Template = ROITemplate;
+    roiPathTemplate.mode='check';
 
-roiPathTemplate.Template = ROITemplate;
-roiPathTemplate.mode='check';
+    roiPath=mc_GenPath(roiPathTemplate);
+    roimat=load(roiPath);
+    roiMNI=roimat.parameters.rois.mni.coordinates;
+    nROI=size(roiMNI,1);
 
-roiPath=mc_GenPath(roiPathTemplate);
-roimat=load(roiPath);
-roiMNI=roimat.parameters.rois.mni.coordinates;
-nROI=size(roiMNI,1);
+    %% Calc Discriminative Power of Edges
 
-%% Calc Discriminative Power of Edges
+    %ID the consensus implicated edges
+    LOOCV_consensus=all(LOOCV_pruning,1);
 
-%ID the consensus implicated edges
-LOOCV_consensus=all(LOOCV_pruning,1);
+    %Calc Mean discriminative power for all features
+    LOOCV_discrimpower=mean(LOOCV_fractions);
 
-%Calc Mean discriminative power for all features
-LOOCV_discrimpower=mean(LOOCV_fractions);
+    %Zero out mean discriminative power for all features not in consensus set
+    LOOCV_discrimpower_consensus=LOOCV_discrimpower;
+    LOOCV_discrimpower_consensus(~logical(LOOCV_consensus))=0;
 
-%Zero out mean discriminative power for all features not in consensus set
-LOOCV_discrimpower_consensus=LOOCV_discrimpower;
-LOOCV_discrimpower_consensus(~logical(LOOCV_consensus))=0;
+    %% Reconstruct Consensus Discrim Power into Edges File
 
-%% Reconstruct Consensus Discrim Power into Edges File
+    % Identify linear indices of elements that survive flattening
+    connectomeIDx=zeros(nROI);
+    connectomeIDx(:)=1:(nROI^2);
+    connectomeIDx_flat = connectivity_grid_flatten(connectomeIDx,ones(nROI));
 
-% Identify linear indices of elements that survive flattening
-connectomeIDx=zeros(nROI);
-connectomeIDx(:)=1:(nROI^2);
-connectomeIDx_flat = connectivity_grid_flatten(connectomeIDx,ones(nROI));
+    % Build square matrix, and use linear indices above to insert discrim power
+    LOOCV_discrimpower_consensus_square = zeros(nROI);
+    LOOCV_discrimpower_consensus_square(connectomeIDx_flat) = LOOCV_discrimpower_consensus;
+    LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
+    LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
 
-% Build square matrix, and use linear indices above to insert discrim power
-LOOCV_discrimpower_consensus_square = zeros(nROI);
-LOOCV_discrimpower_consensus_square(connectomeIDx_flat) = LOOCV_discrimpower_consensus;
-LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
-LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
+    % Write out the edge file
+    dlmwrite('edges.edge',LOOCV_discrimpower_consensus_square,'\t');
 
-% Write out the edge file
-dlmwrite('edges.edge',LOOCV_discrimpower_consensus_square,'\t');
+    %% Build the ROI list
 
-%% Build the ROI list
+    % Add color labels for roiMNI object. For now, just set to 1 until we have
+    % a network atlas
+    roiMNI(:,4) = 1 ;
 
-% Add color labels for roiMNI object. For now, just set to 1 until we have
-% a network atlas
-roiMNI(:,4) = 1 ;
+    % Count how many times ROIs are touched by an edge, append to roiMNI object
+    roi_RegionWeights=sum(LOOCV_discrimpower_consensus_square_binarized);
+    roiMNI(:,5)=roi_RegionWeights;
 
-% Count how many times ROIs are touched by an edge, append to roiMNI object
-roi_RegionWeights=sum(LOOCV_discrimpower_consensus_square_binarized);
-roiMNI(:,5)=roi_RegionWeights;
+    % Write out nodes file
+    dlmwrite('nodes.node',roiMNI,'\t');
 
-% Write out nodes file
-dlmwrite('nodes.node',roiMNI,'\t');
-
-% Apend tab and - to indicate no label, for now...
-! sed -i 's/$/\t-/' nodes.node
+    % Apend tab and - to indicate no label, for now...
+    ! sed -i 's/$/\t-/' nodes.node
+end
