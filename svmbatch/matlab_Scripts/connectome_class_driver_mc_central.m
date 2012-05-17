@@ -140,7 +140,11 @@ if pairedSVM==0
         % signed direction. Do it just for one pair, since the second pair
         % is the first * -1
         
-        [h,p] = ttest2(superflatmat(trainlabels==+1,:),superflatmat(trainlabels==-1,:));
+        [h,p] = ttest2(train(trainlabels==+1,:),train(trainlabels==-1,:));
+        
+        % Clean out NaNs by setting to 1 (no significance)
+        p(isnan(p))=1;
+        
         
         % To keep the direction of discriminative power consistent, take
         % complement to your p-values
