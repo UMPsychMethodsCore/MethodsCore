@@ -194,7 +194,7 @@ fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',..
 
 
 %% Visualization Write-out
-if Vizi==1
+if (exist('Vizi') &&  Vizi==1)
     %% Load ROIs file from representative subject
 
     roiPathTemplate.Template = ROITemplate;
