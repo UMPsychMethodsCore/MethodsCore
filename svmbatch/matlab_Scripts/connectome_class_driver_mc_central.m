@@ -240,7 +240,7 @@ if (exist('Vizi') &&  Vizi==1)
     roiMNI(:,4) = 1 ;
 
     % Count how many times ROIs are touched by an edge, append to roiMNI object
-    roi_RegionWeights=sum(LOOCV_discrimpower_consensus_square_binarized);
+    roi_RegionWeights=sum([sum(LOOCV_discrimpower_consensus_square_binarized,1) ; sum(LOOCV_discrimpower_consensus_square_binarized,2)']) ;
     roiMNI(:,5)=roi_RegionWeights;
 
     % Write out nodes file
