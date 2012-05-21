@@ -135,40 +135,60 @@ fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
         train=superflatmat(indices,:);
         trainlabels=labels(indices,:);
 
-        % Identify the fraction of features that are greater than zero, or
-        % less than zero (whichever is larger). This indicates a consistent
-        % signed direction. Do it just for one pair, since the second pair
-        % is the first * -1
-        
-        [h,p] = ttest2(train(trainlabels==+1,:),train(trainlabels==-1,:));
-        
-        % Clean out NaNs by setting to 1 (no significance)
-        p(isnan(p))=1;
-        
-        
-        % To keep the direction of discriminative power consistent, take
-        % complement to your p-values
-        
-        p=1-p;
-        
-        fractions=p;
-        
-        LOOCV_fractions(iL,:) = fractions;
-        
-        
-        
-        
-        [d pruneID] = sort(fractions);
+        switch pruneMethod  % Do different types of pruning based on user-specified option
+            case 'ttest'% In ttest mode, do a 2-sample (groupwise) t-test on all features
+                
+                [h,p] = ttest2(train(trainlabels==+1,:),train(trainlabels==-1,:));
+
+                % Clean out NaNs by setting to 1 (no significance)
+                p(isnan(p))=1;
+
+
+                % To keep the direction of discriminative power consistent,
+                % (i.e larger values indicate MORE discriminant power),
+                % take complement of p-values so small values (more
+                % significant) become large (more discriminant)
+                p=1-p;
+
+                % Store this in variable fractions to keep with old
+                % conventions
+                fractions=p;
+
+                % Store this LOO fold's feature-wise discriminant power
+                LOOCV_fractions(iL,:) = fractions;
+
+                % Return pruneID as the sort indices of the discriminative
+                % power, from least to greatest
+                [d pruneID] = sort(fractions);
+                
+            case 'tau-b'
+                tic
+                % Initialize the fractions object which will store the
+                % tau-b's
+                fractions=zeros(1,size(train,2));
+                
+                % Loop over features
+                for iFeat=1:size(train,2)
+                    
+                    if any(diff(train(:,iFeat))) % Check to be sure that all elements aren't the same
+                        fractions(iFeat)=ktaub([trainlabels(:,1) train(:,iFeat)],.05,0);
+                        
+                    end
+                end
+                fractions = abs(fractions);
+                [d pruneID] = sort(fractions);
+                toc
+                
+        end
                
+        % Grab the final nFeatPrune elements of pruneID (these are the
+        % greatest)
         pruneID=pruneID((end-(nFeatPrune-1)):end);
         
+        % Record a logical mapping of those indices
         LOOCV_pruning(iL,pruneID) = 1;
         
-%         prune=ttest(train(1:2:end,:),0,.00001);
-        % Add tau-b support here
-%         prune(isnan(prune))=0;
-%         pruneLOO(iL,:)=prune;
-
+        % Restrict the training and test sets to only include the non-pruned features
         train=train(:,pruneID);
         test=superflatmat(iL,pruneID);
 

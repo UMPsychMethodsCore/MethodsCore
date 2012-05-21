@@ -18,6 +18,15 @@ Exp = '/net/data4/MAS/';
 
 pairedSVM=1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Pruning Method. For non-paired SVM, how would you like the select the
+%%% most discriminant features. Presently supported options are...
+%%%     'ttest'     -   two-sample t-test
+%%%     'taub'      -   Kendall's tau-b coefficient of correlation with labels
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+pruneMethod = 'ttest';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Path where your images are located
 %
