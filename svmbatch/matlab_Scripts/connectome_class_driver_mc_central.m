@@ -214,6 +214,28 @@ fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',..
     100*(size(models_test,2)-sum(models_test))/size(models_test,2));
 
 
+%% Save results to file
+
+SVM_ConnectomeResults.models_train = models_train;
+SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
+SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
+SVM_ConnectomeResults.models_test = models_test;
+
+OutputPathTemplate.Template= OutputTemplate ;
+OutputPathTemplate.mode = 'makeparentdir' ;
+OutputPathTemplate.suffix = 'SVMresults.mat';
+
+OutputMatPath = mc_GenPath(OutputPathTemplate);
+
+save(OutputMatPath);
+
+OutputPathTemplate.suffix = 'nodes.node';
+
+OutputNodePath = mc_GenPath(OutputPathTemplate);
+
+OutputPathTemplate.suffix = 'edges.edge';
+
+OutputEdgePath = mc_GenPath(OutputPathTemplate);
 
 %% Visualization Write-out
 if (exist('Vizi') &&  Vizi==1)
@@ -253,7 +275,7 @@ if (exist('Vizi') &&  Vizi==1)
     LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
 
     % Write out the edge file
-    dlmwrite('edges.edge',LOOCV_discrimpower_consensus_square,'\t');
+    dlmwrite(OutputEdgePath,LOOCV_discrimpower_consensus_square,'\t');
 
     %% Build the ROI list
 
@@ -266,7 +288,7 @@ if (exist('Vizi') &&  Vizi==1)
     roiMNI(:,5)=roi_RegionWeights;
 
     % Write out nodes file
-    dlmwrite('nodes.node',roiMNI,'\t');
+    dlmwrite(OutputNodePath,roiMNI,'\t');
 
     % Apend tab and - to indicate no label, for now...
     ! sed -i 's/$/\t-/' nodes.node

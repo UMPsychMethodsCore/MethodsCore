@@ -48,6 +48,12 @@ ConnTemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_corr.
 ROITemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_parameters.mat';
 
 
+% OututTemplate should point to a directory where results will be stored.
+% For now these include a SVMResults object which will contain many of the
+% intermediates
+
+OutputTemplate = '[Exp]/SVM/Connectome/StudyName/' ;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% How many features of each LOOCV iteration should be retained after
 %%% pruning?
