@@ -264,6 +264,8 @@ if strcmpi(svmtype,'paired')
     for iContrast=1:size(ContrastVec,1);
 
         % Create the difference map
+        
+        fprintf('Beginning LOOCV work on contrast #%.0f\n', iContrast);
 
         curContrast = ContrastVec(iContrast,:);
 
@@ -319,9 +321,9 @@ if strcmpi(svmtype,'paired')
 
             models_test{iL,iContrast}=svmclassify(test,[1 ; -1],models_train{iL,iContrast});
 
-%             fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
-%                 iL-sum(models_test),...
-%                 iL);
+            fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+                iL-sum(cell2mat(models_test(:,iContrast))),...
+                iL);
 
 
 
