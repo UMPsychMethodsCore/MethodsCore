@@ -12,11 +12,10 @@
 Exp = '/net/data4/DEA_Resting/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Paired mode. Set this to 1 if your data is organized in sequential
-%%% pairs
+%%% SVM mode. Can be either paired or unpaired
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pairedSVM=1;
+svmtype='paired';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Pruning Method. For non-paired SVM, how would you like the select the
@@ -80,7 +79,7 @@ RunDir= {
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% How would you like to do subtraction and recombine your results?
+%%%% For paired SVM, how would you like to do subtraction and recombine your results?
 %%%% Specify a series of "contrast" vectors which will be numerically
 %%%% indexed. This only matters for paired SVM approaches
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,4 +138,4 @@ addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
 
 % Run the central script
-% connectome_class_driver_mc_central ;
+connectome_class_driver_mc_central ;
