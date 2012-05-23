@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS/';
+Exp = '/net/data4/DEA_Resting/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Paired mode. Set this to 1 if your data is organized in sequential
@@ -42,10 +42,10 @@ pruneMethod = 'ttest';
 % ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ConnTemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_corr.mat';
+ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
 % ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
 
-ROITemplate = '[Exp]/FirstLevel/[Subject]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_parameters.mat';
+ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_parameters.mat';
 
 
 % OututTemplate should point to a directory where results will be stored.
@@ -66,76 +66,62 @@ nFeatPrune = 100;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Vizi = 1;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Do you have multiple runs (or something run-like to iterave over?) If
+%%%% so, specify it here.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+RunDir= {
+    'rest_1'
+    'rest_2'
+    'rest_3'
+} ;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% How would you like to do subtraction and recombine your results?
+%%%% Specify a series of "contrast" vectors which will be numerically
+%%%% indexed. This only matters for paired SVM approaches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ContrastVec= [
+     1 0 -1 ; 
+     1 -1 0 ;
+     1 -.5 -.5 ;
+     ];
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
-%%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
+%%% The format is 'subjectfolder',
+%%%
+%%% For unpaired SVM, next is an example label, should be +1 or -1
+%%%
+%%% For paired SVM, next is a mapping of conditions to runs. Include a
+%%% 0 if a given condition is not present. E.g. [3 1 0] would indicate that
+%%% condition one is present in Run 3, condition two is present in run 1,
+%%% and condition three is missing. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
 
-'5001/Tx1',+1;
-'5001/Tx2',-1;
-% '5002/Tx1',+1;
-% '5002/Tx2',-1;
-% '5003/Tx1',+1;
-% '5003/Tx2',-1;
-'5004/Tx1',+1;
-'5004/Tx2',-1;
-'5005/Tx1',+1;
-'5005/Tx2',-1;
-'5010/Tx1',+1;
-'5010/Tx2',-1;
-'5012/Tx1',+1;
-'5012/Tx2',-1;
-'5014/Tx1',+1;
-'5014/Tx2',-1;
-'5015/Tx1',+1;
-'5015/Tx2',-1;
-'5016/Tx1',+1;
-'5016/Tx2',-1;
-'5017/Tx1',+1;
-'5017/Tx2',-1;
-'5018/Tx1',+1;
-'5018/Tx2',-1;
-'5019/Tx1',+1;
-'5019/Tx2',-1;
-'5020/Tx1',+1;
-'5020/Tx2',-1;
-'5021/Tx1',+1;
-'5021/Tx2',-1;
-'5023/Tx1',+1;
-'5023/Tx2',-1;
-'5024/Tx1',+1;
-'5024/Tx2',-1;
-'5025/Tx1',+1;
-'5025/Tx2',-1;
-'5026/Tx1',+1;
-'5026/Tx2',-1;
-'5028/Tx1',+1;
-'5028/Tx2',-1;
-'5029/Tx1',+1;
-'5029/Tx2',-1;
-'5031/Tx1',+1;
-'5031/Tx2',-1;
-'5032/Tx1',+1;
-'5032/Tx2',-1;
-'5034/Tx1',+1;
-'5034/Tx2',-1;
-'5035/Tx1',+1;
-'5035/Tx2',-1;
-'5036/Tx1',+1;
-'5036/Tx2',-1;
-'5037/Tx1',+1;
-'5037/Tx2',-1;
-'5038/Tx1',+1;
-'5038/Tx2',-1;
-'5039/Tx1',+1;
-'5039/Tx2',-1;
-'5040/Tx1',+1;
-'5040/Tx2',-1;
-'5041/Tx1',+1;
-'5041/Tx2',-1;
-'5042/Tx1',+1;
-'5042/Tx2',-1;
+'081119mk',[2 1 3];
+'090108ad',[1 3 2];
+'090113pw',[3 2 0];
+'090123eh',[3 2 1];
+'090224tn',[1 3 2];
+'090602pr',[1 2 3];
+'090612sb',[2 3 1];
+'090701op',[3 2 1];
+'090814ad',[2 1 3];
+'090908lm',[0 2 1];
+'091109ed',[2 1 3];
+'100317bc',[1 2 3];
+'100408tg',[2 1 3];
+'100414ss',[2 3 1];
+'100504kc',[3 1 2];
+'100505ma',[3 2 1];
+'100506kh',[3 2 1];
+
 
  
 
@@ -153,4 +139,4 @@ addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
 
 % Run the central script
-connectome_class_driver_mc_central ;
+% connectome_class_driver_mc_central ;

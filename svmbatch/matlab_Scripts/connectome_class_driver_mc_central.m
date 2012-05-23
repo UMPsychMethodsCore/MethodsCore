@@ -23,6 +23,175 @@ end
 
 fprintf('Done\n');
 
+%% New paired approach for figuring out valid edges and valid cases
+
+if newpairedSVM==1
+    fprintf('\nLooping over all files to identify those with valid values....');
+    nSubs=size(SubjDir,1);
+    
+    unsprung=0;
+
+    condNum = size(SubjDir{1,2},2);
+    
+    condAvail = zeros(nSubs,condNum);
+
+    for iSub=1:size(SubjDir,1)
+
+        Subject = SubjDir{iSub,1};
+        for iCond = 1:condNum
+            curRunID = SubjDir{iSub,2}(iCond);
+            if curRunID ~= 0
+                Run = RunDir{curRunID};
+                conPath=mc_GenPath(conPathTemplate);
+                conmat=load(conPath);
+                rmat=conmat.rMatrix;
+                if ~exist('unsprung','var') || unsprung==0
+                    cleanconMat=ones(size(rmat));
+                    nfeat=size(rmat(:));
+                    unsprung=1;
+                end
+                condAvail(iSub,iCond)=1;
+                
+                
+            end
+            cleanconMat(isnan(rmat) | isinf(rmat) | rmat==0) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
+        end
+
+        
+
+
+    end
+    
+    fprintf('Done\n');
+    
+end
+
+%% New Paired approach for flattening
+if newpairedSVM==1
+    fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
+
+    unsprung=0;
+
+    % ID Number of Groups
+    condNum = size(SubjDir{1,2},2);
+
+
+    for iSub=1:size(SubjDir,1)
+        Subject = SubjDir{iSub,1};
+        for iCond = 1:condNum
+            curRunID = SubjDir{iSub,2}(iCond);
+            if curRunID ~= 0
+                Run = RunDir{curRunID};
+                conPath=mc_GenPath(conPathTemplate);
+                conmat=load(conPath);
+                rmat=conmat.rMatrix;
+                if ~exist('unsprung','var') || unsprung==0
+                    superflatmat_grouped=zeros(nSubs,size(connectivity_grid_flatten(rmat,cleanconMat),2),condNum);
+                    unsprung=1;
+                end
+
+                superflatmat_grouped(iSub,:,iCond) = connectivity_grid_flatten(rmat,cleanconMat);
+            end
+
+        end
+    end
+
+    fprintf('Done\n');
+end
+
+%% Figure out subject availability for contrasts
+
+contrastAvail = zeros(nSubs,size(ContrastVec));
+
+for iContrast = 1:size(ContrastVec,1);
+    curContrast=ContrastVec(iContrast,:);
+    contrastAvail(:,iContrast) = all(condAvail(:,find(curContrast)),2);
+end
+
+
+% If running in listwise mode, clear out the contrastAvailability matrix
+% listwise
+if exist('listwise','var') && listwise==1
+    contrastAvail = repmat(all(contrastAvail,2),1,size(ContrastVec,1)) ;
+end
+
+%% Do LOOCV pruning, etc
+
+if newpairedSVM==1
+
+    models_train={};
+    models_test={};
+
+    for iContrast=1:size(ContrastVec,1);
+
+        % Create the difference map
+
+        curContrast = ContrastVec(iContrast,:);
+
+        weighted_superflatmat_grouped = zeros(size(superflatmat_grouped));
+
+        for iCond = 1:condNum
+            weighted_superflatmat_grouped(:,:,iCond) = superflatmat_grouped(:,:,iCond) * curContrast(iCond);
+        end
+
+        % Prune based on contrast availability
+        weighted_superflatmat_grouped = weighted_superflatmat_grouped(logical(contrastAvail(:,iContrast)),:,:);
+
+        superflatmat_p1 = sum(weighted_superflatmat_grouped,3);
+        superflatmat_p2 = -1 * superflatmat_p1;
+
+        superflatmat_paired(1:2:(size(superflatmat_p1)*2),:)=superflatmat_p1;
+        superflatmat_paired(2:2:(size(superflatmat_p1)*2),:)=superflatmat_p2;
+
+        LOOCV_fractions{iContrast}=zeros(size(superflatmat_p1));
+        LOOCV_pruning{iContrast}=zeros(size(superflatmat_p1));
+
+
+        for iL=1:size(superflatmat_p1,1)
+            fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat_p1,1))
+
+            subjects=[1:(iL-1) (iL+1):size(superflatmat_p1,1)];
+            indices=sort([subjects*2 subjects*2-1]);
+
+
+
+            train=superflatmat_paired(indices,:);
+            trainlabels=repmat([1; -1],size(train,1)/2,1);
+
+            % Identify the fraction of features that are greater than zero, or
+            % less than zero (whichever is larger). This indicates a consistent
+            % signed direction. Do it just for one pair, since the second pair
+            % is the first * -1
+
+            fractions=max(  [sum(train(1:2:end,:)>0,1)/size(train(1:2:end,:),1) ;sum(train(1:2:end,:)<0,1)/size(train(1:2:end,:),1)]  );
+
+            LOOCV_fractions{iContrast}(iL,:) = fractions;
+
+            [d pruneID] = sort(fractions);
+
+            pruneID=pruneID((end-(nFeatPrune-1)):end);
+
+            LOOCV_pruning{iContrast}(iL,pruneID) = 1;
+
+            train=train(:,pruneID);
+            test=superflatmat_paired([iL*2-1 iL*2],pruneID);
+
+            models_train{iL,iContrast}=svmlearn(train,trainlabels,'-o 100 -x 0');
+
+            models_test{iL,iContrast}=svmclassify(test,[1 ; -1],models_train{iL,iContrast});
+
+%             fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+%                 iL-sum(models_test),...
+%                 iL);
+
+
+
+        end
+    end
+    
+end
+
+
 %% Loop 2 to write out flattened results
 fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
 
@@ -43,6 +212,8 @@ for iSub=1:size(SubjDir,1)
 
 end
 fprintf('Done\n');
+
+
 %% Organize your paired data, and deal with pruning and stuff
 
 if pairedSVM==1
