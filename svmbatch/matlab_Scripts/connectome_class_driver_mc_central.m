@@ -329,19 +329,19 @@ if strcmpi(svmtype,'paired')
 
         end
     end
-    
+
 
     %% End new paired SVM approach
-    
+
 end
     
 %% Save results to file
 
-SVM_ConnectomeResults.models_train = models_train;
-SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
-SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
-SVM_ConnectomeResults.models_test = models_test;
-
+% SVM_ConnectomeResults.models_train = models_train;
+% SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
+% SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
+% SVM_ConnectomeResults.models_test = models_test;
+% 
 OutputPathTemplate.Template= OutputTemplate ;
 OutputPathTemplate.mode = 'makeparentdir' ;
 OutputPathTemplate.suffix = 'SVMresults.mat';
