@@ -164,14 +164,14 @@ if strcmpi(svmtype,'paired')
 
     %% Read and ID Valid Features (Same feature set will be used across all
     %% contrasts)
-    
+
     fprintf('\nLooping over all files to identify those with valid values....');
     nSubs=size(SubjDir,1);
-    
+
     unsprung=0;
 
     condNum = size(SubjDir{1,2},2);
-    
+
     condAvail = zeros(nSubs,condNum);
 
     for iSub=1:size(SubjDir,1)
@@ -190,19 +190,19 @@ if strcmpi(svmtype,'paired')
                     unsprung=1;
                 end
                 condAvail(iSub,iCond)=1;
-                
-                
+
+
             end
             cleanconMat(isnan(rmat) | isinf(rmat) | rmat==0) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
         end
 
-        
+
 
 
     end
-    
+
     fprintf('Done\n');
-    
+
 
 
     %% Read and flatten valid features
@@ -254,7 +254,7 @@ if strcmpi(svmtype,'paired')
         contrastAvail = repmat(all(contrastAvail,2),1,size(ContrastVec,1)) ;
     end
 
-%% Do LOOCV pruning, etc
+    %% Do LOOCV pruning, etc
 
 
 
