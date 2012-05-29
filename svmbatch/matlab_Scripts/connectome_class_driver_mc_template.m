@@ -59,6 +59,15 @@ OutputTemplate = '[Exp]/SVM/Connectome/StudyName/' ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nFeatPrune = 100;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Of your consensus number of features, what proportion do you want to be
+%%% graphically represented moving forward? If nFeatPlot > nFeatConsensus,
+%%% nFeatConsensus will be used instead.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+nFeatPlot = 30 ;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Would you like the program to also write out node and edge files for
 %%% visualization with BrainNet Viewer? If so, set Vizi to 1.

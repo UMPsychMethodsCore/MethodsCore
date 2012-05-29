@@ -381,6 +381,18 @@ if (exist('Vizi') &&  Vizi==1)
     %Zero out mean discriminative power for all features not in consensus set
     LOOCV_discrimpower_consensus=LOOCV_discrimpower;
     LOOCV_discrimpower_consensus(~logical(LOOCV_consensus))=0;
+    
+    % Ensure number of consensus features is less than number of features
+    % to plot
+    
+    nFeatPlot=min(sum(LOOCV_consensus),nFeatPlot);
+    
+    % ID top nFeatPlot features, and zero out all else
+    [d discrimpower_sort_ind] = sort(LOOCV_discrimpower_consensus);
+    discrimpower_sort_ind = discrimpower_sort_ind(1:(end-nFeatPlot)); %grab indices of all but top nFeatPlot elements
+    
+    LOOCV_discrimpower_consensus(discrimpower_sort_ind) = 0; %zero out all but top nFeatPlot features
+    
 
     %% Reconstruct Consensus Discrim Power into Edges File
 
