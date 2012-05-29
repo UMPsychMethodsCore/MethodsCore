@@ -89,6 +89,7 @@ if(isstruct(Template))
     if(isfield(Template,'type')); type=Template.type; end;
     Template = Template.Template;
 end
+
 %% Do bracket expansion
 % Parse Template to Identify Variables
 index1=strfind(Template,'[');
@@ -291,6 +292,9 @@ if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must 
         end
     end
 end
+
+%% Clean OutputTemplate of any double file delimiters
+OutputTemplate = regexprep(OutputTemplate,[filesep '+'],filesep);
 
 %% Make path if it doesn't exist (if supposed to)
 if(strcmpi('makedir',mode))
