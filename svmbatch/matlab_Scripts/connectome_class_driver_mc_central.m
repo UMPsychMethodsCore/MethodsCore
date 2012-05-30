@@ -396,10 +396,10 @@ if (exist('Vizi') &&  Vizi==1)
     %% Calc Discriminative Power of Edges
 
     %ID the consensus implicated edges
-    LOOCV_consensus=all(LOOCV_pruning,1);
+    LOOCV_consensus=all(cell2mat(LOOCV_pruning),1);
 
     %Calc Mean discriminative power for all features
-    LOOCV_discrimpower=mean(LOOCV_fractions);
+    LOOCV_discrimpower=mean(cell2mat(LOOCV_fractions));
 
     %Zero out mean discriminative power for all features not in consensus set
     LOOCV_discrimpower_consensus=LOOCV_discrimpower;
