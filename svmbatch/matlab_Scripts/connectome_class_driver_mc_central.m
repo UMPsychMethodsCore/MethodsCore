@@ -424,5 +424,5 @@ if (exist('Vizi') &&  Vizi==1)
     dlmwrite(OutputNodePath,roiMNI,'\t');
 
     % Apend tab and - to indicate no label, for now...
-    ! sed -i 's/$/\t-/' nodes.node
+    eval(['! sed -i ''s/$/\t-/'' ' OutputNodePath])
 end
