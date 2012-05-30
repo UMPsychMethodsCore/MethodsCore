@@ -1,5 +1,16 @@
 %% Central Part
 
+% Gather option variables into single struct variable
+WSVARS = evalin('base','who');
+for wscon=1:size(WSVARS,1)
+    if ~strcmpi(WSVARS{wscon},'WSVARS') && ~strcmpi(WSVARS{wscon},'wscon')
+        thisvar=evalin('caller',WSVARS{wscon});
+        SVMSetup.(WSVARS{wscon})=thisvar;
+    end
+end
+
+clear WSVARS
+
 conPathTemplate.Template = ConnTemplate;
 conPathTemplate.mode='check';
 
