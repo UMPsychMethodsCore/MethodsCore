@@ -347,22 +347,34 @@ if strcmpi(svmtype,'paired')
 end
     
 %% Save results to file
+% Stash the setup parameters into the results structure
+SVM_ConnectomeResults.SVMSetup = SVMSetup;
 
-% SVM_ConnectomeResults.models_train = models_train;
-% SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
-% SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
-% SVM_ConnectomeResults.models_test = models_test;
-% 
+% Store the model trained in each LOOCV fold
+SVM_ConnectomeResults.models_train = models_train;
+
+% Store the uncensored fractions (discrim power) from each LOOCV fold
+SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
+
+% Store the binarized logic of which features were retained from each LOOCV fold
+SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
+
+% Store the performance of LOOCV on each fold
+SVM_ConnectomeResults.models_test = models_test;
+
+% Prepare path for writing results file
 OutputPathTemplate.Template= OutputTemplate ;
 OutputPathTemplate.mode = 'makeparentdir' ;
 OutputPathTemplate.suffix = 'SVMresults.mat';
-
 OutputMatPath = mc_GenPath(OutputPathTemplate);
 
-save(OutputMatPath);
+% Save SVM Parameters and Results
+save(OutputMatPath,'SVM_ConnectomeResults');
 
+% Use same directory to prepare to write out nodes file
 OutputPathTemplate.suffix = 'nodes.node';
 
+% Use same directory to prepare to write out edges file
 OutputNodePath = mc_GenPath(OutputPathTemplate);
 
 OutputPathTemplate.suffix = 'edges.edge';
