@@ -438,7 +438,12 @@ if (exist('Vizi') &&  Vizi==1)
     % Add color labels for roiMNI object. For now, just set to 1 until we have
     % a network atlas
     roiMNI(:,4) = 1 ;
+    
+    % Get the colors from the reference network map
+    labels = network_lookup('/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',roiMNI(:,1:3));
 
+    roiMNI(:,4) = round(labels(:,4));
+    
     % Count how many times ROIs are touched by an edge, append to roiMNI object
     roi_RegionWeights=sum([sum(LOOCV_discrimpower_consensus_square_binarized,1) ; sum(LOOCV_discrimpower_consensus_square_binarized,2)']) ;
     roiMNI(:,5)=roi_RegionWeights;
