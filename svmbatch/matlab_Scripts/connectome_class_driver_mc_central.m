@@ -29,14 +29,18 @@ if strcmpi(svmtype,'unpaired')
         conmat=load(conPath);
         rmat=conmat.rMatrix;
         if iSub==1
-            cleanconMat=ones(size(rmat));
+            censor_square=zeros(size(rmat));
             nfeat=size(rmat(:));
         end
-        cleanconMat(isnan(rmat) | isinf(rmat) | rmat==0) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
+        censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
     end
 
     fprintf('Done\n');
 
+    % Flatten censor matrix
+    
+    censor_flat = mc_flatten_upper_triangle(censor_square);
+    
     %% Read and flatten valid features
     
     fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
@@ -57,6 +61,10 @@ if strcmpi(svmtype,'unpaired')
         superlabel(iSub,1)=Example;
 
     end
+    
+    % Zero out censored elements
+    superflatmat(:,logical(censor_flat))=0;
+    
     fprintf('Done\n');
 
     %% LOOCV
@@ -196,7 +204,7 @@ if strcmpi(svmtype,'paired')
                 conmat=load(conPath);
                 rmat=conmat.rMatrix;
                 if ~exist('unsprung','var') || unsprung==0
-                    cleanconMat=ones(size(rmat));
+                    censor_square=zeros(size(rmat));
                     nfeat=size(rmat(:));
                     unsprung=1;
                 end
@@ -204,10 +212,12 @@ if strcmpi(svmtype,'paired')
 
 
             end
-            cleanconMat(isnan(rmat) | isinf(rmat) | rmat==0) = 0; %For all indices in rmat that are NaN, zero out cleanconMat
+            censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; %For all indices in rmat that are NaN, zero out cleanconMat
         end
 
-
+        % Flatten censor matrix
+        
+        censor_flat = mc_flatten_upper_triangle(censor_square);
 
 
     end
@@ -246,6 +256,10 @@ if strcmpi(svmtype,'paired')
         end
     end
 
+    %Zero out censored elements
+    
+    superflatmat(:,logical(censor_flat),:)=0;
+    
     fprintf('Done\n');
 
 
