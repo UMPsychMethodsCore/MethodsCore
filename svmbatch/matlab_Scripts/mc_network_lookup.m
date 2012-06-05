@@ -1,4 +1,4 @@
-function [ labeled_voxels ] = network_lookup( mapFile, mmlist )
+function [ labeled_voxels ] = mc_network_lookup( mapFile, mmlist )
 %UNTITLED1 Summary of this function goes here
 %   Detailed explanation goes here
 

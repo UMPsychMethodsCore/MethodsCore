@@ -1,4 +1,8 @@
-function LOOCV_discrimpower_consensus_square = unflatten (LOOCV_discrimpower_consensus, nROI)
+function LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOCV_discrimpower_consensus, nROI)
+% [SquareMatrix] = unflatten (flatmatrix, nROI)
+% 
+% This function will undo what flatten_upper_triangle did. It assumes that
+% it's working with 
 
 %% Reconstruct Consensus Discrim Power into Edges File
 
