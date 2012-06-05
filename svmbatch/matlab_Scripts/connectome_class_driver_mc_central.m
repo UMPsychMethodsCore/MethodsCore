@@ -76,7 +76,7 @@ if strcmpi(svmtype,'unpaired')
 
     labels=cell2mat(SubjDir(:,2));
 
-    LOOCV_fractions=zeros(size(superflatmat));
+    LOOCV_featurefitness=zeros(size(superflatmat));
     LOOCV_pruning=zeros(size(superflatmat));
 
     if ~exist('pruneMethod','var') ; pruneMethod='ttest'; end
@@ -105,35 +105,32 @@ if strcmpi(svmtype,'unpaired')
                 % (i.e larger values indicate MORE discriminant power),
                 % take complement of p-values so small values (more
                 % significant) become large (more discriminant)
-                p=1-p;
+                featurefitness=1-p;
 
-                % Store this in variable fractions to keep with old
-                % conventions
-                fractions=p;
 
                 % Store this LOO fold's feature-wise discriminant power
-                LOOCV_fractions(iL,:) = fractions;
+                LOOCV_featurefitness(iL,:) = featurefitness;
 
                 % Return pruneID as the sort indices of the discriminative
                 % power, from least to greatest
-                [d pruneID] = sort(fractions);
+                [d pruneID] = sort(featurefitness);
 
             case 'tau-b'
                 tic
                 % Initialize the fractions object which will store the
                 % tau-b's
-                fractions=zeros(1,size(train,2));
+                featurefitness=zeros(1,size(train,2));
 
                 % Loop over features
                 for iFeat=1:size(train,2)
 
                     if any(diff(train(:,iFeat))) % Check to be sure that all elements aren't the same
-                        fractions(iFeat)=ktaub([trainlabels(:,1) train(:,iFeat)],.05,0);
+                        featurefitness(iFeat)=ktaub([trainlabels(:,1) train(:,iFeat)],.05,0);
 
                     end
                 end
-                fractions = abs(fractions);
-                [d pruneID] = sort(fractions);
+                featurefitness = abs(fractions);
+                [d pruneID] = sort(featurefitness);
                 toc
 
         end
@@ -305,7 +302,7 @@ if strcmpi(svmtype,'paired')
         superflatmat_paired(1:2:(size(superflatmat_p1)*2),:)=superflatmat_p1;
         superflatmat_paired(2:2:(size(superflatmat_p1)*2),:)=superflatmat_p2;
 
-        LOOCV_fractions{iContrast}=zeros(size(superflatmat_p1));
+        LOOCV_featurefitness{iContrast}=zeros(size(superflatmat_p1));
         LOOCV_pruning{iContrast}=zeros(size(superflatmat_p1));
 
 
@@ -325,11 +322,11 @@ if strcmpi(svmtype,'paired')
             % signed direction. Do it just for one pair, since the second pair
             % is the first * -1
 
-            fractions=max(  [sum(train(1:2:end,:)>0,1)/size(train(1:2:end,:),1) ;sum(train(1:2:end,:)<0,1)/size(train(1:2:end,:),1)]  );
+            featurefitness=max(  [sum(train(1:2:end,:)>0,1)/size(train(1:2:end,:),1) ;sum(train(1:2:end,:)<0,1)/size(train(1:2:end,:),1)]  );
 
-            LOOCV_fractions{iContrast}(iL,:) = fractions;
+            LOOCV_featurefitness{iContrast}(iL,:) = featurefitness;
 
-            [d pruneID] = sort(fractions);
+            [d pruneID] = sort(featurefitness);
 
             pruneID=pruneID((end-(nFeatPrune-1)):end);
 
@@ -364,7 +361,7 @@ SVM_ConnectomeResults.SVMSetup = SVMSetup;
 SVM_ConnectomeResults.models_train = models_train;
 
 % Store the uncensored fractions (discrim power) from each LOOCV fold
-SVM_ConnectomeResults.LOOCV_fractions = LOOCV_fractions;
+SVM_ConnectomeResults.LOOCV_featurefitness = LOOCV_featurefitness;
 
 % Store the binarized logic of which features were retained from each LOOCV fold
 SVM_ConnectomeResults.LOOCV_pruning = LOOCV_pruning;
@@ -409,7 +406,7 @@ if (exist('Vizi') &&  Vizi==1)
     LOOCV_consensus=all(cell2mat(LOOCV_pruning),1);
 
     %Calc Mean discriminative power for all features
-    LOOCV_discrimpower=mean(cell2mat(LOOCV_fractions));
+    LOOCV_discrimpower=mean(cell2mat(LOOCV_featurefitness));
 
     %Zero out mean discriminative power for all features not in consensus set
     LOOCV_discrimpower_consensus=LOOCV_discrimpower;
