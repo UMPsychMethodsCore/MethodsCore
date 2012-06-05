@@ -816,7 +816,8 @@ if (Processing(2) == 1)
                 end
                 
 		for iCondCol = 1: NumCondCol
-		NumCondPerCondCol(iCondCol) = size(unique(MasterData(:,CondColumn(iCondCol))),1);
+            
+		NumCondPerCondCol(iCondCol) = size(find(~isnan(unique(MasterData(:,CondColumn(iCondCol))),1))); %%% need to look at this line
 		CondValues{iCondCol} = Data(1:size(Data,1), CondColumn(iCondCol));
 		TimValues{iCondCol} = Data(1:size(Data,1), TimColumn(iCondCol));
 		DurValues{iCondCol} = Data(1:size(Data,1), DurColumn(iCondCol));

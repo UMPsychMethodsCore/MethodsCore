@@ -28,7 +28,7 @@ Exp = '/net/data4/MAS/';
 %% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]zz/';
+ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%% Where to find each subjects functional data
