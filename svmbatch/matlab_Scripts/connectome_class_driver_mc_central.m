@@ -69,14 +69,10 @@ if strcmpi(svmtype,'unpaired')
 
     %% LOOCV
 
-
     fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
 
-
-    pruneLOO=zeros(size(superflatmat));
-
-    models_train={};
-    models_test=[];
+    models_train={};    % Initialize object to hold SVM models on each LOOCV fold
+    models_test=[];     % Initialize object to hold SVM performance on each LOOCV fold
 
     labels=cell2mat(SubjDir(:,2));
 
@@ -187,7 +183,7 @@ if strcmpi(svmtype,'paired')
     fprintf('\nLooping over all files to identify those with valid values....');
     nSubs=size(SubjDir,1);
 
-    unsprung=0;
+    unsprung=0; %counter to identify when you encounter the first valid case
 
     condNum = size(SubjDir{1,2},2);
 
@@ -433,17 +429,6 @@ if (exist('Vizi') &&  Vizi==1)
 
     %% Reconstruct Consensus Discrim Power into Edges File
 
-%     % Identify linear indices of elements that survive flattening
-%     connectomeIDx=zeros(nROI);
-%     connectomeIDx(:)=1:(nROI^2);
-%     connectomeIDx_flat = connectivity_grid_flatten(connectomeIDx,ones(nROI));
-% 
-%     % Build square matrix, and use linear indices above to insert discrim power
-%     LOOCV_discrimpower_consensus_square = zeros(nROI);
-%     LOOCV_discrimpower_consensus_square(connectomeIDx_flat) = LOOCV_discrimpower_consensus;
-
-
-% replacing above code with function "unflatten"
 LOOCV_discrimpower_consensus_square = unflatten (LOOCV_discrimpower_consensus, nROI);
 
     LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
