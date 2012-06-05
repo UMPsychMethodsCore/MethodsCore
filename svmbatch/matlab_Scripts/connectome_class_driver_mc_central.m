@@ -84,13 +84,12 @@ if strcmpi(svmtype,'unpaired')
     for iL=1:(size(superflatmat,1))
         fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat,1))
 
-        subjects=[1:(iL-1) (iL+1):size(superflatmat,1)];
-        indices=subjects;
+        train_idx=[1:(iL-1) (iL+1):size(superflatmat,1)];
 
 
 
-        train=superflatmat(indices,:);
-        trainlabels=labels(indices,:);
+        train=superflatmat(train_idx,:);
+        trainlabels=labels(train_idx,:);
 
         switch pruneMethod  % Do different types of pruning based on user-specified option
             case 'ttest'% In ttest mode, do a 2-sample (groupwise) t-test on all features
@@ -309,12 +308,12 @@ if strcmpi(svmtype,'paired')
         for iL=1:size(superflatmat_p1,1)
             fprintf(1,'\nCurrently running LOOCV on subject %.0f of %.0f.\n',iL,size(superflatmat_p1,1))
 
-            subjects=[1:(iL-1) (iL+1):size(superflatmat_p1,1)];
-            indices=sort([subjects*2 subjects*2-1]);
+            train_idx=[1:(iL-1) (iL+1):size(superflatmat_p1,1)];
+            train_idx=sort([train_idx*2 train_idx*2-1]);
 
 
 
-            train=superflatmat_paired(indices,:);
+            train=superflatmat_paired(train_idx,:);
             trainlabels=repmat([1; -1],size(train,1)/2,1);
 
             % Identify the fraction of features that are greater than zero, or
