@@ -440,7 +440,7 @@ if (exist('Vizi') &&  Vizi==1)
     roiMNI(:,4) = 1 ;
     
     % Get the colors from the reference network map
-    labels = network_lookup('/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',roiMNI(:,1:3));
+    labels = mc_network_lookup('/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',roiMNI(:,1:3));
 
     roiMNI(:,4) = round(labels(:,4));
     
