@@ -55,9 +55,9 @@ if strcmpi(svmtype,'unpaired')
         rmat=conmat.rMatrix;
         %     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
         if iSub==1
-            superflatmat=zeros(nSubs,size(connectivity_grid_flatten(rmat,cleanconMat),2));
+            superflatmat=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
         end
-        superflatmat(iSub,:)=connectivity_grid_flatten(rmat, cleanconMat);
+        superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
         superlabel(iSub,1)=Example;
 
     end
@@ -246,11 +246,11 @@ if strcmpi(svmtype,'paired')
                 conmat=load(conPath);
                 rmat=conmat.rMatrix;
                 if ~exist('unsprung','var') || unsprung==0
-                    superflatmat_grouped=zeros(nSubs,size(connectivity_grid_flatten(rmat,cleanconMat),2),condNum);
+                    superflatmat_grouped=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),condNum);
                     unsprung=1;
                 end
 
-                superflatmat_grouped(iSub,:,iCond) = connectivity_grid_flatten(rmat,cleanconMat);
+                superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
             end
 
         end
