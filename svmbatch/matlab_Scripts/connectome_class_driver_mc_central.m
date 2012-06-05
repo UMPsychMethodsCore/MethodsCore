@@ -425,7 +425,7 @@ if (exist('Vizi') &&  Vizi==1)
 
     %% Reconstruct Consensus Discrim Power into Edges File
 
-LOOCV_discrimpower_consensus_square = unflatten (LOOCV_discrimpower_consensus, nROI);
+    LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOCV_discrimpower_consensus, nROI);
 
     LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
     LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
