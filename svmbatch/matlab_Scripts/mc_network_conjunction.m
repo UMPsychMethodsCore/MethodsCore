@@ -1,4 +1,4 @@
-function [connectome, ROIcoordinates] = conjunction(ROIA, ROIB, squareA, squareB)
+function [connectome, ROIcoordinates] = mc_network_conjunction(ROIA, ROIB, squareA, squareB)
 %find common ROIs
 [ROIcoordinates, coA, coB] = intersect(ROIA, ROIB, 'rows');
 
