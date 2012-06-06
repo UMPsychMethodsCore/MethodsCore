@@ -19,12 +19,11 @@ function [ vector keepID pruneID] = mc_bigsmall( vector, howmany, bigsmall )
 
 
 if bigsmall==0 
-    keepID=pruneID(1:(end-howmany));
-    pruneID=pruneID((end-(howmany-1)):end);
+    keepID=pruneID(1:howmany);
+    pruneID=pruneID((howmany+1):end);
 elseif bigsmall==1
     keepID=pruneID((end-(howmany-1)):end);
     pruneID=pruneID(1:(end-howmany));
 end
 
 vector(pruneID) = 0;
-
