@@ -388,7 +388,7 @@ OutputPathTemplate.suffix = 'edges.edge';
 OutputEdgePath = mc_GenPath(OutputPathTemplate);
 
 %% Visualization Write-out
-if (exist('Vizi') &&  Vizi==1)
+if (exist('Vizi','var') &&  Vizi==1)
     %% Load ROIs file from representative subject
 
     roiPathTemplate.Template = ROITemplate;
@@ -397,8 +397,12 @@ if (exist('Vizi') &&  Vizi==1)
     roiPath=mc_GenPath(roiPathTemplate);
     roimat=load(roiPath);
     roiMNI=roimat.parameters.rois.mni.coordinates;
-    nROI=size(roiMNI,1);
+    
+    mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruninzg,...
+        LOOCV_featurefitness,roiMNI,nFeatPlot,...
+        '/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
 
+    
     %% Calc Discriminative Power of Edges
 
     %ID the consensus implicated edges
