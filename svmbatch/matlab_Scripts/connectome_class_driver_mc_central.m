@@ -390,71 +390,22 @@ OutputEdgePath = mc_GenPath(OutputPathTemplate);
 %% Visualization Write-out
 if (exist('Vizi','var') &&  Vizi==1)
     %% Load ROIs file from representative subject
-
+    
     roiPathTemplate.Template = ROITemplate;
     roiPathTemplate.mode='check';
 
     roiPath=mc_GenPath(roiPathTemplate);
     roimat=load(roiPath);
     roiMNI=roimat.parameters.rois.mni.coordinates;
+
+    if strcmpi(svmtype,'paired')
+        LOOCV_pruning = cell2mat(LOOCV_pruning);
+        LOOCV_featurefitness = cell2mat(LOOCV_featurefitness);
     
-    mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruninzg,...
+    mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruning,...
         LOOCV_featurefitness,roiMNI,nFeatPlot,...
         '/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
 
     
-    %% Calc Discriminative Power of Edges
-
-    %ID the consensus implicated edges
-    LOOCV_consensus=all(cell2mat(LOOCV_pruning),1);
-
-    %Calc Mean discriminative power for all features
-    LOOCV_discrimpower=mean(cell2mat(LOOCV_featurefitness));
-
-    %Zero out mean discriminative power for all features not in consensus set
-    LOOCV_discrimpower_consensus=LOOCV_discrimpower;
-    LOOCV_discrimpower_consensus(~logical(LOOCV_consensus))=0;
     
-    % Ensure number of consensus features is less than number of features
-    % to plot
-    
-    nFeatPlot=min(sum(LOOCV_consensus),nFeatPlot);
-    
-    % ID top nFeatPlot features, and zero out all else
-    [d discrimpower_sort_ind] = sort(LOOCV_discrimpower_consensus);
-    discrimpower_sort_ind = discrimpower_sort_ind(1:(end-nFeatPlot)); %grab indices of all but top nFeatPlot elements
-    
-    LOOCV_discrimpower_consensus(discrimpower_sort_ind) = 0; %zero out all but top nFeatPlot features
-    
-
-    %% Reconstruct Consensus Discrim Power into Edges File
-
-    LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOCV_discrimpower_consensus, nROI);
-
-    LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square;
-    LOOCV_discrimpower_consensus_square_binarized(LOOCV_discrimpower_consensus_square_binarized~=0) = 1 ;
-
-    % Write out the edge file
-    dlmwrite(OutputEdgePath,LOOCV_discrimpower_consensus_square,'\t');
-
-    %% Build the ROI list
-
-    % Add color labels for roiMNI object. For now, just set to 1 until we have
-    % a network atlas
-    roiMNI(:,4) = 1 ;
-    
-    % Get the colors from the reference network map
-    labels = mc_network_lookup('/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',roiMNI(:,1:3));
-
-    roiMNI(:,4) = round(labels(:,4));
-    
-    % Count how many times ROIs are touched by an edge, append to roiMNI object
-    roi_RegionWeights=sum([sum(LOOCV_discrimpower_consensus_square_binarized,1) ; sum(LOOCV_discrimpower_consensus_square_binarized,2)']) ;
-    roiMNI(:,5)=roi_RegionWeights;
-
-    % Write out nodes file
-    dlmwrite(OutputNodePath,roiMNI,'\t');
-
-    % Apend tab and - to indicate no label, for now...
-    eval(['! sed -i ''s/$/\t-/'' ' OutputNodePath])
 end
