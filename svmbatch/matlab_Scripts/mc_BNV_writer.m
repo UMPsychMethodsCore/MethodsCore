@@ -1,27 +1,25 @@
 function [ Status ] = mc_BNV_writer( OutputDir, FPruning, FFitness, ROI_mni, nFeatPlot )
 %MC_BNV_WRITER Write out a node/edge file, suitable for use in BrainNet Viewer
 %   Input Args
-%       OutputDir   -   Directory Name where nodes.node and edges.edge file
-%                       should be written. This directory should already
-%                       exist.
-%       FPruning    -   Foldwise pruning. Should be nLOOCV * nFeat
-%       FFitness    -   OPTIONAL | Foldwise feature fitness. Should be
-%                       nLOOCV * nFeat
-%       ROI_mni     -   List of MNI coordinates of ROIs. Should be nROI *
-%                       3. Any additional columns will be ignored
-%       nFeatPlot   -   OPTIONAL | If there are more consensus features than
-%                       nFeatPlot, this routine will subset them to the top
-%                       nFeatPlot features based on FFitness, but only if
-%                       it is supplied.
-%       NetworkMap  -   OPTIONAL | A path to an img/hdr file, ideally sliced at 1mm^3,
-%                       where each value has an integer value that
-%                       represents network membership. This is used for
-%                       colorizing the nodes file for BNV. If not defined,
-%                       all nodes will have the same color
+%       OutputEdgePath  -   Target path for writing edge file. Parent
+%                           directory should already exist.
+%       OutputNodePath  -   Target path for writing node file. Parent
+%                           directory should already exist.
+%       FPruning        -   Foldwise pruning. Should be nLOOCV * nFeat
+%       FFitness        -   OPTIONAL | Foldwise feature fitness. Should be
+%                           nLOOCV * nFeat
+%       ROI_mni         -   List of MNI coordinates of ROIs. Should be nROI *
+%                           3. Any additional columns will be ignored
+%       nFeatPlot       -   OPTIONAL | If there are more consensus features than
+%                           nFeatPlot, this routine will subset them to the top
+%                           nFeatPlot features based on FFitness, but only if
+%                           it is supplied.
+%       NetworkMap      -   OPTIONAL | A path to an img/hdr file, ideally sliced at 1mm^3,
+%                           where each value has an integer value that
+%                           represents network membership. This is used for
+%                           colorizing the nodes file for BNV. If not defined,
+%                           all nodes will have the same color
 
-% Setup Paths
-OutputEdgePath=fullfile(OutputDir,'edges.edge');
-OutputNodePath=fullfile(OutputDir,'nodes.node');
 
 % Count ROIs
 nROI = size(roiMNI,1);
@@ -46,7 +44,7 @@ else
     LOOCV_discrimpower=LOOCV_consensus;
 end
 
-LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOCV_discrimpower_consensus, nROI);
+LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOCV_discrimpower, nROI);
 LOOCV_discrimpower_consensus_square_binarized = LOOCV_discrimpower_consensus_square~=0;
 
 % Write out the edge files
