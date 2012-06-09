@@ -679,12 +679,10 @@ if (Processing(2) == 1)
     MasterFileCheck = struct('Template',MasterTemplate,...
                              'mode','check');
 	MasterFile = mc_GenPath(MasterFileCheck);
-    %fullfile(Exp,MasterLevel1,MasterLevel2);
 
     RegFileCheck = struct('Template',RegTemplate,...
                           'mode','check');
 	RegFile = mc_GenPath(RegFileCheck);
-    %fullfile(Exp,RegLevel1,RegLevel2);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%% Calculated parameters %%%%%%%%%%%%%%%%%%%%%%
@@ -728,20 +726,16 @@ if (Processing(2) == 1)
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	if strcmp(MasterFile(end-3:end),'.csv')
-        %CheckPath(MasterFile,'Check your MasterTemplate')
         MasterData = csvread([MasterFile],MasterDataSkipRows,MasterDataSkipCols);
     else
-        %CheckPath([MasterFile '.csv'],'Check your MasterTemplate')
         MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
 	end
 
 	% regressor line
 	if RegOp ==1;
             if strcmp(RegFile(end-3:end),'.csv')
-                %CheckPath(RegFile,'Check your RegTemplate')
                 RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
             else
-                %CheckPath([RegFile '.csv'],'Check your RegTemplate')
                 RegMasterData = csvread ([RegFile, '.csv'],RegDataSkipRows,RegDataSkipCols);
             end
 	end
@@ -1005,10 +999,8 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
 		OutputDir = mc_GenPath(OutputTemplate);
         display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
-        %fullfile(Exp,OutputLevel1,SubjDir{iSubject,1},OutputLevel2,OutputLevel3);
 
 		if (Mode == 1 | Mode ==2) 
-		    %eval(sprintf('!mkdir -p %s', OutputDir))
             mc_GenPath( struct('Template',OutputDir,...
                                'mode','makedir') );
 		    cd(OutputDir)
@@ -1104,7 +1096,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 			  for iRun=1:NumRun  
 			      clear RegNameHor;
 			  for iReg = 1:NumReg    
-			      SPM.Sess(iRun).C.C(:,iReg) = reg{iReg};
+			      SPM.Sess(iRun).C.C(:,iReg) = reg{iReg}; %%Joe, needs offset
 
 
 
@@ -1153,7 +1145,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 			  for iReg = 1:NumReg
 
 		      RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
-		      SPM.Sess(iRun).C.C(:,iReg) = RegDataCol; % assign this RegDataCol to appropriate column in the SPM variable
+		      SPM.Sess(iRun).C.C(:,iReg) = RegDataCol; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
 
 			  end % loop through regressors
 
@@ -1348,6 +1340,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
 			end % loop through conditions
 		  if NumReg > 0
+              %%% Joe, automatically put x zeros here 
 		      ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
 		  end        
 		     end % loop through runs
