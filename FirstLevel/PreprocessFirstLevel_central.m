@@ -197,7 +197,7 @@ if (Processing(1) == 1)
 		vbm.estwrite.output.extopts.mrf = 1;
 		vbm.estwrite.output.extopts.cleanup = 1;
 		vbm.estwrite.output.extopts.vox = [1 1 1];
-		vbm.estwrite.output.extopts.bb = [-78 -112 -70;78 76 85];
+		vbm.estwrite.output.extopts.bb = [-78 -112 -50;78 76 85];
 		vbm.estwrite.output.extopts.writeaffine = 0;
 		vbm.estwrite.output.extopts.print = 1;
 	end
