@@ -1,4 +1,4 @@
-function [ Status ] = mc_BNV_writer( OutputDir, FPruning, FFitness, ROI_mni, nFeatPlot )
+function [ Status ] = mc_BNV_writer( OutputEdgePath, OutputNodePath, FPruning, FFitness, ROI_mni, nFeatPlot, NetworkMap )
 %MC_BNV_WRITER Write out a node/edge file, suitable for use in BrainNet Viewer
 %   Input Args
 %       OutputEdgePath  -   Target path for writing edge file. Parent
@@ -22,7 +22,7 @@ function [ Status ] = mc_BNV_writer( OutputDir, FPruning, FFitness, ROI_mni, nFe
 
 
 % Count ROIs
-nROI = size(roiMNI,1);
+nROI = size(ROI_mni,1);
 
 % Identify consensus features across LOOCV folds
 LOOCV_consensus=all(FPruning,1);
@@ -57,7 +57,8 @@ ROI_mni = ROI_mni(:,1:3); %Prune off any extra columns before starting
 
 % Colorize ROIs
 if exist('NetworkMap','var')
-    ROI_mni(:,4) = mc_network_lookup(NetworkMap,ROI_mni);
+    ROI_mni = mc_network_lookup(NetworkMap,ROI_mni);
+    ROI_mni(:,4) = round(ROI_mni(:,4));
 else
     ROI_mni(:,4) = 1;
 end
