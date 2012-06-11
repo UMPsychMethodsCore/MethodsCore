@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/dysthymia/slab/users/guosj/repos/MethodsCore/svmbatch/';
+Exp = '/net/data4/DEA_Resting/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SVM mode. Can be either paired or unpaired
@@ -41,23 +41,22 @@ pruneMethod = 'ttest';
 % ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_corr.mat';
+ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
 % ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
 
-ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/TBTGrid/TBTGrid_parameters.mat';
-
+ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_parameters.mat';
 
 % OututTemplate should point to a directory where results will be stored.
 % For now these include a SVMResults object which will contain many of the
 % intermediates
 
-OutputTemplate = '[Exp]/SVM/Connectome/StudyName/' ;
+OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% How many features of each LOOCV iteration should be retained after
 %%% pruning?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nFeatPrune = 100;
+nFeatPrune = 50;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,7 +65,7 @@ nFeatPrune = 100;
 %%% nFeatConsensus will be used instead.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-nFeatPlot = 30 ;
+nFeatPlot = 25 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Would you like the program to also write out node and edge files for
@@ -81,23 +80,32 @@ Vizi = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 RunDir= {
-    'Tx1'
-    'Tx2'
+    'rest_1'
+    'rest_2'
+    'rest_3'
 } ;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% For paired SVM, how would you like to do subtraction and recombine your results?
 %%%% Specify a series of "contrast" vectors which will be numerically
-%%%% indexed. This only matters for paired SVM approaches
+%%%% indexed. This only matters for paired SVM approaches. You can also
+%%%% supply a list of names to use for these contrasts. These will be used
+%%%% to name results files (e.g. the .mat file, .nodes, .edges, etc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ContrastVec= [
-%      .5 .5;
-%      .2 .8;
-     1 -1;
+     1 0 -1 ; % PBO - High
+     1 -1 0 ; % PBO - Low
+     0 1 -1 ; % PBO - Mid
      ];
 
+ContrastNames = {
+    'PbO vs High'
+    'PbO vs Low'
+    'Low vs High'
+    };
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',
@@ -111,69 +119,23 @@ ContrastVec= [
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
 
-'5001',[1 2];
-
-'5002',[1 2];
-
-% '5003',[1 2];
-% 
-% '5004',[1 2];
-% 
-% '5005',[1 2];
-% 
-% '5010',[1 2];
-% 
-% '5012',[1 2];
-% 
-% '5014',[1 2];
-% 
-% '5015',[1 2];
-% 
-% '5016',[1 2];
-% 
-% '5017',[1 2];
-% 
-% '5018',[1 2];
-% 
-% '5019',[1 2];
-% 
-% '5020',[1 2];
-% 
-% '5021',[1 2];
-% 
-% '5023',[1 2];
-% 
-% '5024',[1 2];
-% 
-% '5025',[1 2];
-% 
-% '5026',[1 2];
-% 
-% '5028',[1 2];
-% 
-% '5029',[1 2];
-% 
-% '5031',[1 2];
-% 
-% '5032',[1 2];
-% 
-% '5034',[1 2];
-% 
-% '5035',[1 2];
-% 
-% '5036',[1 2];
-% 
-% '5037',[1 2];
-% 
-% '5038',[1 2];
-% 
-% '5039',[1 2];
-% 
-% '5040',[1 2];
-% 
-% '5041',[1 2];
-% 
-% '5042',[1 2];
+'081119mk',[2 1 3];
+'090108ad',[1 3 2];
+'090113pw',[3 2 0];
+'090123eh',[3 2 1];
+'090224tn',[1 3 2];
+'090602pr',[1 2 3];
+'090612sb',[2 3 1];
+'090701op',[3 2 1];
+'090814ad',[2 1 3];
+'090908lm',[0 2 1];
+'091109ed',[2 1 3];
+'100317bc',[1 2 3];
+'100408tg',[2 1 3];
+'100414ss',[2 3 1];
+'100504kc',[3 1 2];
+'100505ma',[3 2 1];
+'100506kh',[3 2 1];
 
 
 
