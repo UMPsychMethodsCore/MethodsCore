@@ -250,7 +250,7 @@ if strcmpi(svmtype,'paired')
 
     %Zero out censored elements
     
-    superflatmat(:,logical(censor_flat),:)=0;
+    superflatmat_grouped(:,logical(censor_flat),:)=0;
     
     fprintf('Done\n');
 
