@@ -399,13 +399,23 @@ if (exist('Vizi','var') &&  Vizi==1)
     roiMNI=roimat.parameters.rois.mni.coordinates;
 
     if strcmpi(svmtype,'paired')
-        LOOCV_pruning = cell2mat(LOOCV_pruning);
-        LOOCV_featurefitness = cell2mat(LOOCV_featurefitness);
-    
-    mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruning,...
-        LOOCV_featurefitness,roiMNI,nFeatPlot,...
-        '/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
-
+        for i=1:size(ContrastVec,1)
+            
+            OutputPathTemplate.suffix = [ContrastNames{i} '.node'];
+            OutputNodePath = mc_GenPath(OutputPathTemplate);
+            OutputPathTemplate.suffix = [ContrastNames{i} '.edge'];
+            OutputEdgePath = mc_GenPath(OutputPathTemplate);
+            
+            mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruning{i},...
+                LOOCV_featurefitness{i},roiMNI,nFeatPlot,...
+                '/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
+            
+        end
+    else
+        mc_BNV_writer(OutputEdgePath,OutputNodePath,LOOCV_pruning,...
+            LOOCV_featurefitness,roiMNI,nFeatPlot,...
+            '/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
+    end
     
     
 end
