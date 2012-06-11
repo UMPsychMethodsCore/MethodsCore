@@ -174,6 +174,17 @@ if (RunMode(1) | sum(RunMode) == 0)
         %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = OutputName;
+        
+        parameters.cppi.SPM = mc_GenPath(fullfile(SPMTemplate,'SPM.mat'));
+        parameters.cppi.UseSandbox = UseSandbox;
+
+        if (UseSandbox)
+            [status hostname] = system('hostname -s');
+            parameters.cppi.sandbox = fullfile([filesep hostname(1:end-1)],'sandbox','cppi',parameters.Output.directory);
+        else
+            parameters.cppi.sandbox = fullfile(parameters.Output.directory,'temp');
+        end
+
         ParameterFilename = [OutputName '_parameters'];
         ParameterPath = mc_GenPath(fullfile(OutputPath,ParameterFilename));
         save(ParameterPath,'parameters');
@@ -182,34 +193,50 @@ if (RunMode(1) | sum(RunMode) == 0)
 end
 
 if (RunMode(2))
-    for iSubject = 1:size(SubjDir,1)
-        clear D0 parameters results;
-        Subject=SubjDir{iSubject,1};
-        %load existing parameter file
-        OutputPath = mc_GenPath(OutputTemplate);
-        load(fullfile(OutputPath,ParameterFilename));
-        clear global SOM;
-        global SOM;
-        SOM.silent = 1;
-        SOM_LOG('STATUS : 01');
-
-        [D0 parameters] = SOM_PreProcessData(parameters);
-        if D0 == -1
-            SOM_LOG('FATAL ERROR : No data returned');
-            mc_Error('There is something wrong with your template or your data. No data was returned from SOM_PreProcessData');
-        else
-            %results = SOM_CalculateCorrelations(D0,parameters);
-            
-            parameters.cppi.SPM = '/dysthymia/sandbox/cppi/FirstLevel/5001/Tx1/OrigModel/SPM.mat';
-            
-            results = cppi_ConnectonomicPPI(D0,parameters);
-            results = 'a';
-            if isnumeric(results)
-                SOM_LOG('FATAL ERROR : ');
-                mc_Error('There is something wrong with your template or your data. No results were returned from SOM_CalculateCorrelations');
-            end
-        end        
+    %partition SubjDir into parameters.cppi.NumProcesses equal parts
+    NumSubj = size(SubjDir,1);
+    if (NumProcesses > 4)
+        NumProcesses = 4;
     end
+    SubjPerChunk = floor(NumSubj / NumProcesses);
+    for iChunk = 1:NumProcesses
+        %save each piece of SubjDir into a chunkN.mat file in temp location
+        offset = (iChunk - 1) * SubjPerChunk;
+        tempSubjDir = [];
+        if (iChunk < NumProcesses)
+            for iSubject = 1+offset:SubjPerChunk+offset
+                tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+                tempSubjDir{end,2} = SubjDir{iSubject,2};
+                tempSubjDir{end,3} = SubjDir{iSubject,3};
+            end
+        else
+            for iSubject = 1+offset:size(SubjDir,1)
+                tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+                tempSubjDir{end,2} = SubjDir{iSubject,2};
+                tempSubjDir{end,3} = SubjDir{iSubject,3};
+            end
+        end
+        chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
+        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename');
+   
+    end
+        %send a system call to start matlab, load a chunk file, and call
+        %cppi_batch_chunk with the loaded variables
+        
+        %spawn NumProcesses-1 other matlab processes
+        for iChunk = 1:NumProcesses-1
+            chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
+            systemcall = sprintf('/net/misc/matlab2007b/bin/matlab -nosplash -nodesktop -r "addpath(fullfile(''%s'',''matlabScripts''));,addpath(fullfile(''%s'',''cPPI''));,addpath(fullfile(''%s'',''som''));,addpath(fullfile(''%s'',''spm8''));,cppi_batch_chunk(''%s'');,quit;" &',mcRoot,mcRoot,mcRoot,mcRoot,chunkFile);
+            [status result] = system(systemcall);
+        end
+        %now the last one in this matlab.  This one will always be equal to
+        %or greater in number of subjects to the previous ones.
+        iChunk = NumProcesses;
+        chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
+        cppi_batch_chunk(chunkFile);
+    
+    
+    
 end
 
 

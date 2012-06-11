@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/dysthymia/sandbox/cppi/';
+Exp = '/dysthymia/sandbox/cppi';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -37,6 +37,7 @@ RunDir = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
 '5001/Tx1',50011,[1];
+%'5001TEST/Tx1',50011,[1];
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,6 +87,24 @@ NumScan = [180];
 %%% Original First Level Model location
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPMTemplate = '[Exp]/FirstLevel/[Subject]/OrigModel';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Analyze data on a local drive on the machine you run the script on
+%%% If your data is located on /net/data4 or similar network drive, using
+%%% this option will speed up the processing speed immensely.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+UseSandbox = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The script will split the number of ROIs into this many seperate bins
+%%% and run them simultaneously to speed up processing time.  Be careful
+%%% with setting this too high as it could cause the computer running the
+%%% script to become unresponsive or crash.  Please use the linux command
+%%% top to investigate other processes running on the computer before
+%%% starting your script.  In general you should not set this higher than
+%%% 4.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NumProcesses = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Mode to run som_batch_mc_central in
@@ -152,7 +171,7 @@ EPIThreshold = [];
 %%% 
 %%%         Suggested order is "DCWM"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegressOrder = 'D';
+RegressOrder = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Use this many principle components for regression
@@ -182,7 +201,7 @@ Fraction = 1;
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'grid';
+ROIInput = 'coordinates';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI coordinates you need to provide a list of centers in 
@@ -192,10 +211,26 @@ ROIInput = 'grid';
 %%% need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROICenters = [
-    9 9 -8; %VSi right
-    -9 9 -8; %VSi left
+    18 -1 1; %VSi right
+    -18 -1 1; %VSi left
+    10 10 10;
+    10 10 -10;
+    10 -10 10;
+    10 -10 -10;
+%     -10 10 10;
+%     -10 10 -10;
+%     -10 -10 10;
+%     -10 -10 -10;
+%     5 5 5;
+%     5 5 -5;
+%     5 -5 5;
+%     5 -5 -5;
+%     -5 5 5;
+%     -5 5 -5;
+%     -5 -5 5;
+%     -5 -5 -5;
     ];
-ROISize = {19};
+ROISize = {1};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a

@@ -1,9 +1,15 @@
-function regressors = cppi_CreateRegressors(roiTC,parameters)
+function [regressors betanames] = cppi_CreateRegressors(roiTC,parameters)
 
+betanames = [];
 load(parameters.cppi.SPM);
+roiTC = SPM.xX.W*roiTC; %applying whitening matrix from SPM model
+roiTC = spm_filter(SPM.xX.K,roiTC); %filter here with SPM filter, or use Robert's filter in preprocessing?
+
 RT = SPM.xY.RT;
 dt = SPM.xBF.dt;
 NT = RT/dt;
+fMRI_T0 = SPM.xBF.T0;
+
 regressors = [];
 
 for iRun = 1:size(SPM.Sess,1)
@@ -14,6 +20,24 @@ for iRun = 1:size(SPM.Sess,1)
     xY.X0 = [xY.X0 SPM.xX.K(iRun).X0];
     xY.X0 = xY.X0(:,any(xY.X0));
 
+    [m n] = size(roiTC);
+    if m>n
+        [v s v] = svd(roiTC'*roiTC);
+        s = diag(s);
+        v = v(:,1);
+        u = roiTC*v/sqrt(s(1));
+    else
+        [u s u] = svd(roiTC*roiTC');
+        s = diag(s);
+        u = u(:,1);
+        v = roiTC'*u/sqrt(s(1));
+    end
+    d = sign(sum(v));
+    u = u*d;
+    v = v*d;
+    Y = u*sqrt(s(1)/n);
+    roiTC = Y;
+    
     Sess = SPM.Sess(iRun);
 
     %condition names, and includes, and weights (not needed since we'll include all at weight 1)
@@ -63,6 +87,7 @@ for iRun = 1:size(SPM.Sess,1)
     W = SPM.xX.W(Sess.row,Sess.row);
 
     %create structure for spm_PEB
+    clear P
     P{1}.X = [W*Hxb X0];
     P{1}.C = speye(N,N)/4;
     P{2}.X = sparse(N+M,1);
@@ -91,16 +116,19 @@ for iRun = 1:size(SPM.Sess,1)
         PSY{i} = full(U.u(:,i));
         PSYxn{i} = PSY{i}.*xn;
         PSYHRF{i} = conv(PSY{i},hrf);
-        PSYHRF{i} = PSYHRF{i}(k);
+        PSYHRF{i} = PSYHRF{i}((k-1)+fMRI_T0);
         pmp{i} = conv(PSYxn{i},hrf);
-        pmp{i} = pmp{i}(k);
+        pmp{i} = pmp{i}((k-1)+fMRI_T0);
         pmp{i} = spm_detrend(pmp{i});
         R(:,i) = PSYHRF{i};
         R(:,j) = pmp{i};
+        betanames{i} = U.name{i};
+        betanames{j} = [U.name{i} ' x Seed interaction'];
         j = j + 1;
     end
 
     R(:,j) = PMP.Y;
+    betanames{j} = 'Seed';
     %if (parameters.RegressFLAGS.Motion)
     %    R = [R parameters.data.run(iRun).MotionParameters];
     %end

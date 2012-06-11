@@ -23,12 +23,13 @@ goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
 index = 1;
 for iB = 1:size(goodbeta,2)
     %extract beta iB and place in grid
+    goodbeta(iB) = 1;
     if (~goodbeta(iB))
         continue;
     end
     V = spm_vol(P(iB,:));
     data = spm_read_vols(V);
-    cppi_grid{index}(iROI,:) = data';
+    cppi_grid{2,index}(iROI,:) = data';
     index = index + 1;
 end
 result = 1;

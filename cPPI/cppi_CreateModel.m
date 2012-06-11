@@ -2,11 +2,6 @@ function model = cppi_CreateModel(cppiregressors,roiTC,parameters)
 model = -1;
 curpath = pwd;
 
-if (~isfield(parameters.cppi,'sandbox'))
-    [status hostname] = system('hostname -s');
-    parameters.cppi.sandbox = fullfile(hostname,'cppi',parameters.Output.directory);
-end
-parameters.cppi.sandbox = '/dysthymia/sandbox/cppi/FirstLevel/5001/Tx1/Grid_test_temp/';
 mkdir(parameters.cppi.sandbox);
 cd(parameters.cppi.sandbox);
 
@@ -31,11 +26,13 @@ Vmask.fname = sprintf('%s_mask.img',Vtemplate.fname);
 spm_write_vol(Vmask,ones(size(roiTC,2),1,1));
 
 %enter these dummy images into an SPM model with the cppi regressors
-iRun = 1;
 offset = 0;
-SPM.Sess(iRun).U = [];
-SPM.Sess(iRun).C.C = [cppiregressors(offset+1:offset+parameters.data.run(iRun).nTimeAnalyzed,:) parameters.data.run(iRun).MotionParameters];
-SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + size(parameters.data.run(iRun).MotionParameters,2));
+for iRun = 1:size(parameters.data.run,2)
+    SPM.Sess(iRun).U = [];
+    SPM.Sess(iRun).C.C = [cppiregressors(offset+1:offset+parameters.data.run(iRun).nTimeAnalyzed,:) parameters.data.run(iRun).MotionParameters];
+    SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + size(parameters.data.run(iRun).MotionParameters,2));
+    offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
+end
 SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_0.*',[1:size(roiTC,1)]);
 SPM.nscan = size(roiTC,1);
 SPM.xBF.name       	= 'hrf';
@@ -45,9 +42,9 @@ SPM.xBF.T          	= 16;
 SPM.xBF.T0         	= 1;    
 SPM.xBF.UNITS      	= 'secs';         
 SPM.xBF.Volterra   	= 1;              
-SPM.xGX.iGXcalc    = 'none';
+SPM.xGX.iGXcalc    = 'None';
 SPM.xX.K.HParam  = 128; 
-SPM.xVi.form = 'none';
+SPM.xVi.form = 'AR(0.2)';
 SPM.xY.RT = parameters.TIME.run(1).TR;
 SPM.xM.VM = Vmask;
 global defaults
