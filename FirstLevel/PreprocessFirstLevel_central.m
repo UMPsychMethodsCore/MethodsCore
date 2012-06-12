@@ -1107,22 +1107,18 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
 			 %set preset regressor values below
 			 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-			 reg{1} = [ones(1,200) zeros(1,600)];
-			 reg{2} = [zeros(1,200) ones(1,200) zeros(1,400)];
-			 reg{3} = [zeros(1,400) ones(1,200) zeros(1,200)];
+			 reg(:,1) = [ones(200,1); zeros(600,1)];
+			 reg(:,2) = [zeros(200,1); ones(200,1); zeros(400,1)];
+			 reg(:,3) = [zeros(400,1); ones(200,1); zeros(200,1)];
 			 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+             
+
 
 			 %% assign regressor name
 			  for iRun=1:NumRun  
 			      clear RegNameHor;
-			  for iReg = 1:NumReg    
-			      SPM.Sess(iRun).C.C(:,iReg) = reg{iReg}; %%Joe, needs offset
-
-
-
-			      RegNameHor {1,iReg} = RegList{iReg,1};
-			  end
-			  SPM.Sess(iRun).C.name = RegNameHor;
+                  SPM.Sess(iRun).C.C    = [SPM.Sess(iRun).C.C reg];
+                  SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList'];
 			  end
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
