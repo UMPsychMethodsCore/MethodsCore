@@ -232,10 +232,7 @@ OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
 %% Examples:
 %% MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
-% MasterLevel1 = 'MasterData/';
-% MasterLevel2 = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Location of the motion regressor file
@@ -245,10 +242,10 @@ MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%       MotRegName  = regressor CSV file name
 %%        *          = wildcard (can only be placed in final part of template)
 %% Examples:
-%% RegTemplate = '[Exp]/MasterData/[MotRegName].csv';
+%% RegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
 %% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MotRegTemplate = '[Exp]/MasterData/[MotRegName].csv';
+MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -264,8 +261,6 @@ MotRegTemplate = '[Exp]/MasterData/[MotRegName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 RegTemplate='[Exp]/MasterData/[RegDataName].csv';
-% RegLevel1 = 'MasterData/';
-% RegLevel2 = '';
 		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of conditions in your model
