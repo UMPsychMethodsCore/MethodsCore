@@ -1077,9 +1077,29 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		    for iSess = 1:NumRun
 			SPM.Sess(iSess).C.C    = [];          
 			SPM.Sess(iSess).C.name = {}; 
-		    end
+            end
 
-		 %%% case where there are regressors
+         %% Store Motion regressors for all runs in 1 subject   
+         if ~isempty(MotRegTemplate)
+             for iRun=1:NumRun
+                Run           = RunDir{iRun};
+                MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                
+                if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
+                    SPM.Sess(iRun).C.C    = load( MotRegName );
+                    SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
+                else
+                    MotReg = load( MotRegName );
+                    for iMot=1:size(MotRegList,1)
+                        SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
+                        SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
+                    end
+                end
+                    
+             end
+         end
+             
+		 %% case where there are regressors
 		 if NumReg > 0
 
 		 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
