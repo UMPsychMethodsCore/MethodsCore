@@ -166,6 +166,7 @@ CondModifier = 0;
 %% OutputTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
+OutputName     = 'Model';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Location of master data CSV file
@@ -177,7 +178,16 @@ OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
 %% Examples:
 %% MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
+MasterTemplate ='[Exp]/Scripts/MasterData/[MasterDataName].csv';
+MasterDataName ='MSIT_Master';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% This sets whether the models are the same for everyone or subject-specific
+%%%   0 - each person has different models, grab data from section of MasterData based on subject index
+%%%   1 - each person has identical models, grab all from first block of MasterData
+%%%   NOTE: Regressors still use subject index so are not identical across subjects
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+IdenticalModels = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Location of the motion regressor file
@@ -191,6 +201,7 @@ MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName';
+MotRegName     = 'motion_regressors';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of regressor names, and column numbers for values from the regressor file
@@ -209,6 +220,8 @@ MotRegList = {
 %% Examples:
 %% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegTemplate = '[Exp]/MasterData/[RegDataName].csv';
+RegDataName = [Model '_regressors'];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% User Specified Regressors
@@ -216,8 +229,6 @@ MotRegList = {
 %%% 1 = get regressors from file 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegOp = 1;
-		
-RegTemplate='[Exp]/MasterData/[RegDataName].csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of regressor names, and column numbers for values from the regressor file
@@ -243,6 +254,28 @@ ConditionName = {
 
 
 };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of contrasts to add to the estimated model
+%%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
+%%% You need to properly balance/weight your contrasts below as if it was just one run/session
+%%% The script will handle balancing it across runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ContrastList = {    
+    'C'     [1  0] [0  0] 0 0 ;
+    'CR'    [0  1] [0  0] 0 0 ;
+    'I'     [0  0] [1  0] 0 0 ;
+    'IR'    [0  0] [0  1] 0 0 ;            
+    'C-I'   [1  0] [-1 0] 0 0 ;            
+    'C-I R' [0  1] [0 -1] 0 0 ;     
+    'I-C'   [-1 0] [1 0] 0 0 ;            
+    'I-C R' [0 -1] [0 1] 0 0 ;              
+    'AllTrials' [.5 0] [.5 0] 0 0;
+    'AllTrials R' [0 .5] [0 .5] 0 0;            
+
+
+};
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If you are including any Parametric regressors in your model
 %%% syntax: 'Parameter Name', column for values, condition column with which
@@ -322,49 +355,7 @@ scanprefix = 'swra';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 explicitmask = '';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Specify Models
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-switch Model 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-	case {Model}
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		%%% This sets whether the models are the same for everyone or subject-specific
-		%%%   0 - each person has different models, grab data from section of MasterData based on subject index
-		%%%   1 - each person has identical models, grab all from first block of MasterData
-		%%%   NOTE: Regressors still use subject index so are not identical across subjects
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		IdenticalModels = 0;
-        OutputName = [Model];%%% This appears never to be used
-        MasterDataName='MSIT_Master';
-        MotRegName = 'motion_regressors';
-        RegDataName=[Model '_regressors'];
-		
-		
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		%%% List of contrasts to add to the estimated model
-		%%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
-		%%% You need to properly balance/weight your contrasts below as if it was just one run/session
-		%%% The script will handle balancing it across runs
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		ContrastList = {    
-		    'C'     [1  0] [0  0] 0 0 ;
-            'CR'    [0  1] [0  0] 0 0 ;
-            'I'     [0  0] [1  0] 0 0 ;
-            'IR'    [0  0] [0  1] 0 0 ;            
-            'C-I'   [1  0] [-1 0] 0 0 ;            
-            'C-I R' [0  1] [0 -1] 0 0 ;     
-            'I-C'   [-1 0] [1 0] 0 0 ;            
-            'I-C R' [0 -1] [0 1] 0 0 ;              
-            'AllTrials' [.5 0] [.5 0] 0 0;
-            'AllTrials R' [0 .5] [0 .5] 0 0;            
-
-		 
-		};
-		
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-end
 
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
