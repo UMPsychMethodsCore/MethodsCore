@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing mcflirt options, aborting"
-		      exit 0
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      mcOPT=$1
 		  fi

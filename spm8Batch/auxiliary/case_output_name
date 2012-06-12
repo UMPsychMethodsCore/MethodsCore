@@ -1,6 +1,0 @@
-	      #
-	      # Set the name to add.
-	      #
-	      "n")
-		  . ${thisDir}/auxiliary/setOutputName
-		  ;;

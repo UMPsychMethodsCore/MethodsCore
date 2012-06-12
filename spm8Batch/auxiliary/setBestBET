@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for best BET threshold"
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      USEBETBEST=$1
 		      isnumber ${USEBETBEST}
@@ -13,6 +13,6 @@
 			  echo -e "\a"
 			  echo "Parameter $1 is not a valid number"
 			  echo "Buggering out"
-			  exit 0
+	                  . ${thisDir}/auxiliary/exit_w_removal
 		      fi
 		  fi

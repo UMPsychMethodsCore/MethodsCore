@@ -1,6 +1,0 @@
-	      #
-	      # Simliar Other images
-	      # 
-	      "O")
-		  . ${thisDir}/auxiliary/setOtherNames
-		  ;;

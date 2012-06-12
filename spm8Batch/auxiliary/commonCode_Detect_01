@@ -1,0 +1,7 @@
+# validate that we have what we need.
+
+. ${thisDir}/auxiliary/checkDetectSpikeParts
+
+# Initialize warping variables.
+
+. ${thisDir}/auxiliary/initialization_all

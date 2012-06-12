@@ -1,0 +1,8 @@
+    echo "    -I ReferenceName     set the reference image to use for VBM8, "
+    echo "                         you can specify relative to :"
+    echo "                            ${TemplateImageDir}, or."
+    echo "                         specify an absolute directory path."
+    echo "                         default is none, but to use defaults.normalise.write.bb"
+    echo
+    echo "                         A reference image takes precedence over the voxel size."
+    echo 

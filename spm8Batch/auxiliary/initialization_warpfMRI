@@ -5,6 +5,15 @@
 # Output name
 outputName=w
 
+# Warping method, 0=SPM8, 1=VBM8
+
+WARPMETHOD=0
+
+# The VBM8ReferenceImage to override the bounding box and voxelsize
+# if this is left blank we use the defaults.
+
+VBM8ReferenceImage=
+
 #
 # all done
 #

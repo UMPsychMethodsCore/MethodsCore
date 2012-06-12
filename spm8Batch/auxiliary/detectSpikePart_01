@@ -1,0 +1,14 @@
+# Use common in-line code #01 -- comments out to standard output.
+
+. ${thisDir}/auxiliary/buildMatlabScripts_01
+
+cat ${thisDir}/parts/detect_spike_part_1.m                     > ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_02
+
+echo "SandBoxDIR     = '${SANDBOX}/';"                        >> ${FULLSCRIPTNAME}.m
+
+echo "SandBoxPID     = '${SANDBOXPID}/';"                     >> ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_03
+
