@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for other image name, aborting"
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      otherName[$iother]=$1
 		      let iother++
@@ -24,7 +24,7 @@
 		      echo
 		      echo "ABORTING"
 		      echo
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  fi
 		  otherName[$iother]=${FILENAME}
 		  otherExt[$iother]=${FILEEXT}

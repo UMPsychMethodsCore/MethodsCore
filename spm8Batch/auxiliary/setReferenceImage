@@ -1,0 +1,17 @@
+                  ERRORMESSAGE="Trying to determine the VBM8 reference image."
+
+	          . ${thisDir}/auxiliary/setGenericFileName
+
+                  # If they speficified the directory, else we use the default directory.
+
+		  if [ "${FILENAME:0:1}" == "/" ]
+		  then		  
+		      TARGETNAME=${FILENAME}
+		  else
+		      TARGETNAME=${TemplateImageDir}/${FILENAME}
+		  fi
+		  TARGETEXT=${FILEEXT}
+
+		  . ${thisDir}/auxiliary/verifyTargetImage
+
+		  VBM8ReferenceImage=${TARGETIMG}

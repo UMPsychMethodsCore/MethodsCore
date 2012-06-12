@@ -1,2 +1,4 @@
 		  SuperDebugFLAG=D
 		  debugFLAG=1
+
+		  echo "Turning on debugger"

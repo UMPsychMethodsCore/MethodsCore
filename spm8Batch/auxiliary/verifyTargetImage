@@ -10,9 +10,11 @@
   # image really exists, else we bugger out with error.
   #
     
+  # For now SPM8 can NOT handle nift-gz images, only nifti. - @rcwelsh
+
     if [ -z ${TARGETEXT} ] 
     then
-	for EXT in .nii.gz .nii
+	for EXT in .nii
 	do
 	    if [ -e "${TARGETNAME}${EXT}" ]
 	    then
@@ -32,7 +34,7 @@
 	echo 
 	echo "ABORTING"
 	echo
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 
     if [ ! -e "${TARGETNAME}${USEEXT}" ]
@@ -42,7 +44,7 @@
 	echo 
 	echo "ABORTING"
 	echo
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 
     TARGETIMG=${TARGETNAME}${USEEXT}

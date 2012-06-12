@@ -3,7 +3,7 @@
     echo " NIFTI images."
     echo
  
-    . ${thisDir}/auxiliary/help/help_Options_Start
+    . ${thisDir}/auxiliary/help/help_options_start
 
     echo 
     echo " e.g. to smooth 'raprun' for 2 subjects with 5x6x7"

@@ -1,6 +1,0 @@
- 	      #
-	      # Path name to place coregistration results.
-	      #
-	      "w")
-		  . ${thisDir}/auxiliary/setCoRegPath
-		  ;;
