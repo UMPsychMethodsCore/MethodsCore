@@ -52,13 +52,13 @@ end; %subjects
 %OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
 %[OutputPath OutputName] = fileparts(OutputPathFull);
 
-OutputPathStruct = struct('Template',strcat(OutputPathTemplate,OutputName),...
+OutputPathStruct = struct('Template',OutputPathTemplate,...
                           'suffix','.csv',...
                           'mode','makedir');
 
 OutputPathFile   = mc_GenPath(OutputPathStruct);                      
 
-theFID = fopen(OutputPathFile);
+theFID = fopen(OutputPathFile,'w');
 if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return
