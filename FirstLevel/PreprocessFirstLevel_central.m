@@ -1161,17 +1161,13 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 			  for iReg = 1:NumReg
 
 		      RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
-		      SPM.Sess(iRun).C.C(:,iReg) = RegDataCol; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
+		      SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
 
 			  end % loop through regressors
 
 			 %% assign regressor name
-			  clear RegNameHor;
-			  for iReg = 1:NumReg
-			      RegNameHor {1,iReg} = RegList{iReg,1};
-			  end
-			  SPM.Sess(iRun).C.name = RegNameHor;
-			  iScan = iScan + NumScan (1,iRun);
+             SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList{:,1}'];
+             iScan = iScan + NumScan(1,iRun);
 
 			  end % loop through run
 
