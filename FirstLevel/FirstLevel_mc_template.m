@@ -245,8 +245,19 @@ MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %% RegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
 %% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
+MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of regressor names, and column numbers for values from the regressor file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MotRegList = { 
+% 		'x',5;
+% 		'y',6;
+% 		'z',7;
+% 		'r',8;
+% 		'p',9;
+% 		'y',10;
+ 		};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Location of the regressor CSV file
@@ -260,7 +271,27 @@ MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
 %% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% User Specified Regressors
+%%% 0 = no regressors
+%%% 1 = get regressors from file 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegOp = 1;
+		
 RegTemplate='[Exp]/MasterData/[RegDataName].csv';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of regressor names, and column numbers for values from the regressor file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegList = { 
+% 		'x',5;
+% 		'y',6;
+% 		'z',7;
+% 		'r',8;
+% 		'p',9;
+% 		'y',10;
+};
+		
 		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of conditions in your model
@@ -376,24 +407,6 @@ switch Model
         MotRegName = 'motion_regressors';
         RegDataName=[Model '_regressors'];
 		
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		%%% User Specified Regressors
-		%%% 0 = no regressors
-		%%% 1 = get regressors from file 
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		RegOp = 0;
-		
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		%%% List of regressor names, and column numbers for values from the regressor file
-		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 		RegList = { 
-% 		'x',5;
-% 		'y',6;
-% 		'z',7;
-% 		'r',8;
-% 		'p',9;
-% 		'y',10;
- 		};
 		
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		%%% List of contrasts to add to the estimated model
