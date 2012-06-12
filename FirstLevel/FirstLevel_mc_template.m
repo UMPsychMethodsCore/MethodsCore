@@ -239,13 +239,14 @@ MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Location of the motion regressor file
-%%
+%%  Leave blank if one will not be used
 %%  Variables you can use in your template are:
 %%       Exp         = path to your experiment directory
 %%       MotRegName  = regressor CSV file name
 %%        *          = wildcard (can only be placed in final part of template)
 %% Examples:
-%% RegTemplate='[Exp]/MasterData/[MotRegName].csv';
+%% RegTemplate = '[Exp]/MasterData/[MotRegName].csv';
+%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/MasterData/[MotRegName].csv';
 
