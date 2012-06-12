@@ -1321,7 +1321,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		end
 
 		Scaling = sum(CondPresent,1);
-		Scaling = NumRun./Scaling  % This needs attention
+		Scaling = NumRun./Scaling;  % This needs attention
 
 
 		%%%%% Set up "dynamic" contrasts %%%%%
