@@ -729,7 +729,7 @@ if (Processing(2) == 1)
         MasterData = csvread([MasterFile],MasterDataSkipRows,MasterDataSkipCols);
     else
         MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
-	end
+    end
 
 	% regressor line
 	if RegOp ==1;
