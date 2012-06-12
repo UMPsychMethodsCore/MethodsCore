@@ -40,12 +40,24 @@
 function results = UMBatchSmooth(Images2Smooth,sKernel,OutputName,TestFlag);
 
 global defaults
+global UMBatch
 
 %
 % Set the return status to -1, that is error by default.
 %
 
 results = -1;
+
+% Make the call to prepare the system for batch processing.
+
+UMBatchPrep
+
+if UMBatch == 0
+  fprintf('UMBatchPrep failed.')
+  return
+end
+
+% Only proceed if successful.
 
 fprintf('Entering UMBatchSmooth V0.1\n');
 

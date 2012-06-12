@@ -1,6 +1,0 @@
-	      #
-	      # Voxel size
-	      #
-	      "z")
-		  . ${thisDir}/auxiliary/setVoxelSize
-		  ;;

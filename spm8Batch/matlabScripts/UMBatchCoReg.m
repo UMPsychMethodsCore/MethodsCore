@@ -36,12 +36,24 @@ function results = UMBatchCoReg(TargetImage,ObjectImage,OtherImages,ReSlice,Test
 % changed by users, we don't want to hard-code options here.
 
 global defaults
+global UMBatch
 
 %
 % Set the return status to -1, that is error by default.
 %
 
 results = -1;
+
+% Make the call to prepare the system for batch processing.
+
+UMBatchPrep
+
+if UMBatch == 0
+  fprintf('UMBatchPrep failed.')
+  return
+end
+
+% Only proceed if successful.
 
 fprintf('Entering UMBatchCoReg V2.0 for SPM8\n');
 

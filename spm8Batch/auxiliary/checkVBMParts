@@ -1,0 +1,14 @@
+# validate that we have what we need.
+
+for CRITICALMATLAB in vbm8_part_01.m vbm8_part_02.m
+do
+    if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
+    then
+	echo
+        echo "Validate that you have 'vbm8_part_01.m' and 'vbm_part_02.m' "
+ 	echo "Missing a critical component '${CRITICALMATLAB}'"
+	echo     
+	exit 0
+    fi
+done
+

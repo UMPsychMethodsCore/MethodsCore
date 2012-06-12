@@ -23,7 +23,7 @@ for iSub = 1:length(UMBatchSubjs)
     fprintf('Working on %s\n',UMBatchSubjs{iSub});
     %
     % Break into two steps, one to calculate the normalization for the
-    % SPGR.
+    % HiRes.
     %
     ParamImage = UMImg2Warp{iSub};
     %
@@ -34,10 +34,12 @@ for iSub = 1:length(UMBatchSubjs)
       for iW = 1:length(UMOtherImages{iSub})
 	Img2Write = strvcat(Img2Write,[UMOtherImages{iSub}{iW},',1']);
       end
-      UMBatchWarp(TemplateImage,ParamImage,[],Img2Write,UMTestFlag,VoxelSize,OutputName);
+      % Force the warping method to be the standard SPM8
+      results = UMBatchWarp(TemplateImage,ParamImage,[],Img2Write,UMTestFlag,VoxelSize,OutputName,0);
+      UMCheckFailure(results);
     else
       fprintf('FATAL ERROR : Image to warp does not exist: %s\n',ParamImage)
-      exit
+      break
     end
 end
 
