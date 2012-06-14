@@ -1,4 +1,30 @@
-function result = mc_Logger(cmd,argument)
+function result = mc_Logger(cmd,argument,loglevel)
+% A utility function to setup script copies and log messages to a log file
+% FORMAT [result] = mc_Logger(cmd,cmdstring[,loglevel]);
+% 
+% cmd               this command tells mc_Logger what mode to run in.
+%                   Current options are:
+%                           'setup' - create a timestamped copy of the 
+%                                     original calling script (usually the 
+%                                     _mc_template script) and create a log
+%                                     file in the given directory.  In this
+%                                     mode cmdstring should contain the log
+%                                     directory and loglevel is not needed.
+%                           'log'   - write cmdstring to the log file.
+%
+% cmdstring         in 'setup' mode this should be the log file directory
+%                   to use. In 'log' mode this should be the string that 
+%                   will be written to the log file.
+%
+% loglevel          This optional argument should only be used in 'log'
+%                   mode. If given, it sets the level of importance for the
+%                   current cmdstring.  Current possible values are:
+%                            1      - ERROR
+%                            2      - WARNING
+%                            3      - STATUS
+%                   If not given, it defaults to 1 (ERROR).
+%
+
     result = 0;
     global mcLog;
     global mcRoot;
@@ -9,8 +35,8 @@ function result = mc_Logger(cmd,argument)
             callingscript = st(end).file;
             [p f e ans] = fileparts(callingscript);
             rightnow = now;
-            scriptcopy = fullfile(argument,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') e]);
-            scriptlog = fullfile(argument,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') '.log']);
+            scriptcopy = fullfile(cmdstring,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') e]);
+            scriptlog = fullfile(cmdstring,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') '.log']);
             
             headertxt = '';
             lines = 0;
@@ -52,14 +78,27 @@ function result = mc_Logger(cmd,argument)
             mcLog = scriptlog;
             result = 1;
         case 'log'
-            %log argument to log file
+            if (~exist(loglevel,'var') || isempty(loglevel))
+                loglevel = 1;
+            end
+            switch(loglevel)
+                case 1
+                    loglevelstr = 'ERROR: ';
+                case 2
+                    loglevelstr = 'WARNING: ';
+                case 3
+                    loglevelstr = 'STATUS: ';
+                otherwise
+                    loglevelstr = 'UNKNOWN: ';
+            end
+            %log cmdstring to log file
             if (isempty(mcLog))
                 %no log file defined
                 %just return so that scripts using mc_Error but not mcLog global
                 %can still function without errors
                 return;
             end
-            if (exist('argument')~=1 || isempty(argument))
+            if (exist('cmdstring')~=1 || isempty(cmdstring))
                 %function called but we didn't get anything to log
                 return;
             end
@@ -68,7 +107,7 @@ function result = mc_Logger(cmd,argument)
                 %could not open file for some reason
                 mc_Error('Could not open logfile %s for writing.',mcLog);
             end
-            fprintf(fid,'%s\n',argument);
+            fprintf(fid,'%s\t%s\n',loglevelstr,cmdstring);
             result = 1;
     end
     
