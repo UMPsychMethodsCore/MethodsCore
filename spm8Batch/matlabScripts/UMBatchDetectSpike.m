@@ -9,7 +9,7 @@
 %
 %  To Make this work you need to provide the following input:
 %
-%  Images     = char array of images to text
+%  Images     = char array of images to test
 %  OutputFile = file to write detected spikes
 %  ImagePath  = full directory path to Images
 %
@@ -82,6 +82,16 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
     end
     fprintf(fid,'\n');
     fclose(fid);
+    
+    % Log detectSpike was performed
+    DetectSpikeDir = fileparts( strtrim( Images(1,:) ) );
+    
+    UMBatchLogProcess(DetectSpikeDir,sprintf('UMBatchDetectSpike : Scanned images (%04d) : %s',size(Images,1),Images(1,:)));
+    
+    if size(Images,1) > 1
+        UMBatchLogProcess(DetectSpikeDir,sprintf('UMBatchDetectSpike : through image          : %s',Images(end,:)));
+    end
+    
     results = 1;
 end
 
