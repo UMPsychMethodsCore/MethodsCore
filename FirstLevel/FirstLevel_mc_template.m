@@ -4,31 +4,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The path to SPM on your system
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spmpath = '/net/dysthymia/spm8';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/net/data4/MAS/';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogTemplate = '[Exp]/Logs';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Path where your images are located
-%%
-%%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
-%%       iSubject = index for subject
-%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%       Run = name of run from RunDir (using iRun as index of row)
-%%        * = wildcard (can only be placed in final part of template)
-%% Examples:
-%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
-%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
+%%%  Path where your images are located
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp = path to your experiment directory
+%%%       iSubject = index for subject
+%%%       Subject = name of subject from SubjDir (using iSubject as index of row)
+%%%       iRun = index of run (listed in Column 3 of SubjDir)
+%%%       Run = name of run from RunDir (using iRun as index of row)
+%%%        * = wildcard (can only be placed in final part of template)
+%%% Examples:
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]zz/';
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -389,6 +387,7 @@ switch Model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 end
 
+global mcRoot;
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
