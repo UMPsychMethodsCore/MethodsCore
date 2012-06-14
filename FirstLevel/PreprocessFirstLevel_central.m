@@ -1080,12 +1080,12 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
             end
 
          %% Store Motion regressors for all runs in 1 subject   
-         if ( exist('MotRegTemplate','var') == 1 || ~isempty(MotRegTemplate) )
+         if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
              for iRun=1:NumRun
                 Run           = RunDir{iRun};
                 MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
                 
-                if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
+                if ( exist('MotRegList','var') ~= 1 && isempty(MotRegList) )
                     SPM.Sess(iRun).C.C    = load( MotRegName );
                     SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
                 else
@@ -1325,45 +1325,39 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
 		%%%%% Set up "dynamic" contrasts %%%%%
 		NumContrast=size(ContrastList,1);
+        for iContrast = 1: NumContrast
+            ContrastName{iContrast} = ContrastList{iContrast,1};
+            ContrastBase=[];
 
+            for iRun=1:NumRun
+                
+                for iCond=1:NumCond-CondModifier
+                    CondContrast = ContrastList{iContrast, iCond+1};
 
-		for iContrast = 1: NumContrast
+                    if CondLength(iRun, iCond)  > CondThreshold
+                        CondContrast = CondContrast * Scaling(1,iCond);  % apply scaling factor
+                        ContrastBase= horzcat(ContrastBase,CondContrast);
+                    end
 
+                end % loop through conditions
+		  
+                if NumReg > 0
+                    %%% Joe, automatically put x zeros here
+                    if exist('MotRegTemplate','var') == 1 && ~isempty('MotRegTemplate')
+                        Run           = RunDir{iRun};
+                        MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                        MotReg        = load( MotRegName );
+                        zeroPad       = zeros( 1, size(MotReg,2) );
+                        ContrastBase  = [ContrastBase zeroPard ContrastList{iContrast, NumCond+2}];
+                    else
+                        ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
+                    end
+                end        
+            end % loop through runs
 
-		    ContrastName{iContrast} = ContrastList{iContrast,1};
-		    ContrastBase=[];
-
-		     for iRun=1:NumRun
-
-			for iCond=1:NumCond-CondModifier
-
-			    CondContrast = ContrastList{iContrast, iCond+1};
-
-
-
-			    if CondLength(iRun, iCond)  > CondThreshold
-
-			  CondContrast = CondContrast * Scaling(1,iCond);  % apply scaling factor
-			  ContrastBase= horzcat(ContrastBase,CondContrast);
-
-
-			    end
-
-			end % loop through conditions
-		  if NumReg > 0
-              %%% Joe, automatically put x zeros here 
-		      ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
-		  end        
-		     end % loop through runs
-
-
-
-
-		 ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
-		 ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
-		 end % loop through contrasts
-		%     
-		%     
+            ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+            ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
+        end % loop through contrasts
 
 
 		if ((Mode == 1 | Mode ==2) & StartOp ~=1) % case where you want do *not* want to set your own start (and thus want to simply append to previous contrasts)
