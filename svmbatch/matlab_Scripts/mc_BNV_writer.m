@@ -39,7 +39,7 @@ end
 if exist('FFitness','var')
     LOOCV_discrimpower=mean(FFitness,1); %Calculate mean discrim power for all features
     LOOCV_discrimpower(~logical(LOOCV_consensus))=0; % Zero out discrim power for features not in consensus set
-    LOOCV_discrimpower=mc_bigsmall(LOOCV_discrimpower,nFeatPlot,1); % Zero out all but the top nFeatPlot features
+    LOOCV_discrimpower=mc_bigsmall(LOOCV_discrimpower,nFeatPlot,3); % Zero out all but the top nFeatPlot features
 else
     LOOCV_discrimpower=LOOCV_consensus;
 end
