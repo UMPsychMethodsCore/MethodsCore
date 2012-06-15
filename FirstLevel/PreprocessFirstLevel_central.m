@@ -1099,10 +1099,10 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
          end
              
 		 %% case where there are regressors
-		 if NumReg > 0
+    if NumReg > 0
 
 		 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-		     if RegOp == 2 % case where you preset regressors
+        if RegOp == 2 % case where you preset regressors
 
 			 %set preset regressor values below
 			 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1123,58 +1123,52 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
 		 else % case where you get your regressors from file
 
-		     RegData=[];
-		     RegDataCol=[];
+		    RegData=[];
+		    RegDataCol=[];
 
-		     TotalScan = sum(NumScanTotal);
-		     %Data=MasterData(find(MasterData(:,SubjColumn)==SubjRow),:);
-		     RegData=RegMasterData(find(RegMasterData(:,RegSubjColumn)==SubjRow),:);
+		    TotalScan = sum(NumScanTotal);
+		    %Data=MasterData(find(MasterData(:,SubjColumn)==SubjRow),:);
+		    RegData=RegMasterData(find(RegMasterData(:,RegSubjColumn)==SubjRow),:);
 		     
-		     %RegData=RegMasterData(((SubjRow-1)*TotalScan)+1:(((SubjRow-1)*TotalScan)+TotalScan),:);
+            %RegData=RegMasterData(((SubjRow-1)*TotalScan)+1:(((SubjRow-1)*TotalScan)+TotalScan),:);
 
-		%%%% Shorten data according to runs present in RunList
-		NewRegData=[];
-		for iRun=1:TotalNumRun
-			NewDataRun = RegData(find(RegData(:,RegRunColumn)==iRun),:);
-			if ismember(iRun,RunList)
-				NewRegData=vertcat(NewRegData,NewDataRun);
-			end
-		end
-		RegData=NewRegData;
+            %%%% Shorten data according to runs present in RunList
+            NewRegData=[];
+            for iRun=1:TotalNumRun
+                NewDataRun = RegData(find(RegData(:,RegRunColumn)==iRun),:);
+                if ismember(iRun,RunList)
+                    NewRegData=vertcat(NewRegData,NewDataRun);
+                end
+            end
+            RegData=NewRegData;
 		
-		%%%% Shorten data according to runs present in RunList
-		%NewRegData=[];
-		%for iRun=1:TotalNumRun
-		%	NewDataRun=RegData(((iRun-1)*NumScanTotal(iRun))+1:(((iRun-1)*NumScanTotal(iRun))+NumScanTotal(iRun)),:);
-		%	if ismember(iRun,RunList)
-		%		NewRegData=vertcat(NewRegData,NewDataRun);
-		%	end
-		%end
-		RegData=NewRegData;
-			   iScan=1;
+            %%%% Shorten data according to runs present in RunList
+            %NewRegData=[];
+            %for iRun=1:TotalNumRun
+            %	NewDataRun=RegData(((iRun-1)*NumScanTotal(iRun))+1:(((iRun-1)*NumScanTotal(iRun))+NumScanTotal(iRun)),:);
+            %	if ismember(iRun,RunList)
+            %		NewRegData=vertcat(NewRegData,NewDataRun);
+            %	end
+            %end
+            RegData=NewRegData;
+			iScan=1;
 
-			   for iRun=1:NumRun
+            for iRun=1:NumRun
+                for iReg = 1:NumReg
+                    RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
+                    SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
+                end % loop through regressors
 
+                %% assign regressor name
+                SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList{:,1}'];
+                iScan = iScan + NumScan(1,iRun);
 
-
-			  for iReg = 1:NumReg
-
-		      RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
-		      SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
-
-			  end % loop through regressors
-
-			 %% assign regressor name
-             SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList{:,1}'];
-             iScan = iScan + NumScan(1,iRun);
-
-			  end % loop through run
-
+            end % loop through run
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-		     end %% end conditional on RegOp
+        end %% end conditional on RegOp
 
-		 end    % end regressor routine
+    end    % end regressor routine
 
 
 
