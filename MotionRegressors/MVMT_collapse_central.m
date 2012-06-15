@@ -17,8 +17,10 @@ Num_run_total = size(RunDir,1);
 
 
 for iSubject = 1: size(SubjDir,1)
+    
     Subject=SubjDir{iSubject}(1:end);
     NumRun= size(SubjDir{iSubject,3},2);
+    
     for jRun = 1:NumRun
         Subject = SubjDir{iSubject,1};
         iRun=SubjDir{iSubject,3}(1,jRun);
@@ -42,8 +44,8 @@ for iSubject = 1: size(SubjDir,1)
         % 		end
 
         CombinedOutput{iSubject,iRun} = MotionParameters;
-    end; %runs
-end; %subjects
+    end
+end
 
 
 
@@ -63,18 +65,25 @@ if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return
 end
+
 fprintf(theFID,'Subject,SubNum,Run,TR,x_mm,y_mm,z_mm,pitch,roll,yaw,\n'); %header
+
 for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject,1};
  %   chariSubject = int2str(iSubject);
- chariSubject=num2str(SubjDir{iSubject,2});
+    chariSubject=num2str(SubjDir{iSubject,2});
     NumRun= size(SubjDir{iSubject,3},2);
     for jRun = 1:NumRun
-        iRun=SubjDir{iSubject,3}(1,iRun);
+        iRun=SubjDir{iSubject,3}(1,jRun);
 
    %     RunString=RunDir{iRun}; %%% maybe set RunString as iRun?
-         RunString=num2str(iRun);
-
+        %RunString=num2str(iRun);
+        Run       = RunDir{iRun};
+        Index     = regexp(Run,'[0-9]');
+        RunString = Run(Index(1):Index(1)+1);
+        if RunString(1) == '0'
+            RunString = RunString(2);
+        end
 
         for iRow = 1:size(CombinedOutput{iSubject,jRun},1)
             chariRow = int2str(iRow);
