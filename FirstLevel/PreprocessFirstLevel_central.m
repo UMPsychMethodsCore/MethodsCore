@@ -1335,18 +1335,20 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
                 end % loop through conditions
 		  
+                % do motion regressors from file if any
+                if exist('MotRegTemplate','var') == 1 && ~isempty('MotRegTemplate')
+                    Run          = RunDir{iRun};
+                    MotRegName   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                    MotReg       = load( MotRegName );
+                    zeroPad      = zeros( 1, size(MotReg,2) );
+                    ContrastBase = [ContrastBase zeroPad];
+                end
+                
+                % do user specified regressors
                 if NumReg > 0
-                    %%% Joe, automatically put x zeros here
-                    if exist('MotRegTemplate','var') == 1 && ~isempty('MotRegTemplate')
-                        Run           = RunDir{iRun};
-                        MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-                        MotReg        = load( MotRegName );
-                        zeroPad       = zeros( 1, size(MotReg,2) );
-                        ContrastBase  = [ContrastBase zeroPard ContrastList{iContrast, NumCond+2}];
-                    else
-                        ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
-                    end
-                end        
+                    ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
+                end
+                
             end % loop through runs
 
             ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
