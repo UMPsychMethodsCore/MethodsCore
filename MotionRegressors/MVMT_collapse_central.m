@@ -56,7 +56,7 @@ end
 
 OutputPathStruct = struct('Template',OutputPathTemplate,...
                           'suffix','.csv',...
-                          'mode','makedir');
+                          'mode','makeparentdir');
 
 OutputPathFile   = mc_GenPath(OutputPathStruct);                      
 
