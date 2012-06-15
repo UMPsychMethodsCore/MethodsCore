@@ -1160,7 +1160,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
                 end % loop through regressors
 
                 %% assign regressor name
-                SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList{:,1}'];
+                SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList(:,1)'];
                 iScan = iScan + NumScan(1,iRun);
 
             end % loop through run
