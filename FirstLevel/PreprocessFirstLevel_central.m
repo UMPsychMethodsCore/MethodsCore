@@ -1085,7 +1085,7 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
                 Run           = RunDir{iRun};
                 MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
                 
-                if ( exist('MotRegList','var') ~= 1 && isempty(MotRegList) )
+                if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
                     SPM.Sess(iRun).C.C    = load( MotRegName );
                     SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
                 else
