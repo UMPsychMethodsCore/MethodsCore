@@ -77,13 +77,7 @@ for iSubject = 1:size(SubjDir,1)
         iRun=SubjDir{iSubject,3}(1,jRun);
 
    %     RunString=RunDir{iRun}; %%% maybe set RunString as iRun?
-        %RunString=num2str(iRun);
-        Run       = RunDir{iRun};
-        Index     = regexp(Run,'[0-9]');
-        RunString = Run(Index(1):Index(1)+1);
-        if RunString(1) == '0'
-            RunString = RunString(2);
-        end
+        RunString=num2str(iRun);
 
         for iRow = 1:size(CombinedOutput{iSubject,jRun},1)
             chariRow = int2str(iRow);
