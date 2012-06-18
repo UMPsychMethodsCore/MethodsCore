@@ -14,6 +14,18 @@ clear WSVARS
 conPathTemplate.Template = ConnTemplate;
 conPathTemplate.mode='check';
 
+%% Confirm that you are running on an allowed host
+
+goodlist={
+'psyche.psych.med.umich.edu';
+};
+
+[d,curhost]=system('hostname');
+
+if ~any(strcmpi(curhost,goodlist));
+	error('You are not running svm on an approved host!');
+end
+
 %% Unpaired SVM
 if strcmpi(svmtype,'unpaired')
 
