@@ -18,28 +18,16 @@ Exp='/net/data4/MAS/';
 % Model1='/SecondLevel/MSIT/FIR/fixdur/Congruency_noRT/ANOVA_Cells/Tx1_S1';
 % Model2='/SecondLevel/MSIT/FIR/fixdur/Congruency_noRT/ANOVA_Cells/Tx2_S1';  
 Model1='/SecondLevel/MSIT/FIR/fixdur/Congruency_noRT/Tx1vTx2';
-Model2='/SecondLevel/MSIT/FIR/fixdur/TwelveBin/Congruency_noRT/ANOVA_Cells/Tx2_S1';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Output file for analysis (leave off the .csv)
-%%
-%%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
-%%  Example:
-%%  OutputPathTemplate = '[Exp]/Output/Level2_Extractions/OXT_mpfc_test';
+Model2='/SecondLevel/MSIT/FIR/fixdur/TwelveBin/Congruency_noRT/ANOVA_Cells/Tx2_S1';  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 OuputPathTemplate='[Exp]/Output/Level2Extractions/MAS_FIR_SMA';
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Folder where SPM.mat is located and location for ROI file
-%%
-%%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
-%%  Examples:
-%%  ExtracttionJobs =
-%%     {'[Exp]/RANFX_spm8/GRNoFilter/Ramy/PBO_HC/','[Exp]/ROIS/mPFC_n10_42_24_roi.mat'};
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Set up the extraction jobs you would like done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ExtractionJobs = {...
@@ -478,14 +466,7 @@ OuputPathTemplate='[Exp]/Output/Level2Extractions/MAS_FIR_SMA';
     } ;
 
 
-%DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
-%DEVSTOP
 
-%[DEVmcRootAssign]
-
-addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'ExtractionScripts','ExtractROI'))
-addpath(fullfile(mcRoot,'spm8'))
-
+   
+addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts/MethodsCore/ExtractionScripts/ExtractROI/
 ExtractROI_central

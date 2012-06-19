@@ -6,13 +6,8 @@ Exp='/net/data4/MAS/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  JobList; OutputDir is a template and can create nonexistant directories
-%%
-%%  Variables you can use in your template are:
-%%       Exp = path to your experiment directory
-%%  Example:
-%%  OutputDir = '[Exp]/ROIS/'
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List the spherical ROIs that you want to build
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 JobList = {...
 
@@ -40,7 +35,7 @@ JobList = {...
    
    
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 %DEVSTOP
 
 %[DEVmcRootAssign]

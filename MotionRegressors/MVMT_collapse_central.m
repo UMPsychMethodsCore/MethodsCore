@@ -1,8 +1,10 @@
 
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
 display ('-----')
-OutputPath = mc_GenPath(OutputPathTemplate);
+pathcallcmd=GeneratePathCommand(OutputPathTemplate);
+OutputPathFile = eval(pathcallcmd);
 display('I am going to generate motion regressors');
-display(sprintf('The output will be stored here: %s', OutputPath));
+display(sprintf('The output will be stored here: %s', OutputPathFile));
 display('These are the subjects:')
 display(SubjDir)
 display ('-----')
@@ -17,19 +19,18 @@ Num_run_total = size(RunDir,1);
 
 
 for iSubject = 1: size(SubjDir,1)
-    
     Subject=SubjDir{iSubject}(1:end);
     NumRun= size(SubjDir{iSubject,3},2);
-    
     for jRun = 1:NumRun
         Subject = SubjDir{iSubject,1};
         iRun=SubjDir{iSubject,3}(1,jRun);
 
         Run = RunDir{iRun};
 
-        MotionPathCheck.Template = MotionPathTemplate;
-        MotionPathCheck.mode = 'check';
-        MotionPath = mc_GenPath(MotionPathCheck);
+
+        pathcallcmd=GeneratePathCommand(MotionPathTemplate);
+        MotionPath = eval(pathcallcmd);
+        CheckPath(MotionPath, 'a realignment file')
         MotionParameters = load (MotionPath);
 
 
@@ -44,40 +45,35 @@ for iSubject = 1: size(SubjDir,1)
         % 		end
 
         CombinedOutput{iSubject,iRun} = MotionParameters;
-    end
-end
+    end; %runs
+end; %subjects
 
 
 
 %%%%%%% Save results to CSV file
 
-%OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
-%[OutputPath OutputName] = fileparts(OutputPathFull);
+OutputPathFull=GeneratePath(OutputPathTemplate,Exp, OutputName);
+[OutputPath OutputName] = fileparts(OutputPathFull);
 
-OutputPathStruct = struct('Template',OutputPathTemplate,...
-                          'suffix','.csv',...
-                          'mode','makeparentdir');
-
-OutputPathFile   = mc_GenPath(OutputPathStruct);                      
-
-theFID = fopen(OutputPathFile,'w');
+eval(sprintf('!mkdir -p %s',OutputPath));
+OutputPathFile=[OutputPath '/' OutputName];
+theFID = fopen([OutputPathFile,'.csv'],'w');
 if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return
 end
-
 fprintf(theFID,'Subject,SubNum,Run,TR,x_mm,y_mm,z_mm,pitch,roll,yaw,\n'); %header
-
 for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject,1};
  %   chariSubject = int2str(iSubject);
-    chariSubject=num2str(SubjDir{iSubject,2});
+ chariSubject=num2str(SubjDir{iSubject,2});
     NumRun= size(SubjDir{iSubject,3},2);
     for jRun = 1:NumRun
-        iRun=SubjDir{iSubject,3}(1,jRun);
+        iRun=SubjDir{iSubject,3}(1,iRun);
 
    %     RunString=RunDir{iRun}; %%% maybe set RunString as iRun?
-        RunString=num2str(iRun);
+         RunString=num2str(iRun);
+
 
         for iRow = 1:size(CombinedOutput{iSubject,jRun},1)
             chariRow = int2str(iRow);

@@ -1,19 +1,24 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath /net/dysthymia/spm8/
+addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
+%addpath('/net/dysthymia/matlabScripts/') %%% for generate path
+addpath /net/dysthymia/slab/users/sripada/repos/methods_core/matlabScripts %%%% this is for GeneratePath
  
-spm_jobman('initcfg'); % hopefully load marsbar
 
-for iJob = 1: size(JobList,1)
+
+ for iJob = 1: size(JobList,1)
+     
+
+     
+
      
 filename = JobList{iJob,1}; 
 coordinates = JobList{iJob,2};
 
 r=JobList{iJob,3};
-OutputROIDirStruct = sturct('Template',JobList{ijob,4},...
-                            'mode','makedir');
-
-OutputROIDir       = mc_GenPath(OutputROIDirStruct);
+OutputROIDir = eval(GeneratePathCommand(JobList{iJob,4}));
 
 c = coordinates;
 roitype='sphere';
@@ -28,13 +33,14 @@ display('***********************************************')
 
  % c = spm_input('Centre of sphere (mm)', '+1', 'e', [], 3); 
  % r = spm_input('Sphere radius (mm)', '+1', 'r', 10, 1);
-d = sprintf('%0.1fmm radius sphere at [%0.1f %0.1f %0.1f]',r,c);
-l = sprintf('sphere_%0.0f-%0.0f_%0.0f_%0.0f',r,c);
-o = maroi_sphere(struct('centre',c,'radius',r));
+  d = sprintf('%0.1fmm radius sphere at [%0.1f %0.1f %0.1f]',r,c);
+  l = sprintf('sphere_%0.0f-%0.0f_%0.0f_%0.0f',r,c);
+  o = maroi_sphere(struct('centre',c,'radius',r));
   
   
-roi_fname=[OutputROIDir filename '_roi']; 
-
+  roi_fname=[OutputROIDir filename '_roi'];
+  
+  
 %  case 'box_cw'
 %   c = spm_input('Centre of box (mm)', '+1', 'e', [], 3); 
 %   w = spm_input('Widths in XYZ (mm)', '+1', 'e', [], 3);
