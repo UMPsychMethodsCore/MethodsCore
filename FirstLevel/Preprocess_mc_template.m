@@ -163,6 +163,7 @@ HiresTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
 %%%      func = normalization of functional images to functional template
 %%%      anat = normalization of anatomical images to anatomical template
 %%%      seg  = normalization by segmentation of anatomical image
+%%%      note: seg will use VMB8 with DARTEL warping
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 normmethod = 'func';
 
