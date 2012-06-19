@@ -1,0 +1,13 @@
+#
+# Inialization.
+#
+
+# Output name
+outputName=
+
+# Use different default volumeWILD
+volumeWILD=run
+
+#
+# all done
+#

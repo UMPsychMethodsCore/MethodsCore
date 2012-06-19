@@ -1,0 +1,22 @@
+    echo
+    echo " A command line to drive batch processing to detect spike instensities"
+    echo " in slices for a 4D scan."
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+
+    echo " e.g. "
+    echo
+    echo "   To detect spikes:"
+    echo 
+    echo "     detectSpike -f func/MSIT 050126zz"
+    echo
+    echo " Note: Results are written in a text file 'subject_[run_##_]ds.txt'"
+    echo "       in the same directory where the 4D scan is located."
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+    echo
+    
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options
