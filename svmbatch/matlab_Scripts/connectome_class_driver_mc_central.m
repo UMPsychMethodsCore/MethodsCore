@@ -22,7 +22,7 @@ goodlist={
 
 [d,curhost]=system('hostname');
 
-if ~any(strcmpi(curhost,goodlist));
+if ~any(strcmpi(strtrim(curhost),goodlist));
 	error('You are not running svm on an approved host!');
 end
 
