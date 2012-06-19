@@ -6,29 +6,31 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The path to SPM on your system
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-spmpath = '/zubdata/apps/SPMs/spm8zero';
+spmpath = '/net/dysthymia/spm8';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/oracle7/Researchers/heffjos/Mock_Data/fMRI/MYDATA';
+Exp = '/net/data4/MAS/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Path where your images are located
 %%
 %%  Variables you can use in your template are:
-%%       Exp      = path to your experiment directory
+%%       Exp = path to your experiment directory
 %%       iSubject = index for subject
-%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
-%%       Run      = name of run from RunDir (using iRun as index of row)
-%%        *       = wildcard (can only be placed in final part of template)
+%%       Subject = name of subject from SubjDir (using iSubject as index of row)
+%%       iRun = index of run (listed in Column 3 of SubjDir)
+%%       Run = name of run from RunDir (using iRun as index of row)
+%%        * = wildcard (can only be placed in final part of template)
 %% Examples:
+%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-ImageTemplate = '[Exp]/[Subject]/func/[Run]/';
+ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
 
 
@@ -37,7 +39,6 @@ ImageTemplate = '[Exp]/[Subject]/func/[Run]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
 	'run_01/';
-    'run_02/';
 %	'run_06/';
 };
 
@@ -46,8 +47,53 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-    'CF1036ENT',1,[1 2];
-    'CF1038ENT',2,[1 2];
+%  '5001/Tx2',50012,[1 2],[215 235], 0;
+%  '5002/Tx2',50022,[1 2],[225 240], 0;
+%  '5003/Tx1',50031,[1 2], [225 240], {'run_04/';'run_05/'};
+% 
+% '5004/Tx1',50041,[1 2], 0, 0;
+% '5005/Tx1',50051,[1 2], 0, 0;
+% '5008/Tx1',50081,[1 2], 0, 0;
+% '5010/Tx1',50101,[1 2], 0, 0;
+% % '5011/Tx1',50111,[1 2], 0, 0; %This subject has too many error trials
+% '5012/Tx1',50121,[1 2], 0, 0; 
+% '5013/Tx2',50132,[1 2], 0, 0;
+% '5014/Tx2',50142,[1 2], 0, 0;
+% '5015/Tx2',50152,[1 2], 0, 0;
+% '5016/Tx1',50161,[1 2], 0, 0;
+% '5017/Tx1',50171,[1 2], 0, 0;
+% '5018/Tx2',50182,[1 2], 0, 0;
+% '5019/Tx1',50191,[1 2], 0, 0;
+% '5020/Tx2',50202,[1 2], 0, 0;
+% '5021/Tx1',50211,[1 2], 0, 0;
+% '5023/Tx2',50232,[1 2], 0, 0;
+% '5024/Tx1',50241,[1 2], 0, 0;
+% '5025/Tx2',50252,[1 2], 0, 0;
+% '5026/Tx2',50262,[1 2], 0, 0;
+% '5028/Tx1',50281,[1 2], 0, 0;
+% '5029/Tx1',50291,[1 2], 0, 0;
+% '5031/Tx1',50311,[1 2], 0, 0;
+% '5032/Tx1',50321,[1 2], 0, 0;
+
+% '5034/Tx1',50341,[1], 0, 0;
+ '5034/Tx2',50342,[1], 0, 0;
+% '5035/Tx1',50351,[1 2], 0, 0;
+% '5035/Tx2',50352,[1 2], 0, 0;
+ '5036/Tx1',50361,[1], 0, 0;
+ '5036/Tx2',50362,[1], 0, 0;
+ '5037/Tx1',50371,[1], 0, 0;
+ '5037/Tx2',50372,[1], 0, 0;
+ '5038/Tx1',50381,[1], 0, 0;
+ '5038/Tx2',50382,[1], 0, 0;
+ '5039/Tx1',50391,[1], 0, 0;
+ '5039/Tx2',50392,[1], 0, 0;
+% '5040/Tx1',50401,[1 2], 0, 0;
+% % '5040/Tx2',50402,[1 2], 0, 0;
+% % '5041/Tx1',50411,[1 2], 0, 0;
+% '5041/Tx2',50412,[1 2], 0, 0;
+% % '5042/Tx1',50421,[1 2], 0, 0;
+% '5042/Tx2',50422,[1 2], 0, 0;
+
        };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,7 +120,7 @@ alreadydone = [0 0 0 0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'fVol';
+basefile = 'run';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -85,7 +131,7 @@ imagetype = 'nii';
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [210 210]; 
+NumScan = [180]; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,9 +153,9 @@ NumScan = [210 210];
 %% HiresTemplate = '[Exp]/Subjects/[Subject]/anatomy/SPGR.nii';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OverlayTemplate = '[Exp]/[Subject]/anatomy/t1overlay.nii';
+OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/OVERLAY.nii';
 
-HiresTemplate =    '[Exp]/[Subject]/anatomy/t1spgr.nii';
+HiresTemplate =    '[Exp]/Subjects/[Subject]/anatomy/HIRESSAG.nii';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,19 +164,19 @@ HiresTemplate =    '[Exp]/[Subject]/anatomy/t1spgr.nii';
 %%%      anat = normalization of anatomical images to anatomical template
 %%%      seg  = normalization by segmentation of anatomical image
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-normmethod = 'anat';
+normmethod = 'func';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The template to normalize the functional images to 
 %%% NOTE: only applies to func or anat methods, not seg
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-WarpTemplate = '/zubdata/apps/SPMs/spm8zero/templates/T1.nii';
+WarpTemplate = '/net/dysthymia/mangstad/spm8//templates/T1.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The number of slices in your functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-num_slices = 29; 
+num_slices = 43; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The order of your slice collection

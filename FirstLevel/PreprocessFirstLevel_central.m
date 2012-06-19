@@ -3,7 +3,7 @@
 %%% Instead make a copy of PreprocessingFirstLevel_template.m 
 %%% and edit that to match your data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,7 +197,7 @@ if (Processing(1) == 1)
 		vbm.estwrite.output.extopts.mrf = 1;
 		vbm.estwrite.output.extopts.cleanup = 1;
 		vbm.estwrite.output.extopts.vox = [1 1 1];
-		vbm.estwrite.output.extopts.bb = [-78 -112 -50;78 76 85];
+		vbm.estwrite.output.extopts.bb = [-78 -112 -70;78 76 85];
 		vbm.estwrite.output.extopts.writeaffine = 0;
 		vbm.estwrite.output.extopts.print = 1;
 	end
@@ -237,6 +237,7 @@ if (Processing(1) == 1)
 	smooth.im = 0;
 	smooth.prefix = smp;
 
+
 	if (strcmp(spmver,'SPM8'))
 	    spm_jobman('initcfg');
 	    spm_get_defaults('cmdline',true);
@@ -266,6 +267,7 @@ if (Processing(1) == 1)
 
 		NumRun= size(NumScan,2); % number of runs
 		ImageNumRun=size(RunDir,1); %number of image folders
+
 
 	    nj = 0;
 	    switch (normmethod) 
@@ -331,40 +333,33 @@ if (Processing(1) == 1)
 	    sscan = {};
 	    scancell = {};
 
-        for r = 1:size(RunDir,1)
+	    for r = 1:size(RunDir,1)
 	    	frames = [1];
-            if strcmp(imagetype,'nii')
+	    	if (strcmp(imagetype,'nii'))
 	    		frames = [1:NumScan(r)];
             end
-            
             Run=RunDir{r};
             iRun=num2str(r);
-            ImageDirCheck = struct('Template',ImageTemplate,...
-                                   'type',1,...
-                                   'mode','check');
-            ImageDir=mc_GenPath(ImageDirCheck);
-            scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
-            %subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
-            subjpath = ImageDir;
-            
-            for s = 1:size(scan{r},1)
-                scancell{end+1} = strtrim([subjpath scan{r}(s,:) suffix]);
-                ascan{r}{s} = strtrim([subjpath scan{r}(s,:) suffix]);
-                rscan{r}{s} = strtrim([subjpath Pa scan{r}(s,:) suffix]);
-                wscan{end+1} = strtrim([subjpath Pra scan{r}(s,:) suffix]);
-                sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
-            end
-        end
-        
+            ImageDir=eval(generate_PathCommand(ImageTemplate));
+		scan{r} = spm_select('ExtList',ImageDir,['^' basefile '.*' imagetype],frames);
+		%subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
+        subjpath = ImageDir;
+		for s = 1:size(scan{r},1)
+		    scancell{end+1} = strtrim([subjpath scan{r}(s,:) suffix]);
+		    ascan{r}{s} = strtrim([subjpath scan{r}(s,:) suffix]);
+		    rscan{r}{s} = strtrim([subjpath Pa scan{r}(s,:) suffix]);
+		    wscan{end+1} = strtrim([subjpath Pra scan{r}(s,:) suffix]);
+		    sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
+		end
+	    end
 	    for r = 1:size(RunDir,1)
-            ascan{r} = ascan{r}';
-            rscan{r} = rscan{r}';
+		ascan{r} = ascan{r}';
+		rscan{r} = rscan{r}';
 	    end
 
 	    wscan = wscan';
 	    sscan = sscan';
 
-        Run = RunDir{1};
 	    switch (normmethod)
 		case 'func'
 		    if (strcmp(spmver,'SPM8'))
@@ -372,9 +367,7 @@ if (Processing(1) == 1)
 			    job{2}.spm.spatial.realign.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
+                ImageDir=eval(generate_PathCommand(ImageTemplate));
 			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
 			    job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -398,9 +391,7 @@ if (Processing(1) == 1)
 			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
 			    [a b c d] = fileparts(rscan{1}{1});
 			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
+                ImageDir=eval(generate_PathCommand(ImageTemplate));
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
 			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
@@ -430,20 +421,10 @@ if (Processing(1) == 1)
 			    if (strcmp(b(1),'r') & alreadydone(2))
 			    	b = b(2:end);
 			    end
-			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
+			    normsource = ['mean' b c];	    
+                ImageDir=eval(generate_PathCommand(ImageTemplate));
+                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
+                HiresDir=eval(generate_PathCommand(HiresTemplate));
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -481,19 +462,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
+                ImageDir=eval(generate_PathCommand(ImageTemplate));
+                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
+                HiresDir=eval(generate_PathCommand(HiresTemplate));
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
@@ -534,19 +505,9 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-			    ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
+			    ImageDir=eval(generate_PathCommand(ImageTemplate));
+                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
+                HiresDir=eval(generate_PathCommand(HiresTemplate));
 			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
 			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
@@ -559,7 +520,7 @@ if (Processing(1) == 1)
 		    	    
 		    	    %job{6}.spm.util.defs.comp{1}.def = {fullfile(subjdir,anatdir,['y_r' hires '.' imagetype])};
                     
-                    [HiResPath HiResName]=fileparts(HiresDir);
+                    [HiResPath HiResName]=fileparts(HiResTemplate);
                     
 		    	    job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
 		    	    job{6}.spm.util.defs.fnames = wscan;
@@ -598,26 +559,16 @@ if (Processing(1) == 1)
 			    	b = b(2:end);
 			    end
 			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
+                ImageDir=eval(generate_PathCommand(ImageTemplate));
+                OverlayDir=eval(generate_PathCommand(OverlayTemplate));
+                HiresDir=eval(generate_PathCommand(HiresTemplate));
 			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
 			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
 			    job{4}.spatial{1}.coreg{1}.estimate.source = {HiresDir};
 
 			    job{5}.tools{1}.vbm{1}.estwrite.data = {HiresDir};
-                [HiResPath HiResName]=fileparts(HiresDir);
+                [HiResPath HiResName]=fileparts(HiResTemplate);
 			    job{6}.spatial{1}.normalise{1}.write.subj.matname = {fullfile(HiResPath,[HiResName '_seg_sn.mat'])}; %Mike needs to check this
 			    job{6}.spatial{1}.normalise{1}.write.subj.resample = wscan;
 			    
@@ -676,13 +627,11 @@ if (Processing(2) == 1)
 	%%%%      Paths and Filenames           %%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    MasterFileCheck = struct('Template',MasterTemplate,...
-                             'mode','check');
-	MasterFile = mc_GenPath(MasterFileCheck);
+	MasterFile = eval(generate_PathCommand(MasterTemplate));
+    %fullfile(Exp,MasterLevel1,MasterLevel2);
 
-    RegFileCheck = struct('Template',RegTemplate,...
-                          'mode','check');
-	RegFile = mc_GenPath(RegFileCheck);
+	RegFile = eval(generate_PathCommand(RegTemplate));
+    %fullfile(Exp,RegLevel1,RegLevel2);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%% Calculated parameters %%%%%%%%%%%%%%%%%%%%%%
@@ -726,17 +675,21 @@ if (Processing(2) == 1)
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	if strcmp(MasterFile(end-3:end),'.csv')
+        CheckPath(MasterFile,'Check your MasterTemplate')
         MasterData = csvread([MasterFile],MasterDataSkipRows,MasterDataSkipCols);
     else
-        MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
-    end
+            CheckPath([MasterFile '.csv'],'Check your MasterTemplate')
+	MasterData = csvread([MasterFile, '.csv'],MasterDataSkipRows,MasterDataSkipCols);
+	end
 
 	% regressor line
 	if RegOp ==1;
-            if strcmp(RegFile(end-3:end),'.csv')
-                RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
+        	if strcmp(RegFile(end-3:end),'.csv')
+                CheckPath(RegFile,'Check your RegTemplate')
+           RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
             else
-                RegMasterData = csvread ([RegFile, '.csv'],RegDataSkipRows,RegDataSkipCols);
+                CheckPath([RegFile '.csv'],'Check your RegTemplate')
+	    RegMasterData = csvread ([RegFile, '.csv'],RegDataSkipRows,RegDataSkipCols);
             end
 	end
 
@@ -810,8 +763,7 @@ if (Processing(2) == 1)
                 end
                 
 		for iCondCol = 1: NumCondCol
-            
-		NumCondPerCondCol(iCondCol) = size(find(~isnan(unique(MasterData(:,CondColumn(iCondCol))))),1); %%% need to look at this line
+		NumCondPerCondCol(iCondCol) = size(unique(MasterData(:,CondColumn(iCondCol))),1);
 		CondValues{iCondCol} = Data(1:size(Data,1), CondColumn(iCondCol));
 		TimValues{iCondCol} = Data(1:size(Data,1), TimColumn(iCondCol));
 		DurValues{iCondCol} = Data(1:size(Data,1), DurColumn(iCondCol));
@@ -939,26 +891,22 @@ display('***********************************************')
 display(sprintf('I am working on Subject: %s', SubjDir{iSubject,1}));
 display(sprintf('The number of runs is: %s', num2str(NumRun)));
 display(sprintf('For each run, here are the onsets, durations, and parameters: '));
-        
         for iRun=1:NumRun
-            
-            fprintf('\nRun: %g',iRun)
+
+          fprintf('\nRun: %g',iRun)
             for iCond=1:NumCond
-                fprintf('\nCondition %g: ',iCond)  %%%% (Onset, Duration, Parameter Vals)
+          fprintf('\nCondition %g: ',iCond)  %%%% (Onset, Duration, Parameter Vals)
           
-                for iVal = 1: CondLength(iRun,iCond)
-                    
-                    fprintf('(%g, ',Timing{iRun}{1,iCond}(iVal))
-                    fprintf('%g',Duration{iRun}{1,iCond}(iVal))
-                    for iPar = 1: NumPar
-                        fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
-                    end;
-                    
-                fprintf(') ');     
-                
-                end  % loop through iVals
+          for iVal = 1: CondLength(iRun,iCond)
+          fprintf('(%g, ',Timing{iRun}{1,iCond}(iVal))
+          fprintf('%g',Duration{iRun}{1,iCond}(iVal))
+             for iPar = 1: NumPar
+             fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
+             end;
+         fprintf(') ');     
+          end  % loop through iVals
             end  % loop through conditions
-        end % loop through runs
+end % loop through runs
         
         
         
@@ -970,18 +918,19 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		    iRun;
 		    for iCond=1:NumCond
 
-              iCond;
+		      iCond;
 			  Timing{iRun}{1,iCond}= Timing{iRun}{1,iCond}(isnan(Timing{iRun}{1,iCond})==0);
-			  Duration{iRun}{1,iCond}= Duration{iRun}{1,iCond}(isnan(Duration{iRun}{1,iCond})==0);
+			   Duration{iRun}{1,iCond}= Duration{iRun}{1,iCond}(isnan(Duration{iRun}{1,iCond})==0);
+
 
 			  Timing{iRun}{1,iCond};
 			  Duration{iRun}{1,iCond};
 
 			  for iPar = 1: NumPar
-                  
-                Parameter{iPar,iRun}{1,iCond} = Parameter{iPar,iRun}{1,iCond}(isnan(Parameter{iPar,iRun}{1,iCond})==0);
+			       Parameter{iPar,iRun}{1,iCond} = Parameter{iPar,iRun}{1,iCond}(isnan(Parameter{iPar,iRun}{1,iCond})==0);
 
-                Parameter{iPar,iRun}{1,iCond};
+			      Parameter{iPar,iRun}{1,iCond};
+
 
 			  end % loop through parameters
 		    end  % loop through conditions       
@@ -997,12 +946,12 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 
 
 
-		OutputDir = mc_GenPath(OutputTemplate);
+		OutputDir = eval(generate_PathCommand(OutputTemplate));
         display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
+        %fullfile(Exp,OutputLevel1,SubjDir{iSubject,1},OutputLevel2,OutputLevel3);
 
 		if (Mode == 1 | Mode ==2) 
-            mc_GenPath( struct('Template',OutputDir,...
-                               'mode','makedir') );
+		    eval(sprintf('!mkdir -p %s', OutputDir))
 		    cd(OutputDir)
 		end
 
@@ -1077,98 +1026,93 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		    for iSess = 1:NumRun
 			SPM.Sess(iSess).C.C    = [];          
 			SPM.Sess(iSess).C.name = {}; 
-            end
+		    end
 
-         %% Store Motion regressors for all runs in 1 subject   
-         if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
-             for iRun=1:NumRun
-                Run           = RunDir{iRun};
-                MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-                
-                if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
-                    SPM.Sess(iRun).C.C    = load( MotRegName );
-                    SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
-                else
-                    MotReg = load( MotRegName );
-                    for iMot=1:size(MotRegList,1)
-                        SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
-                        SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
-                    end
-                end                  
-             end
-         end
-             
-		 %% case where there are regressors
-    if NumReg > 0
+		 %%% case where there are regressors
+		 if NumReg > 0
 
 		 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-        if RegOp == 2 % case where you preset regressors
+		     if RegOp == 2 % case where you preset regressors
 
 			 %set preset regressor values below
 			 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-			 reg(:,1) = [ones(200,1); zeros(600,1)];
-			 reg(:,2) = [zeros(200,1); ones(200,1); zeros(400,1)];
-			 reg(:,3) = [zeros(400,1); ones(200,1); zeros(200,1)];
+			 reg{1} = [ones(1,200) zeros(1,600)];
+			 reg{2} = [zeros(1,200) ones(1,200) zeros(1,400)];
+			 reg{3} = [zeros(1,400) ones(1,200) zeros(1,200)];
 			 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-             
-
 
 			 %% assign regressor name
 			  for iRun=1:NumRun  
 			      clear RegNameHor;
-                  SPM.Sess(iRun).C.C    = [SPM.Sess(iRun).C.C reg];
-                  SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList'];
+			  for iReg = 1:NumReg    
+			      SPM.Sess(iRun).C.C(:,iReg) = reg{iReg};
+
+
+
+			      RegNameHor {1,iReg} = RegList{iReg,1};
+			  end
+			  SPM.Sess(iRun).C.name = RegNameHor;
 			  end
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
 		 else % case where you get your regressors from file
 
-		    RegData=[];
-		    RegDataCol=[];
+		     RegData=[];
+		     RegDataCol=[];
 
-		    TotalScan = sum(NumScanTotal);
-		    %Data=MasterData(find(MasterData(:,SubjColumn)==SubjRow),:);
-		    RegData=RegMasterData(find(RegMasterData(:,RegSubjColumn)==SubjRow),:);
+		     TotalScan = sum(NumScanTotal);
+		     %Data=MasterData(find(MasterData(:,SubjColumn)==SubjRow),:);
+		     RegData=RegMasterData(find(RegMasterData(:,RegSubjColumn)==SubjRow),:);
 		     
-            %RegData=RegMasterData(((SubjRow-1)*TotalScan)+1:(((SubjRow-1)*TotalScan)+TotalScan),:);
+		     %RegData=RegMasterData(((SubjRow-1)*TotalScan)+1:(((SubjRow-1)*TotalScan)+TotalScan),:);
 
-            %%%% Shorten data according to runs present in RunList
-            NewRegData=[];
-            for iRun=1:TotalNumRun
-                NewDataRun = RegData(find(RegData(:,RegRunColumn)==iRun),:);
-                if ismember(iRun,RunList)
-                    NewRegData=vertcat(NewRegData,NewDataRun);
-                end
-            end
-            RegData=NewRegData;
+		%%%% Shorten data according to runs present in RunList
+		NewRegData=[];
+		for iRun=1:TotalNumRun
+			NewDataRun = RegData(find(RegData(:,RegRunColumn)==iRun),:);
+			if ismember(iRun,RunList)
+				NewRegData=vertcat(NewRegData,NewDataRun);
+			end
+		end
+		RegData=NewRegData;
 		
-            %%%% Shorten data according to runs present in RunList
-            %NewRegData=[];
-            %for iRun=1:TotalNumRun
-            %	NewDataRun=RegData(((iRun-1)*NumScanTotal(iRun))+1:(((iRun-1)*NumScanTotal(iRun))+NumScanTotal(iRun)),:);
-            %	if ismember(iRun,RunList)
-            %		NewRegData=vertcat(NewRegData,NewDataRun);
-            %	end
-            %end
-            RegData=NewRegData;
-			iScan=1;
+		%%%% Shorten data according to runs present in RunList
+		%NewRegData=[];
+		%for iRun=1:TotalNumRun
+		%	NewDataRun=RegData(((iRun-1)*NumScanTotal(iRun))+1:(((iRun-1)*NumScanTotal(iRun))+NumScanTotal(iRun)),:);
+		%	if ismember(iRun,RunList)
+		%		NewRegData=vertcat(NewRegData,NewDataRun);
+		%	end
+		%end
+		RegData=NewRegData;
+			   iScan=1;
 
-            for iRun=1:NumRun
-                for iReg = 1:NumReg
-                    RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
-                    SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
-                end % loop through regressors
+			   for iRun=1:NumRun
 
-                %% assign regressor name
-                SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList(:,1)'];
-                iScan = iScan + NumScan(1,iRun);
 
-            end % loop through run
+
+			  for iReg = 1:NumReg
+
+		      RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
+		      SPM.Sess(iRun).C.C(:,iReg) = RegDataCol; % assign this RegDataCol to appropriate column in the SPM variable
+
+			  end % loop through regressors
+
+			 %% assign regressor name
+			  clear RegNameHor;
+			  for iReg = 1:NumReg
+			      RegNameHor {1,iReg} = RegList{iReg,1};
+			  end
+			  SPM.Sess(iRun).C.name = RegNameHor;
+			  iScan = iScan + NumScan (1,iRun);
+
+			  end % loop through run
+
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-        end %% end conditional on RegOp
+		     end %% end conditional on RegOp
 
-    end    % end regressor routine
+		 end    % end regressor routine
 
 
 
@@ -1180,32 +1124,31 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		%%%% for SPM2 %%%%
 		%%%%%%%%%%%%%%%%%%
 		    for iRun = 1:ImageNumRun
-                frames = [1];
-                if (strcmp(imagetype,'nii'))
-                    frames = [1:NumScanTotal(RunList(iRun))];
-                end
-                % directory of images in a subject
+			frames = [1];
+			if (strcmp(imagetype,'nii'))
+				frames = [1:NumScanTotal(RunList(iRun))];
+			end
+			% directory of images in a subject
             
-                Run=RunDir{iRun};
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir = mc_GenPath(ImageDirCheck);
-                %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
-                %CheckPath(ImageDir,'Check your ImageTemplate');
+            Run=RunDir{iRun};
+			ImageDir = eval(generate_PathCommand(ImageTemplate));
+            %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
+CheckPath(ImageDir,'Check your ImageTemplate');
 
 
-                % for SPM2
-                if (spm2)
-                    tmpP = spm_get('files',ImageDir,[Pwra basefile '*.img']); 
-                else
-                    tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
-                end
-                P = strvcat(P,tmpP);
+			% for SPM2
+			if (spm2)
+				tmpP = spm_get('files',ImageDir,[Pwra basefile '*.img']); 
+			else
+				tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+			end
+			P = strvcat(P,tmpP);
 
-                if isempty(P)
-                    display(sprintf('Sorry friend. I was looking for your functional images here: %s. I could not find any images there.', ImageDir));
-                    error('');
-                end
+            if isempty(P)
+                display(sprintf('Sorry friend. I was looking for your functional images here: %s. I could not find any images there.', ImageDir));
+                error('');
+            end
+            
 		    end
 		%%%%%%%%%%%%%%%%%%
 
@@ -1314,46 +1257,49 @@ display(sprintf('For each run, here are the onsets, durations, and parameters: '
 		end
 
 		Scaling = sum(CondPresent,1);
-		Scaling = NumRun./Scaling;  % This needs attention
+		Scaling = NumRun./Scaling  % This needs attention
 
 
 		%%%%% Set up "dynamic" contrasts %%%%%
 		NumContrast=size(ContrastList,1);
-        for iContrast = 1: NumContrast
-            ContrastName{iContrast} = ContrastList{iContrast,1};
-            ContrastBase=[];
 
-            for iRun=1:NumRun
-                
-                for iCond=1:NumCond-CondModifier
-                    CondContrast = ContrastList{iContrast, iCond+1};
 
-                    if CondLength(iRun, iCond)  > CondThreshold
-                        CondContrast = CondContrast * Scaling(1,iCond);  % apply scaling factor
-                        ContrastBase= horzcat(ContrastBase,CondContrast);
-                    end
+		for iContrast = 1: NumContrast
 
-                end % loop through conditions
-		  
-                % do motion regressors from file if any
-                if exist('MotRegTemplate','var') == 1 && ~isempty('MotRegTemplate')
-                    Run          = RunDir{iRun};
-                    MotRegName   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-                    MotReg       = load( MotRegName );
-                    zeroPad      = zeros( 1, size(MotReg,2) );
-                    ContrastBase = [ContrastBase zeroPad];
-                end
-                
-                % do user specified regressors
-                if NumReg > 0
-                    ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
-                end
-                
-            end % loop through runs
 
-            ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
-            ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
-        end % loop through contrasts
+		    ContrastName{iContrast} = ContrastList{iContrast,1};
+		    ContrastBase=[];
+
+		     for iRun=1:NumRun
+
+			for iCond=1:NumCond-CondModifier
+
+			    CondContrast = ContrastList{iContrast, iCond+1};
+
+
+
+			    if CondLength(iRun, iCond)  > CondThreshold
+
+			  CondContrast = CondContrast * Scaling(1,iCond);  % apply scaling factor
+			  ContrastBase= horzcat(ContrastBase,CondContrast);
+
+
+			    end
+
+			end % loop through conditions
+		  if NumReg > 0
+		      ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
+		  end        
+		     end % loop through runs
+
+
+
+
+		 ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+		 ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
+		 end % loop through contrasts
+		%     
+		%     
 
 
 		if ((Mode == 1 | Mode ==2) & StartOp ~=1) % case where you want do *not* want to set your own start (and thus want to simply append to previous contrasts)
