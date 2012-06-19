@@ -1,6 +1,6 @@
 function mc_Error(errorString,varargin)
 % A utility function to make error handling and logging more compact
-% A single call to mc_Error will log the error to the global mc_LogName, 
+% A single call to mc_Error will log the error to the global mcLog, 
 % bring up an error dialog box with your error message, and actually throw
 % an exception with the Matlab error function.
 %
@@ -37,8 +37,11 @@ function mc_Error(errorString,varargin)
         errormsg = errorString;
     end
     
-    %add future code to call mc_Logger with loglevel Error
-    
+    global mcLog
+    if (~isempty(mcLog))
+        %call logging function
+        mc_Logger('log',errormsg,1);
+    end
     errordlg(errormsg);
     error(errormsg);
     

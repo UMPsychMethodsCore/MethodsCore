@@ -4,6 +4,17 @@
 %%% and edit that to match your data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Code to create logfile name
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup',LogDirectory);
+if (~result)
+    %error with setting up logging
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,7 +49,7 @@ Pra = [rep stp];
 Pwra = [nop rep stp];	
 Pswra = [smp nop rep stp];
 
-addpath(spmpath);
+%addpath(spmpath);
 addpath(pwd);
 spm('defaults','fmri');
 global defaults
