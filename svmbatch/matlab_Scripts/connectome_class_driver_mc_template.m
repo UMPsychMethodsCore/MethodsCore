@@ -149,7 +149,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(genpath(fullfile(mcRoot,'matlabScripts')))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
