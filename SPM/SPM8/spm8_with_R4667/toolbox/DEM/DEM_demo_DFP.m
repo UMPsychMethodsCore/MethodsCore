@@ -36,9 +36,12 @@ DEM  = spm_DFP(DEM);
  
 % overlay true values
 %--------------------------------------------------------------------------
-spm_figure('GetWin','Graphics');
+spm_figure('GetWin','Graphics')
 spm_DEM_qU(DEM.qU,DEM.pU)
 
+if ~strcmp(questdlg('proceed with DEM using the same model and data'),'Yes')
+    return
+end
  
 % invert model - DEM
 %==========================================================================

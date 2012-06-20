@@ -5,7 +5,7 @@ function cls = spm_preproc_write8(res,tc,bf,df)
 % Copyright (C) 2008 Wellcome Department of Imaging Neuroscience
 
 % John Ashburner
-% $Id: spm_preproc_write8.m 4194 2011-02-05 18:08:06Z ged $
+% $Id: spm_preproc_write8.m 3172 2009-06-02 11:40:42Z john $
 
 % Read essentials from tpm (it will be cleared later)
 tpm = res.tpm;
@@ -15,7 +15,8 @@ end
 d1        = size(tpm.dat{1});
 d1        = d1(1:3);
 M1        = tpm.M;
-[bb1 vx1] = spm_get_bbox(tpm.V(1), 'old');
+[bb1,vx1] = bbvox_from_V(tpm.V(1));
+
 
 if isfield(res,'mg'),
     lkp = res.lkp;
@@ -26,7 +27,7 @@ end
 
 N   = numel(res.image);
 if nargin<2, tc = true(Kb,4); end % native, import, warped, warped-mod
-if nargin<3, bf = true(N,2);  end % field, corrected
+if nargin<3, bf = true(N,2);  end % corrected, field
 if nargin<4, df = true(1,2);  end % inverse, forward
 
 [pth,nam]=fileparts(res.image(1).fname);
@@ -320,7 +321,7 @@ if any(tc(:,3)),
         if tc(k1,3),
             N      = nifti;
             N.dat  = file_array(fullfile(pth,['wc', num2str(k1), nam, '.nii']),...
-                                d1,'uint8',0,1/255,0);
+                                d1,'uint8-be',0,1/255,0);
             N.mat  = M1;
             N.mat0 = M1;
             N.descrip = ['Warped tissue class ' num2str(k1)];
@@ -337,7 +338,7 @@ if df(2),
     y         = spm_invert_def(y,M1,d1,M0,[1 0]);
     N         = nifti;
     N.dat     = file_array(fullfile(pth,['y_', nam1, '.nii']),...
-                           [d1,1,3],'float32',0,1,0);
+                           [d1,1,3],'float32-be',0,1,0);
     N.mat     = M1;
     N.mat0    = M1;
     N.descrip = 'Deformation';
@@ -407,6 +408,17 @@ i  = (length(x) - 1)/2;
 j  = (length(y) - 1)/2;
 k  = (length(z) - 1)/2;
 spm_conv_vol(dat,dat,x,y,z,-[i j k]);
+return;
+%=======================================================================
+
+%=======================================================================
+function [bb,vx] = bbvox_from_V(V)
+vx = sqrt(sum(V(1).mat(1:3,1:3).^2));
+if det(V(1).mat(1:3,1:3))<0, vx(1) = -vx(1); end;
+
+o  = V(1).mat\[0 0 0 1]';
+o  = o(1:3)';
+bb = [-vx.*(o-1) ; vx.*(V(1).dim(1:3)-o)];
 return;
 %=======================================================================
 

@@ -1,11 +1,11 @@
-function cls = spm_preproc_write8(res,tc,bf,df,mrf)
+function cls = spm_preproc_write8(res,tc,bf,df)
 % Write out VBM preprocessed data
-% FORMAT cls = spm_preproc_write8(res,tc,bf,df,mrf)
+% FORMAT cls = spm_preproc_write8(res,tc,bf,df)
 %____________________________________________________________________________
 % Copyright (C) 2008 Wellcome Department of Imaging Neuroscience
 
 % John Ashburner
-% $Id: spm_preproc_write8.m 4337 2011-05-31 16:59:44Z john $
+% $Id: spm_preproc_write8.m 3172 2009-06-02 11:40:42Z john $
 
 % Read essentials from tpm (it will be cleared later)
 tpm = res.tpm;
@@ -15,7 +15,8 @@ end
 d1        = size(tpm.dat{1});
 d1        = d1(1:3);
 M1        = tpm.M;
-[bb1 vx1] = spm_get_bbox(tpm.V(1), 'old');
+[bb1,vx1] = bbvox_from_V(tpm.V(1));
+
 
 if isfield(res,'mg'),
     lkp = res.lkp;
@@ -26,9 +27,8 @@ end
 
 N   = numel(res.image);
 if nargin<2, tc = true(Kb,4); end % native, import, warped, warped-mod
-if nargin<3, bf = true(N,2);  end % field, corrected
+if nargin<3, bf = true(N,2);  end % corrected, field
 if nargin<4, df = true(1,2);  end % inverse, forward
-if nargin<5, mrf= 2;          end % MRF parameter
 
 [pth,nam]=fileparts(res.image(1).fname);
 ind  = res.image(1).n;
@@ -75,8 +75,10 @@ end
 
 do_cls   = any(tc(:)) || nargout>1;
 tiss(Kb) = struct('Nt',[]);
+cls      = cell(1,Kb);
 for k1=1:Kb,
     if tc(k1,4) || any(tc(:,3)) || tc(k1,2) || nargout>=1,
+        cls{k1} = zeros(d(1:3),'uint8');
         do_cls  = true;
     end
     if tc(k1,1),
@@ -121,10 +123,6 @@ end
 
 spm_progress_bar('init',length(x3),['Working on ' nam],'Planes completed');
 M = M1\res.Affine*res.image(1).mat;
-
-if do_cls
-    Q = zeros([d(1:3),Kb],'single');
-end
 
 for z=1:length(x3),
 
@@ -185,61 +183,24 @@ for z=1:length(x3),
                     end
                 end
             end
-            Q(:,:,z,:) = reshape(q,[d(1:2),1,Kb]);
 
+            sq = sum(q,3) + eps^2;
+            for k1=1:Kb,
+                tmp            = q(:,:,k1);
+                tmp(msk)       = 0;
+                tmp            = tmp./sq;
+                if ~isempty(cls{k1}),
+                    cls{k1}(:,:,z) = uint8(round(255 * tmp));
+                end
+                if ~isempty(tiss(k1).Nt),
+                    tiss(k1).Nt.dat(:,:,z,ind(1),ind(2)) = tmp;
+                end
+            end
         end
     end
     spm_progress_bar('set',z);
 end
 spm_progress_bar('clear');
-
-cls   = cell(1,Kb);
-if do_cls
-    P = zeros([d(1:3),Kb],'uint8');
-    for z=1:length(x3),
-        sq = sum(Q(:,:,z,:),4) + eps^2;
-        for k1=1:Kb
-            P(:,:,z,k1) = uint8(round(255 * Q(:,:,z,k1)./sq));
-        end
-    end
-    if mrf~=0, nmrf_its = 10; else nmrf_its = 1; end
-
-    if mrf==0, % Done this way as spm_mrf is not compiled for all platforms yet
-        sQ = (sum(Q,4)+eps)/255;
-        for k1=1:size(Q,4)
-            P(:,:,:,k1) = uint8(round(Q(:,:,:,k1)./sQ));
-        end
-        clear sQ
-    else
-        spm_progress_bar('init',nmrf_its,['MRF: Working on ' nam],'Iterations completed');
-        G   = ones([Kb,1],'single')*mrf;
-        vx2 = single(sum(res.image(1).mat(1:3,1:3).^2));
-        %save PQG P Q G tiss Kb x3 ind
-        for iter=1:nmrf_its,
-            spm_mrf(P,Q,G,vx2);
-            spm_progress_bar('set',iter);
-        end
-    end
-
-    clear Q
-
-    for k1=1:Kb,
-        if ~isempty(tiss(k1).Nt),
-            for z=1:length(x3),
-                tmp = double(P(:,:,z,k1))/255;
-                tiss(k1).Nt.dat(:,:,z,ind(1),ind(2)) = tmp;
-            end
-        end
-    end
-    spm_progress_bar('clear');
-
-    for k1=1:Kb,
-        if tc(k1,4) || any(tc(:,3)) || tc(k1,2) || nargout>=1,
-            cls{k1} = P(:,:,:,k1);
-        end
-    end
-    clear P
-end
 
 clear tpm
 M0 = res.image(1).mat;
@@ -360,7 +321,7 @@ if any(tc(:,3)),
         if tc(k1,3),
             N      = nifti;
             N.dat  = file_array(fullfile(pth,['wc', num2str(k1), nam, '.nii']),...
-                                d1,'uint8',0,1/255,0);
+                                d1,'uint8-be',0,1/255,0);
             N.mat  = M1;
             N.mat0 = M1;
             N.descrip = ['Warped tissue class ' num2str(k1)];
@@ -377,7 +338,7 @@ if df(2),
     y         = spm_invert_def(y,M1,d1,M0,[1 0]);
     N         = nifti;
     N.dat     = file_array(fullfile(pth,['y_', nam1, '.nii']),...
-                           [d1,1,3],'float32',0,1,0);
+                           [d1,1,3],'float32-be',0,1,0);
     N.mat     = M1;
     N.mat0    = M1;
     N.descrip = 'Deformation';
@@ -447,6 +408,17 @@ i  = (length(x) - 1)/2;
 j  = (length(y) - 1)/2;
 k  = (length(z) - 1)/2;
 spm_conv_vol(dat,dat,x,y,z,-[i j k]);
+return;
+%=======================================================================
+
+%=======================================================================
+function [bb,vx] = bbvox_from_V(V)
+vx = sqrt(sum(V(1).mat(1:3,1:3).^2));
+if det(V(1).mat(1:3,1:3))<0, vx(1) = -vx(1); end;
+
+o  = V(1).mat\[0 0 0 1]';
+o  = o(1:3)';
+bb = [-vx.*(o-1) ; vx.*(V(1).dim(1:3)-o)];
 return;
 %=======================================================================
 

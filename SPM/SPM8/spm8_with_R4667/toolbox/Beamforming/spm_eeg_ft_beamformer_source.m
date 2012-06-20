@@ -23,7 +23,7 @@ function Dsource = spm_eeg_ft_beamformer_source(S)
 % Copyright (C) 2009 Wellcome Trust Centre for Neuroimaging
 
 % Vladimir Litvak, Robert Oostenveld
-% $Id: spm_eeg_ft_beamformer_source.m 4238 2011-03-10 19:48:37Z vladimir $
+% $Id: spm_eeg_ft_beamformer_source.m 3833 2010-04-22 14:49:48Z vladimir $
 
 [Finter,Fgraph,CmdLine] = spm('FnUIsetup', 'Beamformer source activity extraction',0);
 
@@ -92,14 +92,7 @@ if ~isfield(S, 'outfile')
     S.outfile = spm_input('Output file name', '+1', 's', ['B' D.fname]);
 end
 
-modality = D.modality(1, 1);
-if isequal(modality, 'Multimodal')
-    if isfield(S, 'modality') && ~isempty(S.modality)
-        modality = S.modality;
-    else
-        modality = spm_eeg_modality_ui(D, 1, 1);
-    end
-end
+modality = spm_eeg_modality_ui(D, 1, 1);
 
 %% ============ Select the data and convert to Fieldtrip struct
 if ~isfield(S, 'conditions')
@@ -175,8 +168,6 @@ M1(1:3,1:3) =U*V';
 vol = ft_transform_vol(M1, vol);
 sens = ft_transform_sens(M1, sens);
 
-pos = spm_eeg_inv_transform_points(M1*datareg.fromMNI, S.sources.pos);
-
 channel = D.chanlabels(setdiff(meegchannels(D, modality), D.badchannels));
 
 [vol, sens] = ft_prepare_vol_sens(vol, sens, 'channel', channel);
@@ -190,8 +181,9 @@ data.trial = data.trial(trialind);
 data.time = data.time(trialind);
 
 cfg = [];
-cfg.channel = D.chanlabels(setdiff(D.meegchannels(modality), D.badchannels))';
+cfg.channel = modality;
 cfg.covariance = 'yes';
+cfg.covariancewindow = 'maxperlength';
 cfg.keeptrials = 'no';
 timelock1 = ft_timelockanalysis(cfg, data);
 cfg.keeptrials = 'yes';
@@ -208,7 +200,7 @@ end
 
 if ~isfield(S, 'voi') || isequal(S.voi, 'no')
     nvoi = 0;
-    cfg.grid.pos     = pos;
+    cfg.grid.pos     = S.sources.pos;
     if isfield(S.sources, 'ori')
         cfg.grid.mom    = S.sources.ori;
     else
@@ -222,8 +214,8 @@ else
     sphere(sqrt(X(:).^2 + Y(:).^2 + Z(:).^2)>S.voi.radius, :) = [];
     nvoi = size(sphere, 1);
     cfg.grid.pos = [];
-    for s = 1:size(pos, 1)
-        cfg.grid.pos = [cfg.grid.pos; sphere+repmat(pos(s, :), nvoi, 1)];
+    for s = 1:size(S.sources.pos, 1)
+        cfg.grid.pos = [cfg.grid.pos; sphere+repmat(S.sources.pos(s, :), nvoi, 1)];
     end
 end
 
@@ -237,60 +229,11 @@ cfg.keepleadfield = 'yes';
 cfg.lambda =  S.lambda;
 source1 = ft_sourceanalysis(cfg, timelock1);
 
-if isfield(S, 'makecorrimage') &&  S.makecorrimage
-    if size(pos, 1) ~= numel(source1.avg.filter)
-        error('Can only make correlation images for point sources');
-    end
-    
-    res = mkdir(pwd, 'corrimages');
-         
-    cfg.grid = [];
-    cfg.grid.xgrid = -90:10:90;
-    cfg.grid.ygrid = -120:10:100;
-    cfg.grid.zgrid = -70:10:110;
-    cfg.inwardshift = -10;
-    
-    fsource = ft_sourceanalysis(cfg, timelock1);
-    
-    
-    sMRI = fullfile(spm('dir'), 'canonical', 'single_subj_T1.nii');
-    
-    pow = nan(size(fsource.avg.pow));
-    for p = 1:numel(source1.avg.filter)
-        for q = 1:length(fsource.inside);
-            cc = corrcoef(source1.avg.filter{p}, fsource.avg.filter{fsource.inside(q)});
-            pow(fsource.inside(q)) = (cc(1,2))^2;
-            fprintf('Correlation image %d/%d\n', q, length(fsource.inside));
-        end
-        
-        fsource.pow = pow;
-        
-        cfg1 = [];
-        cfg1.sourceunits   = 'mm';
-        cfg1.parameter = 'pow';
-        cfg1.downsample = 1;
-        sourceint = ft_sourceinterpolate(cfg1, fsource, sMRI);
-        %%           
-        outvol = spm_vol(sMRI);
-        outvol.dt(1) = spm_type('float32');
-        
-        if length(trialind) == 1
-            suff = num2str(trialind);
-        else
-            suff = '';
-        end
-        
-        outvol.fname= fullfile(pwd, 'corrimages', ['corrimg_' spm_str_manip(D.fname, 'r') '_' S.sources.label{p} '_' suff '.nii']);
-        outvol = spm_create_vol(outvol);
-        spm_write_vol(outvol, sourceint.pow);
-    end
-end
-
 cfg = [];
 cfg.inwardshift = -30;
 cfg.vol = vol;
 cfg.grad = sens;
-cfg.grid = ft_source2grid(source1);
+cfg.grid = source2grid(source1);
 cfg.channel = modality;
 cfg.lambda =  S.lambda;
 cfg.rawtrial = 'yes';
@@ -335,25 +278,22 @@ for i=1:length(source2.trial)
     disp(['Extracting source data trial ' num2str(i) '/'  num2str(length(source2.trial))]);
     for j = 1:nsources
         if nvoi>0
-            y = cat(1, source2.trial(i).mom{(j-1)*nvoi+[1:nvoi]});            
+            y = cat(1, source2.trial(i).mom{(j-1)*nvoi+[1:nvoi]});
+            
+            % compute regional response in terms of first eigenvariate
+            %-----------------------------------------------------------------------
+            [m n]   = size(y);
+            if m > n
+                [v s v] = svd(y'*y);
+                Y       = v(:,1);
+            else
+                [u s u] = svd(y*y');
+                u       = u(:,1);
+                Y       = y'*u;
+            end
         else
-            y       = source2.trial(i).mom{j};
+            Y       = source2.trial(i).mom{j};
         end
-        
-        % compute regional response in terms of first eigenvariate
-        %-----------------------------------------------------------------------
-        [m n]   = size(y);
-        if m > n && n>1
-            [v s v] = svd(y'*y);
-            Y       = v(:,1);
-        elseif m>1
-            [u s u] = svd(y*y');
-            u       = u(:,1);
-            Y       = y'*u;
-        else
-            Y = y;
-        end
-        
         sourcedata.trial(i, j, :)= Y;
     end
 end
@@ -362,6 +302,7 @@ end
 sourcedata.time = timelock2.time;
 sourcedata.dimord = 'rpt_chan_time';
 sourcedata.label = S.sources.label;
+sourcedata.fsample = timelock2.fsample;
 sourcedata.avg = [];
 %%
 if ~isempty(S.appendchannels)

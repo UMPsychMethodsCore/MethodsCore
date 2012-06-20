@@ -21,7 +21,6 @@ DEM   = spm_dem_initialise(DEM);
  
 % DEM estimation
 %==========================================================================
-DEM.M(1).E.nE = 16;
 DEM   = spm_DEM(DEM);
  
 % compare real and estimated factor and causes

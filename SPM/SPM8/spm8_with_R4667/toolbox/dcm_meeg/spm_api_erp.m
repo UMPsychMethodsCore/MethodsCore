@@ -6,7 +6,7 @@ function varargout = spm_api_erp(varargin)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
  
 % Karl Friston
-% $Id: spm_api_erp.m 4570 2011-11-23 17:09:59Z vladimir $
+% $Id: spm_api_erp.m 3846 2010-04-27 17:25:13Z vladimir $
  
 if nargin == 0 || nargin == 1  % LAUNCH GUI
  
@@ -68,7 +68,6 @@ end
 % Type of analysis
 %--------------------------------------------------------------------------
 % 'ERP'    - Event related responses
-% 'CSD'    - Cross-spectral density
 % 'SSR'    - Steady-state responses
 % 'IND'    - Induced responses
 % 'PHA'    - (for phase coupling)
@@ -82,10 +81,9 @@ catch
 end
 switch model
     case{'ERP'}, set(handles.ERP,'Value',1);
-    case{'CSD'}, set(handles.ERP,'Value',2);
-    case{'SSR'}, set(handles.ERP,'Value',3);
-    case{'IND'}, set(handles.ERP,'Value',4);
-    case{'PHA'}, set(handles.ERP,'Value',5);
+    case{'SSR'}, set(handles.ERP,'Value',2);
+    case{'IND'}, set(handles.ERP,'Value',3);
+    case{'PHA'}, set(handles.ERP,'Value',4);
     otherwise
 end
 handles = ERP_Callback(hObject, eventdata, handles);
@@ -95,7 +93,6 @@ handles = ERP_Callback(hObject, eventdata, handles);
 %--------------------------------------------------------------------------
 % 'ERP'    - (linear second order NMM slow)
 % 'SEP'    - (linear second order NMM fast)
-% 'CMC'    - (linear second order NMM Canonical microcircuit)
 % 'LFP'    - (linear second order NMM self-inhibition)
 % 'NMM'    - (nonlinear second order NMM first-order moments)
 % 'MFM'    - (nonlinear second order NMM second-order moments)
@@ -110,13 +107,13 @@ end
 switch model
     case{'ERP'}, set(handles.model,'Value',1);
     case{'SEP'}, set(handles.model,'Value',2);
-    case{'CMC'}, set(handles.model,'Value',3);
-    case{'LFP'}, set(handles.model,'Value',4);
-    case{'NMM'}, set(handles.model,'Value',5);
-    case{'MFM'}, set(handles.model,'Value',6);
+    case{'LFP'}, set(handles.model,'Value',3);
+    case{'NMM'}, set(handles.model,'Value',4);
+    case{'MFM'}, set(handles.model,'Value',5);
+    case{'DEM'}, set(handles.model,'Value',6);
     otherwise
 end
-
+ 
 % Type of model (spatial)
 %--------------------------------------------------------------------------
 % 'ECD'    - Equivalent current dipole
@@ -162,9 +159,8 @@ try, set(handles.T2, 'String', num2str(DCM.options.Tdcm(2)));        end
 try, set(handles.Hz1,'String', num2str(DCM.options.Fdcm(1)));        end
 try, set(handles.Hz2,'String', num2str(DCM.options.Fdcm(2)));        end
 try, set(handles.Rft,'String', num2str(DCM.options.Rft));            end
-try, set(handles.Nmodes,       'Value', DCM.options.Nmodes);         end
-try, set(handles.h,            'Value', ...
-        find(str2double(get(handles.h,'String')) == DCM.options.h)); end
+try, set(handles.Nmodes,      'Value', DCM.options.Nmodes);          end
+try, set(handles.h,           'Value', DCM.options.h);               end
 try, set(handles.han,         'Value', DCM.options.han);             end
 try, set(handles.D,           'Value', DCM.options.D);               end
 try, set(handles.lock,        'Value', DCM.options.lock);            end
@@ -174,7 +170,6 @@ try, set(handles.design,      'String',num2str(DCM.xU.X','%7.2f'));  end
 try, set(handles.Uname,       'String',DCM.xU.name);                 end
 try, set(handles.Sname,       'String',DCM.Sname);                   end
 try, set(handles.onset,       'String',num2str(DCM.options.onset));  end
-try, set(handles.dur,         'String',num2str(DCM.options.dur));    end
 try, set(handles.Slocation,   'String',num2str(DCM.Lpos','%4.0f'));  end
  
 % Imaging
@@ -301,7 +296,7 @@ handles.DCM.options.model     = model;
 %--------------------------------------------------------------------------
 model = get(handles.Spatial,       'String');
 model = model{get(handles.Spatial, 'Value')};
-handles.DCM.options.spatial  = model;
+handles.DCM.options.spatial   = model;
 
 handles.DCM.options.trials   = str2num(get(handles.Y1,    'String'));
 handles.DCM.options.Tdcm(1)  = str2num(get(handles.T1,    'String'));
@@ -310,10 +305,8 @@ handles.DCM.options.Fdcm(1)  = str2num(get(handles.Hz1,   'String'));
 handles.DCM.options.Fdcm(2)  = str2num(get(handles.Hz2,   'String'));
 handles.DCM.options.Rft      = str2num(get(handles.Rft,   'String'));
 handles.DCM.options.onset    = str2num(get(handles.onset, 'String'));
-handles.DCM.options.dur      = str2num(get(handles.dur,   'String'));
 handles.DCM.options.Nmodes   = get(handles.Nmodes,        'Value');
-detrend_val                  = str2double(get(handles.h,  'String'));
-handles.DCM.options.h        = detrend_val(get(handles.h, 'Value'));
+handles.DCM.options.h        = get(handles.h,             'Value');
 handles.DCM.options.han      = get(handles.han,           'Value');
 handles.DCM.options.D        = get(handles.D,             'Value');
 handles.DCM.options.lock     = get(handles.lock,          'Value');
@@ -393,20 +386,13 @@ else
     handles.DCM.xY.modality = mod;
 end
 
-if isequal(handles.DCM.xY.modality, 'LFP')
-    set(handles.Spatial, 'Value', strmatch('LFP', get(handles.Spatial, 'String')));
-end   
 
 % Assemble and display data
 %--------------------------------------------------------------------------
 handles = reset_Callback(hObject, eventdata, handles);
 try
     handles.DCM  = spm_dcm_erp_data(handles.DCM,handles.DCM.options.h);
-    if isfield(handles.DCM.xY, 'xy')
-        spm_dcm_erp_results(handles.DCM, 'Data');
-    else
-        spm_dcm_ind_results(handles.DCM, 'Wavelet');
-    end  
+    spm_dcm_erp_results(handles.DCM, 'Data');
     set(handles.dt, 'String',sprintf('bins: %.1fms', handles.DCM.xY.dt*1000))
     set(handles.dt, 'Visible','on')
     set(handles.data_ok, 'enable', 'on'); 
@@ -430,11 +416,7 @@ function Y_Callback(hObject, eventdata, handles)
 handles = reset_Callback(hObject, eventdata, handles);
 try
     DCM  = spm_dcm_erp_data(handles.DCM,handles.DCM.options.h);
-    if isfield(DCM.xY, 'xy')
-        spm_dcm_erp_results(DCM, 'Data');
-    else
-        spm_dcm_ind_results(DCM, 'Wavelet');
-    end  
+    spm_dcm_erp_results(DCM, 'Data');
     set(handles.dt, 'String',sprintf('bins: %.1fms', DCM.xY.dt*1000))
     set(handles.dt, 'Visible','on')
     set(handles.data_ok, 'enable', 'on'); 
@@ -549,12 +531,10 @@ set(handles.spatial_back,  'Enable', 'on');
 set(handles.spatial_ok,    'Enable', 'on');
 
 switch handles.DCM.options.analysis
-    case{'SSR','CSD'}
+    case{'SSR'}
         set(handles.onset, 'Enable', 'off');
-        set(handles.dur,   'Enable', 'off');
     otherwise
         set(handles.onset, 'Enable', 'on');
-        set(handles.dur,   'Enable', 'on');
 end
 
  
@@ -585,9 +565,9 @@ switch DCM.options.spatial
         %------------------------------------------------------------------
         Slocation = zeros(Nareas, 3);
         tmp       = get(handles.Slocation, 'String');
-        if ~isempty(tmp) && size(tmp,1) == Nareas
+        if ~isempty(tmp) & size(tmp,1) == Nareas
             for i = 1:Nareas
-                tmp2 = str2num(char(tmp(i, :)));
+                tmp2 = str2num(tmp(i, :));
                 if length(tmp2) ~= 3
                     errordlg(sprintf('coordinates of source %d invalid',i));
                     return;
@@ -609,21 +589,18 @@ switch DCM.options.spatial
         DCM.Lpos = Slocation';
         
         % forward model (spatial)
-        %------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         DCM = spm_dcm_erp_dipfit(DCM);
         set(handles.plot_dipoles,'enable','on')
  
     case{'LFP'}
           
-        if ~isdeployed, 
-            addpath(fullfile(spm('Dir'),'toolbox','Neural_Models'));
-        end
-        
+        if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','Neural_Models')); end
         % for LFP
         %------------------------------------------------------------------
         DCM.Lpos = zeros(3,0);
         try
-            set(handles.Slocation, 'String', Sname(1:Nchannels));  
+            set(handles.Slocation, 'String', {'assuming LFP in', Sname{1:Nchannels}});  
             set(handles.plot_dipoles,'enable','off')
         catch
             warndlg('There are more LFP channels than sources')
@@ -641,7 +618,6 @@ set(handles.Spatial,          'Enable', 'off');
 set(handles.data_ok,          'Enable', 'off');
 set(handles.spatial_ok,       'Enable', 'off');
 set(handles.onset,            'Enable', 'off');
-set(handles.dur,              'Enable', 'off');
 set(handles.Sname,            'Enable', 'off');
 set(handles.Slocation,        'Enable', 'off');
 set(handles.spatial_back,     'Enable', 'off');
@@ -677,7 +653,6 @@ function spatial_back_Callback(hObject, eventdata, handles)
 set(handles.Spatial,      'Enable', 'off');
 set(handles.spatial_ok,   'Enable', 'off');
 set(handles.onset,        'Enable', 'off');
-set(handles.dur,          'Enable', 'off');
 set(handles.Sname,        'Enable', 'off');
 set(handles.Slocation,    'Enable', 'off');
 set(handles.spatial_back, 'Enable', 'off');
@@ -704,12 +679,11 @@ ERP_Callback(hObject, eventdata, handles);
 function plot_dipoles_Callback(hObject, eventdata, handles)
  
 % read location coordinates
-%--------------------------------------------------------------------------
 tmp       = get(handles.Slocation, 'String');
 Slocation = [];
 if ~isempty(tmp) 
     for i = 1:size(tmp, 1)
-        tmp2 = str2num(char(tmp(i, :)))';
+        tmp2 = str2num(tmp(i, :))';
         if length(tmp2) == 3
             Slocation = [Slocation tmp2];
         end
@@ -738,7 +712,7 @@ DCM     = handles.DCM;
 n       = length(DCM.Sname);              % number of sources
 m       = size(DCM.xU.X,2);               % number of experimental inputs
 switch DCM.options.analysis
-    case{'SSR','CSD'}                     % for Steady-state responses
+    case{'SSR'}                           % for Steady-state responses
         l = n;                            % number of endogenous inputs
     otherwise
         l = length(DCM.options.onset);    % number of peristimulus inputs
@@ -972,18 +946,15 @@ set(handles.Rft,               'Enable', 'off');
 set(handles.Spatial,           'Enable', 'on');
 set(handles.spatial_ok,        'Enable', 'on');
 set(handles.onset,             'Enable', 'on');
-set(handles.dur,               'Enable', 'on');
 set(handles.Sname,             'Enable', 'on');
 set(handles.Slocation,         'Enable', 'on');
 set(handles.spatial_back,      'Enable', 'on');
 
 switch handles.DCM.options.analysis
-    case{'SSR','CSD'}
+    case{'SSR'}
         set(handles.onset,     'Enable', 'off');
-        set(handles.dur,       'Enable', 'off');
     otherwise
         set(handles.onset,     'Enable', 'on');
-        set(handles.dur,       'Enable', 'on');
 end
  
 % connection buttons
@@ -1062,11 +1033,6 @@ switch handles.DCM.options.analysis
             otherwise
                 handles.DCM = spm_dcm_erp(handles.DCM);
         end
-        
-    % cross-spectral density model (complex)
-    %----------------------------------------------------------------------
-    case{'CSD'}
-        handles.DCM = spm_dcm_csd(handles.DCM);
 
     % cross-spectral density model (steady-state responses)
     %----------------------------------------------------------------------
@@ -1112,11 +1078,6 @@ switch handles.DCM.options.analysis
     %----------------------------------------------------------------------
     case{'ERP'}
         spm_dcm_erp_results(handles.DCM, Action);
-        
-    % Cross-spectral density model (complex)
-    %----------------------------------------------------------------------
-    case{'CSD'}
-        spm_dcm_csd_results(handles.DCM, Action);
  
     % Cross-spectral density model (steady-state responses)
     %----------------------------------------------------------------------
@@ -1203,7 +1164,6 @@ switch handles.DCM.options.analysis
             'Input',
             'Response',
             'Response (image)',
-            'Scalp maps',
             'Dipoles'};
         try
             set(handles.Nmodes, 'Value', handles.DCM.options.Nmodes);
@@ -1211,43 +1171,11 @@ switch handles.DCM.options.analysis
             set(handles.Nmodes, 'Value', 8);
         end
         
-        set(handles.text20,     'String', 'modes');
+        set(handles.text20, 'String', 'modes');
         set(handles.model,      'Enable','on');
         set(handles.Spatial,    'String',{'IMG','ECD','LFP'});
         set(handles.Wavelet,    'Enable','off','String','-');
         set(handles.onset,      'Enable','on');
-        set(handles.dur,        'Enable','on');
-        
-    % Cross-spectral density model (complex)
-    %----------------------------------------------------------------------
-    case{'CSD'}
-        Action = {
-              'spectral data',...
-              'Coupling (A)',...
-              'Coupling (B)',...
-              'Coupling (C)',...
-              'trial-specific effects',...
-              'Input',...
-              'Transfer functions',...
-              'Cross-spectra (sources)',...
-              'Cross-spectra (channels)',...
-              'Coherence (sources)',...
-              'Coherence (channels)',...
-              'Covariance (sources)',...
-              'Covariance (channels)',...
-              'Dipoles'};
-        try
-            set(handles.Nmodes, 'Value', handles.DCM.options.Nmodes);
-        catch
-            set(handles.Nmodes, 'Value', 4);
-        end
-        
-        set(handles.text20, 'String', 'modes');
-        set(handles.model,  'Enable','on');              
-        set(handles.Spatial,'String',{'IMG','ECD','LFP'});
-        set(handles.Wavelet,'Enable','on','String','Spectral density');
-        set(handles.onset,  'Enable','off');
-        set(handles.dur,    'Enable','off');
 
  
     % Cross-spectral density model (steady-state responses)
@@ -1273,7 +1201,6 @@ switch handles.DCM.options.analysis
         set(handles.Spatial,    'String',{'IMG','ECD','LFP'});
         set(handles.Wavelet,    'Enable','on','String','Spectral density');
         set(handles.onset,      'Enable','off');
-        set(handles.dur,        'Enable','off');
         
     % induced responses
     %----------------------------------------------------------------------
@@ -1288,7 +1215,6 @@ switch handles.DCM.options.analysis
             'Coupling (B - modes)'
             'Input (C - Hz)'
             'Input (u - ms)'
-            'Input (C x u)'
             'Dipoles'
             'Save results as img'};
         try
@@ -1299,14 +1225,13 @@ switch handles.DCM.options.analysis
         
         set(handles.text20, 'String', 'modes');
         set(handles.model,      'Enable','off');
-        if get(handles.Spatial, 'Value') > 2
+        if get(handles.Spatial, 'Value')>2
             set(handles.Spatial, 'Value', 2);
         end
         set(handles.Spatial,    'String',{'ECD','LFP'});
         set(handles.Wavelet,    'Enable','on','String','Wavelet transform');
         set(handles.Imaging,    'Enable','off' )
         set(handles.onset,      'Enable','on');
-        set(handles.dur,        'Enable','on');
         
     case{'PHA'}
           Action = {
@@ -1332,8 +1257,7 @@ switch handles.DCM.options.analysis
         set(handles.Spatial, 'String',{'ECD','LFP'});
         set(handles.Wavelet, 'Enable','on','String','Hilbert transform');
         set(handles.Imaging, 'Enable','off' )
-        set(handles.onset,   'Enable','off');
-        set(handles.dur,   'Enable','off');
+        set(handles.onset,   'Enable','off');    
         
     otherwise
         warndlg('unknown analysis type')
@@ -1357,19 +1281,6 @@ handles = reset_Callback(hObject, eventdata, handles);
 handles.DCM = spm_dcm_erp_dipfit(handles.DCM, 1);
 
 switch handles.DCM.options.analysis
-    
-    case{'CSD'}
-        
-        % cross-spectral density (if DCM.M.U (eigen-space) exists
-        %------------------------------------------------------------------
-        try
-            handles.DCM = spm_dcm_csd_data(handles.DCM);
-        end
- 
-        % and display
-        %------------------------------------------------------------------
-        spm_dcm_csd_results(handles.DCM,'spectral data');
-        
  
     case{'SSR'}
         
@@ -1381,7 +1292,7 @@ switch handles.DCM.options.analysis
  
         % and display
         %------------------------------------------------------------------
-        spm_dcm_ssr_results(handles.DCM,'spectral data');
+        spm_dcm_ssr_results(handles.DCM,'Data');
  
  
     case{'IND'}
@@ -1401,7 +1312,9 @@ end
 guidata(hObject,handles);
 
 % --- Executes on button press in priors.
-function priors_Callback(hObject, eventdata, handles)
+function priors_Callback(hObject, eventdata, handles);
 handles = reset_Callback(hObject, eventdata, handles);
 spm_api_nmm(handles.DCM)
+
+
 

@@ -1,4 +1,4 @@
-/* $Id: optimizer2d.c 4016 2010-07-26 13:12:40Z john $ */
+/* $Id: optimizer2d.c 2644 2009-01-23 13:01:50Z john $ */
 /* (c) John Ashburner (2007) */
 
 #include<mex.h>
@@ -150,15 +150,17 @@ static void relax_le(int dm[], double a[], double b[], double s[], int nit, doub
     printf("%dx%d: ", dm[0],dm[1]);
 #endif
 
-    for(it=0; it<4*nit; it++)
+    for(it=0; it<2*nit; it++)
     {
-        int i, j;
+        int j, jstart;
+        int i, istart;
 
 #ifdef VERBOSE
         printf(" %g", sumsq_le(dm, a, b, s, u));
 #endif
 
-        for(j=(it>>1)&1; j<dm[1]; j+=2)
+        jstart = it%2;
+        for(j=0; j<dm[1]; j++)
         {
             double *pux, *puy, *pbx, *pby, *paxx, *paxy, *payy;
             int jm1,jp1, im1,ip1;
@@ -174,7 +176,9 @@ static void relax_le(int dm[], double a[], double b[], double s[], int nit, doub
             jm1 = (BOUND(j-1,dm[1])-j)*dm[0];
             jp1 = (BOUND(j+1,dm[1])-j)*dm[0];
 
-            for(i=(it>>0)&1; i<dm[0]; i+=2)
+            istart = (jstart == (j%2));
+
+            for(i=istart; i<dm[0]; i+=2)
             {
                 double sux, suy, axx, ayy, axy, idt;
                 double *px = pux+i, *py = puy+i;

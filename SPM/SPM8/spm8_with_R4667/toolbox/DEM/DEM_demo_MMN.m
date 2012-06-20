@@ -13,7 +13,7 @@
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
  
 % Karl Friston
-% $Id: DEM_demo_MMN.m 4146 2010-12-23 21:01:39Z karl $
+% $Id: DEM_demo_MMN.m 3740 2010-02-26 13:13:14Z karl $
  
 
 % level 1
@@ -71,8 +71,9 @@ c       = exp(-([1:N] - 20).^2/(4.^2));      % this is the Gaussian cause
 M(1).E.s  = 1;                    % temporal smoothness
  
 M(1).E.nD = 1;                    % D-steps per time bin (1 for dynamic systems)
-M(1).E.nE = 1;                    % E-steps per iteration
+M(1).E.nE = 2;                    % E-steps per iteration
 M(1).E.nM = 8;                    % M-steps per iteration
+M(1).E.nN = 1;                    % number of iterations
  
  
 % Because we want to record the response of the model over time, to each
@@ -175,21 +176,19 @@ axis square
  
 % ERPs (precision weighted) prediction error
 %--------------------------------------------------------------------------
-spm_figure('GetWin','Figure 2');
-a     = [t(1) t(end) -30 30];
-b     = [t(1) t(end) -1 1];
+spm_figure('GetWin','Figure 2'); 
 for i = 1:n
     
     subplot(6,n,i + 2*n)
     plot(t,qR{i + 1}{1},'r')
     axis square tight
-    axis(a)
+    if i == 1, a = axis; else, axis(a); end
     box off
         
     subplot(6,n,i + 3*n)
     plot(t,qR{i + 1}{2},'r')
     axis square tight
-    axis(b)
+    if i == 1, b = axis; else, axis(b); end
     box off
     
 end

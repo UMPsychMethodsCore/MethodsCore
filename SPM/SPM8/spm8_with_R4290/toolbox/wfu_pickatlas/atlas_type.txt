@@ -1,0 +1,8 @@
+%Atlas Types
+%Format: atlasname, subdir, lookupfile, dispimage
+HUMAN ATLAS,MNI_atlas_templates,master_lookup.txt,MNI_T1.img
+%Monkey Brain Atlas,Monkey_atlas_templates,master_lookup.txt,Monkey_T1.img
+%Rat Brain Atlas,Rat_atlas_templates,master_lookup.txt,Rat_T1.img
+%Mouse Brain Atlas,Mouse_atlas_templates,master_lookup.txt,Mouse_T1.img
+%Cat Brain Atlas,Cat_atlas_templates,master_lookup.txt,Cat_T1.img
+%Paularaich Brain Atlas,Paularaich_atlas_templates,master_lookup.txt,PAUL_T1.img
