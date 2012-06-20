@@ -10,16 +10,15 @@ function D = spm_eeg_spatial_confounds(S)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Vladimir Litvak
-% $Id: spm_eeg_spatial_confounds.m 3833 2010-04-22 14:49:48Z vladimir $
+% $Id: spm_eeg_spatial_confounds.m 4371 2011-06-20 21:32:11Z vladimir $
 
 
-SVNrev = '$Rev: 3833 $';
+SVNrev = '$Rev: 4371 $';
 
 %-Startup
 %--------------------------------------------------------------------------
 spm('FnBanner', mfilename, SVNrev);
 spm('FigName','Define spatial confounds');
-
 
 %-Get MEEG object
 %--------------------------------------------------------------------------
@@ -163,7 +162,7 @@ switch upper(S.method)
             sconf = [];
             sconf.label = D.chanlabels(D.meegchannels);
             sconf.coeff = nan(length(sconf.label), S.ncomp);
-            sconf.coeff(sel1, :) = U(sel2, 1:S.ncomp);
+            sconf.coeff(sel1, :) = U(sel2, 1:min(S.ncomp, size(U, 2)));
             sconf.bad = ones(length(sconf.label), 1);
             sconf.bad(sel1, :) = 0;
             D = sconfounds(D, sconf);
@@ -177,6 +176,46 @@ switch upper(S.method)
         D = sconfounds(D, sconf);
     case 'CLEAR'
         D = rmfield(D, 'sconfounds');
+end
+
+
+% Plot scalp topographies
+% ---------------------------------------------------------------------
+if any(any(D.sconfounds))
+    
+    Fgraph = spm_figure('GetWin','Graphics');clf
+    
+    in = [];
+    in.f = Fgraph;
+    in.noButtons = 1;
+    in.cbar = 0;
+    in.plotpos = 0;
+    
+    [junk, modalities] = modality(D, 1, 1);
+    
+    conf = getfield(D, 'sconfounds');
+    
+    nm = numel(modalities);
+    nc = size(conf.coeff, 2);
+    
+    for i = 1:nc
+        for j = 1:nm
+            in.type = modalities{j};
+            
+            ind = setdiff(D.meegchannels(modalities{j}), D.badchannels);
+            
+            [sel1, sel2] = spm_match_str(D.chanlabels(ind), conf.label);
+            
+            Y = conf.coeff(sel2, i);            
+            
+            in.max = max(abs(Y));
+            in.min = -in.max;
+            
+            in.ParentAxes = subplot(nc, nm, (i - 1)*nm + j);
+            spm_eeg_plotScalpData(Y, D.coor2D(ind) , D.chanlabels(ind), in);
+            title(sprintf('%s\ncomponent %.0f', modalities{j}, i));           
+        end
+    end
 end
 
 D = D.history(mfilename, S);

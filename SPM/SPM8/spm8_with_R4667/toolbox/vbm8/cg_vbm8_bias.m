@@ -2,7 +2,7 @@ function bias = cg_vbm8_bias
 % Configuration file for bias correction between an image pair
 %
 % Christian Gaser
-% $Id: cg_vbm8_bias.m 160 2009-09-09 15:31:37Z gaser $
+% $Id: cg_vbm8_bias.m 404 2011-04-11 10:03:40Z gaser $
 
 mov = cfg_files;
 mov.name = 'Longitudinal images for one subject';

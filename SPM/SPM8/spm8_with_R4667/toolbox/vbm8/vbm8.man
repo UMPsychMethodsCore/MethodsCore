@@ -1,6 +1,6 @@
 % __________________________________________________________________________
 % Voxel Based Morphometry Toolbox for SPM8
-% Version  340  (VBM8)  2010-05-31
+% Version  435  (VBM8)  2011-12-06
 %  http://dbm.neuro.uni-jena.de/vbm/
 % __________________________________________________________________________
 % Copyright (C) 2010 Christian Gaser christian.gaser@uni-jena.de

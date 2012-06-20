@@ -5,9 +5,9 @@ function cg_vbm8_debug
 %
 %__________________________________________________________________________
 % Christian Gaser
-% $Id: cg_vbm8_debug.m 49 2009-01-12 14:52:12Z gaser $
+% $Id: cg_vbm8_debug.m 404 2011-04-11 10:03:40Z gaser $
 
-rev = '$Rev: 49 $';
+rev = '$Rev: 404 $';
 
 % print last error
 fprintf('\nLast error message:\n');

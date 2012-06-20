@@ -6,15 +6,12 @@ function cg_showslice_all(vargin)
 % slice has to be choosen in mm
 %__________________________________________________________________________
 % Christian Gaser
-% $Id: cg_showslice_all.m 109 2009-02-20 07:34:42Z gaser $
+% $Id: cg_showslice_all.m 404 2011-04-11 10:03:40Z gaser $
 
-rev = '$Rev: 109 $';
+rev = '$Rev: 404 $';
 
 if nargin == 1
-	P = [];
-	for i=1:numel(vargin.data)
-		P = strvcat(P,deblank(vargin.data{i}));
-	end
+	P = char(vargin.data);
 	scaling = vargin.scale;
 	slice_mm = vargin.slice;
 end

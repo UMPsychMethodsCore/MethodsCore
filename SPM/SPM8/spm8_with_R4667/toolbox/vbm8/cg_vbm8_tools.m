@@ -3,9 +3,9 @@ function tools = cg_vbm8_tools
 %
 %_______________________________________________________________________
 % Christian Gaser
-% $Id: cg_vbm8_tools.m 333 2010-05-18 14:11:23Z gaser $
+% $Id: cg_vbm8_tools.m 425 2011-08-22 14:40:10Z gaser $
 
-rev = '$Rev: 333 $';
+rev = '$Rev: 425 $';
 
 %_______________________________________________________________________
 
@@ -61,7 +61,7 @@ kthresh.tag     = 'kthresh';
 kthresh.name    = 'Extent (voxels)';
 kthresh.help    = {'Enter the extent threshold in voxels'};
 kthresh.strtype = 'e';
-kthresh.val     = {0.05};
+kthresh.val     = {0};
 kthresh.num     = [1 1];
 
 noniso      = cfg_menu;
@@ -315,6 +315,15 @@ slice.val  = {0};
 slice.help = {[...
 'Choose slice in mm.']};
 
+gap = cfg_entry;
+gap.tag = 'gap';
+gap.name = 'Gap to skip slices';
+gap.strtype = 'e';
+gap.num = [1 1];
+gap.val  = {5};
+gap.help = {[...
+'To speed up calculations you can define that only every x slice the covariance is estimated.']};
+
 scale = cfg_menu;
 scale.tag = 'scale';
 scale.name = 'Proportional scaling?';
@@ -337,7 +346,7 @@ transform.num     = [0 Inf];
 check_cov = cfg_exbranch;
 check_cov.tag = 'check_cov';
 check_cov.name = 'Check sample homogeneity using covariance';
-check_cov.val = {data,scale,slice,transform};
+check_cov.val = {data,scale,slice,gap,transform};
 check_cov.prog   = @cg_check_cov;
 check_cov.help = {[...
 'If you have a reasonable sample size artefacts are easily overseen. In order to identify images with poor image quality ',...
@@ -373,28 +382,16 @@ showslice.help = {[...
 data.help = {[...
 'Select images for filtering']};
 
-weight = cfg_entry;
-weight.tag = 'weight';
-weight.name = 'ORNLM Filter weighting?';
-weight.strtype = 'e';
-weight.num = [1 1];
-weight.val  = {cg_vbm8_get_defaults('extopts.ornlm')};
-weight.help = {[...
-'To optimally suppress image noise a full weighting of "1" is recommended. However, for image segmentation a weighting ',...
-'of "0.7" achieves best results in terms of segmentation accuracy.']};
-
-ornlm = cfg_exbranch;
-ornlm.tag = 'ornlm';
-ornlm.name = 'Optimized blockwise non local means denoising filter';
-ornlm.val = {data,weight};
-ornlm.prog   = @cg_ornlm;
-ornlm.vfiles  = @vfiles_ornlm;
-ornlm.help = {[...
-'This function applies an optimized blockwise non local means denoising filter to the data. This filter will remove noise while ',...
+sanlm = cfg_exbranch;
+sanlm.tag = 'sanlm';
+sanlm.name = 'Spatially adaptive non local means denoising filter';
+sanlm.val = {data};
+sanlm.prog   = @cg_sanlm;
+sanlm.vfiles  = @vfiles_sanlm;
+sanlm.help = {[...
+'This function applies an spatial adaptive non local means denoising filter to the data. This filter will remove noise while ',...
 'preserving edges. The smoothing filter size is automatically estimated based on the standard deviation of the noise. ',...
-'If image has non-zero background (we check that less than 5% of the image are zero) we can assume Rayleigh PDF in the ',...
-'background and noise estimation can be based on mode of local mean. Otherwise mode of local variance is used. ',...
-'The resulting images are prepended with the term "ornlm_".'],...
+'The resulting images are prepended with the term "sanlm_".'],...
 '',[...
 'This filter is internally used in the segmentation procedure anyway. Thus, it is not neccessary (and not recommended) to apply the filter before segmentation.']};
 
@@ -443,22 +440,36 @@ field.tag  = 'field';
 field.name = 'Deformation Field';
 field.filter = 'image';
 field.ufilter = '.*y_.*\.nii$';
-field.num     = [1 1];
+field.num     = [1 Inf];
 field.help = {[...
 'Deformations can be thought of as vector fields. These can be represented ',...
 'by three-volume images.']};
 
-applyto = cfg_files;
-applyto.tag  = 'fnames';
-applyto.name = 'Apply to';
-applyto.filter = 'image';
-applyto.num     = [0 Inf];
-applyto.help = {[...
-'Apply the resulting deformation field to some images. ',...
-'The warped images will be written, and the ',...
-'filenames prepended by "w".  Note that trilinear interpolation is used ',...
-'to resample the data, so the original values in the images will ',...
-'not be preserved.']};
+field1 = cfg_files;
+field1.tag  = 'field1';
+field1.name = 'Deformation Field';
+field1.filter = 'image';
+field1.ufilter = '.*y_.*\.nii$';
+field1.num     = [1 1];
+field1.help = {[...
+'Deformations can be thought of as vector fields. These can be represented ',...
+'by three-volume images.']};
+
+images1         = cfg_files;
+images1.tag     = 'images';
+images1.name    = 'Images';
+images1.help    = {'Select images to be warped. Note that there should be the same number of images as there are deformation fields, such that each flow field warps one image.'};
+images1.filter = 'image'; %- modified by rcwelsh 
+%images1.filter = 'nifti';
+images1.ufilter = '.*';
+images1.num     = [1 Inf];
+
+images         = cfg_repeat;
+images.tag     = 'images';
+images.name    = 'Images';
+images.help    = {'The flow field deformations can be applied to multiple images. At this point, you are choosing how many images each flow field should be applied to.'};
+images.values  = {images1 };
+images.num     = [1 Inf];
 
 interp      = cfg_menu;
 interp.name = 'Interpolation';
@@ -497,47 +508,86 @@ modulate.help = {[...
 
 defs = cfg_exbranch;
 defs.tag = 'defs';
-defs.name = 'Apply Deformations';
-defs.val = {field,applyto,interp,modulate};
+defs.name = 'Apply Deformations (Many images)';
+defs.val = {field1,images1,interp,modulate};
 defs.prog    = @cg_vbm8_defs;
 defs.vfiles  = @vfiles_defs;
-defs.help    = {'This is a utility for applying deformation fields to images.'};;
+defs.help    = {'This is a utility for applying a deformation field of one subject to many images.'};;
+
+defs2 = cfg_exbranch;
+defs2.tag = 'defs2';
+defs2.name = 'Apply Deformations (Many subjects)';
+defs2.val = {field,images,interp,modulate};
+defs2.prog    = @cg_vbm8_defs;
+defs2.vfiles  = @vfiles_defs2;
+defs2.help    = {'This is a utility for applying deformation fields of many subjects to images.'};;
 
 %------------------------------------------------------------------------
-bias  = cg_vbm8_bias;
+realign = cg_cfg_realign;
+bias    = cg_vbm8_bias;
+long    = cg_vbm8_longitudinal_multi;
 %------------------------------------------------------------------------
 
 tools = cfg_choice;
 tools.name = 'Tools';
 tools.tag  = 'tools';
-tools.values = {showslice,check_cov,calcvol,T2x,F2x,ornlm,bias,defs};
+tools.values = {showslice,check_cov,calcvol,T2x,F2x,sanlm,bias,realign,long,defs,defs2};
 
 return
 
 %_______________________________________________________________________
 
 function vf = vfiles_defs(job)
-vf = {};
 
-s  = strvcat(job.fnames);
-for i=1:size(s,1),
-    [pth,nam,ext,num] = spm_fileparts(s(i,:));
-    if job.modulate
-        vf = {vf{:}, fullfile(pth,['mw',nam,ext,num])};
-    else
-        vf = {vf{:}, fullfile(pth,['w',nam,ext,num])};
+PU = job.field1;
+PI = job.images;
+
+vf = cell(numel(PI),1);
+for i=1:numel(PU),
+    [pth,nam] = spm_fileparts(PU{i});
+    for m=1:numel(PI),
+        [pth1,nam,ext,num] = spm_fileparts(PI{m});
+        if job.modulate,
+            fname = fullfile(pth,['mw' nam ext]);
+        else
+            fname = fullfile(pth,['w' nam ext]);
+        end;
+        vf{m} = fname;
     end
-end;
+end
+
 return;
 %_______________________________________________________________________
 
-function vf = vfiles_ornlm(job)
+function vf = vfiles_defs2(job)
+
+PU = job.field;
+PI = job.images;
+
+vf = cell(numel(PU),numel(PI));
+for i=1:numel(PU),
+    [pth,nam] = spm_fileparts(PU{i});
+    for m=1:numel(PI),
+        [pth1,nam,ext,num] = spm_fileparts(PI{m}{i});
+        if job.modulate,
+            fname = fullfile(pth,['mw' nam ext]);
+        else
+            fname = fullfile(pth,['w' nam ext]);
+        end;
+        vf{i,m} = fname;
+    end
+end
+
+return;
+%_______________________________________________________________________
+
+function vf = vfiles_sanlm(job)
 vf = {};
 
 s  = strvcat(job.data);
 for i=1:size(s,1),
     [pth,nam,ext,num] = spm_fileparts(s(i,:));
-    vf = {vf{:}, fullfile(pth,['ornlm_',nam,ext,num])};
+    vf = {vf{:}, fullfile(pth,['sanlm_',nam,ext,num])};
 end;
 return;
 %_______________________________________________________________________

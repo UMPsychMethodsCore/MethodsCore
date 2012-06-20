@@ -58,15 +58,12 @@ function cg_spmF2x(vargin)
 %
 %_______________________________________________________________________
 % Christian Gaser
-% $Id: cg_spmF2x.m 119 2009-04-24 13:10:00Z gaser $
+% $Id: cg_spmF2x.m 404 2011-04-11 10:03:40Z gaser $
 
-rev = '$Rev: 119 $';
+rev = '$Rev: 404 $';
 
 if nargin == 1
-    P = [];
-    for i=1:numel(vargin.data)
-        P = strvcat(P,deblank(vargin.data{i}));
-    end
+    P = char(vargin.data);
 
     sel = vargin.conversion.sel;
 
@@ -76,9 +73,12 @@ if nargin == 1
     elseif isfield(vargin.conversion.threshdesc,'fdr')
         adjustment = 2;
         u0  = vargin.conversion.threshdesc.fdr.thresh;
-    else
+    elseif isfield(vargin.conversion.threshdesc,'uncorr')
         adjustment = 0;
         u0  = vargin.conversion.threshdesc.uncorr.thresh;
+    elseif isfield(vargin.conversion.threshdesc,'none')
+        adjustment = -1;
+        u0  = -Inf;
     end
     
     if isfield(vargin.conversion.cluster,'fwe')
@@ -111,23 +111,31 @@ if nargin < 1
 
     %-Get height threshold
     %-------------------------------------------------------------------
-    str = 'FWE|FDR|none';
+    str = 'FWE|FDR|uncorr|none';
     adjustment = spm_input('p value adjustment to control','+1','b',str,[],1);
     
     switch adjustment
     case 1 % family-wise false positive rate
         %---------------------------------------------------------------
         u0  = spm_input('p value (family-wise error)','+0','r',0.05,1,[0,1]);
-    case 2' % False discovery rate
+    case 2 % False discovery rate
         %---------------------------------------------------------------    
         u0  = spm_input('p value (false discovery rate)','+0','r',0.05,1,[0,1]);
-    otherwise  %-NB: no adjustment
+    case 0  %-NB: no adjustment
         % p for conjunctions is p of the conjunction SPM
         %---------------------------------------------------------------
         u0  = spm_input(['threshold {T or p value}'],'+0','r',0.001,1);
+    otherwise  %-NB: no threshold
+        % p for conjunctions is p of the conjunction SPM
+        %---------------------------------------------------------------
+        u0  = -Inf;
     end
 
-    pk     = spm_input('extent threshold {k or p-value}','+1','r',0,1,[0,Inf]);
+    if adjustment > -1 
+        pk     = spm_input('extent threshold {k or p-value}','+1','r',0,1);
+    else
+        pk = 0;
+    end
     if (pk < 1) & (pk > 0)
         extent_FWE = spm_input('p value (extent)','+1','b','uncorrected|FWE corrected',[0 1],1);
     end
@@ -137,18 +145,20 @@ end
 switch adjustment
 case 1 % family-wise false positive rate
     p_height_str = '_pFWE';
-case 2' % False discovery rate
+case 2 % False discovery rate
     p_height_str = '_pFDR';
-otherwise  %-NB: no adjustment
+case 0 %-NB: no adjustment
     p_height_str = '_p';
+otherwise  %-NB: no threshold
+    p_height_str = '';
 end
 
 for i=1:size(P,1)
     spmF = deblank(P(i,:));
     Vspm = spm_vol(spmF);   
-    [pth,nm,xt,vr] = fileparts(spmF);
+    [pth,nm,xt,vr] = spm_fileparts(spmF);
 
-    SPM_name = fullfile(pth, ['SPM.mat' vr]);
+    SPM_name = fullfile(pth, 'SPM.mat');
     
     % SPM.mat exist?
     if ~exist(SPM_name)
@@ -172,18 +182,18 @@ for i=1:size(P,1)
     v2r  = 1/prod(FWHM(~isinf(FWHM)));          %-voxels to resels
 
     switch adjustment
-    case 'FWE' % family-wise false positive rate
+    case 1 % family-wise false positive rate
     %---------------------------------------------------------------
        u  = spm_uc(u0,df,STAT,R,1,S);
 
-    case 'FDR' % False discovery rate
+    case 2 % False discovery rate
     %---------------------------------------------------------------
        u  = spm_uc_FDR(u0,df,STAT,1,Vspm,0);
 
     otherwise  %-NB: no adjustment
     % p for conjunctions is p of the conjunction SPM
     %---------------------------------------------------------------
-       if u0 <= 1
+       if (u0 <= 1) & (u0 > 0)
            u = spm_u(u0,df,STAT);
        else
            u = u0;
@@ -266,8 +276,8 @@ for i=1:size(P,1)
           F2x = -log10(max(eps,1-spm_Fcdf(F,df)));
           F2x_name = 'logP_';
        case 3
-    	  	f2x = (df(2)-1)*F./(df(2) - df(1)+F*(df(2) -1));
-		      F2x_name = 'R2';
+    	  	F2x = (df(2)-1)*F./(df(2) - df(1)+F*(df(2) -1));
+		      F2x_name = 'R2_';
        end
 
        str_num = deblank(xCon(Ic).name);
@@ -284,7 +294,11 @@ for i=1:size(P,1)
        if ~isempty(strpos), str_num = [str_num(1:strpos-1) 'lt' str_num(strpos+1:end)]; end
        str_num = spm_str_manip(str_num,'v');
            
-       name = [F2x_name str_num p_height_str num2str(u0*100) p_extent_str '_k' num2str(k) '.nii'];
+       if u0 > -Inf
+           name = [F2x_name str_num p_height_str num2str(u0*100) p_extent_str '_k' num2str(k) '.nii'];
+       else
+           name = [F2x_name str_num '.nii'];
+       end
        fprintf('Save %s\n', name);
     
        out = deblank(fullfile(pth,name));

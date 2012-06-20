@@ -1,4 +1,7 @@
 function cg_slice_overay_ui
+%__________________________________________________________________________
+% Christian Gaser
+% $Id: cg_slice_overlay_ui.m 404 2011-04-11 10:03:40Z gaser $
 
 OV.reference_image = fullfile(spm('dir'),'canonical','single_subj_T1.nii');
 OV.reference_range = [0.05 0.6];                         % intensity range for reference image
@@ -37,6 +40,9 @@ OV.printstr = 'print -r300 -painters -noui';
 OV.labels.format = '%3.1f';
 
 % Comment this out if you don't wish slice labels
-%OV.labels = 'none';
+%OV.labels = [];
+
+% Comment this out if you don't wish colorbar
+%OV.cbar = [];
 
 cg_slice_overlay(OV)

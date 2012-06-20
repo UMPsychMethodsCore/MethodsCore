@@ -7,7 +7,7 @@ function cg_vbm8_defaults
 %
 % Care must be taken when modifying this file
 %_______________________________________________________________________
-% $Id: cg_vbm8_defaults.m 328 2010-05-12 23:30:05Z gaser $
+% $Id: cg_vbm8_defaults.m 432 2011-10-03 21:48:53Z gaser $
 
 global vbm8
 
@@ -63,6 +63,7 @@ vbm8.output.warps = [0 0];
 % Extended writing options
 %=======================================================================
 vbm8.extopts.dartelwarp  = 1; % dartel normalization: 0 - spm default; 1 - yes
+vbm8.extopts.darteltpm   = {fullfile(spm('dir'),'toolbox','vbm8','Template_1_IXI550_MNI152.nii')}; % Indicate first Dartel template
 vbm8.extopts.print       = 1; % Display and print results
 
 % bias correction options
@@ -72,18 +73,24 @@ vbm8.bias.biasfwhm     = 60;
 vbm8.bias.biasreg      = 1e-6;
 vbm8.bias.lmreg        = 1e-6;
 
+% realign options
+%=======================================================================
+vbm8.realign.halfway   = 1; % use halfway registration: 0 - no; 1 - yes
+vbm8.realign.weight    = 1; % weight registration with inverse std: 0 - no; 1 - yes
+vbm8.realign.ignore_mat= 0; % ignore exisiting positional information: 0 - no; 1 - yes
+
 % apply deformations options
 %=======================================================================
 vbm8.defs.interp    = 5;  % 5th degree B-spline
 
 % expert options
 %=======================================================================
-%vbm8.extopts.vox       = 1.5;  % isotropic voxel size for normalized images
 vbm8.extopts.cleanup   = 1;    % Cleanup: 0 - no; 1 - light; 2 -thorough
 vbm8.extopts.finalmask = 1;    % Final masking: 0 - no; 1 - yes
+vbm8.extopts.gcut      = 1;    % Skull-stripping with graph-cut: 0 - no; 1 - yes
 vbm8.extopts.kmeans    = 1;    % segmentation initialization: 0 - new segment; 1 - Kmeans
 vbm8.extopts.mrf       = 0.15; % MRF weighting
-vbm8.extopts.ornlm     = 0.7;  % use ORNLM filter with weighting: 0 - no ORNLM
+vbm8.extopts.sanlm     = 2;    % use SANLM filter: 0 - no SANLM; 1 - SANLM with single-threading; 2 - SANLM with multi-threading
 vbm8.extopts.bias_fwhm = 60;   % FWHM of Kmeans internal bias correction
 
 % experimental (not yet working)

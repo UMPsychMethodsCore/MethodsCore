@@ -3,7 +3,7 @@
 ########################################################
 # global parameters
 ########################################################
-# $Id$
+# $Id: cg_spm8_batch.sh 404 2011-04-11 10:03:40Z gaser $
 
 matlab=matlab     # you can use other matlab versions by changing the matlab parameter
 display=0         # use nodisplay option for matlab or not

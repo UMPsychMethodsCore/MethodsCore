@@ -7,9 +7,9 @@ function vbm8 = tbx_cfg_vbm8
 % tbx_cfg_preproc8.m
 %
 % Christian Gaser
-% $Id: tbx_cfg_vbm8.m 333 2010-05-18 14:11:23Z gaser $
+% $Id: tbx_cfg_vbm8.m 429 2011-09-29 07:47:21Z gaser $
 
-rev = '$Rev: 333 $';
+rev = '$Rev: 429 $';
 
 addpath(fileparts(which(mfilename)));
 
@@ -171,7 +171,7 @@ affreg = cfg_menu;
 affreg.tag = 'affreg';
 affreg.name = 'Affine Regularisation';
 affreg.labels = {'No Affine Registration','ICBM space template - European brains',...
-    'ICBM space template - East Asian brains', 'Average sized template','No regularisation'};
+    'ICBM space template - East Asian brains','Average sized template','No regularisation'};
 affreg.values = {'','mni','eastern','subj','none'};
 affreg.def  = @(val)cg_vbm8_get_defaults('opts.affreg', val{:});
 affreg.help = {[...
@@ -258,20 +258,17 @@ cleanup.def  = @(val)cg_vbm8_get_defaults('extopts.cleanup', val{:});
 
 %------------------------------------------------------------------------
 
-ornlm = cfg_entry;
-ornlm.tag  = 'ornlm';
-ornlm.name = 'ORNLM de-noising filter weighting';
-ornlm.strtype = 'e';
-ornlm.num = [1 1];
-ornlm.help = {[...
-'This function applies an optimized blockwise non local means denoising filter ',...
+sanlm = cfg_menu;
+sanlm.tag  = 'sanlm';
+sanlm.name = 'Use SANLM de-noising filter';
+sanlm.help = {[...
+'This function applies an spatial adaptive non local means denoising filter ',...
 'to the data. This filter will remove noise while ',...
 'preserving edges. The smoothing filter size is automatically estimated based on ',...
-'the local variance in the image. '],...
-'',[...
-'For image segmentation a weighting of "0.7" achieves best results in terms of segmentation ',...
-'accuracy. A value of "0" will deselect the filter.']};
-ornlm.def  = @(val)cg_vbm8_get_defaults('extopts.ornlm', val{:});
+'the local variance in the image. ']};
+sanlm.labels = {'No denoising','Denoising','Denoising (multi-threaded)'};
+sanlm.values = {0 1 2};
+sanlm.def  = @(val)cg_vbm8_get_defaults('extopts.sanlm', val{:});
 
 %------------------------------------------------------------------------
 
@@ -296,13 +293,23 @@ finalmask = cfg_menu;
 finalmask.tag  = 'finalmask';
 finalmask.name = 'Apply final mask after segmenting';
 finalmask.help = {[...
-'This uses a morphological operations to apply a final masking using morphological operations.']};
+'This option uses morphological operations to apply a final masking.']};
 finalmask.labels = {'Dont apply final masking','Apply final masking'};
 finalmask.values = {0 1};
 finalmask.def  = @(val)cg_vbm8_get_defaults('extopts.finalmask', val{:});
 
 %------------------------------------------------------------------------
 
+gcut = cfg_menu;
+gcut.tag  = 'gcut';
+gcut.name = 'Use graph-cut approach for initial skull-stripping';
+gcut.help = {[...
+'This option enables skull-stripping with graph-cut approach.']};
+gcut.labels = {'Dont use graph-cut for skull-stripping','Use graph-cut for skull-stripping'};
+gcut.values = {0 1};
+gcut.def  = @(val)cg_vbm8_get_defaults('extopts.gcut', val{:});
+
+%------------------------------------------------------------------------
 print    = cfg_menu;
 print.tag = 'print';
 print.name = 'Display and print results';
@@ -316,6 +323,7 @@ print.help = {[...
 
 %------------------------------------------------------------------------
 
+if 0
 dartelwarp    = cfg_menu;
 dartelwarp.tag = 'dartelwarp';
 dartelwarp.name = 'Spatial normalization';
@@ -323,13 +331,62 @@ dartelwarp.labels = {'Low-dimensional: SPM default','High-dimensional: Dartel'};
 dartelwarp.values = {0 1};
 dartelwarp.def  = @(val)cg_vbm8_get_defaults('extopts.dartelwarp', val{:});
 dartelwarp.help    = {'Choose between standard spatial normalization and high-dimensional Dartel normalization. Dartel normalized images are indicated by an additional ''''r'''' (e.g. wrp*). '};
+end
+
+darteltpm = cfg_files;
+darteltpm.tag  = 'darteltpm';
+darteltpm.name = 'Dartel Template';
+darteltpm.help    = {
+               'Bla'
+               ''
+               'Bla'
+               ''
+               'Bla'
+               ''
+               'Selected tissue probability map must be in multi-volume nifti format and contain all six tissue priors.'
+               }';
+darteltpm.filter = 'image';
+darteltpm.ufilter = '_1_';
+darteltpm.def  = @(val)cg_vbm8_get_defaults('extopts.darteltpm', val{:});
+darteltpm.num     = [1 1];
+
+normhigh         = cfg_branch;
+normhigh.tag     = 'normhigh';
+normhigh.name    = 'High-dimensional: Dartel';
+normhigh.val     = {darteltpm};
+normhigh.help    = {
+               'Use high-dimensional Dartel normalization. '
+               ''
+               'Dartel normalized images are indicated by an additional ''''r'''' (e.g. wrp*). '
+               ''
+}';
+
+normlow         = cfg_branch;
+normlow.tag     = 'normlow';
+normlow.name    = 'Low-dimensional: SPM default';
+normlow.help    = {
+               'Use standard spatial normalization. '
+               ''
+}';
+
+dartelwarp    = cfg_choice;
+dartelwarp.tag = 'dartelwarp';
+dartelwarp.name = 'Spatial normalization';
+if cg_vbm8_get_defaults('extopts.dartelwarp')
+    dartelwarp.val = {normhigh};
+else
+    dartelwarp.val = {normlow};
+end
+dartelwarp.values = {normlow normhigh};
+dartelwarp.help    = {'Choose between standard spatial normalization and high-dimensional Dartel normalization. Dartel normalized images are indicated by an additional ''''r'''' (e.g. wrp*). '};
+
 
 %------------------------------------------------------------------------
 
 extopts      = cfg_branch;
 extopts.tag = 'extopts';
 extopts.name = 'Extended options';
-extopts.val = {dartelwarp,ornlm,mrf,cleanup,print};
+extopts.val = {dartelwarp,sanlm,mrf,cleanup,print};
 extopts.help = {'Extended options'};
 
 %------------------------------------------------------------------------
@@ -413,7 +470,7 @@ modulated.name = 'Modulated normalized';
 modulated.labels = {'none','affine + non-linear (SPM8 default)','non-linear only'};
 modulated.values = {0 1 2};
 modulated.help = {[...
-'``Modulation'''' is to compensate for the effect of spatial normalisation. Spatial normalisation ',...
+'''Modulation'''' is to compensate for the effect of spatial normalisation. Spatial normalisation ',...
 'causes volume changes due to affine transformation (global scaling) and non-linear warping (local volume change). ',...
 'The SPM default is to adjust spatially normalised grey matter (or other tissue class) by using both terms and the ',...
 'resulting modulated images are preserved for the total amount of grey matter. Thus, modulated images reflect the grey matter ',...
@@ -488,7 +545,7 @@ output.tag = 'output';
 output.name = 'Writing options';
 output.val = {grey, white, csf, bias, label, jacobian, warps};
 output.help = {[...
-'This routine produces spatial normalisation parameters (*_seg8_sn.mat files) by default. '],...
+'This routine produces spatial normalisation parameters (*_seg8.mat files) by default. '],...
 '',...
 [...
 'In addition, it also produces files that can be used for doing inverse normalisation. ',...

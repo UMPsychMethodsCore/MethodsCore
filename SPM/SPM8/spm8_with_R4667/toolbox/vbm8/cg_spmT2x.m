@@ -72,15 +72,12 @@ function cg_spmT2x(vargin)
 %              values) 
 %_______________________________________________________________________
 % Christian Gaser
-% $Id: cg_spmT2x.m 333 2010-05-18 14:11:23Z gaser $
+% $Id: cg_spmT2x.m 428 2011-09-29 05:59:24Z gaser $
 
-rev = '$Rev: 333 $';
+rev = '$Rev: 428 $';
 
 if nargin == 1
-    P = [];
-    for i=1:numel(vargin.data)
-        P = strvcat(P,deblank(vargin.data{i}));
-    end
+    P = char(vargin.data);
     
     sel = vargin.conversion.sel;
 
@@ -90,33 +87,36 @@ if nargin == 1
     elseif isfield(vargin.conversion.threshdesc,'fdr')
         adjustment = 2;
         u0  = vargin.conversion.threshdesc.fdr.thresh;
-    else
+    elseif isfield(vargin.conversion.threshdesc,'uncorr')
         adjustment = 0;
         u0  = vargin.conversion.threshdesc.uncorr.thresh;
+    elseif isfield(vargin.conversion.threshdesc,'none')
+        adjustment = -1;
+        u0  = -Inf;
     end
     
-    if isfield(vargin.conversion.cluster,'fwe')
+    if isfield(vargin.conversion.cluster,'fwe2')
         extent_FWE = 1;
-        pk  = vargin.conversion.cluster.fwe.thresh;
-        noniso = vargin.conversion.cluster.fwe.noniso;
-    elseif isfield(vargin.conversion.cluster,'uncorr')
+        pk  = vargin.conversion.cluster.fwe2.thresh;
+        noniso = vargin.conversion.cluster.fwe2.noniso;
+    elseif isfield(vargin.conversion.cluster,'uncorr2')
         extent_FWE = 0;
-        pk  = vargin.conversion.cluster.uncorr.thresh;
-        noniso = vargin.conversion.cluster.uncorr.noniso;
+        pk  = vargin.conversion.cluster.uncorr2.thresh;
+        noniso = vargin.conversion.cluster.uncorr2.noniso;
     elseif isfield(vargin.conversion.cluster,'k')
         extent_FWE = 0;
         pk  = vargin.conversion.cluster.k.kthresh;
         noniso = vargin.conversion.cluster.k.noniso;
     elseif isfield(vargin.conversion.cluster,'En')
         extent_FWE = 0;
-        pk  = -1;
+        pk = -1;
         noniso = vargin.conversion.cluster.En.noniso;
     else
         extent_FWE = 0;
-        pk=0;
+        pk = 0;
         noniso = 0;
     end
-    
+
     neg_results = vargin.conversion.inverse;
     
 end
@@ -135,32 +135,36 @@ if nargin < 1
 
     %-Get height threshold
     %-------------------------------------------------------------------
-    str = 'FWE|FDR|none';
-    adjustment = spm_input('p value adjustment to control','+1','b',str,[],1);
+    str = 'FWE|FDR|uncorr|none';
+    adjustment = spm_input('p value adjustment to control','+1','b',str,[1 2 0 -1],1);
     
     switch adjustment
     case 1 % family-wise false positive rate
         %---------------------------------------------------------------
         u0  = spm_input('p value (family-wise error)','+0','r',0.05,1,[0,1]);
-    case 2' % False discovery rate
+    case 2 % False discovery rate
         %---------------------------------------------------------------    
         u0  = spm_input('p value (false discovery rate)','+0','r',0.05,1,[0,1]);
-    otherwise  %-NB: no adjustment
+    case 0  %-NB: no adjustment
         % p for conjunctions is p of the conjunction SPM
         %---------------------------------------------------------------
         u0  = spm_input(['threshold {T or p value}'],'+0','r',0.001,1);
+    otherwise  %-NB: no threshold
+        % p for conjunctions is p of the conjunction SPM
+        %---------------------------------------------------------------
+        u0  = -Inf;
     end
 
-    pk     = spm_input('extent threshold {k or p-value}','+1','r',0,1);
+    if adjustment > -1 
+        pk = spm_input('extent threshold {k or p-value}','+1','r',0,1);
+    else
+        pk = 0;
+    end
     if (pk < 1) & (pk > 0)
         extent_FWE = spm_input('p value (extent)','+1','b','uncorrected|FWE corrected',[0 1],1);
     end
 
-    if sel > 2
-        neg_results = spm_input('Show also inverse effects (e.g. neg. values)','+1','b','yes|no',[1 0],2);
-    else
-        neg_results = 0;
-    end
+    neg_results = spm_input('Show also inverse effects (e.g. neg. values)','+1','b','yes|no',[1 0],2);
 
     if pk ~= 0
         noniso = spm_input('Correct for non-isotropic smoothness?','+1','b','no|yes',[0 1],2);
@@ -172,18 +176,20 @@ end
 switch adjustment
 case 1 % family-wise false positive rate
     p_height_str = '_pFWE';
-case 2' % False discovery rate
+case 2 % False discovery rate
     p_height_str = '_pFDR';
-otherwise  %-NB: no adjustment
+case 0 %-NB: no adjustment
     p_height_str = '_p';
+otherwise  %-NB: no threshold
+    p_height_str = '';
 end
 
 for i=1:size(P,1)
     spmT = deblank(P(i,:));
     Vspm = spm_vol(spmT);   
-    [pth,nm,xt,vr] = fileparts(spmT);
+    [pth,nm,xt,vr] = spm_fileparts(spmT);
 
-    SPM_name = fullfile(pth, ['SPM.mat' vr]);
+    SPM_name = fullfile(pth, 'SPM.mat');
     
     % SPM.mat exist?
     if ~exist(SPM_name)
@@ -215,18 +221,18 @@ for i=1:size(P,1)
     end
 
     switch adjustment
-    case 'FWE' % family-wise false positive rate
+    case 1 % family-wise false positive rate
     %---------------------------------------------------------------
        u  = spm_uc(u0,df,STAT,R,1,S);
 
-    case 'FDR' % False discovery rate
+    case 2 % False discovery rate
     %---------------------------------------------------------------
        u  = spm_uc_FDR(u0,df,STAT,1,Vspm,0);
 
     otherwise  %-NB: no adjustment
     % p for conjunctions is p of the conjunction SPM
     %---------------------------------------------------------------
-       if u0 <= 1
+       if (u0 <= 1) & (u0 > 0)
            u = spm_u(u0,df,STAT);
        else
            u = u0;
@@ -250,7 +256,6 @@ for i=1:size(P,1)
     if isempty(Q)
         fprintf('No voxels survive height threshold u=%0.2g\n',u);
     end
-
 
     %-Extent threshold
     %-----------------------------------------------------------------------
@@ -276,7 +281,7 @@ for i=1:size(P,1)
             end
         elseif (pk < 0)
             k = 0;
-            [P2 Pn2 Em En EN] = spm_P(1,k,u,df,STAT,R,1,S);
+            [P2 Pn2 Em En] = spm_P(1,k,u,df,STAT,R,1,S);
             k = ceil(En/v2r);
             p_extent_str = '_En';
         else
@@ -286,18 +291,52 @@ for i=1:size(P,1)
         
         %-Calculate extent threshold filtering
         %-------------------------------------------------------------------
+        A     = spm_clusters(XYZ);
         if noniso
             fprintf('Use local RPV values to correct for non-stationary of smoothness.\n');
-            A     = spm_clusters(XYZ);
-            [N Z2 XYZ2 A2 V2R] = spm_max_nS(Z,XYZ,SPM.xVol.VRpv);
-            N = V2R/v2r;
+
             Q     = [];
-            for i = 1:max(A)
-                j = find(A == i);
-                if N(min(find(A2 == i))) >= k; Q = [Q j]; end
+            [N2 Z2 XYZ2 A2 L2] = spm_max(Z,XYZ);
+            if max(A) ~= max(A2)
+                 error('Number of clusters does not much in spm_max and spm_clusters!');
+            end
+
+            for i2 = 1:max(A2)
+                %-Get LKC for voxels in i-th region
+                %----------------------------------------------------------
+                LKC  = spm_get_data(SPM.xVol.VRpv,L2{i2});
+                
+                %-Compute average of valid LKC measures for i-th region
+                %----------------------------------------------------------
+                valid = ~isnan(LKC);
+                if any(valid)
+                    LKC = sum(LKC(valid)) / sum(valid);
+                else
+                    LKC = v2r; % fall back to whole-brain resel density
+                end
+                
+                %-Intrinsic volume (with surface correction)
+                %----------------------------------------------------------
+                IV   = spm_resels([1 1 1],L2{i2},'V');
+                IV   = IV*[1/2 2/3 2/3 1]';
+                k_noniso = IV*LKC/v2r;
+
+                % find corresponding cluster in spm_clusters if cluster exceeds threshold
+                if k_noniso >= k
+                    ind2 = find(A2==i2);
+                    for i = 1:max(A)
+                        j = find(A == i);
+                        if length(j)==N2(ind2)
+                            if any(ismember(XYZ2(:,ind2)',XYZ(:,j)','rows'))
+                                Q = [Q j];
+                                break
+                            end
+                        end
+                    end
+                end
+                
             end
         else
-            A     = spm_clusters(XYZ);
             Q     = [];
             for i = 1:max(A)
                 j = find(A == i);
@@ -365,7 +404,11 @@ for i=1:size(P,1)
             neg_str = '';
        end
        
-       name = [t2x_name str_num p_height_str num2str(u0*100) p_extent_str '_k' num2str(k) neg_str '.nii'];
+       if u0 > -Inf
+           name = [t2x_name str_num p_height_str num2str(u0*100) p_extent_str '_k' num2str(k) neg_str '.nii'];
+       else
+           name = [t2x_name str_num '.nii'];
+       end
        fprintf('Save %s\n', name);
     
        out = deblank(fullfile(pth,name));

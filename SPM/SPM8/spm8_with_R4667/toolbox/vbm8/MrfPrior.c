@@ -1,6 +1,6 @@
 /*
  * Christian Gaser
- * $Id: MrfPrior.c 225 2009-12-02 23:57:13Z gaser $ 
+ * $Id: MrfPrior.c 404 2011-04-11 10:03:40Z gaser $ 
  *
  */
 

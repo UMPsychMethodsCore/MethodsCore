@@ -1,5 +1,8 @@
 function out = cg_vbm8_bias_run(job)
 % Correct bias between an image pair
+%__________________________________________________________________________
+% Christian Gaser
+% $Id: cg_vbm8_bias_run.m 405 2011-04-12 11:31:21Z gaser $
 
 for i=1:numel(job.subj),
     out(i).files = cell(numel(job.subj(i).mov)-1,1);
@@ -18,7 +21,11 @@ VG  = spm_vol(PG);
 VF  = spm_vol(PF);
 
 bo  = bias_opts;
-dat = bias_correction(VF,VG,bo.nits,bo.fwhm,bo.reg,bo.lmreg);
+if isfinite(bo.fwhm) & (bo.fwhm > 0)
+    dat = bias_correction(VF,VG,bo.nits,bo.fwhm,bo.reg,bo.lmreg);
+else
+    dat = spm_read_vols(VF);
+end
 
 [pth,nam,ext,num] = spm_fileparts(VF.fname);
 VF.fname = fullfile(pth,['m', nam, ext, num]);
@@ -63,7 +70,11 @@ globalG = spm_global(VG);
 VF.pinfo(1:2,:) = globalG/globalF*VF.pinfo(1:2);
 
 ll = Inf;
-spm_chi2_plot('Init','Bias Correction','- Log-likelihood','Iteration');
+try
+    spm_plot_convergence('Init','Bias Correction','- Log-likelihood','Iteration');
+catch
+    spm_chi2_plot('Init','Bias Correction','- Log-likelihood','Iteration');
+end
 for subit=1:nits,
 
     % Compute objective function and its 1st and second derivatives
@@ -115,8 +126,11 @@ for subit=1:nits,
         Beta  = Beta  + kron(b3,spm_krutil(wt1,B1bias,B2bias,0));
         Alpha = Alpha + kron(b3*b3',spm_krutil(wt2,B1bias,B2bias,1));
     end;
-    spm_chi2_plot('Set',ll/prod(d));
-
+    try
+        spm_plot_convergence('Set',ll/prod(d));
+    catch
+        spm_chi2_plot('Set',ll/prod(d));
+    end
 
     if subit > 1 && ll>oll,
         % Hasn't improved, so go back to previous solution

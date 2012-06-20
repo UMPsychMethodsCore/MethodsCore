@@ -3,7 +3,7 @@
 ########################################################
 # global parameters
 ########################################################
-# $Id: cg_vbm8_batch.sh 333 2010-05-18 14:11:23Z gaser $
+# $Id: cg_vbm8_batch.sh 404 2011-04-11 10:03:40Z gaser $
 
 matlab=matlab   # you can use other matlab versions by changing the matlab parameter
 writeonly=0

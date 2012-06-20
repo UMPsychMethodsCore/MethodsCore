@@ -1,4 +1,7 @@
 function cg_slice_overlay(OV);
+%__________________________________________________________________________
+% Christian Gaser
+% $Id: cg_slice_overlay.m 404 2011-04-11 10:03:40Z gaser $
 
 clear global SO
 global SO
@@ -27,7 +30,7 @@ for i=1:size(OV.name,1)
     end
 end
 
-% check fileds of OV structure
+% check fields of OV structure
 fieldnames = str2mat('reference_image','reference_range',...
     'opacity','cmap','name','range','logP','slices_str','transform');
 for i=1:size(fieldnames,1)
@@ -114,9 +117,9 @@ SO.img(2).func = 'i1(i1==0)=NaN;';
 if ~isfield(OV,'range')
 	  [mx mn] = volmaxmin(OV.img(2).vol);
     SO.img(2).range = spm_input('Intensity range for colormap','+1', 'e', [mn mx], 2)';
+else
+    SO.img(2).range = range;
 end
-
-SO.img(2).range = range;
 
 if range(1) >= 0
 	SO.img(2).outofrange = {0,size(SO.img(2).cmap,1)};
@@ -367,7 +370,7 @@ function SO = pr_basic_ui(imgs, dispf)
 %         (defaults to GUI select if no arguments passed)
 % dispf - optional flag: if set, displays overlay (default = 1)
 %
-% $Id: pr_basic_ui.m,v 1.1 2005/04/20 15:05:00 matthewbrett Exp $
+% $Id: cg_slice_overlay.m 404 2011-04-11 10:03:40Z gaser $
  
 if nargin < 1
   imgs = '';
@@ -403,13 +406,15 @@ for i = 1:nimgs
     SO.img(i).cmap = gray;
     SO.img(i).range = [2*mn mx]; % increase minimum value to enhance contrast
   else
+    SO.img(i).func = 'i1(i1==0)=NaN;';
     SO.img(i).prop = Inf;
     SO.cbar = [SO.cbar i];
     SO.img(i).cmap = return_cmap('Colormap:', 'jet');
     SO.img(i).range = spm_input('Img val range for colormap','+1', 'e', [mn mx], 2);
   end
 end
- 
+
+
 SO.transform = deblank(spm_input('Image orientation', '+1', ['Axial|' ...
             ' Coronal|Sagittal'], strvcat('axial','coronal','sagittal'), ...
             1));

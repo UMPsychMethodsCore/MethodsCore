@@ -8,11 +8,19 @@ function cls = cg_vbm8_write(res,tc,bf,df,lb,jc,warp,tpm,job)
 % spm_preproc_write8.m 2531 2008-12-05 18:59:26Z john $
 %
 % Christian Gaser
-% $Id: cg_vbm8_write.m 338 2010-05-27 05:35:57Z gaser $
+% $Id: cg_vbm8_write.m 435 2011-12-06 11:38:20Z gaser $
 
-rev = '$Rev: 338 $';
+% get current release number
+A = ver;
+for i=1:length(A)
+  if strcmp(A(i).Name,'Voxel Based Morphometry Toolbox')
+    r = str2double(A(i).Version);
+  end
+end
 
-fprintf('VBM8 %s\n',rev);
+if exist('r','var')
+  fprintf('VBM8 r%d: %s\n',r,res.image.fname);
+end
 
 % we need spm_def2det.m from HDW toolbox
 addpath(fullfile(spm('dir'),'toolbox','HDW'));
@@ -22,6 +30,7 @@ addpath(fullfile(spm('dir'),'toolbox','Seg'));
 if ~isstruct(tpm) || (~isfield(tpm, 'bg1') && ~isfield(tpm, 'bg')),
     tpm = spm_load_priors8(tpm);
 end
+
 d1        = size(tpm.dat{1});
 d1        = d1(1:3);
 M1        = tpm.M;
@@ -67,11 +76,24 @@ x3  = 1:d(3);
 
 % run dartel registration to GM/WM dartel template
 if do_dartel
+    darteltpm = warp.darteltpm;
+    % find position of '_1_'
+    numpos = findstr(darteltpm,'Template_1.nii');
+    numpos = numpos+8;
+    if isempty(numpos)
+        numpos = findstr(darteltpm,'_1_');
+    end
+    if isempty(numpos)
+        error('Could not find _1_ that indicates the first Dartel template in cg_vbm8_defaults.');
+    end
+    if strcmp(darteltpm(1,end-1:end),',1') >0
+        darteltpm = darteltpm(1,1:end-2);
+    end
     for j=1:6
         for i=1:2
-            run2(i).tpm = fullfile(fileparts(which(mfilename)),['Template_' num2str(j) '_IXI550_MNI152.nii,' num2str(i)]);
+            run2(i).tpm =  [darteltpm(1:numpos) num2str(j) darteltpm(numpos+2:end) ',' num2str(i)];
         end
-        tpm2{j}    = spm_vol(strvcat(cat(1,run2(:).tpm)));
+        tpm2{j} = spm_vol(strvcat(cat(1,run2(:).tpm)));
     end
 end
 
@@ -86,18 +108,16 @@ for n=1:N,
     [pth1,nam1,ext1] = fileparts(res.image(n).fname);
     chan(n).ind      = res.image(n).n;
 
-    try
-        if bf(n,1),
-            chan(n).Nc      = nifti;
-            chan(n).Nc.dat  = file_array(fullfile(pth1,['m', nam1, '.nii']),...
-                                     res.image(n).dim(1:3),...
-                                     [spm_type('float32') spm_platform('bigend')],...
-                                     0,1,0);
-            chan(n).Nc.mat  = res.image(n).mat;
-            chan(n).Nc.mat0 = res.image(n).mat;
-            chan(n).Nc.descrip = 'Bias corrected';
-            create(chan(n).Nc);
-        end
+    if bf(n,1),
+        chan(n).Nc      = nifti;
+        chan(n).Nc.dat  = file_array(fullfile(pth1,['m', nam1, '.nii']),...
+                                 res.image(n).dim(1:3),...
+                                 [spm_type('float32') spm_platform('bigend')],...
+                                 0,1,0);
+        chan(n).Nc.mat  = res.image(n).mat;
+        chan(n).Nc.mat0 = res.image(n).mat;
+        chan(n).Nc.descrip = 'Bias corrected';
+        create(chan(n).Nc);
     end
 end
 
@@ -156,9 +176,13 @@ for z=1:length(x3),
     for n=1:N,
         f = spm_sample_vol(res.image(n),x1,x2,o*x3(z),0);
         bf1 = exp(transf(chan(n).B1,chan(n).B2,chan(n).B3(z,:),chan(n).T));
+        bf1(bf1>100) = 100;
         cr{n} = bf1.*f;
+        
         % Write a plane of bias corrected data
-        chan(n).Nc.dat(:,:,z,chan(n).ind(1),chan(n).ind(2)) = cr{n};
+        if bf(n,1),
+            chan(n).Nc.dat(:,:,z,chan(n).ind(1),chan(n).ind(2)) = cr{n};
+        end
         if ~isempty(chan(n).Nf),
             % Write a plane of bias field
             chan(n).Nf.dat(:,:,z,chan(n).ind(1),chan(n).ind(2)) = bf1;
@@ -229,47 +253,91 @@ spm_progress_bar('clear');
 clear q q1 Coef b cr
 
 % load bias corrected image
-src = zeros(res.image(1).dim(1:3));
+src = zeros(res.image(1).dim(1:3),'single');
 for z=1:length(x3),
     f = spm_sample_vol(res.image(1),x1,x2,o*x3(z),0);
     bf1 = exp(transf(chan(1).B1,chan(1).B2,chan(1).B3(z,:),chan(1).T));
-    src(:,:,z) = bf1.*f;
+    % restrict bias field to maximum of 100 
+    % (sometimes artefacts at the borders can cause huge values in bias field)
+    bf1(bf1>100) = 100;
+    src(:,:,z) = single(bf1.*f);
 end
 
-% optionally apply optimized blockwise non local means denoising filter
-if warp.ornlm > 0
-    h = cg_noise_estimation(src);
-    fprintf('\nEstimated noise level: %3.2f',h);
-  	
-  	% weight ORNLM
-  	h = warp.ornlm*h;
-    src = ornlmMex(src,3,1,h);  
+clear chan
+
+% prevent NaN
+ src(isnan(src)) = 0;
+
+% for windows disable multi-threading
+if strcmp(mexext,'mexw32') || strcmp(mexext,'mexw64')
+    warp.sanlm = min(1,warp.sanlm);
 end
 
-src = single(src);
+% optionally apply non local means denoising filter
+switch warp.sanlm
+    case 0
+    case 1 % use single-threaded version
+        fprintf('NLM-Filter\n')
+        sanlmMex_noopenmp(src,3,1);
+    otherwise % use multi-threaded version
+        fprintf('NLM-Filter with multi-threading\n')
+        sanlmMex(src,3,1);
+end
 
-if do_cls & do_defs,
+if do_cls && do_defs,
 
-    % use mask of GM and WM
-    mask = single(cls{1});
-    mask = mask + single(cls{2});
+    % default parameters
+    bias_fwhm   = cg_vbm8_get_defaults('extopts.bias_fwhm');
+    init_kmeans = cg_vbm8_get_defaults('extopts.kmeans');
+    finalmask   = cg_vbm8_get_defaults('extopts.finalmask');
+    gcut        = cg_vbm8_get_defaults('extopts.gcut');
 
-    % keep largest connected component after 2 its of opening
-    mask = cg_morph_vol(mask,'open',2,warp.open_th);
-    mask = mask_largest_cluster(mask,0.5);
+    vx_vol = sqrt(sum(res.image(1).mat(1:3,1:3).^2));
+    scale_morph = 1/mean(vx_vol);
+  
+    if gcut
+        % skull-stripping using graph-cut
+        opt.verb = 0; % display process (0=nothing, 1=only points, 2=times)
+        fprintf('Skull-stripping using graph-cut\n');
+        cls_old = cls;
+        try
+          [src,cls,mask] = GBM(src,cls,res,opt);
+        catch
+          fprintf('Graph-cut failed\n');
+          gcut = 0;
+        end  
+        % check whether graph-cut failed (if GM classification has changed too much)
+        if (sum(cls{1}(:))/sum(cls_old{1}(:))<0.8)
+          fprintf('Graph-cut failed\n');
+          gcut = 0;
+          cls = cls_old;
+        end
+        clear cls_old
+    end
+    if ~gcut
+        fprintf('Skull-stripping using morphological operations\n');
+        % use mask of GM and WM
+        mask = single(cls{1});
+        mask = mask + single(cls{2});
+  
+        % keep largest connected component after at least 1 iteration of opening
+        n_initial_openings = max(1,round(scale_morph*warp.cleanup));
+        mask = cg_morph_vol(mask,'open',n_initial_openings,warp.open_th);
+        mask = mask_largest_cluster(mask,0.5);
 
-    % dilate and close to fill ventricles
-    mask = cg_morph_vol(mask,'dilate',warp.dilate,0.5);
-    mask = cg_morph_vol(mask,'close',10,0.5);
+        % dilate and close to fill ventricles
+        mask = cg_morph_vol(mask,'dilate',warp.dilate,0.5);
+        mask = cg_morph_vol(mask,'close',round(scale_morph*10),0.5);
         
-    % remove sinus
-    mask = mask & ((single(cls{5})<single(cls{1})) | ...
-                   (single(cls{5})<single(cls{2})) | ...
-                   (single(cls{5})<single(cls{3})));                
+        % remove sinus
+        mask = mask & ((single(cls{5})<single(cls{1})) | ...
+                       (single(cls{5})<single(cls{2})) | ...
+                       (single(cls{5})<single(cls{3})));                
 
-    % and fill holes that may remain
-    mask = cg_morph_vol(mask,'close',2,0.5);
-        
+        % fill holes that may remain
+        mask = cg_morph_vol(mask,'close',round(scale_morph*2),0.5); 
+    end
+  
     % calculate label image for all classes 
     cls2 = zeros([d(1:2) Kb]);
     label2 = zeros(d,'uint8');
@@ -285,12 +353,18 @@ if do_cls & do_defs,
     end
     
     % set all non-brain tissue outside mask to 0
-    label2(find((label2 > 3) | (mask == 0))) = 0;
+    label2(mask == 0)  = 0;
+    
+    % and for skull/bkg tissue classes to 0
+    label2(label2 > 3) = 0;
+    % and for skull/bkg tissue classes to 1 (=CSF)
+    % experimental
+%    label2(label2 > 3) = 1;
     
     % fill remaining holes in label with 1
-    mask = cg_morph_vol(label2,'close',2,0);    
-    label2(find((label2 == 0) & (mask > 0))) = 1;
-    
+    mask = cg_morph_vol(label2,'close',round(scale_morph*2),0);    
+    label2((label2 == 0) & (mask > 0)) = 1;
+  
     % use index to speed up and save memory
     sz = size(mask);
     [indx, indy, indz] = ind2sub(sz,find(mask>0));
@@ -302,56 +376,37 @@ if do_cls & do_defs,
         
     clear cls2 label2
     
-    % create smaller (indexed) volume    
-    vol = double(src(indx,indy,indz));        
+    vol = double(src(indx,indy,indz));    
     
     % mask source image because Amap needs a skull stripped image
     % set label and source inside outside mask to 0
-    vol(find(mask(indx,indy,indz)==0)) = 0;
+    vol(mask(indx,indy,indz)==0) = 0;
     
     % Amap parameters
     n_iters = 200; sub = 16; n_classes = 3; pve = 5; 
     iters_icm = 20;
     
-    % default parameters
-    bias_fwhm   = cg_vbm8_get_defaults('extopts.bias_fwhm');
-    init_kmeans = cg_vbm8_get_defaults('extopts.kmeans');
-    finalmask   = cg_vbm8_get_defaults('extopts.finalmask');
-
-    vx_vol = sqrt(sum(res.image(1).mat(1:3,1:3).^2));
-
-    if init_kmeans
-      fprintf('\nAmap segmentation of %s with Kmeans initialization.\n',res.image(1).fname);   
-    else
-      fprintf('\nAmap segmentation of %s.\n',res.image(1).fname);   
+    if init_kmeans, fprintf('Amap with Kmeans\n');   
+    else            fprintf('Amap without Kmeans\n');   
     end
-    
+
     [prob, means] = AmapMex(vol, label, n_classes, n_iters, sub, pve, init_kmeans, warp.mrf, vx_vol, iters_icm, bias_fwhm);
-    
-    % calculate SNR/CNR
-    if warp.ornlm > 0
-        % focus on pure tissues
-        means = means([1 3 5]);
-        SNR = 20*log10(means/h);
-        CNR = 20*log10(diff(means)/h);
-        fprintf('SNR(GM): %3.2fdB\tSNR(WM): %3.2fdB\tCNR(WM/GM): %3.2fdB\n',SNR(2),SNR(3),CNR(2));
-    end
     
     % reorder probability maps according to spm order
     prob = prob(:,:,:,[2 3 1]);
-    clear vol mask
+    clear vol 
     
     % use cleanup
-    if (warp.cleanup > 0)
+    if warp.cleanup
         % get sure that all regions outside mask are zero
         for i=1:3
             cls{i}(:) = 0;
         end
-        disp('Clean up...');        
+       % disp('Clean up...');        
         [cls{1}(indx,indy,indz), cls{2}(indx,indy,indz), cls{3}(indx,indy,indz)] = cg_cleanup_gwc(prob(:,:,:,1), ...
            prob(:,:,:,2), prob(:,:,:,3), warp.cleanup);
         sum_cls = cls{1}(indx,indy,indz)+cls{2}(indx,indy,indz)+cls{3}(indx,indy,indz);
-        label(find(sum_cls<0.15*255)) = 0;
+        label(sum_cls<0.15*255) = 0;
     else
         for i=1:3
             cls{i}(:) = 0;
@@ -359,30 +414,35 @@ if do_cls & do_defs,
         end
     end;
     clear prob
-
-    if (finalmask > 0)
+  
+    if finalmask
+        fprintf('Final masking\n');
         % create final mask
         mask = single(cls{1});
         mask = mask + single(cls{2});
 
-        % keep largest connected component after 2 its of opening
-        mask = cg_morph_vol(mask,'open',2,0.5);
+        % keep largest connected component after at least 1 iteration of opening
+        n_initial_openings = max(1,round(scale_morph*2));
+        mask = cg_morph_vol(mask,'open',n_initial_openings,0.5);
         mask = mask_largest_cluster(mask,0.5);
 
         % dilate and close to fill ventricles
         mask = cg_morph_vol(mask,'dilate',2,0.5);
         mask = cg_morph_vol(mask,'close',20,0.5);
+      
         ind_mask = find(mask == 0);
         for i=1:3
             cls{i}(ind_mask) = 0;
         end
-        
+       
         % mask label
         label2 = zeros(d,'uint8');
         label2(indx,indy,indz) = label;
         label2(ind_mask) = 0;
+        
         label = label2(indx,indy,indz);
         clear label2
+     
     end
     % clear last 3 tissue classes to save memory
     for i=4:6
@@ -392,8 +452,6 @@ if do_cls & do_defs,
 end
 
 M0 = res.image(1).mat;
-
-clear tpm chan
 
 % prepare transformations for rigidly or affine aligned images
 if any(tc(:,2)) || any(tc(:,3)) || do_dartel || lb(1,3) || lb(1,4) || bf(1,3) || cg_vbm8_get_defaults('output.surf.dartel')
@@ -506,7 +564,7 @@ if do_dartel
     
     clear f g
     
-    [t1,t2,o] = ndgrid(1:d(1),1:d(2),1);
+    [t1,t2] = ndgrid(1:d(1),1:d(2),1);
     t3 = 1:d(3);
 
     prm     = [3 3 3 0 0 0];
@@ -535,11 +593,11 @@ if cg_vbm8_get_defaults('output.surf.dartel')
   wm_label = uint8(label > 2.5/3.0*255);
   
   % fill subcortical areas and ventricle using submask
-  wm_label(find(submask(indx,indy,indz) > 1)) = 1;
+  wm_label(submask(indx,indy,indz) > 1) = 1;
 %  wm_label = cg_morph_vol(wm_label,'close',1,0.5);
        
   % cut midline and pons
-  wm_label(find((round(double(submask(indx,indy,indz) == 1))))) = 0;
+  wm_label((round(double(submask(indx,indy,indz) == 1)))) = 0;
 
   % use only largest WM cluster at th0 as seed parameter
   % mask out all voxels where wm is lower than gm or csf
@@ -549,8 +607,8 @@ if cg_vbm8_get_defaults('output.surf.dartel')
   value_left  = max(max(max(wm_label(1:(mid-30),:,:))));
   value_right = max(max(max(wm_label((mid+30):end,:,:))));
 
-  wm_label(find(wm_label==value_left))  = 127;
-  wm_label(find(wm_label==value_right)) = 255;
+  wm_label(wm_label==value_left)  = 127;
+  wm_label(wm_label==value_right) = 255;
 
   [pth,nam,ext1]=fileparts(res.image(1).fname);
   VT      = struct('fname',fullfile(pth,['wmlabel_', nam, '.nii']),...
@@ -750,6 +808,8 @@ if any(tc(:,4)) || any(tc(:,5)) || any(tc(:,6)) || nargout>=1,
     dt = dt./abs(det(M0(1:3,1:3))/det(M1(1:3,1:3)));    
     clear y2
     
+    M2 = M1\res.Affine*M0;
+
     for k1 = 1:3,
         if ~isempty(cls{k1}),
             c = single(cls{k1})/255;
@@ -760,6 +820,7 @@ if any(tc(:,4)) || any(tc(:,5)) || any(tc(:,6)) || nargout>=1,
             if nargout>=1,
                 cls{k1} = c;
             end
+
             if tc(k1,5),
                 N      = nifti;
                 N.dat  = file_array(fullfile(pth,['mwp', num2str(k1), nam, '.nii']),...
@@ -789,13 +850,12 @@ if any(tc(:,4)) || any(tc(:,5)) || any(tc(:,6)) || nargout>=1,
                 N.descrip = ['Jac. sc. warped tissue class non-lin only' num2str(k1)];
                 create(N);
 
-                M2 = M1\res.Affine*M0;
-
                 N.dat(:,:,:) = c*abs(det(M2(1:3,1:3)));
             end
             spm_progress_bar('set',k1);
         end
     end
+
     spm_progress_bar('Clear');
 end
 
@@ -818,13 +878,13 @@ end
 if any(tc(:,4)),
     spm_progress_bar('init',3,'Writing Warped Tis Cls','Classes completed');
     C = max(C,eps);
-    s = sum(C,4);
+%    s = sum(C,4);
 
     for k1=1:3,
         if tc(k1,4),
             N      = nifti;
             N.dat  = file_array(fullfile(pth,['wp', num2str(k1), nam, '.nii']),...
-                            d1,'int16-be',0,1/255,0);
+                            d1,'int16',0,1/255,0);
             if do_dartel
                 N.dat.fname = fullfile(pth,['wrp', num2str(k1), nam, '.nii']);
             end
@@ -859,12 +919,13 @@ end
 if bf(1,2),
     % skull strip image because of undefined deformations outside the brain
     if do_dartel
-        src2 = zeros(size(src),'single');
-        src2(indx,indy,indz) = src(indx,indy,indz).*single(label>0); 
-        src = src2;
-        clear src2
+        try
+            src2 = zeros(size(src),'single');
+            src2(indx,indy,indz) = src(indx,indy,indz).*single(label>0); 
+            src = src2;
+            clear src2
+        end
     end
-    C = zeros(d1,'single');
     [src,w]  = dartel3('push',src,y,d1(1:3));
     C = optimNn(w,src,[1  vx vx vx 1e-4 1e-6 0  3 2]);
     clear w
@@ -882,34 +943,36 @@ if bf(1,2),
 end
 
 % display and print result if possible
-if do_cls & warp.print
+if do_cls && warp.print
   
   % get current release numbers
   A = ver;
   for i=1:length(A)
     if strcmp(A(i).Name,'Voxel Based Morphometry Toolbox')
-      r_vbm = str2double(A(i).Version);
+      r_vbm = A(i).Version;
     end
     if strcmp(A(i).Name,'Statistical Parametric Mapping')
-      r_spm = str2double(A(i).Version);
+      r_spm = A(i).Version;
     end
     if strcmp(A(i).Name,'MATLAB')
-      r_matlab = str2double(A(i).Version);
+      r_matlab = A(i).Version;
     end
   end
   
-	tpm_name = spm_str_manip(cg_vbm8_get_defaults('opts.tpm'),'k40d');
+	tpm_name = spm_str_manip(tpm.V(1).fname,'k40d');
 	dartelwarp = str2mat('Low-dimensional (SPM default)','High-dimensional (Dartel)');
 	str = [];
-	str = [str struct('name', 'Versions Matlab/SPM8/VBM8:','value',sprintf('%3.1f / %d / %d',r_matlab,r_spm,r_vbm))];
+	str = [str struct('name', 'Versions Matlab/SPM8/VBM8:','value',sprintf('%s / %s / %s',r_matlab,r_spm,r_vbm))];
 	str = [str struct('name', 'Non-linear normalization:','value',sprintf('%s',dartelwarp(warp.dartelwarp+1,:)))];
-	str = [str struct('name', 'Tissue Probability Map:','value',sprintf('%s',tpm_name{1}))];
+	str = [str struct('name', 'Tissue Probability Map:','value',sprintf('%s',tpm_name))];
 	str = [str struct('name', 'Affine regularization:','value',sprintf('%s',warp.affreg))];
 	str = [str struct('name', 'Warp regularisation:','value',sprintf('%g',warp.reg))];
-	str = [str struct('name', 'Bias FWHM:','value',sprintf('%d',cg_vbm8_get_defaults('opts.biasfwhm')))];
+	str = [str struct('name', 'Bias FWHM:','value',sprintf('%d',job.opts.biasfwhm))];
 	str = [str struct('name', 'Kmeans initialization:','value',sprintf('%d',cg_vbm8_get_defaults('extopts.kmeans')))];
 	str = [str struct('name', 'Bias FWHM in Kmeans:','value',sprintf('%d',cg_vbm8_get_defaults('extopts.bias_fwhm')))];
-	str = [str struct('name', 'ORNLM weighting:','value',sprintf('%3.2f',warp.ornlm))];
+	if (warp.sanlm>0) 
+	  str = [str struct('name', 'SANLM:','value',sprintf('yes'))];
+	end
 	str = [str struct('name', 'MRF weighting:','value',sprintf('%3.2f',warp.mrf))];
 
   try
@@ -983,7 +1046,6 @@ end
 
 % warped label
 if lb(2),
-    C = zeros(d1,'single');
     c = zeros(res.image(n).dim(1:3),'single');
     c(indx,indy,indz) = single(label);
     [c,w]  = dartel3('push',c,y,d1(1:3));
@@ -1009,7 +1071,7 @@ if df(1),
     y         = spm_invert_def(y,M1,d1,M0,[1 0]);
     N         = nifti;
     N.dat     = file_array(fullfile(pth,['y_', nam1, '.nii']),...
-                           [d1,1,3],'float32-be',0,1,0);
+                           [d1,1,3],'float32',0,1,0);
     if do_dartel
         N.dat.fname = fullfile(pth,['y_r', nam1, '.nii']);
     end

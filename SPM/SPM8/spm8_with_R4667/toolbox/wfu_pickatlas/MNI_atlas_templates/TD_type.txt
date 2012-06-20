@@ -1,4 +1,0 @@
-[ TD Type]
-3	Cerebro-Spinal Fluid
-1	Gray Matter
-2	White Matter

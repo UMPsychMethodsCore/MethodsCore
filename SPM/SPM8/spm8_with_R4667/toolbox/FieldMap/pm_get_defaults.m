@@ -16,13 +16,18 @@ function varargout = pm_get_defaults(defstr, varargin)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % Chloe Hutton
-% $Id: pm_get_defaults.m 3449 2009-10-08 15:09:33Z chloe $
+% $Id: pm_get_defaults.m 4571 2011-11-23 17:34:12Z chloe $
 % ---------------------------------------------------------------------
- global pm_def
- if isempty(pm_def)
-      pm_defaults;
-      pm_def.sessname='session';
- end
+global pm_def
+if isempty(pm_def)
+    pm_defaults;
+    pm_def.sessname='session';
+    pm_def.pedir=2;
+elseif ~isfield(pm_def,'pedir');
+    pm_def.pedir=2;
+elseif ~isfield(pm_def,'sessname');
+    pm_def.sessname='session';
+end
 
 [default_file_path, tmpname] = fileparts(mfilename('fullpath'));
 pm_def.defaultsfilename{1} = sprintf('%s%s%s',default_file_path,filesep,'pm_defaults.m');

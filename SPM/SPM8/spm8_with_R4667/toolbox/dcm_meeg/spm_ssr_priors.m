@@ -1,5 +1,5 @@
 function [pE,pC] = spm_ssr_priors(pE,pC)
-% augments prior moments of a neural mass model for ssr analyese
+% augments prior moments of a neural mass model for ssr analyses
 % FORMAT [pE,pC] = spm_ssr_priors(pE,pC)
 %
 % pE - prior expectation
@@ -15,7 +15,7 @@ function [pE,pC] = spm_ssr_priors(pE,pC)
 %
 %--------------------------------------------------------------------------
 %
-% pC - prior covariances: cov(spm_vec(pE))
+% pC - prior (co)variances
 %
 % Because priors are specified under log normal assumptions, most
 % parameters are simply scaling coefficients with a prior expectation
@@ -30,17 +30,29 @@ function [pE,pC] = spm_ssr_priors(pE,pC)
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
  
 % Karl Friston
-% $Id: spm_ssr_priors.m 3517 2009-10-29 15:11:56Z guillaume $
+% $Id: spm_ssr_priors.m 4402 2011-07-21 12:37:24Z karl $
  
-
-% add prior on endogenous inputs (neuronal) and noise
+% catch
 %--------------------------------------------------------------------------
-pE.a  = 0;               pV.a = 1/16;              % amplitude input AR
-pE.b  = 0;               pV.b = 0;                 % amplitude input IID
-pE.c  = [0 0];           pV.c = [1/16 1/16];       % amplitude noise AR
-pE.d  = [0 0];           pV.d = [1/16 1/16];       % amplitude noise IID
+try, pE.L; catch, pE.L = 1; end
 
-% and augment prior covariance
+% number of LFP channels
 %--------------------------------------------------------------------------
-pC    = spm_cat(spm_diag({pC, diag(spm_vec(pV))}));
+if size(pE.L,1) == 1, n = size(pE.L,2); else, n = 1; end
+if size(pE.C,1),      m = size(pE.C,2); else, m = 1; end
+
+% add prior on spectral density of innovations (pink and white coeficients)
+%--------------------------------------------------------------------------
+pE.a = sparse(2,m); pC.a = sparse(2,m) + 1/16; % neuronal innovations
+pE.b = sparse(2,1); pC.b = sparse(2,1) + 1/16; % channel noise non-specific
+pE.c = sparse(2,n); pC.c = sparse(2,n) + 1/16; % channel noise specific
+
+% neuronal innovations
+%--------------------------------------------------------------------------
+pE.d = sparse(4,m); pC.d = sparse(4,m) + 1/32; 
+
+
+
+
+
  

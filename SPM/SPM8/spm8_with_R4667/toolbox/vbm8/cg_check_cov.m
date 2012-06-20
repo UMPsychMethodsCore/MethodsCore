@@ -6,16 +6,13 @@ function cg_check_cov(vargin)
 % An output image will be save with SD at each voxel.
 %_______________________________________________________________________
 % Christian Gaser
-% $Id: cg_check_cov.m 115 2009-03-10 10:40:12Z gaser $
+% $Id: cg_check_cov.m 425 2011-08-22 14:40:10Z gaser $
 
 global fname jY h1 h2 YpY slice_array
-rev = '$Rev: 115 $';
+rev = '$Rev: 425 $';
 
 if nargin == 1
-  P = [];
-  for i=1:numel(vargin.data)
-    P = strvcat(P,deblank(vargin.data{i}));
-  end
+  P = char(vargin.data);
   norm = vargin.scale;
   if isempty(vargin.nuisance)
     nuisance = [];
@@ -23,6 +20,7 @@ if nargin == 1
     nuisance = vargin.nuisance.c;
   end
   slice_mm = vargin.slice;
+  gap = vargin.gap;
 end
 
 if nargin < 1
@@ -48,6 +46,7 @@ if nargin < 1
     nuisance = [];
   end
 	slice_mm = spm_input('Slice [mm]?','+1','e',0,1);
+	gap = spm_input('Gap for slices to speed up','+1','e',0,1);
 end
 
 if ~isempty(nuisance)
@@ -89,7 +88,21 @@ YpY = zeros(n);
 spm_progress_bar('Init',V(1).dim(3),'Check covariance','planes completed')
 slice_array = zeros([V(1).dim(1:2) n]);
 
-for j=1:V(1).dim(3),
+% consider gap for slices to speed up the process
+slices = 1:gap:V(1).dim(3);
+[mn, ind] = min(abs(slices-sl));
+slices = slices - slices(ind) + sl;
+if slices(1) < 1
+  slices = slices(2:end);
+end
+if slices(end) > V(1).dim(3)
+  slices = slices(1:end-1);
+end
+if slices(end) < V(1).dim(3) - gap
+  slices = [slices slices(end)+gap]; 
+end
+
+for j=slices
 
   M  = spm_matrix([0 0 j]);
 

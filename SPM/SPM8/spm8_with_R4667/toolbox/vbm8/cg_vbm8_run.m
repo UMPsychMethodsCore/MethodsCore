@@ -24,9 +24,9 @@ function varargout = cg_vbm8_run(job,arg)
 % spm_preproc8_run.m 2281 2008-10-01 12:52:50Z john $
 %
 % Christian Gaser
-% $Id: cg_vbm8_run.m 331 2010-05-15 01:00:51Z gaser $
+% $Id: cg_vbm8_run.m 411 2011-04-14 13:39:03Z gaser $
 
-rev = '$Rev: 331 $';
+rev = '$Rev: 411 $';
 
 % check whether estimation & write should be done
 estwrite = isfield(job,'opts');
@@ -43,11 +43,15 @@ warp = struct('affreg', job.opts.affreg,...
               'samp', job.opts.samp,...
               'reg', job.opts.warpreg,...
               'write', job.output.warps,...
-              'ornlm', job.extopts.ornlm,...
+              'sanlm', job.extopts.sanlm,...
               'mrf', job.extopts.mrf,...
               'print', job.extopts.print,...
               'cleanup', job.extopts.cleanup,...
-              'dartelwarp', job.extopts.dartelwarp);
+              'dartelwarp', isfield(job.extopts.dartelwarp,'normhigh'));
+
+if isfield(job.extopts.dartelwarp,'normhigh')
+    warp.darteltpm = job.extopts.dartelwarp.normhigh.darteltpm{1};
+end
 
 do_dartel = warp.dartelwarp;
 
@@ -85,16 +89,19 @@ job.warp     = warp;
 job.warps    = job.output.warps;
 job.tissue   = tissue;
 
-if nargin==1,
-    varargout{:} = run_job(job, estwrite);
-elseif strcmpi(arg,'check'),
-    varargout{:} = check_job(job);
-elseif strcmpi(arg,'vfiles'),
-    varargout{:} = vfiles_job(job);
-elseif strcmpi(arg,'vout'),
-    varargout{:} = vout_job(job);
-else
-    error('Unknown argument ("%s").', arg);
+if nargin == 1, arg = 'run'; end
+
+switch lower(arg)
+    case 'run'
+        varargout{1} = run_job(job,estwrite);
+    case 'check'
+        varargout{1} = check_job(job);
+    case 'vfiles'
+        varargout{1} = vfiles_job(job);
+    case 'vout'
+        varargout{1} = vout_job(job);
+    otherwise
+        error('Unknown argument ("%s").', arg);
 end
 return
 %_______________________________________________________________________
@@ -161,8 +168,21 @@ for iter=1:nit,
                     aflags.sep = max(aflags.sep,max(sqrt(sum(VF(1).mat(1:3,1:3).^2))));
 
                     M = eye(4);
-                    spm_chi2_plot('Init','Affine Registration','Mean squared difference','Iteration');
-                    Affine  = spm_affreg(VG, VF1, aflags, M);
+                    try
+                        spm_plot_convergence('Init','Coarse Affine Registration','Mean squared difference','Iteration');
+                    catch
+                        spm_chi2_plot('Init','Coarse Affine Registration','Mean squared difference','Iteration');
+                    end
+                    [Affine, scale]  = spm_affreg(VG, VF1, aflags, M);
+
+                    aflags.WG  = spm_vol(fullfile(spm('Dir'),'apriori','brainmask.nii'));
+                    aflags.sep = aflags.sep/2;
+                    try
+                        spm_plot_convergence('Init','Fine Affine Registration','Mean squared difference','Iteration');
+                    catch
+                        spm_chi2_plot('Init','Fine Affine Registration','Mean squared difference','Iteration');
+                    end
+                    Affine  = spm_affreg(VG, VF1, aflags, Affine, scale);
 
                     fprintf('Fine Affine Registration..\n');
                     Affine  = spm_maff8(obj.image(1),job.warp.samp,obj.fudge,  tpm,Affine,job.warp.affreg);
@@ -284,7 +304,12 @@ if numel(fn)==0, return; end;
 for i=1:length(fn),
     eval([fn{i} '= p.' fn{i} ';']);
 end;
-if spm_matlab_version_chk('7') >= 0
+try 
+    mat_ver = spm_check_version('matlab','7');
+catch
+    mat_ver = spm_matlab_version_chk('7');
+end 
+if mat_ver >= 0
     save(fnam,'-V6',fn{:});
 else
     save(fnam,fn{:});
@@ -296,7 +321,7 @@ return;
 %_______________________________________________________________________
 function vout = vout_job(job)
 
-do_dartel = job.extopts.dartelwarp;
+do_dartel = isfield(job.extopts.dartelwarp,'normhigh');
 
 n     = numel(job.channel(1).vols);
 parts = cell(n,4);
