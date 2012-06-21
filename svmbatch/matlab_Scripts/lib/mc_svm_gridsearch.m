@@ -1,7 +1,7 @@
 function [ svm_grid_models ] = mc_svm_gridsearch( train, trainlabels, test, testlabels, kernel, searchgrid )
 %MC_SVM_GRIDSEARCH A function to search SVM performance over a grid of tuning parameters
 %   
-% FORMAT [svm_grid_models] = mc_svm_gridsearch (train, trainlabels, test, testlabels, searchgrid)
+% FORMAT [svm_grid_models] = mc_svm_gridsearch (train, trainlabels, test, testlabels, kernel, searchgrid)
 %   train           -   nTrainExample x nFeat matrix of training data
 %   trainlabels     -   nTrainExample x 1 matrix of labels for training data
 %   test            -   nTestExample x nFeat matrix of test data
