@@ -54,7 +54,7 @@ OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% How many features of each LOOCV iteration should be retained after
-%%% pruning?
+%%% pruning? Set to 0 to disable feature pruning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nFeatPrune = 50;
 

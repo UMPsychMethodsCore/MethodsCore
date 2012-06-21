@@ -102,6 +102,13 @@ if strcmpi(svmtype,'unpaired')
 
         train=superflatmat(train_idx,:);
         trainlabels=labels(train_idx,:);
+        
+        % If feature pruning is disabled, set nFeatPrune to number of
+        % features. This way, feature fitness is still retained, perhaps
+        % for plotting?
+        if nFeatPrune==0
+            nFeatPrune=size(train,2);
+        end
 
         switch pruneMethod  % Do different types of pruning based on user-specified option
             case 'ttest'% In ttest mode, do a 2-sample (groupwise) t-test on all features
@@ -328,6 +335,13 @@ if strcmpi(svmtype,'paired')
             train=superflatmat_paired(train_idx,:);
             trainlabels=repmat([1; -1],size(train,1)/2,1);
 
+            % If feature pruning is disabled, set nFeatPrune to number of
+            % features. This way, feature fitness is still retained, perhaps
+            % for plotting?
+            if nFeatPrune==0
+                nFeatPrune=size(train,2);
+            end
+            
             % Identify the fraction of features that are greater than zero, or
             % less than zero (whichever is larger). This indicates a consistent
             % signed direction. Do it just for one pair, since the second pair
