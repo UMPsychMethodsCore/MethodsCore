@@ -163,17 +163,29 @@ if strcmpi(svmtype,'unpaired')
         % Restrict the training and test sets to only include the non-pruned features
         train=train(:,pruneID);
         test=superflatmat(iL,pruneID);
+        
+        if advancedkernel==1
+            if kernelsearchmode==0
+            end
+            if kernelsearchmode==1
+                result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,mc_svm_define_searchgrid(gridstruct));
+                result=cell2mat(result);
+                models_test(iL,:)=result(:,2:end);                
+            end
+        end
+        
+        if advancedkernel==0
+            
+            models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
 
-        models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
+            models_test(iL)=svmclassify(test,labels(iL),models_train{iL});
 
-        models_test(iL)=svmclassify(test,labels(iL),models_train{iL});
-
-        fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
-            iL-sum(models_test),...
-            iL);
-
+            fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+                iL-sum(models_test),...
+                iL);
+        end
     end
-    fprintf(1,'\nLOOCV Done\n\n');
+        fprintf(1,'\nLOOCV Done\n\n');
 
     
     %% Report performance
