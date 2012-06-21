@@ -36,16 +36,14 @@ function [ svm_grid_models ] = mc_svm_gridsearch( train, trainlabels, test, test
 %                       option string ' -d 1 -r 0'.         
 % 
 %   RESULT
-%       svm_grid_models     -   2 x (nParameterCombos + 1) cell array. The
-%                               first row contains structs associated with
-%                               the learned model. The second row contains
-%                               the error rate when calling the learned
-%                               model on the training data. Columns
-%                               directly index into columns of searchgrid,
-%                               so the first column of svm_grid_models will
-%                               be empty, since the corresponding column in
-%                               searchgrid sets parameter flags rather than
-%                               values.
+%       svm_grid_models     -   1 x (nParameterCombos + 1) cell array.
+%                               First row contains the error rate when
+%                               calling the learned model on the training
+%                               data. Columns directly index into columns
+%                               of searchgrid, so the first column of
+%                               svm_grid_models will be empty, since the
+%                               corresponding column in searchgrid sets
+%                               parameter flags rather than values.
 
 
 
@@ -76,8 +74,8 @@ svm_grid_models=cell(2,size(searchgrid,2)-1);
 
 for iGrid=2:size(searchgrid,2)
     svm_learn_args=svm_learn_parseargs (kernel, searchgrid(:,[1 iGrid]));
-    svm_grid_models{1,iGrid} = svmlearn(train,trainlabels,svm_learn_args);
-    svm_grid_models{2,iGrid} = svmclassify(test,testlabels,svm_grid_models{1,iGrid});
+    svm_model_temp = svmlearn(train,trainlabels,svm_learn_args);
+    svm_grid_models{1,iGrid} = svmclassify(test,testlabels,svm_model_temp);
 end
 
 end
