@@ -101,7 +101,10 @@ if strcmpi(svmtype,'unpaired')
 
         train=superflatmat(train_idx,:);
         trainlabels=labels(train_idx,:);
-
+        test=superflatmat(iL,:);
+        testlabels=labels(iL);
+        
+        
         if nFeatPrune~=0
 
             switch pruneMethod  % Do different types of pruning based on user-specified option
@@ -149,7 +152,7 @@ if strcmpi(svmtype,'unpaired')
 
             % Restrict the training and test sets to only include the non-pruned features
             train=train(:,keepID);
-            test=superflatmat(iL,keepID);
+            test=test(:,keepID);
 
         elseif nFeatPrune==0
             LOOCV_pruning(iL,:)=1;
@@ -170,7 +173,7 @@ if strcmpi(svmtype,'unpaired')
             
             models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
 
-            models_test(iL)=svmclassify(test,labels(iL),models_train{iL});
+            models_test{1,iL}=svmclassify(test,testlabels,models_train{iL});
 
             fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
                 iL-sum(models_test),...
@@ -338,6 +341,8 @@ if strcmpi(svmtype,'paired')
 
             train=superflatmat_paired(train_idx,:);
             trainlabels=repmat([1; -1],size(train,1)/2,1);
+            test=superflatmat_paired([iL*2-1 iL*2],:);
+            testlabels=repmat([1; -1],size(test,1)/2,1);
             
             if nFeatPrune~=0
 
@@ -355,7 +360,7 @@ if strcmpi(svmtype,'paired')
                 LOOCV_pruning{iContrast}(iL,keepID) = 1;
 
                 train=train(:,keepID);
-                test=superflatmat_paired([iL*2-1 iL*2],keepID);
+                test=test(:,keepID);
 
             elseif nFeatPrune==0
                 LOOCV_pruning{iContrast}(iL,:)=1;
@@ -363,7 +368,7 @@ if strcmpi(svmtype,'paired')
 
             models_train{iL,iContrast}=svmlearn(train,trainlabels,'-o 100 -x 0');
 
-            models_test{iL,iContrast}=svmclassify(test,[1 ; -1],models_train{iL,iContrast});
+            models_test{iL,iContrast}=svmclassify(test,testlabels,models_train{iL,iContrast});
 
             fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
                 iL-sum(cell2mat(models_test(:,iContrast))),...
