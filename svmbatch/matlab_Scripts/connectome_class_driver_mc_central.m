@@ -391,7 +391,25 @@ if strcmpi(svmtype,'paired')
     %% End new paired SVM approach
 
 end
+
+%% Summarize performance over gridsearch
+
+if advancedkernel==1
     
+    gridsearch_performance=cell(size(models_test,2),1);
+    
+    nLOOCV=sum(~cellfun(@isempty,models_test),1); %Count how many LOOCV folds in each contrast
+    
+    for iContrast=1:size(models_test,2)
+        gridsearch_performance{iContrast,1}=zeros(nLOOCV(iContrast),size(models_test{1,iContrast},2)-1); %Preallocate
+        for iL=1:size(models_test,1)
+            gridsearch_performance{iContrast,1}(iL,:)=cell2mat(models_test{iL,iContrast}(end,2:end));
+        end
+    end
+    
+    SVM_ConnectomeResults.gridsearch_performance=gridsearch_performance;
+end
+
 %% Save results to file
 % Stash the setup parameters into the results structure
 SVM_ConnectomeResults.SVMSetup = SVMSetup;
