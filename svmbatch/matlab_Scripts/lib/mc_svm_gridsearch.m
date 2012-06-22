@@ -70,7 +70,7 @@ end
 
 
 % Preallocate a bit of space to shut up MLint
-svm_grid_models=cell(2,size(searchgrid,2)-1);
+svm_grid_models=cell(1,size(searchgrid,2)-1);
 
 for iGrid=2:size(searchgrid,2)
     svm_learn_args=svm_learn_parseargs (kernel, searchgrid(:,[1 iGrid]));
