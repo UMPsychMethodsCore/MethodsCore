@@ -154,6 +154,7 @@ SubjDir = {
 %   1. This will disable visualization
 %   2. Training models will no longer be stored in order to cut down on
 %   memory
+%   3. You MUST specify a kernel AND either gridstruct or searchgrid
 advancedkernel = 0;
    
 
