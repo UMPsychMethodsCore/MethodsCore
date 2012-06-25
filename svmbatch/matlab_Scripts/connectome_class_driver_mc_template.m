@@ -54,7 +54,7 @@ OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% How many features of each LOOCV iteration should be retained after
-%%% pruning?
+%%% pruning? Set to 0 to disable feature pruning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nFeatPrune = 50;
 
@@ -143,13 +143,61 @@ SubjDir = {
 
        };
 
+   
+
+
+% Enable Advanced Kernel Functions
+% NOTE - This will disable visualization
+%   0   -   Disable (behavior as usual). Rest of script does not apply.
+%   1   -   Enable kernel selection and parameter search.
+% NOTES
+%   1. This will disable visualization
+%   2. Training models will no longer be stored in order to cut down on
+%   memory
+%   3. You MUST specify a kernel AND either gridstruct or searchgrid
+advancedkernel = 0;
+   
+
+% Choose your kernel
+%   0   -   Linear
+%   1   -   Polynomial
+%   2   -   Radial Basis Function 
+%   3   -   Sigmoid tanh
+
+kernel = 0;
+
+% Do you want to manually specify the searchgrid, or let the script find
+% all combinations of your tuning parameters for you?
+%   0   -   Manually specify searchgrid
+%   1   -   Semi-automatic build of searchgrid
+% Define your search area. 
+kernelsearchmode = 1;
+
+% If you set kernelsearchmode to 1, define your gridstruct here
+% See mc_svm_define_searchgrid help for details
+
+gridstruct(1).arg=' -c ';
+gridstruct(1).value=logspace(1,10,10);
+gridstruct(2).arg=' -r ';
+gridstruct(2).value=logspace(1,5,5);
+
+% If you set kernelsearchmode to 0, manually define your searchgrid here.
+% See mc_svm_gridsearch help for details
+
+searchgrid =   
+{   ' -d ', 1, 1, 2, 2;
+    ' -r ', 0, 1, 0, 1;};
+
+
+
+
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(genpath(fullfile(mcRoot,'matlabScripts')))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
