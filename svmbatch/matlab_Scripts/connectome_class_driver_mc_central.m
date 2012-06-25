@@ -396,6 +396,8 @@ end
 
 if advancedkernel==1
     
+    models_train='No trained models stored';
+    
     gridsearch_performance=cell(size(models_test,2),1);
     
     nLOOCV=sum(~cellfun(@isempty,models_test),1); %Count how many LOOCV folds in each contrast
