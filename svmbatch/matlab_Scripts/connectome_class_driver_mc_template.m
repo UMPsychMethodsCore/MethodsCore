@@ -184,7 +184,7 @@ gridstruct(2).value=logspace(1,5,5);
 % If you set kernelsearchmode to 0, manually define your searchgrid here.
 % See mc_svm_gridsearch help for details
 
-searchgrid =   
+searchgrid =   ...
 {   ' -d ', 1, 1, 2, 2;
     ' -r ', 0, 1, 0, 1;};
 
