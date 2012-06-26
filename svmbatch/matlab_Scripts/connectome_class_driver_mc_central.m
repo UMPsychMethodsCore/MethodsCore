@@ -147,48 +147,7 @@ if strcmpi(svmtype,'unpaired')
             case 'mutualinfo'
                 %|------------------- Mutual Information ----------------------------------------|%
 
-                tic
-                numFeatures = size(superflatmat,2);
-                mi = zeros(numFeatures,1);
-
-                %| p_label = marginal distribution of the labels {-1 or +1}
-                p_label = zeros(1,2);
-                p_label(1) = sum( trainlabels == -1 )/nSubs;
-                p_label(2) = sum( trainlabels == 1  )/nSubs;
-
-
-                indYm1 = trainlabels == -1; %| indices with 'm'inus labels (y = -1)
-                indYp1 = trainlabels ==  1; %| indices with 'p'lus  labels (y = +1)
-                win = [-1:.1:1];
-
-                for i = 1:numFeatures
-                    x = train(:,i);
-                    %|--- Use histogram approach (ie, rect-kernel function for the parzen window) ---|%
-                    %|
-                    %| Joint distribution... top row is the bin count of the feature with label y = -1,
-                    %|                    bottom row is the bin count of the feature with label y = +1,
-                    %|-----------------------------------------------------------------------|%
-                    %| Brute force...quite slow
-                    %|          p_joint = [hist( x( trainlabels ==-1), [-1:0.1:1]); ...'
-                    %|                     hist( x( trainlabels == 1), [-1:0.1:1])] /nSubs;
-                    %|-----------------------------------------------------------------------|%
-                    %| The following is a much faster way to create the histogram
-                    xm1 = x(indYm1); %| features with negative label
-                    xp1 = x(indYp1); %| features with positive label
-                    p_joint = full([ sparse(1, round(10*xm1)+11, 1, 1, length(win)); ...
-                        sparse(1, round(10*xp1)+11, 1, 1, length(win))]) / nSubs;
-
-                    %| Marginal distribution of the feature
-                    p_feature = sum(p_joint,1);
-                    mi(i) = estmutualinfo( p_joint, p_feature, p_label);
-                end
-                toc
-                %\\---------------------------------------------------------------------------|%
-
-                tic
-                mi2 = mc_compute_mi( train, trainlabels );
-                toc
-                keyboard
+                featurefitness = mc_compute_mi( train, trainlabels );
                 %%
 
         end
