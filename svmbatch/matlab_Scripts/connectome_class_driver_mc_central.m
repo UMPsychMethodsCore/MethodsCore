@@ -136,6 +136,13 @@ if strcmpi(svmtype,'unpaired')
                         end
                     end
                     featurefitness = abs(featurefitness);
+                end
+                
+            case 'mutualinfo'
+                %|------------------- Mutual Information ----------------------------------------|%
+
+                featurefitness = mc_compute_mi( train, trainlabels );
+                %%
 
             end
 
