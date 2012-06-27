@@ -5,8 +5,17 @@ mcRoot=`pwd`
 
 mkdir -p .local
 
+#Check if in detached head state
+headContent=`cat .git/HEAD`
+colonLoc=`expr index "$headContent" :`
+
 #Identify Current Version
-cat .git/`cat .git/HEAD | awk '{print $NF'}` > .local/CurrentVersionSHA
+if [ $colonLoc -eq 0 ]
+then
+    cat .git/HEAD > .local/CurrentVersionSHA
+else
+    cat .git/`cat .git/HEAD | awk '{print $NF'}` > .local/CurrentVersionSHA
+fi
 
 #spm8Batch Localizations
 if [ -d .local/spm8Batch ]; then
