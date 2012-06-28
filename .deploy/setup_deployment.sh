@@ -21,3 +21,6 @@ echo public > $thisdir/../.local/branch
 
 #Make keyfiles
 ssh-keygen -f $thisdir/../.local/deploy -N ""
+
+#Do a checkout to create CurrentVersionSHA
+git checkout HEAD
