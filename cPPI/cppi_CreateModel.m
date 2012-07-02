@@ -29,8 +29,12 @@ spm_write_vol(Vmask,ones(size(roiTC,2),1,1));
 offset = 0;
 for iRun = 1:size(parameters.data.run,2)
     SPM.Sess(iRun).U = [];
-    SPM.Sess(iRun).C.C = [cppiregressors(offset+1:offset+parameters.data.run(iRun).nTimeAnalyzed,:) parameters.data.run(iRun).MotionParameters];
-    SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + size(parameters.data.run(iRun).MotionParameters,2));
+    if (parameters.cppi.domotion)
+        SPM.Sess(iRun).C.C = [cppiregressors(offset+1:offset+parameters.data.run(iRun).nTimeAnalyzed,:) parameters.data.run(iRun).MotionParameters];
+    else
+        SPM.Sess(iRun).C.C = [cppiregressors(offset+1:offset+parameters.data.run(iRun).nTimeAnalyzed,:)];
+    end
+    SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + (parameters.cppi.domotion * size(parameters.data.run(iRun).MotionParameters,2)));
     offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
 end
 SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_0.*',[1:size(roiTC,1)]);

@@ -11,32 +11,33 @@ NT = RT/dt;
 fMRI_T0 = SPM.xBF.T0;
 
 regressors = [];
-
+offset = 0;
 for iRun = 1:size(SPM.Sess,1)
-
+    roiTCtemp = roiTC(1+offset:parameters.data.run(iRun).nTimeAnalyzed+offset,:);
+    offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
     %calculate confounds
     xY.X0 = SPM.xX.xKXs.X(:,[SPM.xX.iB SPM.xX.iG]);
     xY.X0 = xY.X0(SPM.Sess(iRun).row,:);
     xY.X0 = [xY.X0 SPM.xX.K(iRun).X0];
     xY.X0 = xY.X0(:,any(xY.X0));
 
-    [m n] = size(roiTC);
+    [m n] = size(roiTCtemp);
     if m>n
-        [v s v] = svd(roiTC'*roiTC);
+        [v s v] = svd(roiTCtemp'*roiTCtemp);
         s = diag(s);
         v = v(:,1);
-        u = roiTC*v/sqrt(s(1));
+        u = roiTCtemp*v/sqrt(s(1));
     else
-        [u s u] = svd(roiTC*roiTC');
+        [u s u] = svd(roiTCtemp*roiTCtemp');
         s = diag(s);
         u = u(:,1);
-        v = roiTC'*u/sqrt(s(1));
+        v = roiTCtemp'*u/sqrt(s(1));
     end
     d = sign(sum(v));
     u = u*d;
     v = v*d;
     Y = u*sqrt(s(1)/n);
-    roiTC = Y;
+    roiTCtemp = Y;
     
     Sess = SPM.Sess(iRun);
 
@@ -54,7 +55,7 @@ for iRun = 1:size(SPM.Sess,1)
         end
     end
 
-    N = length(roiTC);
+    N = length(roiTCtemp);
     k = 1:NT:N*NT; % microtime to scan time indices
 
     hrf = spm_hrf(dt);
@@ -72,7 +73,7 @@ for iRun = 1:size(SPM.Sess,1)
     X0 = xY.X0;
     M = size(X0,2);
 
-    Y = roiTC;
+    Y = roiTCtemp;
 
     %remove confounds and save Y in output structure
     Yc = Y-X0*inv(X0'*X0)*X0'*Y;
