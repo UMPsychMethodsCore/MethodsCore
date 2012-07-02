@@ -770,7 +770,7 @@ if (Processing(2) == 1)
 		clear RunDir;
 		for iRun=1:NumRun
 		    RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
-		    NumScan=horzcat(NumScan,NumScanTotal(1,iRun));
+		    NumScan=horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
 		end
 
 		NumRun= size(NumScan,2); % number of runs
