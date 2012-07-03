@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Grab Current Root
-mcRoot=`pwd`
+mcRoot=`pwd`  #Since this is called from post-checkout hook, working directory will be top of work tree unless changed in hook
 
 mkdir -p .local
 
