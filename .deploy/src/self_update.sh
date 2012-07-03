@@ -4,7 +4,6 @@
 
 thisdir=`dirname $0` #Directory that contains this script
 
-origdir=`pwd` #working directory from whence this script was called
 cd $thisdir
 harddir=`pwd`
 
@@ -18,4 +17,3 @@ git reset HEAD --hard
 git pull github/universe $branch:$branch
 
 git checkout $branch
-
