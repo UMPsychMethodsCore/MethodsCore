@@ -2,7 +2,7 @@ function model = cppi_CreateModel(cppiregressors,roiTC,parameters)
 model = -1;
 curpath = pwd;
 
-mkdir(parameters.cppi.sandbox);
+mc_GenPath(struct('Template',parameters.cppi.sandbox,'mode','makedir'));
 cd(parameters.cppi.sandbox);
 
 Vtemplate.fname = fullfile(parameters.cppi.sandbox,'roiTC');
