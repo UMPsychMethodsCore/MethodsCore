@@ -38,7 +38,7 @@ for iRun = 1:size(parameters.data.run,2)
     offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
 end
 SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_0.*',[1:size(roiTC,1)]);
-SPM.nscan = size(roiTC,1);
+SPM.nscan = parameters.cppi.NumScan;
 SPM.xBF.name       	= 'hrf';
 SPM.xBF.length     	= 32;   
 SPM.xBF.order      	= 1;   

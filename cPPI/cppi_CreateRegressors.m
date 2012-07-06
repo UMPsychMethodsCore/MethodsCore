@@ -12,7 +12,7 @@ fMRI_T0 = SPM.xBF.T0;
 
 regressors = [];
 offset = 0;
-for iRun = 1:size(SPM.Sess,1)
+for iRun = 1:size(SPM.Sess,2)
     roiTCtemp = roiTC(1+offset:parameters.data.run(iRun).nTimeAnalyzed+offset,:);
     offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
     %calculate confounds
@@ -123,17 +123,17 @@ for iRun = 1:size(SPM.Sess,1)
         pmp{i} = spm_detrend(pmp{i});
         R(:,i) = PSYHRF{i};
         R(:,j) = pmp{i};
-        betanames{i} = U.name{i};
-        betanames{j} = [U.name{i} ' x Seed interaction'];
+        betanames2{i} = ['Run ' num2str(iRun) ' ' U.name{i}];
+        betanames2{j} = ['Run ' num2str(iRun) ' ' U.name{i} ' x Seed interaction'];
         j = j + 1;
     end
 
     R(:,j) = PMP.Y;
-    betanames{j} = 'Seed';
+    betanames2{j} = ['Run ' num2str(iRun) ' Seed'];
     %if (parameters.RegressFLAGS.Motion)
     %    R = [R parameters.data.run(iRun).MotionParameters];
     %end
-    
+    betanames = [betanames betanames2];
     regressors = [regressors; R];
 end
 

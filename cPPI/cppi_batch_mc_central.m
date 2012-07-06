@@ -177,7 +177,8 @@ if (RunMode(1) | sum(RunMode) == 0)
         
         parameters.cppi.SPM = mc_GenPath(fullfile(SPMTemplate,'SPM.mat'));
         parameters.cppi.UseSandbox = UseSandbox;
-
+        parameters.cppi.NumScan = NumScan;
+        
         if (UseSandbox)
             [status hostname] = system('hostname -s');
             parameters.cppi.sandbox = fullfile([filesep hostname(1:end-1)],'sandbox','cppi',parameters.Output.directory);

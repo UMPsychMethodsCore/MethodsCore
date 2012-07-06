@@ -12,10 +12,10 @@ P = spm_select('FPList',model,'beta.*img');
 numimages = size(P,1);
 nummotion = size(parameters.data.run(1).MotionParameters,2);
 domotion = parameters.cppi.domotion;
-numrun = size(parameters.data.run,1);
+numrun = size(parameters.data.run,2);
 numregressors = size(cppiregressors,2);
 %domotion = 1;
-if (numimages ~= (numrun + numregressors + (domotion * nummotion)))
+if (numimages ~= (numrun + (numrun*numregressors) + (domotion*numrun*nummotion)))
     mc_Error('There are an inconsistent number of beta images and regressors.');
 end
 
