@@ -1,6 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if (~exist('ROIOutput','var'))
+    ROIOutput = 'maps';
+end
+if (~exist('Mode','var'))
+    Mode = 'full';
+end
+
 if (alreadydone(1))
     basefile = [stp basefile];
 end
