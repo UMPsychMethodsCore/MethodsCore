@@ -1,0 +1,291 @@
+
+% Statistical Parametric Mapping - SPM5
+% ______________________________________________________________________
+% 
+%  ___  ____  __  __
+% / __)(  _ \(  \/  )  
+% \__ \ )___/ )    (   Statistical Parametric Mapping
+% (___/(__)  (_/\/\_)  SPM - http://www.fil.ion.ucl.ac.uk/spm/
+%
+% ______________________________________________________________________
+%
+%    Statistical Parametric Mapping refers to the construction and
+%    assessment of spatially extended statistical process used to test
+%    hypotheses about [neuro]imaging data from SPECT/PET & fMRI. These
+%    ideas have been instantiated in software that is called SPM.
+%    This software also deals with other issues in image analysis
+%    such as spatial registration and normalisation problems.
+%
+%                           ----------------
+%
+% Please refer to this version as "SPM5" in papers and communications.
+%
+%                           ----------------
+% Contents:
+%      1) SPM - The software
+%      2) Release notes for SPM5
+% 
+%
+% ======================================================================
+% 1)               S P M   -   T h e   s o f t w a r e
+% ======================================================================
+%
+% SPM was written to organise and interpret our data (at the Wellcome
+% Department of Cognitive Neurology, and previously at the MRC
+% Cyclotron Unit, London UK). The distributed version is the same as
+% that we use ourselves.
+%
+% SPM is made freely available to the [neuro]imaging community, to
+% promote collaboration and a common analysis scheme across 
+% laboratories.
+% 
+% ______________________________________________________________________
+%                                                                Authors
+%
+% SPM is developed under the auspices of The Wellcome Department of
+% Imaging Neuroscience, a department of the Institute of Neurology at
+% University College London.
+%
+% SPM94 was written primarily by Karl Friston in the first half of
+% 1994, with assistance from John Ashburner (MRC-CU), Jon Heather
+% (WDoIN), and Andrew Holmes (Department of Statistics, University of
+% Glasgow). Subsequent development, under the direction of Prof. Karl
+% Friston at the Wellcome Department of Imaging Neuroscience, has
+% benefited from substantial input (technical and theoretical) from:
+% John Ashburner (WDoIN), Andrew Holmes (WDoIN & Robertson Centre for
+% Biostatistics, University of Glasgow, Scotland), Jean-Baptiste Poline
+% (WDoIN & CEA/DRM/SHFJ, Orsay, France), Christian Buechel (WDoIN),
+% Matthew Brett (MRC-CBU, Cambridge, England), Chloe Hutton (WDoIN) and
+% Keith Worsley (Department of Statistics, McGill University, Montreal,
+% Canada).
+%
+% SPM5 was developed by: Jesper Andersson (unwarping), John Ashburner
+% (spatial, image handling), Karl Friston (project director,
+% fMRI design), Andrew Holmes (statistics, user interfaces),
+% Jean-Baptiste Poline (statistics), Philippe Ciuciu, Tom Nichols
+% (statistics), Matthew Brett (WinNT implementation and other stuff),
+% Volkmar Glauche (visualisation) & Darren Gitelman (various bits).
+% Theoretical input was provided by Christian Buchel, Daniel Glaser,
+% Rik Henson, Stefan Kiebel, Will Penny, Keith Worsley and loads of
+% other people. We would like to thank everyone who has provided
+% feedback on SPM.
+%
+% We envisage that this software will be used in a diverse number of
+% ways.  Although SPM has grown out of a PET background, it is now an
+% established package for the analysis of fMRI data, and is also used
+% for structural data.
+%
+% ______________________________________________________________________
+%                                                              Resources
+% 
+% The SPMweb site is the central repository for SPM resources:
+%                  http://www.fil.ion.ucl.ac.uk/spm/
+% Introductory material, installation details, documentation, course
+% details and patches are published on the site.
+%
+% There is an SPM eMail discussion list, hosted at
+% <spm@jiscmail.ac.uk>.  The list is monitored by the authors, and
+% discusses theoretical, methodological and practical issues of
+% Statistical Parametric Mapping and SPM. Subscribe by sending the one
+% line message: "join spm firstname lastname" to
+% <jiscmail@jiscmail.ac.uk>. (Users at NIH or UC-Davis should join
+% their local SPM feeds.) The SPMweb site has further details:
+%                  http://www.fil.ion.ucl.ac.uk/spm/support/
+% 
+%                           ----------------
+%
+% In order to use the advanced spatial, statistical modelling and
+% inference tools of SPM, it is vital to have at least a conceptual
+% understanding of the theoretical underpinnings. Therefore, we
+% recommend the theoretical articles published in the peer reviewed
+% literature, and the SPMcourse notes (available from the SPMweb site).
+%
+%                           ----------------
+%
+% Please report bugs to the authors at <spm-authors@fil.ion.ucl.ac.uk>
+% Peculiarities may actually be features(!), and should be raised on the
+% SPM eMail discussion list, <spm@jiscmail.ac.uk>.
+% ______________________________________________________________________
+%                                                   The SPM distribution
+%
+% The SPM software is a suite of MATLAB functions, scripts and data
+% files, with some externally compiled C routines, implementing
+% Statistical Parametric Mapping. MATLAB, a commercial engineering
+% mathematics package, is required to use SPM. MATLAB is produced by The
+% MathWorks, Inc.  Natick, MA, USA. http://www.mathworks.com/
+% eMail:info@mathworks.com. SPM requires only core MATLAB to run (no
+% special toolboxes are required).
+% 
+% SPM5 is written for MATLAB versions 6.5.1 to 7.2 under UNIX, LINUX
+% and Windows. SPM5 may not will not work with versions of MATLAB prior
+% to 6.5. Later versions of MATLAB (released after SPM5), will probably
+% need additional patches in order to run.  Once developed, these will 
+% be made available from:
+%     ftp://ftp.fil.ion.ucl.ac.uk/spm/spm5_updates/
+% 
+% Binaries of the external C-mex routines are provided for Solaris2,
+% Linux and Windows only. Users of other platforms need an ANSI C 
+% compiler to compile the supplied C source (Makefile provided).
+% ______________________________________________________________________
+%                                                  Copyright & licencing
+% 
+% SPM (being the collection of files given in the manifest in the
+% Contents.m file) is free but copyright software, distributed under
+% the terms of the GNU General Public Licence as published by the Free
+% Software Foundation (either version 2, as given in file
+% spm_LICENCE.man, or at your option, any later version). Further
+% details on "copyleft" can be found at http://www.gnu.org/copyleft/.
+%
+% SPM is supplied as is.
+% No formal support or maintenance is provided or implied.
+% ______________________________________________________________________
+%                                                           File formats
+%
+% The various file types included in SPM are:
+% 
+% spm_*.m files: ASCII files that form the main structure for SPM. 
+%       Most of SPM is written as MatLab functions. These are compiled
+%       at their first invocation, leading to a slight delay in the
+%       startup of some routines. MatLab script files are occasionally
+%       used. These are interpreted by MATLAB, but have the advantage
+%       of working in the base MatLab workspace, such that their
+%       results are available to the user after completion.
+%
+% Clearly MatLab is slower than writing everything in fully optimised
+% C; however the fundamental advantage of having a didactic pseudo-code
+% specification of this sort is preferred over implementational
+% efficacy. Further, MatLab *is* optimised for matrix and vector
+% operations, which are utilised whenever possible.
+% 
+% src/spm_*.c:   ASCII files that are complied in a MATLAB-specific
+%       fashion to produce programs that can be called directly from
+%       MATLAB.  Once compiled these routines are suffixed in a
+%       platform dependent fashion (e.g. spm_*.mexsol or mexglx). These
+%       routines implement memory mapping and some numerical and image
+%       operations that are called frequently.  Precompiled Mex files
+%       are provided for Solaris2, Linux and Windows platforms, a
+%       Makefile is included for other platforms.
+% 
+% spm_*.man:     ASCII files containing manual pages.
+% 
+% *.mat          MATLAB specific data files that can be loaded directly
+%       into MATLAB. These files contain images and other data in matrix
+%       format, usually in double precision (see MATLAB user's guide)
+% 
+% Where possible the user interface and computational or analytical
+% aspects of the software have been segregated such that spm_*_ui.m
+% sets up the user interface and assembles the appropriate input
+% arguments for spm_*.m.  spm_*.m contains the statistical and
+% mathematical implementation of a generic nature.  spm_*.m would be of
+% greater interest to those whose wish to incorporate SPM into an
+% existing package with its own 'front end'.
+%
+% ======================================================================
+% 2)               Release Notes for SPM5
+% ======================================================================
+%
+% EEG/MEG analysis
+%
+% A major new feature of SPM5 is the functionality to analyse epoched
+% EEG and MEG data. This functionality can be divided into two
+% components: (i) preprocessing and (ii) statistical analysis.
+% Preprocessing contains the usual steps; e.g. epoching, filtering,
+% artifact detection, time-frequency decomposition and averaging. After
+% preprocessing, the data is projected into voxel space. This space can
+% be either the 2D-scalp (interpolation) or 3D-brain space (source
+% density reconstruction - see below). Conversion to voxel-space allows
+% one to use SPM's existing functionality for model specification,
+% parameter estimation and adjusting p-values. In particular, we make
+% use of Random Field Theory to adjust p-values to account for the
+% multiple comparisons over brain space.
+%
+%
+% Time-frequency EEG/MEG analysis
+%
+% This combines the time-frequency components of preprocessing for
+% basic EEG/MEG pre-processing with extant Random Field Theory adjusted
+% p-values.  In this application the adjustment is for searches over 2D
+% time-frequency domains.  There have been suitable extensions for
+% graceful and more general handling of 2D SPMs.
+%
+%
+% Source localisation
+%
+% Features will include:
+% - Co-registration of structural MRI (sMRI) and EEG/MEG
+% - Individual forward solutions based on a deformed template mesh of
+%   the cortical surface. This is based on a simple spherical forward
+%   solution provided by BrainStorm
+% - A forward solution based on the 3 sphere shell model
+% - Distributed source localisation using Empirical Bayes with
+%   smoothness and/or functional priors.
+% - Equivalent Current Dipole (ECD) source localisation
+% - Interpolation of the reconstructed source activity into sMRI
+%   voxel-space
+%
+%
+% Spatial normalisation and segmentation
+%
+% Because of the confusion about "optimized VBM" and "customized
+% templates", there will be a new integrated spatial normalisation and
+% segmentation routine. This enables spatial normalisation of images
+% acquired using a wider range of sequences (so fewer "customized
+% templates" are likely to be needed).  More accurate results can
+% potentially be achieved by combining tissue classification, bias
+% correction and nonlinear warping into the same generative of forward
+% model.
+%
+%
+% Bayesian fMRI analysis with spatial priors
+%
+% This analysis method potentially improves the sensitivity of fMRI
+% analysis by spatially regularising signal and noise parameters using
+% variational inference in the context of a Gaussian Markov Random
+% Field. Smoothing fMRI data an arbitrary amount in a pre-processing
+% stage is no longer required, as the optimal amount of spatial
+% regularisation can be determined automatically and separately for
+% each putative experimental effect.
+%
+%
+% User interface
+%
+% There will be a new User-Interface (UI) for the pre-processing steps.
+% Some stats utilities may also have the new UI.  The idea is to allow
+% easier batching, and flexibility of the order in which operations are
+% defined.  The batch files should serve as documentation about how the
+% data were processed.  The user-interface will include explanations of
+% what the various options mean.  Most of the code behind SPM2 is just
+% for the user interface.  Code for the SPM5 user-interface should be
+% much simpler.
+%
+%
+% Data formats
+%
+% Data will be written as NIFTI-1 format instead of Analyze, although
+% the old Analyze format will still be read directly by the various SPM
+% functions. MINC and ECAT7 will no longer be read directly, but will
+% instead need to be converted.  Tools will be provided for doing this.
+% For more information on NIFTI-1, see http://nifti.nimh.nih.gov/dfwg/.
+% The motivation for this is to reduce confusion about whether the
+% images are flipped or not, and increase inter-operability among
+% packages.
+%
+%
+% DCM for ERPs
+%
+% DCM for ERPs is a toolbox with a standalone GUI that enables
+% inferences about large scale neural networks, based on epoched ERP
+% data.  The user interface allows you to specify the data,
+% experimental design and lead fields (that implicitly specify the
+% sources or nodes of the network).  Having specified this information,
+% and the network connectivity, a model is constructed and identified
+% in terms of the conditional distribution of the its parameters using
+% EM.  In addition, the log-evidence, for that particular model, is
+% returned to facilitate Bayesian model comparison.
+%
+%__________________________________________________________________________
+% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+
+% The FIL Methods Group
+% $Id: spm.man 1032 2007-12-20 14:45:55Z john $
+

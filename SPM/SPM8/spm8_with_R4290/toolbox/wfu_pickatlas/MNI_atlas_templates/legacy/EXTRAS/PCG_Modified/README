@@ -1,0 +1,13 @@
+WFU Pickatlas MNI TD Templates
+J. Maldjian
+maldjian@wfubmc.edu
+
+This folder contains a corrected version of the Talairach Daemon label atlas for the precentral gyrus discrepancy.  This involves corrected labeling for the middle frontal gyrus, inferior frontal gyrus and precentral gyrus on MNI slice levels 55-56 (Talairach axial slice +35).
+The volume has also been extended to the vertex.
+
+To use this template, place the files in the MNI_atlas_templates folder and update the master_lookup.txt file to point to this filename for the TD labels segmented image.
+
+
+If using this template please reference:
+
+Maldjian JA, Laurienti PJ, Burdette JH.  Precentral Gyrus Discrepancy in Electronic Versions of the Talairach Atlas.  Neuroimage 2004; In Press.   

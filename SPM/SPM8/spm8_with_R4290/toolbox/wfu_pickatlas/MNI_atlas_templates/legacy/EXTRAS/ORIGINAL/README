@@ -1,0 +1,7 @@
+WFU Pickatlas MNI TD Templates
+J. Maldjian
+maldjian@wfubmc.edu
+
+This folder contains the original Analyze Image Format versions of the MNI normalized Talairach Daemon database volumes.  These images have not been extended to the vertex.
+
+To use these instead of the extended volumes, place the files in the MNI_atlas_templates folder and update the master_lookup.txt file to point to these filenames.

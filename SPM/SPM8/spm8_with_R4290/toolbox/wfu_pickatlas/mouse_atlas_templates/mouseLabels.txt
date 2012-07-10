@@ -1,0 +1,21 @@
+[ BNL Labels]
+1	Neocortex
+2	Superior Colliculi
+3	Rest Of Midbrain
+4	Internal Capsule
+5	Fimbria
+6	Central Gray
+7	Cerebellum
+8	Anterior Commissure
+9	Amygdala
+10	Hypothalamus
+11	Hippocampus
+12	Thalamus
+13	Globus Pallidus
+14	CC and External Capsule
+15	Olfactory Bulb
+16	Inferior Colliculi
+17	Caudate Putamen
+18	Brain Stem
+19	Basal Forebrain Septum
+20	Ventricles
