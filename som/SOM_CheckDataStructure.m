@@ -73,7 +73,7 @@ for iRUN = 1:length(data.run)
   % Now check to see if the input files actually exist.
   
   if exist(data.run(iRUN).P(1,:),'file') == 0
-    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(1,:));
+    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist',data.run(iRUN).P(1,:)));
     return
   end
   
@@ -92,19 +92,19 @@ for iRUN = 1:length(data.run)
     SOM_LOG(sprintf('STATUS : Determined that for run %d, there are %d time-points.',iRUN,nTIME));
   end
   
-  if exist(data.run(iRUN),'censorVector')
+  if isfield(data.run(iRUN),'censorVector')
     if length(data.run(iRUN).censorVector) ~= data.run(iRUN).nTIME
-      SOM_LOG(sprintf('FATAL : Specified censorVector of length %d
-                                                                %for
-                                                                %run
-                                                                %%d
-                                                                %s
+      SOM_LOG(sprintf('FATAL : Specified censorVector of length %d for run %d does not match %d'),iRUN,data.run(iRUN).nTIME)
+      return
+    end
+  end  
+      
   % Check to see if the motion parameters are there
-
+      
   if isfield(data.run(iRUN),'MotionParameters') == 1
     if size(data.run(iRUN).MotionParameters,1) ~= data.run(iRUN).nTIME
       SOM_LOG('WARNING : Motion parameters length does not match expected number of time points');
-      if size(data.run(iRUN).MotionParameters,1) < data.run(iRUN).nTIME
+      if length(data.run(iRUN).MotionParameters) > 0 & size(data.run(iRUN).MotionParameters,1) < data.run(iRUN).nTIME
 	SOM_LOG(sprintf('FATAL ERROR : Motion parameter array is too short for run %d',iRUN));
         return
       end	
@@ -121,7 +121,7 @@ for iRUN = 1:length(data.run)
       SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(iFILE,:));
       return
     else
-      thisHDR = spm_read_vol(data.run(iRUN).P(iFILE,:));
+      thisHDR = spm_vol(data.run(iRUN).P(iFILE,:));     % fixed on 5/2/2012
       if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) ~= 1
 	SOM_LOG('FATAL ERROR : Error with consistent in-run image space definition.');
 	return

@@ -7,40 +7,44 @@
 %
 % Pre-processing data for connectivity analysis.
 %
-% results = SOM_PreProcessData(parameters)
+% [D0 parameters] = SOM_PreProcessData(parameters)
 %
 %
 % Input Parameters that we need for preparing the data
 %
-% Grey Matter mask and flag to use it.
+% masks.
 %
-%  (the grey matter mask is intersected with the epi mask)
+%     Grey Matter mask and flag to use it.
 %
-% grey.
-%      File         = full directory path and name to file.
-%      MaskFLAG     = 0 no masking, 1 = masking.
-%      ImgThreshold = 0.75 (default) 
+%      (the grey matter mask is intersected with the epi mask)
+%
+%     grey.
+%          File         = full directory path and name to file.
+%          [ImgThreshold = 0.75 (default) ]
 %
 % 
-% White Matter mask and flags.
+%     White Matter mask
 %   
-% white. 
-%      File           = full directory path and name to file.
-%      MaskFLAG       = 0 no regression, 1 regression
-%   
-% csf mask and flags.
+%     white. 
+%          File           = full directory path and name to file.
+%          [ImgThreshold = 0.75 (default) ]
+%          
+%       
+%     csf mask
 %
-% csf.
-%      File           = full directory path and name to file.
-%      MaskFLAG       = 0 no regression, 1 regression
-%   
+%     csf.
+%          File           = full directory path and name to file.
+%          [ImgThreshold = 0.75 (default) ]
+%          
+%       
 %
-% Brain matter mask
+%     Brain matter mask
 % 
-% epi.
-%      File           = full directory path and name to file.
-%      MaskFLAG       = 0 no mask, 1 mask
-% 
+%     epi.
+%          File           = full directory path and name to file.
+%          [ImgThreshold = 0.75 (default) ]
+%          
+%     
 % data. 
 %
 %   run[iRun].
@@ -169,53 +173,11 @@ end
 
 % Files needed for masking?
 
-if isfield(parameters,'grey') == 0
-    parameters.grey = [];
-end
+parameters.masks = SOM_CheckMasks(parameters);
 
-parameters.grey = SOM_ParseFileParam(parameters.grey);
-
-if parameters.grey.OK == -1
-    SOM_LOG('FATAL ERROR : You specified an grey mask that doesn''t exist');
-    return
-end
-
-% White Matter ROI for regression?
-
-if isfield(parameters,'white') == 0
-    parameters.white = [];
-end
-
-parameters.white = SOM_ParseFileParam(parameters.white);
-
-if parameters.white.OK == -1
-    SOM_LOG('FATAL ERROR : You specified an white mask that doesn''t exist');
-    return
-end
-
-% CSF ROI?
-
-if isfield(parameters,'csf') == 0
-    parameters.csf = [];
-end
-
-parameters.csf = SOM_ParseFileParam(parameters.csf);
-
-if parameters.csf.OK == -1
-    SOM_LOG('FATAL ERROR : You specified an csf mask that doesn''t exist');
-    return
-end
-
-% If no common epi mask then we will use one create on the fly.
-
-if isfield(parameters,'epi') == 0 
-    parameters.epi = [];
-else
-    parameters.epi = SOM_ParseFileParam(parameters.epi);
-    if parameters.epi.OK == -1
-        SOM_LOG('FATAL ERROR : You specified an epi mask that doesn''t exist');
-        return
-    end
+if parameters.masks.OK ~= 1
+  SOM_LOG('FATAL ERROR : Something wrong with masks definitions.')
+  return
 end
 
 % Now prepare based on parameters.
@@ -225,41 +187,35 @@ end
 fileINDEXTemp = 0;
 filesToCheck = [];
 
-if parameters.grey.MaskFLAG == 0
-    parameters.grey.ImgMask  = 1;
+if parameters.masks.grey.MaskFLAG == 0
+  parameters.masks.grey.ImgMask  = 1;
+  parameters.masks.grey.ROIIDX  = [];    % Superflous but consistent.
 else
-    parameters.grey.ImgHDR   = spm_vol(parameters.grey.File);
-    parameters.grey.ImgVol   = spm_read_vols(spm_vol(parameters.grey.File));
-    parameters.grey.ImgMask  = parameters.grey.ImgVol > parameters.grey.ImgThreshold;
-    % store temp
-    fileINDEXTemp = fileINDEXTemp + 1;
-    filesToCheck(fileINDEXTemp).hdr  = parameters.grey.ImgHDR;
+  parameters.masks.grey = SOM_MaskRead(parameters.masks.grey);
+  % store temp
+  fileINDEXTemp = fileINDEXTemp + 1;
+  filesToCheck(fileINDEXTemp).hdr  = parameters.masks.grey.ImgHDR;
 end
-    
-if parameters.white.MaskFLAG == 0
-    parameters.white.ImgMask = 0;
-    parameters.white.ROIIDX  = [];
+
+if parameters.masks.white.MaskFLAG == 0
+  parameters.masks.white.ImgMask = 0;
+  parameters.masks.white.ROIIDX  = [];
 else
-    parameters.white.ImgHDR  = spm_vol(parameters.white.File);
-    parameters.white.ImgVol  = spm_read_vols(spm_vol(parameters.white.File));
-    parameters.white.ImgMask = parameters.white.ImgVol > parameters.white.ImgThreshold;
-    parameters.white.ROIIDX  = find(parameters.white.ImgMask);
-    % store temp
-    fileINDEXTemp = fileINDEXTemp + 1;
-    filesToCheck(fileINDEXTemp).hdr  = parameters.white.ImgHDR;
+  parameters.masks.white = SOM_MaskRead(parameters.masks.white);
+  % store temp
+  fileINDEXTemp = fileINDEXTemp + 1;
+  filesToCheck(fileINDEXTemp).hdr  = parameters.masks.white.ImgHDR;
 end
-    
-if parameters.csf.MaskFLAG == 0
-    parameters.csf.ImgMask   = 0;
-    parameters.csf.ROIIDX    = [];
+
+if parameters.masks.csf.MaskFLAG == 0
+  parameters.masks.csf.ImgMask   = 0;
+  parameters.masks.csf.ROIIDX    = [];
 else
-    parameters.csf.ImgHDR    = spm_vol(parameters.csf.File);
-    parameters.csf.ImgVol    = spm_read_vols(spm_vol(parameters.csf.File));
-    parameters.csf.ImgMask   = parameters.csf.ImgVol > parameters.csf.ImgThreshold;
-    parameters.csf.ROIIDX    = find(parameters.csf.ImgMask);
-    % store temp
-    fileINDEXTemp = fileINDEXTemp + 1;
-    filesToCheck(fileINDEXTemp).hdr  = parameters.csf.ImgHDR;
+  parameters.masks.csf = SOM_MaskRead(parameters.masks.csf);
+  
+  % store temp
+  fileINDEXTemp = fileINDEXTemp + 1;
+  filesToCheck(fileINDEXTemp).hdr  = parameters.masks.csf.ImgHDR;
 end
 
 % Check the reression flags.
@@ -281,18 +237,21 @@ curDir = pwd;
 % Make the mask file, masking out non-brain. Using a standard mask.
 
 if parameters.data.MaskFLAG == 1
-    if parameters.epi.MaskFLAG == 0
-        fprint('Calculating subject specific epi mask');
+    if parameters.masks.epi.MaskFLAG == 0
+        SOM_LOG('Calculating subject specific epi mask');
         % Create the mask from the very first/only run.
         parameters.maskHdr = SOM_CreateMask(parameters.data.run(1).P);
     else
-        parameters.maskHdr = spm_vol(parameters.epi.File);
+        parameters.maskHdr = spm_vol(parameters.masks.epi.File);
     end
     % store temp
     fileINDEXTemp = fileINDEXTemp + 1;
     filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
 else
-    parameters.maskHdr.fname = [];   % If no name then SOM_PrepData can deal.
+  % changed this on 2012-03-29 (RCWelsh), this will force some sort of masking, but that is okay.
+  % This will prevent SOM_CalculateCorrelationImages from failing if no mask is indicated at all
+  parameters.maskHdr = SOM_CreateMask(parameters.data.run(1).P);
+  %parameters.maskHdr.fname = [];   % If no name then SOM_PrepData can deal.
 end
 
 %
@@ -359,6 +318,7 @@ for iRUN = 1:length(parameters.data.run)
       % operator. This will also mean center the data.
       %
       
+      SOM_LOG('STATUS : Doing detrending.');
       parameters.startCPU.run(iRUN).detrend = cputime;
       
       if parameters.TIME.run(iRUN).TrendFLAG > 0
@@ -378,12 +338,8 @@ for iRUN = 1:length(parameters.data.run)
       
       parameters.TIME.run(iRUN).GS = SOM_GlobalCalc(D0RUN(iRUN).D0);
       
-      if parameters.RegressFLAGS.global ~= 0
-	SOM_LOG('STATUS : Doing global regression');
-	D0RUN(iRUN).D0 = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
-      else
-	SOM_LOG('STATUS : NOT doing global regression');
-      end
+      SOM_LOG('STATUS : Doing global regression');
+      D0RUN(iRUN).D0 = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
       
       parameters.stopCPU.run(iRUN).global = cputime;
       
@@ -395,39 +351,41 @@ for iRUN = 1:length(parameters.data.run)
       
       parameters.startCPU.run(iRUN).csf = cputime;
       
-      if parameters.csf.MaskFLAG > 0 & parameters.RegressFLAGS.csf > 0
+      if parameters.masks.csf.MaskFLAG > 0
 	
 	SOM_LOG('STATUS : CSF Regression');
-	parameters.csf.IDX  = [];
+	parameters.masks.csf.IDX  = [];
 	
 	% Now convert the ROI indices to the indices in the mask.
 	
-	parameters.csf.IDX = SOM_ROIIDXnMASK(parameters,parameters.csf.ROIIDX);
+	parameters.masks.csf.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.csf.ROIIDX);
 	
-	if length(parameters.csf.IDX) < 1
+	if length(parameters.masks.csf.IDX) < 1
 	  SOM_LOG(sprintf('STATUS : Not enough voxels to determine CSF time course'))
 	else
-	  SOM_LOG(sprintf('STATUS : %d CSF Voxels in extracted data.',length(parameters.csf.IDX)));
-	  parameters.csf.run(iRUN).PRINCOMP = [];
+	  SOM_LOG(sprintf('STATUS : %d CSF Voxels in extracted data.',length(parameters.masks.csf.IDX)));
+	  parameters.masks.csf.run(iRUN).PRINCOMP = [];
 	  %
 	  % Are we doing principle components are we taking the mean of the ROI?
 	  %
 	  if parameters.RegressFLAGS.prinComp > 0
-	    parameters.csf.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.csf.IDX,:),parameters.TIME.run(iRUN).fraction);
+	    parameters.masks.csf.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.masks.csf.IDX,:),parameters.TIME.run(iRUN).fraction);
 	    % How many components are we to use?
-	    parameters.csf.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.csf.run(iRUN).PRINCOMP.PCScore,2)]);
-	    parameters.csf.run(iRUN).regressors = (parameters.csf.run(iRUN).PRINCOMP.PCScore(:,1:parameters.csf.run(iRUN).nComp));
+	    parameters.masks.csf.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.csf.run(iRUN).PRINCOMP.PCScore,2)]);
+	    parameters.masks.csf.run(iRUN).regressors = (parameters.masks.csf.run(iRUN).PRINCOMP.PCScore(:,1:parameters.masks.csf.run(iRUN).nComp));
 	  else
-	    parameters.csf.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.csf.IDX,:))';
+	    parameters.masks.csf.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.masks.csf.IDX,:))';
 	  end
 	  
 	  % Now remove them.
 	  
-	  D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.csf.run(iRUN).regressors);
+	  D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.csf.run(iRUN).regressors);
 	end
       else
-	parameters.csf.run(iRUN).regressors = [];
-	SOM_LOG('STATUS : No CSF Regression');
+	parameters.masks.csf.run(iRUN).regressors = [];
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : CSF regression speficied but no CSF regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).csf = cputime;
@@ -440,39 +398,41 @@ for iRUN = 1:length(parameters.data.run)
       
       parameters.startCPU.run(iRUN).white = cputime;
       
-      if parameters.white.MaskFLAG > 0 & parameters.RegressFLAGS.white > 0
+      if parameters.masks.white.MaskFLAG > 0
 	
 	SOM_LOG('STATUS : WM Regression');
-	parameters.white.IDX  = [];
+	parameters.masks.white.IDX  = [];
 	
 	% Now convert the ROI indices to the indices in the mask.
 	
-	parameters.white.IDX = SOM_ROIIDXnMASK(parameters,parameters.white.ROIIDX);
+	parameters.masks.white.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.white.ROIIDX);
 	
-	SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.white.IDX)));
+	SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
 	
 	% Are we regressing out the principle components or the mean.
 	
-	parameters.white.run(iRUN).PRINCOMP = [];
+	parameters.masks.white.run(iRUN).PRINCOMP = [];
 	
 	%
 	% Are we doing principle components are we taking the mean of the ROI?
 	%
 	if parameters.RegressFLAGS.prinComp > 0
-	  parameters.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.white.IDX,:),parameters.TIME.run(iRUN).fraction);
+	  parameters.masks.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.masks.white.IDX,:),parameters.TIME.run(iRUN).fraction);
 	  % How many components are we to use?
-	  parameters.white.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.white.run(iRUN).PRINCOMP.PCScore,2)]);
-	  parameters.white.run(iRUN).regressors = (parameters.white.run(iRUN).PRINCOMP.PCScore(:,1:parameters.white.run(iRUN).nComp));
+	  parameters.masks.white.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.white.run(iRUN).PRINCOMP.PCScore,2)]);
+	  parameters.masks.white.run(iRUN).regressors = (parameters.masks.white.run(iRUN).PRINCOMP.PCScore(:,1:parameters.masks.white.run(iRUN).nComp));
 	else
-	  parameters.white.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.white.IDX,:))';
+	  parameters.masks.white.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.masks.white.IDX,:))';
 	end
 	
 	% Now remove them.
 	
-	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.white.run(iRUN).regressors);
+	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
       else
-	parameters.white.run(iRUN).regressors = [];
-	SOM_LOG('STATUS : No WM Regression');
+	parameters.masks.white.run(iRUN).regressors = [];
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).white = cputime;
@@ -490,7 +450,9 @@ for iRUN = 1:length(parameters.data.run)
 	D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
 	SOM_LOG('STATUS : Motion Correction Implemented');
       else
-	SOM_LOG('STATUS : No Motion Regression.');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
+	SOM_LOG('WARNING : Motion regression speficied, but motion regression internally turned off???');
+	SOM_LOG('WARNING : * * * * * * * * * * * *');
       end
       
       parameters.stopCPU.run(iRUN).motion = cputime;
@@ -516,7 +478,7 @@ for iRUN = 1:length(parameters.data.run)
 	SOM_LOG('STATUS : Band Pass Filter Implemented.');
       else
 	parameters.TIME.run(iRUN).b = [];
-	SOM_LOG('STATUS : No Band Pass Filter.');
+	SOM_LOG(sprintf('WARNING : No Band Pass Filter Speficied for this run : %d.',iRUN));
       end
       
       parameters.stopCPU.run(iRUN).band = cputime;
@@ -537,7 +499,10 @@ end
 
 if length(nSPACE>1)
   if any(diff(nSPACE))
-    SOM_LOG(sprintf('FATAL : regression step not recongnized : %s',parameters.RegressFLAGS.order));
+    SOM_LOG(sprintf('FATAL : Resulting number of voxels in each run is inconsistent'));
+    for iRUN=1:length(nSPACE)
+      SOM_LOG(sprintf('FATAL : Run %d has %d voxels',iRUN,nSPACE(iRUN)));
+    end
     return
   end
 end
@@ -555,27 +520,37 @@ SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPAC
 enTIME = [];
 
 for iRUN = length(parameters.data.run)
-  if exist(parmaters.data.run(iRUN),'censorVector')
+  if isfield(parameters.data.run(iRUN),'censorVector')
     D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN.D0),parameters.data.run(iRUN).censorVector);
     if D0RUN(iRUN).D0 == -1
       SOM_LOG('FATAL : SOM_editTimeSeries failed.');
       exit
     else
-      SOM_LOG(sprintf(['STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
       enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
+      SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
     end
   end
 end
 
-% Now calculate the new length.
+% Now calculate the new length, that is if we need to.
 
-cenTIME = cumsum(enTIME);
+if length(enTIME) > 0
+  SOM_LOG(sprintf('STATUS : Edited data to : %d space by total  %d time-points',nSPACE(1),cenTIME(end)));
+else
+  enTIME=nTIME;
+  SOM_LOG(sprintf('STATUS : No editing of data : %d space by total % time-points',nSPACE(1),cnTIME(end)));
+end
 
-SOM_LOG(sprintf('STATUS : Edited data to : %d space by %d time-points',nSPACE(1),cenTIME(end)));
+cenTIME = [0 cumsum(enTIME)];
+
+% We can store all of this for posterity
+
+parameters.data.nTIME  = nTIME;
+parameters.data.enTIME = enTIME;
 
 % Now contactenate the data.
 
-D0 = zeros(nSPACE(1),sum(enTIME));
+D0 = zeros(nSPACE(1),cenTIME(end));
 
 for iRUN = 1:length(parameters.data.run)
   D0(:,cenTIME(iRUN)+1:cenTIME(iRUN+1)) = D0RUN(iRUN).D0;
