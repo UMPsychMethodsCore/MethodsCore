@@ -109,7 +109,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
-addpath(fullfile(mcRoot,'spm8'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
    
 
    CheckWarp_central

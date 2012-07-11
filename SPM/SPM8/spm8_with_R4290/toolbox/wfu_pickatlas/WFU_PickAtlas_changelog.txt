@@ -1,0 +1,167 @@
+
+The current version of the PickAtlas software is version 2.4.
+The version number appears at the top of the PickAtlas Tool.
+
+Bug Fixes:
+
+
+5-23-03
+	Version number added to title bar
+	patched files:
+		wfu_pickatlas.fig
+
+	Problem with cell2mat toolbox dependency in Matlab 6.1
+	patched files:
+		wfu_pickatlas.m
+		wfu_get_atlas_list.m
+		wfu_structread.m
+		wfu_structwrite.m
+		wfu_cell2mat.m
+
+7-14-03
+	Remove hard coded offset for shape atlas and template size
+		wfu_pickatlas.m
+		wfu_get_atlas_list.m
+	Activated FDR option
+		wfu_spm_getSPM2.m
+
+New functions:
+
+
+7-11-03
+	Shapes function added (user can generate custom shapes of sphere and box)
+	patched files:
+		wfu_pickatlas.fig
+		wfu_pickatlas.m
+		wfu_get_atlas_list.m	
+
+8-12-03
+	Added mapped mask for FDR
+	patched files:
+		wfu_spm_getSPM2.m
+		wfu_spm_getSPM99.m
+
+
+8-13-03	
+	Corrected mask volume voxel computations based on SVC.m (differs from SPM99 version).Now identical to using SVC with mask image. patched files:
+		wfu_spm_getSPM2.m
+10-28-03
+	Fixed shape generation bug. patched files:
+		wfu_get_atlas_list.m
+
+1-15-04
+	Fixed coordinate conversion bug
+	patched files:
+		wfu_pickatlas.m
+
+1-30-04
+	The GUI no longer gets clipped when using Windows XP at screen resolution 1024x768 (or greater).
+	patched files:
+		wfu_pickatlas.m
+		wfu_pickatlas.fig
+
+5-19-04
+	If using the included aal atlas, please also reference:
+		Tzourio-Mazoyer N, Landeau B, Papathanassiou D, Crivello F, Etard O, Delcroix N, Mazoyer B, Joliot M. Automated anatomical labeling of activations in SPM using a macroscopic anatomical parcellation of the MNI MRI single-subject brain. Neuroimage. 2002; 15(1):273-89.
+
+6-04-04 
+	-Added a Generate Tables button to allow for the creation of ROI tables.
+	-Fixed so doesn't require Image Processing toolbox in order to use dilate function.
+	Patched files:
+		wfu_pickatlas.m
+		wfu_pickatlas.fig
+	Added files:
+		dilate_cube.m
+		findindex.m
+		wfu_generate_table.m
+		wfu_read_flist.m
+10-7-04
+	-Fixed filename saving bug
+	-Matlab 7 compatibility
+	Patched files:
+		wfu_pickatlas.m
+		wfu_pickatlastype.m
+
+1-7-05
+	-Fixed table generation bug
+	-Added Nichols' conjunction analysis option, added files:
+	       wfu_spm_getSPM2_conj.m
+	       wfu_spm_getSPM99_conj.m
+
+
+		
+2-15-05
+	-Reverted to previous version of wfu_spm_getSPM*_conj.m due to
+	 recalled distribution of SPM2 updates on January 5th 2005.
+
+3-30-05
+	-Additional modifications to wfu_spm_getSPM2_conj.m to ensure compatibility with current version of spm_conman.m 
+
+8-02-05
+	-SPM5 compatibility
+	-generating .mat files for orientation 
+
+10-12-05
+	-SPM5 compatiblity for data type
+
+12-28-05
+	-SPM5 check for spm_get in path
+
+1-4-06
+	-Merged wfu_generate_table.m into wfu_pickatlas.m
+
+1-17-06
+	-Added wfu_txt2roi.m, wfu_extract_labels.m
+	-Added *BORDER.mat, *List.mat to MNI_atlas_templates dir
+
+2-17-06
+	-Modified 'spm_select' arguments in wfu_spm_getSPM5.m
+
+2-22-06
+	-Changed template file names from _BORDER.mat to _Border.mat
+
+2-24-06
+	-Added fullfile to wfu_atlas_filename in wfu_spm_getSPM5.m
+
+7-24-06
+	-Added checks for spm*.img files in case no betas for ROI realignment
+	-Modified spm('Ver') checks to seek SPM99, SPM2, or SPM5 in path
+	-Added test for 'C' correlation stat in SPM.mat
+	-Included TD talairach.jar for PointtoTD
+
+8-1-06
+	-For 'C' stat, define threshold in terms of p-value or correlation
+
+8-3-06
+	-Added subtract function to Advanced Mode
+
+9-27-06
+	-Allow various atlas dimensions
+	-The starting value for the homologous correlation field search 
+	     is now changed to (approximate) uncorrected threshold
+
+1-9-07
+	-Added FAQ
+	-Set version number to 2.2
+	-Adjusted for SPM5 v665 change of defaults.units
+		from scalar to 3-element vector
+	-Adjusted for new SPM5 thresDesc variable
+	-Set .fig file's full path for argument to openfig 
+	     as expected by MATLAB7.3
+	-In SPM5, write mask with spm_write_vol
+
+2-13-07
+	-Set version number to 2.3
+	-No longer write mask with spm_write_vol in SPM5
+	-Now calculate FDR p-values properly
+	-Renamed WFU_PickAtlas directory to wfu_pickatlas for 
+		SPM GUI toolbox compatibility
+	-Updated PickAtlas manual for version 2.3
+
+3-2-07
+	-Fix the version number as 2.3 in the GUI panel
+
+6-26-07
+	-Set version number to 2.4
+	-Set default slice slider value to NumberOfSlices/2
+	-Modified GUI for wider coodinate boxes to hold more decimals

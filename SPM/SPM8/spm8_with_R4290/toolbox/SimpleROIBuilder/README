@@ -1,0 +1,10 @@
+
+If you are using a window based system you will need to change the
+directory name to all lower case as well as the name of the matlab file.
+
+That is rename the directory to "simpleroibuilder" and rename the
+source code to "simpleroibuilder.m"
+
+-
+Thanks - Robert Welsh
+         2006-12-12
