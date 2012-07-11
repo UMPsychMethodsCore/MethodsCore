@@ -8,6 +8,10 @@ function [ residuals, betas ] = mc_CovariateCorrection( Y, X )
 % 
 % This program will assume the same design matrix for all of your features,
 % thus enabling much more rapid computation of the residuals.
+% 
+% NOTE  -   This script will prepend a column of ones to your X matrix to
+% model an intercept, so you do not need to include it.
+
 
 
 % Prepend a constant to the predictor matrix
