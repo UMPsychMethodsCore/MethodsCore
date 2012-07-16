@@ -33,8 +33,10 @@ echo "# ${execDIR}"                                                             
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 
 BATCHVERSION=`cat ${thisDir}/.spm8BatchVersion`
+[[ -f ${thisDir}/../.local/CurrentVersionSHA ]] && mcSHA=`cat ${thisDir}/../.local/CurrentVersionSHA`
 
 echo "# spm8Batch Version : ${BATCHVERSION}"                                           >> ${FULLSCRIPTNAME}.sh
+echo "# MethodsCore Repository SHA-ID: $mcSHA"                                         >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 echo "# All done"                                                                      >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
