@@ -39,6 +39,9 @@ while [ "$1" != "" ]; do
 	    shift
 	    svmdir=$1
 	    ;;
+	-2 | --L2O ) #Leave 2 out cross validation
+	    scrossv=2
+	    ;;
 	--nomodelmask ) 
 	    nomodelmask=1
 	    ;;
@@ -46,6 +49,14 @@ while [ "$1" != "" ]; do
 	    permutationmode=1
 	    shift
 	    permcount=$1
+	    ;;
+	-f1 ) #Provide path to filelist1
+	    shift
+	    filelist1file=$1
+	    ;;
+	-f2 ) #Provide path to filelist2
+	    shift
+	    filelist2file=$1
 	    ;;
 
     esac
@@ -88,9 +99,20 @@ filelist2=`hdr_append "$filelist2"`
 
 
 function svm_prep { #Read in filelists, svmdir, and make svmdir
-filelist1=`cat filelist1`
-filelist2=`cat filelist2`
-if [ -f svmdir ]; then
+if [ -z "$filelist1file" ]; then
+    filelist1=`cat filelist1`
+else
+    filelist1=`cat $filelist1file`
+fi
+
+if [-z "filelist2file"] ; then
+    filelist2=`cat filelist2`
+else
+    filelist2=`cat $filelist2file`
+fi
+
+
+if [ -z "$svmdir" ]; then
     svmdir=`cat svmdir`
 fi
 
@@ -202,6 +224,7 @@ kernelrule="-bucket weightbucket"
 if [ "$kernelmode" = "1" ]; then #if running in kernel mode
     kernelrule="-kernel $kernel"
 fi
+
 }
 
 function svm_train { #Train on timeshort labeled in $1
@@ -212,8 +235,8 @@ function svm_train { #Train on timeshort labeled in $1
     $maskrule \
     -model  model \
     $kernelrule \
-    $crossvrule
-
+    $crossvrule \
+    $extrarules
 }
 
 function svm_batchtrain { #Based on curval of $filelists and $svmdir, does all the lifting
@@ -253,12 +276,16 @@ function svm_test { #Test model $1 against volume $2
 
 }
 
-function svm_batchtest { #Test model $1 against constructed volume based on hdrs in $2
-afni_bucket_build "$2" "testbucket"
-afni_bucket_short "testbucket" "testbucketshort"
-afni_bucket_time "testbucketshort" "testbucketshorttime"
+function svm_batchtest { #Test model $1 against constructed volume based on hdrs in $2, name temp models $3
+if [ "$3" == "" ]; then
+    3="testbucket"
+fi
+
+afni_bucket_build "$2" "$3"
+afni_bucket_short "$3" "${3}short"
+afni_bucket_time  "${3}short" "${3}shorttime"
 set_test_rules
-svm_test $1 "testbucketshorttime"
+svm_test $1 "${3}shorttime"
 }
 
 function super_crossvalid { #no arguments. Performs LOO-CV manually, and saved predictions
@@ -280,6 +307,34 @@ for file in $biglist; do
     svm_batchtrain #train up a model based on the updated filelist and svmdir
     svm_batchtest "model" "$file"
 done
+}
+
+function L2OCV { #no arguments. Performs L2O-CV manually, and saves predictions. Directory names based on omitted arg from first list
+    extrarules="-b 0"
+    svmdir_orig=$svmdir
+    filelist1_orig=$filelist1
+    filelist2_orig=$filelist2
+
+    #Check that number of lines in two filelists are equivalent
+    if [ `echo "$filelist1" | grep -cve '^\s*$'` != `echo "$filelist2" | grep -cve '^\s*$'` ]; then
+	echo "The number of lines in your two filelists are different, so I'm not sure how to pair them up."
+    else
+	mkdir $svmdir_orig/L2OCV/
+	range=`eval echo {1..\`echo "$filelist1" | grep -cve '^\s*$'\`}`
+	for i in $range
+	do
+	    filelist1=`echo "$filelist1_orig" | sed "$i d"`
+	    filelist2=`echo "$filelist2_orig" | sed "$i d"`
+	    Out1=`echo "$filelist1" | sed -n "$i p"`
+	    Out2=`echo "$filelist2" | sed -n "$i p"`
+	    svmdir=`echo $svmdir_orig/L2OCV/$i`
+	    svm_batchtrain
+	    pname=`hdr_strip \`slash_strip $Out1 \` | sed 's:/::' ` #Make file into a dirname
+	    svm_batchtest "model" "$Out1" "test1"
+	    pname=`hdr_strip \`slash_strip $Out2 \` | sed 's:/::' ` #Make file into a dirname
+	    svm_batchtest "model" "$Out2" "test2"
+	done
+    fi
 }
 
 function perms_to_analyze { #Will rewrite all of the weight buckets from the permutation tests as img/hdr pairs for easier readier downstream
@@ -341,15 +396,21 @@ totem_batch
     
 fi
 
+case $scrossv in
+    1)
+	echo "Entering Super Cross Validation Mode!"
+	super_crossvalid	
+	;;
+    2)
+	echo "Entering Leave Two Out Cross Validation"
+	L2OCV
+	;;
+    *)
+	echo "Not doing any manual cross-validation"
+	svm_batchtrain	
+esac
 
 
-if [ "$scrossv" != "1" ]; then
-    echo "Training one and only model"
-    svm_batchtrain
-else
-    echo "Entering Super Cross Validation Mode!"
-    super_crossvalid
-fi
 
 if [ "$permutationmode" = "1" ]; then
     echo "Entering permutation mode"
