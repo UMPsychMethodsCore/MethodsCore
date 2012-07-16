@@ -34,8 +34,10 @@ echo "#"                                                                        
 
 BATCHVERSION=`cat ${thisDir}/.spm8BatchVersion`
 [[ -f ${thisDir}/../.local/CurrentVersionSHA ]] && mcSHA=`cat ${thisDir}/../.local/CurrentVersionSHA`
+[[ -f ${thisDir}/../.local/mc_releasetag ]] && mc_releasetag=`cat ${thisDir}/../.local/mc_releasetag`
 
 echo "# spm8Batch Version : ${BATCHVERSION}"                                           >> ${FULLSCRIPTNAME}.sh
+echo "# MethodsCore Release Tag : ${mc_releasetag}"                                    >> ${FULLSCRIPTNAME}.sh
 echo "# MethodsCore Repository SHA-ID: $mcSHA"                                         >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 echo "# All done"                                                                      >> ${FULLSCRIPTNAME}.sh
