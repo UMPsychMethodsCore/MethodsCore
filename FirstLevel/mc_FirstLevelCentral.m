@@ -4,7 +4,6 @@
 %%% and edit that to match your data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Code to create logfile name
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -496,7 +495,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
         % for SPM2
         if (spm2)
-            tmpP = spm_get('files',ImageDir,[Pwra basefile '*.img']); 
+            mc_Error('FATAL ERROR: SPM2 is not supported.\n');
+            mc_Error(' * * * A B O R T I N G * * *\n');
         else
             tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
         end
