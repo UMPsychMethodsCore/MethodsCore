@@ -364,5 +364,4 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 
-Processing = [0 1];
-PreprocessFirstLevel_central
+mc_FirstLevelCentral
