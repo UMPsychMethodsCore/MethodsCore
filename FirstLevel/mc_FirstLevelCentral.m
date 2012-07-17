@@ -16,39 +16,8 @@ if (~result)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% General calculations that apply to both Preprocessing and First Level
+%%% General Code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if (alreadydone(1))
-	basefile = [stp basefile];
-end
-if (alreadydone(2))
-	basefile = [rep basefile];
-end
-if (alreadydone(3))
-	basefile = [nop basefile];
-end
-if (alreadydone(4))
-	basefile = [smp basefile];
-end
-
-if (~exist('doslicetiming') | ~doslicetiming)
-	stp = '';
-end
-if (~exist('dorealign') | ~dorealign)
-	rep = '';
-end
-if (~exist('donormalize') | ~donormalize)
-	nop = '';
-end
-if (~exist('dosmooth') | ~dosmooth)
-	smp = '';
-end
-	
-Pa = [stp];
-Pra = [rep stp];
-Pwra = [nop rep stp];	
-Pswra = [smp nop rep stp];
-
 addpath(pwd);
 spm('defaults','fmri');
 global defaults
@@ -65,7 +34,7 @@ NumScanTotal = NumScan;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% First Level section
+%%% First level begin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
