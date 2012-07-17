@@ -1,0 +1,13 @@
+%Region,ImageFile,SubregionListTextFile,Offset
+%Offset 9000 is reserved for custom shape mask
+TD brodmann areas+,TD_brodmann.nii,TD_brodmann.txt,1000
+TD Lobes,TD_lobe.nii,TD_lobe.txt,1500
+TD Hemispheres,TD_hemisphere.nii,TD_hemisphere.txt,2000
+TD Labels,TD_label_extended_modified.nii,TD_label.txt,2500
+TD Type,TD_type.nii,TD_type.txt,3000
+aal,aal_MNI_V4.nii,aal_MNI_V4.txt,3500
+ICBM label,ICBM_label.nii,ICBM_label.txt,4000
+CBF areas,CBF.nii,CBF.txt,4500
+SPL,SPL.nii,SPL.txt,0
+IBASPM 71,atlas71.nii,atlas71.txt,5000
+IBASPM 116,atlas116.nii,atlas116.txt,5500

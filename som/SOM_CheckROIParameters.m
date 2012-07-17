@@ -103,7 +103,7 @@ end
 
 % Now see if they specified a mask to constrain the ROI's
 % The rois will ALSO be constrained by the mask as defined in
-% parameters.epi
+% parameters.masks.epi
 
 if isfield(rois,'mask') == 0
     rois.mask = [];
@@ -124,7 +124,7 @@ end
 if isempty(rois.mask.File)
     try
         PMask = parameters.data.run(1).P(1,:);
-        SOM_LOG(sprintf('STATUS : Using %s as a masking image',P(1,:)));
+        SOM_LOG(sprintf('STATUS : Using %s as a masking image',parameters.data.run(1).P(1,:)));
     catch
         SOM_LOG('FATAL ERROR : No time series data specified yet.');
         return
