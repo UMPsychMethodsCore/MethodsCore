@@ -401,7 +401,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     %% case where there are regressors
     if NumReg > 0
-
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
         if RegOp == 2 % case where you preset regressors
 
@@ -420,8 +420,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
-         else % case where you get your regressors from file
-
+        else % case where you get your regressors from file
             RegData    = [];
             RegDataCol = [];
 
@@ -495,8 +494,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
         % for SPM2
         if (spm2)
-            mc_Error('FATAL ERROR: SPM2 is not supported.\n');
-            mc_Error(' * * * A B O R T I N G * * *\n');
+            mc_Error(strcat('FATAL ERROR: %s is not supported.\n',...
+                            '* * * A B O R T I N G * * *\n'),'SPM2');
         else
             tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
         end
