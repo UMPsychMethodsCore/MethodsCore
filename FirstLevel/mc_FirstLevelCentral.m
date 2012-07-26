@@ -629,7 +629,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 end
             end % loop through conditions
             % do motion regressors from file if any
-            if exist('MotRegTemplate','var') == 1 && ~isempty('MotRegTemplate')
+            if exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate)
                 Run          = RunDir{iRun};
                 MotRegName   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
                 MotReg       = load( MotRegName );
