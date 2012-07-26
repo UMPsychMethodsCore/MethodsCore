@@ -35,8 +35,8 @@ function result = mc_Logger(cmd,argument,loglevel)
             callingscript = st(end).file;
             [p f e ans] = fileparts(callingscript);
             rightnow = now;
-            scriptcopy = fullfile(cmdstring,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') e]);
-            scriptlog = fullfile(cmdstring,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') '.log']);
+            scriptcopy = fullfile(argument,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') e]);
+            scriptlog = fullfile(argument,[f '_' datestr(rightnow,'yyyy-mm-dd_HHMMSSFFF') '.log']);
             
             headertxt = '';
             lines = 0;
