@@ -143,6 +143,9 @@ SubjDir = {
 
        };
 
+% SVM Library
+% 1 - svmlight (Default)
+% 2 - LIBSVM (NEW!)
    
 
 
