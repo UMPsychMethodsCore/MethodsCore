@@ -54,6 +54,9 @@
 	    "a") 
 	        . ${thisDir}/auxiliary/help/help_case_anatomy_path
 	        ;;
+	    "B")
+                . ${thisDir}/auxiliary/help/help_case_no_background_job
+		;;
 	    "b") 
    	        . ${thisDir}/auxiliary/help/help_case_bet_best_flag
 	        ;;
@@ -68,6 +71,9 @@
 	        ;;
 	    "f") 
 	        . ${thisDir}/auxiliary/help/help_case_functional_path
+	        ;;
+	    "G") 
+	        . ${thisDir}/auxiliary/help/help_case_TGLOBAL
 	        ;;
 	    "g") 
 	        . ${thisDir}/auxiliary/help/help_case_BET_gradient
