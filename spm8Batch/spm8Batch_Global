@@ -80,7 +80,7 @@ then
 # Mail job will be sent to your user name at the institutionname
 # Please set the instituion email server name here.
     
-    MAILRECPT=med.umich.edu
+    MAILRECPT=umich.edu
     
 #
 # Default email address to send messages to, on the linux machines
@@ -102,7 +102,7 @@ then
     
 # And finally, you need to point to matlab
         
-    MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+    MATLAB=`which matlab`
 
 #    
 # Only allow author to execute code during switch.
