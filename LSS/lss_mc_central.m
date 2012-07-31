@@ -21,6 +21,8 @@ if (~result)
     mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
 end
 
+global mcLog;
+
 spm('defaults','fmri');
 global defaults
 warning off all
@@ -106,13 +108,33 @@ if RegOp ==1;
     end
 end
 
+OrigImageTemplate = ImageTemplate;
+
 for iSubject = 1:NumSubject
+    ImageTemplate = OrigImageTemplate;
     betas = [];
     allQ = [];
     Subject=SubjDir{iSubject,1};
     SubjRow=SubjDir{iSubject,2};
     RunList=SubjDir{iSubject,3};
-
+    
+    if (~isempty(Sandbox)) 
+        %copy subject folder to sandbox
+        mc_GenPath(struct('Template',Sandbox,'mode','makedir'));
+        for iRun = 1:size(RunList,2)
+            Run=RunDir{iRun};
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
+            ImageDir = mc_GenPath(ImageDirCheck);
+            mc_GenPath(struct('Template',fullfile(Sandbox,ImageTemplate),'mode','makeparentdir'));
+            shellcommand = sprintf('cp -af %s %s',fullfile(ImageDir,'*'),fullfile(Sandbox,ImageDir));
+            system(shellcommand);
+        end
+        ImageTemplate = fullfile(Sandbox,ImageTemplate);
+    end;
+    
+    logstring = sprintf('%s: Now running subject %s\n',datestr(now),Subject);
+    mc_Logger('log',logstring,3);
+    
     NumRun = size(RunList,2);
     TotalNumRun = size(NumScanTotal,2);
 
@@ -158,15 +180,21 @@ for iSubject = 1:NumSubject
             ParValues{iPar,iCondCol} = Data(1:size(Data,1), ParColumn{iPar});
         end
     end
-
+    iBeta = 0;
     for jRun = 1:NumRun
-        for iTrial = 1:size(CondValues{jRun},1)
+        for iTrial = 1:TrialsPerRun(jRun) %%%Hardcoded to use only 1 condition column, need to FIX
+            logstring = sprintf('%s: Now running trial #%d in run %d\n',datestr(now),iTrial,jRun);
+            iBeta = iBeta + 1;
+            mc_Logger('log',logstring,3);
+            
             clear SPM CondLength;
             P = [];
-            for iRun = 1:NumRun
-                CondValues{iRun}(:) = 2;
+            for iCondVal = 1:NumCondCol
+                CondValues{iCondVal}(:) = 2;
             end
-            CondValues{jRun}(iTrial) = 1;
+            temp = [0 cumsum(TrialsPerRun)];
+            CondValues{1}(iTrial+TrialsPerRun(jRun)) = 1; %%%Hardcoded to use only 1 condition column, need to FIX
+            
             NumCond = 2;
             ConditionName = {'trial','others'};
 
@@ -252,7 +280,9 @@ for iSubject = 1:NumSubject
 
             OutputDir = mc_GenPath(OutputTemplate);
             mc_GenPath( struct('Template',OutputDir,'mode','makedir') );
-            cd(OutputDir)
+            SandboxOutput = mc_GenPath(fullfile(Sandbox,OutputTemplate));
+            mc_GenPath(struct('Template',SandboxOutput,'mode','makedir'));
+            cd(SandboxOutput)
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%% Assign onsets, durations and parameters to SPM variables  %%%%%%%
@@ -314,7 +344,7 @@ for iSubject = 1:NumSubject
                 end
             end
 
-            if NumReg > 0
+            if NumReg > 0 && RegOp ~= 0
                 RegData=[];
                 RegDataCol=[];
 
@@ -329,7 +359,6 @@ for iSubject = 1:NumSubject
                         NewRegData=vertcat(NewRegData,NewDataRun);
                     end
                 end
-                RegData=NewRegData;
                 RegData=NewRegData;
                 iScan=1;
 
@@ -396,38 +425,55 @@ for iSubject = 1:NumSubject
 
             %now run SPM model for jRun and iTrial and save beta_1+jRun-1
             [SPM currentbeta Q] = lss_runSPM(SPM,jRun,iTrial);
-            betas = [betas;currentbeta];
-            allQ = [allQ;Q];
+            clear Vbeta;
+            DIM = SPM.xY.VY(1).dim(1:3)';
+            M = SPM.xY.VY(1).mat;
+            Vbeta = struct(...
+                'fname',    [],...
+                'dim',      DIM',...
+                'dt',       [spm_type('float32') spm_platform('bigend')],...
+                'mat',      M,...
+                'pinfo',    [1 0 0]',...
+                'descrip',  '');
+            Vbeta.fname = sprintf('beta%04d.img',iBeta);
+            Vbeta.descrip = sprintf('spm_spm:beta (%04d)',iBeta);
+            Vbeta = spm_create_vol(Vbeta);
+            jj = NaN(SPM.xY.VY(1).dim);
+            if ~isempty(Q), jj(Q) = currentbeta; end
+            Vbeta = spm_write_plane(Vbeta, jj, [1:SPM.xY.VY(1).dim(3)]);
+            
+            %betas = [betas;currentbeta];
+            %allQ = [allQ;Q];
             clear Q;
             clear currentbeta;
         end
     end
 end
 
-%-Initialise beta image files
-%----------------------------------------------------------------------
-nBeta = size(betas,1);
-
-DIM      = SPM.xY.VY(1).dim(1:3)';
-M        = SPM.xY.VY(1).mat;
-Vbeta(1:nBeta) = deal(struct(...
-    'fname',    [],...
-    'dim',      DIM',...
-    'dt',       [spm_type('float32') spm_platform('bigend')],...
-    'mat',      M,...
-    'pinfo',    [1 0 0]',...
-    'descrip',  ''));
-
-for i = 1:nBeta
-    Vbeta(i).fname   = sprintf('beta_%04d.img',i);
-    Vbeta(i).descrip = sprintf('spm_spm:beta (%04d)',i);
-end
-Vbeta = spm_create_vol(Vbeta);
-
-for i = 1:nBeta
-    jj = NaN(SPM.xY.VY(1).dim);
-    if ~isempty(allQ(i,:)), jj(allQ(i,:)) = betas(i,:); end
-    Vbeta(i) = spm_write_plane(Vbeta(i), jj, [1:SPM.xY.VY(1).dim(3)]);
-end
+% %-Initialise beta image files
+% %----------------------------------------------------------------------
+% nBeta = size(betas,1);
+% 
+% DIM      = SPM.xY.VY(1).dim(1:3)';
+% M        = SPM.xY.VY(1).mat;
+% Vbeta(1:nBeta) = deal(struct(...
+%     'fname',    [],...
+%     'dim',      DIM',...
+%     'dt',       [spm_type('float32') spm_platform('bigend')],...
+%     'mat',      M,...
+%     'pinfo',    [1 0 0]',...
+%     'descrip',  ''));
+% 
+% for i = 1:nBeta
+%     Vbeta(i).fname   = sprintf('beta_%04d.img',i);
+%     Vbeta(i).descrip = sprintf('spm_spm:beta (%04d)',i);
+% end
+% Vbeta = spm_create_vol(Vbeta);
+% 
+% for i = 1:nBeta
+%     jj = NaN(SPM.xY.VY(1).dim);
+%     if ~isempty(allQ(i,:)), jj(allQ(i,:)) = betas(i,:); end
+%     Vbeta(i) = spm_write_plane(Vbeta(i), jj, [1:SPM.xY.VY(1).dim(3)]);
+% end
 
 

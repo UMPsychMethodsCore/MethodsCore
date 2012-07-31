@@ -6,7 +6,7 @@ SPM = spm_fmri_spm_ui(SPM);
 trick = 0;
 modified = 1;
 reg = [];
-for iSess = 1:size(SPM.Sess,1)
+for iSess = 1:size(SPM.Sess,2)
     reg(iSess) = size(SPM.Sess(iSess).C.name,2);
 end
 adjust = cumsum(reg);
