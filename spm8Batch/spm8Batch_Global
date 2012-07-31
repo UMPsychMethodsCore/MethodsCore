@@ -41,11 +41,10 @@ then
 
     curdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     topDIR="$( cd $curdir/.. && pwd )"
-    
+
 # You must point to SPM8 !!!
     
     SPM8B1=${topDIR}/SPM/SPM8/spm8_with_R4667
-
     
 # This is Robert Welsh's UNIX batch interface to spm8
     
