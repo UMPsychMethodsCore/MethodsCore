@@ -1,0 +1,2 @@
+    echo "    -B                   run in the foreground, need for daisy chaining jobs."
+    echo 
