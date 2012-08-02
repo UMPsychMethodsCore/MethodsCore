@@ -13,11 +13,12 @@ function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,N
 %           ROI_mni             -   List of MNI coordinators of ROIs. Should be
 %                           nROI * 3. Any additional collumns will be ignored.
 %       Optional
-%           fitness             -   Aggregate feature fitness [1 * nFeat]
+%           fitness             -   Aggregate feature fitness [1 * nFeat].
+%                                   Set to 0 to disable
 %           subprune            -   Max number of edges to list. Requires
 %                                   definition of fitness. Will subset pruned set
 %                                   based on max absolute values of fitness.
-%                                   [Integer]
+%                                   [Integer]. Set to 0 to disable.
 %           NetworkMap          -   Path to img/hdr file. Ideally sliced resolution
 %                                   such that each ROI_mni can be uniquely indexed
 %                                   into one voxel. This is used to label the nodes
@@ -47,7 +48,7 @@ nROI = size(ROI_mni,1);
 prune=logical(prune);
 
 % If fitness wasn't provided, make it a binary version of prune
-if ~exist('fitness','var')
+if ~exist('fitness','var') || (size(fitness,2)==1 && fitness==0)
     fitness=zeros(size(prune,2));
     fitness(prune)=1;
 end
@@ -56,7 +57,7 @@ end
 fitness(~prune)=0;
 
 % If subprune was provided prune fitness down further
-if exist('subprune','var')
+if exist('subprune','var') && subprune~=0
     fitness=mc_bigsmall(fitness,subprune,3);
 end
 
