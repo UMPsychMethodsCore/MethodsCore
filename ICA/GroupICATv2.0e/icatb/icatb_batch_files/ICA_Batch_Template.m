@@ -77,14 +77,20 @@ numOfPC2 = 25;
 %% output back projection or not
 BackProj = 1;
     
+%% template matching algorithm
+% 1: use simple component map (intensity) and template map matching algorithm
+% 2: use voxel time series and component time series z-score matching algorithm
+TempMatchAlg = 2;
+
 
 %% add path
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..','..','..');
+mcRoot = '/net/dysthymia/slab/users/guosj/repos/MethodsCore2/';
+%fullfile(fileparts(mfilename('fullpath')),'..','..','..','..');
 % DEVSTOP
 
-% addpath(genpath(fullfile(mcRoot,'matlabScripts')))
-% addpath(fullfile(mcRoot,'spm8'))
+addpath(genpath(fullfile(mcRoot,'matlabScripts')))
+addpath(fullfile(mcRoot,'spm8'))
 addpath(genpath(fullfile(mcRoot,'ICA/GroupICATv2.0e/icatb')))
 
 
