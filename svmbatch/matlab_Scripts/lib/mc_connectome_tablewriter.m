@@ -76,9 +76,9 @@ fitness_values=fitness_square(find(fitness_square));
 Node1MNI=ROI_mni(Node1idx,:);
 Node2MNI=ROI_mni(Node2idx,:);
 
-table{:,1}=num2cell(Node1MNI,2);
-table{:,2}=num2cell(Node2MNI,2);
-table{:,3}=num2cell(fitness_values,2);
+table(:,1)=num2cell(Node1MNI,2);
+table(:,2)=num2cell(Node2MNI,2);
+table(:,3)=num2cell(fitness_values,2);
 
 table_labels={'Node1_MNI' 'Node2_MNI' 'Edge_Value'};
 
@@ -86,9 +86,9 @@ table_labels={'Node1_MNI' 'Node2_MNI' 'Edge_Value'};
 if exist('NetworkMap','var')
     Node1NetworkLookup=mc_network_lookup(NetworkMap,Node1MNI);
     Node2NetworkLookup=mc_network_lookup(NetworkMap,Node2MNI);
-    table{:,4}=num2cell(Node1NetworkLookup(:,4),2);
-    table{:,5}=num2cell(Node2NetworkLookup(:,4),2);
+    table(:,4)=num2cell(Node1NetworkLookup(:,4),2);
+    table(:,5)=num2cell(Node2NetworkLookup(:,4),2);
     table_labels={table_labels{:} 'Node1_Network' 'Node2_Network'};
 end
 
-table=vertcat(table,table_labels);
+table=vertcat(table_labels,table);
