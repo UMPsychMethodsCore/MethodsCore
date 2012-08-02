@@ -73,7 +73,6 @@ fitness_values=fitness_square(find(fitness_square));
 
 % Look up the MNI coordinates
 
-mat2cell
 Node1MNI=ROI_mni(Node1idx,:);
 Node2MNI=ROI_mni(Node2idx,:);
 
