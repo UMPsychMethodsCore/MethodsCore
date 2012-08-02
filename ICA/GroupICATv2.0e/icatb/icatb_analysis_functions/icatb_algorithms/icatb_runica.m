@@ -692,13 +692,18 @@ laststep=0;
 blockno = 1;  % running block counter for kurtosis interrupts
 
 while step < maxsteps, %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   permute=randperm(datalength); % shuffle data order at each step
+   %permute=randperm(datalength); % shuffle data order at each step
+   %%%%%%%%%%%%%%%%%%%%%%  !!!!! changed here  !!!!!!  %%%%%%%%%%%%%%%
+   % avoid randomness
+   permute1=1:datalength;
+   permut = NaN(1,datalength);
+   permut(2:end) = permute1(1:end-1);  permut(1) = permute1(end);
    
    for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
       if biasflag                                                   
-         u=weights*data(:,permute(t:t+block-1)) + bias*onesrow;      
+         u=weights*data(:,permut(t:t+block-1)) + bias*onesrow;      
       else                                                             
-         u=weights*data(:,permute(t:t+block-1));                      
+         u=weights*data(:,permut(t:t+block-1));                      
       end                                                              
       if ~extended
          %%%%%%%%%%%%%%%%%%% Logistic ICA weight update %%%%%%%%%%%%%%%%%%%
@@ -741,7 +746,14 @@ while step < maxsteps, %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % recompute signs vector using kurtosis
             if kurtsize < frames 
                %rp = ceil(rand(kurtsize)*datalength);    % pick random subset
-               rp = randperm(datalength);
+               
+               %rp = randperm(datalength);
+               %%%%%%%%%%%%%%%%%%%%%%  !!!!! changed here  !!!!!!  %%%%%%%%%%%%%%%
+               % avoid randomness
+               rp1=1:datalength;
+               rp(2:end) = rp1(1:end-1);  rp(1) = rp1(end);
+               
+               
                % of data. Compute
                partact=weights*data(:,rp(1:kurtsize)); % partial activation
             else                                        % for small data sets,
