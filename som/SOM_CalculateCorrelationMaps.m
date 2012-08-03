@@ -60,7 +60,7 @@ for iROI = 1 : parameters.rois.nroisRequested
     pMatrix(iROI,:) = 1;
     rMatrix(:,iROI) = 0;
     pMatrix(:,iROI) = 1;
-    if parameters.Output.saveroiTC == 1
+    if isfield(parameters.Output,'saveroiTC') && parameters.Output.saveroiTC == 1
       roiTC(:,iROI) = 0; % also zero out the time course if the rMat is censored
     end
   end
@@ -74,7 +74,7 @@ corrName = fullfile(parameters.Output.directory,[parameters.Output.name '_corr']
 
 save(corrName,'rMatrix','pMatrix');
 
-if parameters.Output.saveroiTC == 1
+if isfield(parameters.Output,'saveroiTC') && parameters.Output.saveroiTC == 1
   roiTCName = fullfile(parameters.Output.directory,[parameters.Output.name '_roiTC']);
   save(roiTCName,'roiTC');
 end
