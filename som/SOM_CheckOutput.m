@@ -18,6 +18,7 @@
 %               .directory    - full directory path to output
 %               .name         - name of output file (generic)
 %               .description  - comment to add to image files.
+%               .saveroiTC    - save roi time-courses when using 'maps'.
 %
 %
 % OUTPUT
@@ -39,6 +40,11 @@ Output.OK = -1;
 if isfield(parameters,'Output') == 0
     SOM_LOG('FATAL ERROR : You need to specify ".Output" definitions');
     return
+end
+
+if ~isfield(Output,'saveroiTC')
+   Output.saveroiTC = 0;
+   SOM_Log('STATUS : Using saveroiTC = 0');
 end
 
 Output = parameters.Output;
