@@ -143,7 +143,30 @@ SubjDir = {
 
        };
 
-   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% If you want to do nuisance correction, set DoNuisanceCorrection to 1
+%%%
+%%% Provide your info on Nuisance Regressors here. This will be a 3D array.
+%%% Rows index examples (subjects), columns index nuisance regressors, and
+%%% depth indexes conditions. So if you have 32 subjects, with 3 nuisance
+%%% regressors, measured across 4 conditions, you will have a 32 * 3 * 4
+%%% array. If a subject is missing a run from a particular condition, leave
+%%% the all the values for that subject set to 0; they will not be used
+%%% anyway.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+
+DoNuisanceCorrection=0;
+
+NuisanceRegressors[:,:,1]=[
+    1, 2, 1;
+    0, 1, 4;
+    ];
+
+NuisanceRegressors[:,:,2]=[
+    5, 1, 6;
+    2, 6, 2;
+    ];
+
 
 
 % Enable Advanced Kernel Functions
