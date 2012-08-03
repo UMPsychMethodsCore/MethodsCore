@@ -74,12 +74,15 @@ corrName = fullfile(parameters.Output.directory,[parameters.Output.name '_corr']
 
 save(corrName,'rMatrix','pMatrix');
 
+results = corrName;
+
 if parameters.Output.saveroiTC == 1
   roiTCName = fullfile(parameters.Output.directory,[parameters.Output.name '_roiTC']);
   save(roiTCName,'roiTC');
+  results=strvcat(results,roiTCName);
 end
 
-results = corrName;
+
 
 return
 
