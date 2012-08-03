@@ -303,8 +303,8 @@ ROIOutput = 'images';
 %%% "maps" output mode only - save ROI time courses
 %%% 1 - save ROI time courses to same location as R and P matrices
 %%% 0 - do not save ROI time courses
-saveroiTC = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+saveroiTC = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
