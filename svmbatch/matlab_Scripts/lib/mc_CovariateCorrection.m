@@ -17,7 +17,7 @@ function [ residuals, betas ] = mc_CovariateCorrection( Y, X )
 % Prepend a constant to the predictor matrix
 X = horzcat(ones(size(X,1),1),X);
 
-betas = pinv((X'*X))*X'*Y;
+betas =   pinv(X)*Y;
 
 residuals = Y - X*betas;
 
