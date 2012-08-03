@@ -60,6 +60,7 @@ for iROI = 1 : parameters.rois.nroisRequested
     pMatrix(iROI,:) = 1;
     rMatrix(:,iROI) = 0;
     pMatrix(:,iROI) = 1;
+    roiTC(:,iROI) = 0; % also zero out the time course if the rMat is censored
   end
 end
 
@@ -68,8 +69,9 @@ end
 %
 
 corrName = fullfile(parameters.Output.directory,[parameters.Output.name '_corr']);
-
+roiTCName = fullfile(parameters.Output.directory,[parameters.Output.name '_roiTC']);
 save(corrName,'rMatrix','pMatrix');
+save(roiTCName,'roiTC');
 
 results = corrName;
 
