@@ -108,6 +108,7 @@ function result = mc_Logger(cmd,cmdstring,loglevel)
                 mc_Error('Could not open logfile %s for writing.',mcLog);
             end
             fprintf(fid,'%s\t%s\n',loglevelstr,cmdstring);
+            fclose(fid);
             result = 1;
     end
     
