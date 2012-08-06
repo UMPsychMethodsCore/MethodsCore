@@ -289,7 +289,7 @@ if strcmpi(svmtype,'paired')
 
     %% Figure out subject availability for contrasts
 
-    contrastAvail = zeros(nSubs,size(ContrastVec));
+    contrastAvail = zeros(nSubs,size(ContrastVec,1));
 
     for iContrast = 1:size(ContrastVec,1);
         curContrast=ContrastVec(iContrast,:);
