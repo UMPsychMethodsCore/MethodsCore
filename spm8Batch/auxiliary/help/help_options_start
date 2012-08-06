@@ -75,6 +75,9 @@
 	    "h") 
 	        . ${thisDir}/auxiliary/help/help_case_hires_name
 	        ;;
+	    "I") 
+	        . ${thisDir}/auxiliary/help/help_case_set_reference
+	        ;;
 	    "i") 
 	        . ${thisDir}/auxiliary/help/help_case_set_run
 	        ;;
@@ -132,6 +135,9 @@
 	    "v") 
 	        . ${thisDir}/auxiliary/help/help_case_volume_name
 	       ;;
+	    "W") 
+	        . ${thisDir}/auxiliary/help/help_case_warpmethod
+	        ;;
 	    "w") 
 	        . ${thisDir}/auxiliary/help/help_case_coreg_path
 	        ;;
@@ -140,6 +146,15 @@
 	        ;;
 	    "#") 
 	        . ${thisDir}/auxiliary/help/help_case_run_number
+	        ;;
+	    "0") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_stripping
+	        ;;
+	    "1") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_warp2MNI
+	        ;;
+	    "2") 
+	        . ${thisDir}/auxiliary/help/help_case_vbm8Check_warpfMRI
 	        ;;
 	    "*") 
 	        echo

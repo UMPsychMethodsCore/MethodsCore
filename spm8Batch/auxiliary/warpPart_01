@@ -10,6 +10,10 @@ echo "TemplateImage  = '${TemplateImage}';"                   >> ${FULLSCRIPTNAM
 
 echo "VoxelSize      = ${voxelSize};"                         >> ${FULLSCRIPTNAME}.m
 
+echo "WARPMETHOD     = ${WARPMETHOD};"                        >> ${FULLSCRIPTNAME}.m
+
+echo "VBM8RefImage   = '${VBM8ReferenceImage}';"              >> ${FULLSCRIPTNAME}.m
+
 echo "OutputName     = '${outputName}';"                      >> ${FULLSCRIPTNAME}.m
 
 echo "SandBoxDIR     = '${SANDBOX}/';"                        >> ${FULLSCRIPTNAME}.m

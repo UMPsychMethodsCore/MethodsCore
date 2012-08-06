@@ -1,9 +1,0 @@
-		  shift
-		  let argn++
-		  if (( $argn >= $args ))
-		      then
-		      echo "Missing parameter for volume name functional, aborting"
-		      exit 1
-		  else
-		      volumeWILD=$1
-		  fi

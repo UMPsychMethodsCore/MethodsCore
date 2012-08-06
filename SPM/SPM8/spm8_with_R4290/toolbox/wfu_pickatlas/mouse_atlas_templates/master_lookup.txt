@@ -1,0 +1,3 @@
+%Region,ImageFile,SubregionListTextFile,Offset
+%Offset 9000 is reserved for custom shape mask
+BNL Labels,mouseLabels.nii,mouseLabels.txt,1000

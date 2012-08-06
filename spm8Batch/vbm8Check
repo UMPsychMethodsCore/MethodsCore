@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Pull up the ht1spgr and the best BET
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main fslCheck function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-13"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+#allowedOptions="abhMu"
+allowedOptions="aDdfhIMv0123"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+    SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}
+    if [ ! -d "${SUBJECTANATOMY}" ]
+    then
+	echo
+	echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	echo
+	echo
+	exit 0
+    fi
+    cd ${SUBJECTANATOMY}
+    case "${VBM8CHECKOPT}" in
+	"0")
+	    # checking skull stripping
+	    IMG1NAME="${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii*"
+	    IMG2NAME="${SUBJECTANATOMY}/m${HIRESNAME}*.nii*"
+	    IMG1=`ls ${SUBJECTANATOMY}/bet_m${HIRESNAME}*.nii* 2> /dev/null`
+	    IMG2=`ls ${SUBJECTANATOMY}/m${HIRESNAME}*.nii*  2> /dev/null`
+	    LOGDIR=${SUBJECTANATOMY}
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,2000"
+	    ;;
+	"1")
+	    IMG1NAME="${SUBJECTANATOMY}/${HIRESNAME}*.nii*"
+	    IMG2NAME="${VBM8ReferenceImage}"
+	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
+	    IMG2=${VBM8ReferenceImage}
+	    LOGDIR=${SUBJECTANATOMY}
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,1"
+	    ;;
+	"2")
+	    IMG1NAME="${SUBJECTANATOMY}/${HIRESNAME}*.nii*"
+	    IMG2NAME="${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
+	    IMG1=`ls ${SUBJECTANATOMY}/${HIRESNAME}*.nii*  2> /dev/null`
+	    IMG2=`ls ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii* 2> /dev/null | head -1`
+	    LOGDIR=`dirname $IMG2`
+	    echo "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/$fmriPATH/run_*/${volumeWILD}*.nii*"
+	    FSLVIEWOPT1="-l Copper -t .7 -b 0,2000"
+	    FSLVIEWOPT2="-b 0,2000"
+	    ;;
+	*)
+	    echo "Impossible error in vbm8Check, VBM8CHECKOPT=${VBM8CHECK}"
+	    exit 0
+    esac
+
+    if [ -z "${IMG1}" ]
+    then
+	echo " ${SUBJECTANATOMY}: I can't find ${IMG1NAME}"
+    else
+	if [ -z "${IMG2}" ]
+	then
+	    echo " ${SUBJECTANATOMY}: I can't find ${IMG2NAME}"
+	else
+	    echo ${SUBJECTANATOMY}
+	    #fslview ${IMG2} -b 0,2000 & ${IMG1} -l Copper -t .7 -b 0,2000 
+	    fslview ${IMG2} ${FSLVIEWOPT2} ${IMG1} ${FSLVIEWOPT1}
+	    cd $LOGDIR
+	    logTheUMProcess vbm8Check vbm8Check ${VBM8CHECKOPT} ${IMG1} ${IMG2}
+	fi
+    fi
+done
+

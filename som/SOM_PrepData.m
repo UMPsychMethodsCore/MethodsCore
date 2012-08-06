@@ -72,7 +72,7 @@ maskInfo = [];
 
 % If there is no mask then we will use the first image of the data.
 
-if isempty(PMask) == 0
+if isempty(PMask) == 1
     [mfPath mfName mfExt] = fileparts(P(1,:));
 else
     [mfPath mfName mfExt] = fileparts(PMask);
@@ -187,7 +187,7 @@ results = zeros(length(maskInfo.iMask),length(PHDR));
 
 FASTCODEPRESENT=1;
 
-FASTCODE={'SOM_read_nii_img','SOM_read_nii_hdr','SOM_img_endian'};
+FASTCODE={'nifti','SOM_read_nii_img','SOM_read_nii_hdr','SOM_img_endian'};
 
 for iCODE = 1:length(FASTCODE)
   if exist(FASTCODE{iCODE}) ~= 2
@@ -197,7 +197,8 @@ end
 
 if FASTCODEPRESENT & analyzeFMT == 2
   tic;
-  theVols = SOM_read_nii_img(P);
+  %theVols = SOM_read_nii_img(P);   % Depreceated on 2012-03-23 - RCWelsh and replaced with SOM_ReadNII which uses 'nifti'
+  theVols = SOM_ReadNII(P);
   results = (theVols(:,maskInfo.iMask))';
   toctime = toc;
   SOM_LOG(sprintf('STATUS : Fast read code implemented, %s',toctime));

@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="DdfhMntUvwz"
+allowedOptions="DdfhIMntUvWwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -119,12 +119,21 @@ do
     . ${thisDir}/auxiliary/verifyTargetImage
     
     debugout "HiRes name is : ${TARGETIMG}"    $SuperDebugFLAG
+    debugout "HiRes name is : ${HIRESNAME}"    $SuperDebugFLAG
     debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
     
-    if [ ! -e "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${HIRESNAME}_sn.mat" ]
+    # Check for the warping matrix (_sn.mat) or the deformation field (y_r).
+    
+    if [ "${WARPMETHOD}" -eq "1" ] 
+    then
+	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/y_r${HIRESNAME}.nii
+    else
+	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${HIRESNAME}_sn.mat
+    fi
+    if [ ! -e "${WARP_FILE}" ]
     then
 	echo
-	echo "MISSING _sn.mat for ${subjects[$is]}"
+	echo "MISSING warping instuctions ${WARP_FILE} for ${subjects[$is]}"
 	echo
 	# 
         # remove the sandbox if we made one.
@@ -132,7 +141,6 @@ do
 	${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}
 	exit 1
     fi
-    
     echo "'${TARGETIMG}';..."                             >> ${FULLSCRIPTNAME}.m
     
 done

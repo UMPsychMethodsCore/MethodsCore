@@ -3,7 +3,7 @@
 		  if (( $argn >= $args ))
 		      then
 		      echo "Missing parameter for volume TR, aborting"
-		      exit 1
+	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      TR=$1
 		  fi

@@ -15,7 +15,8 @@ for iSub = 1:size(UMBatchSubjs,1)
     fprintf('%s\n',TargetImageFull);
     fprintf('%s\n',ObjectImageFull);
     fprintf('UMReSlice:%d\n',UMReSlice);
-    UMBatchCoReg(TargetImageFull,ObjectImageFull,UMOtherImages{iSub},UMReSlice,UMTestFlag);
+    results = UMBatchCoReg(TargetImageFull,ObjectImageFull,UMOtherImages{iSub},UMReSlice,UMTestFlag);
+    UMCheckFailure(results);
 end
 
 fprintf('\nAll done with coregistration.\n');
