@@ -327,7 +327,9 @@ if strcmpi(svmtype,'paired')
         
         % correct for nuisance regressors if they exist
         if exist('DoNuisanceCorrection','var') && DoNuisanceCorrection==1
-            weighted_nuisance=NuisanceRegressors(:,:,iCond) * curContrast(iCond); % weight by contrasting info
+            for iCond = 1:condNum
+                weighted_nuisance=NuisanceRegressors(:,:,iCond) * curContrast(iCond); % weight by contrasting info
+            end
             weighted_nuisance=weighted_nuisance(logical(contrastAvail(:,iContrast)),:,:); %prune based on contrast availability
             nuisance = sum(weighted_nuisance,3); % calculate delta or whatever contrast wants
             
