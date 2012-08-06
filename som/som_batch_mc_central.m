@@ -170,6 +170,7 @@ if (RunMode(1) | sum(RunMode) == 0)
         end
 
         parameters.Output.correlation = ROIOutput;
+	parameters.Output.saveroiTC = saveroiTC;
         %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = OutputName;
