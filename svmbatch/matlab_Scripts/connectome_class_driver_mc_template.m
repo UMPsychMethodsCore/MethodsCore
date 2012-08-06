@@ -153,6 +153,9 @@ SubjDir = {
 %%% array. If a subject is missing a run from a particular condition, leave
 %%% the all the values for that subject set to 0; they will not be used
 %%% anyway.
+%%%
+%%% For unpaired data, make sure your rows line up with your SubjDir, but
+%%% you should only have one level in the third dimension.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 
 DoNuisanceCorrection=0;
