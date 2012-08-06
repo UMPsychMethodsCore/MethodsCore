@@ -334,4 +334,4 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
-mc_FirstLevelCentral
+FirstLevel_mc_central
