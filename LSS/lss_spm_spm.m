@@ -178,7 +178,7 @@ mmv    = MAXMEM/8/nScan;
 blksz  = min(xdim*ydim,ceil(mmv));                             %-block size
 nbch   = ceil(xdim*ydim/blksz);                                %-# blocks
 nbz    = max(1,min(zdim,floor(mmv/(xdim*ydim))));   nbz = 1;   %-# planes
-nbz = zdim; %just do whole image at once
+%nbz = zdim; %just do whole image at once
 blksz  = blksz * nbz;
  
 %-Initialise variables used in the loop
