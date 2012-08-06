@@ -3,7 +3,7 @@ function [ residuals, betas ] = mc_CovariateCorrection( Y, X )
 %multiple regression
 % 
 %   FORMAT [residuals] = mc_CovariateCorrection( Y, X)
-%       Y   -   nFeatures x nExamples matrix of observations
+%       Y   -   nExamples x nFeatures matrix of observations
 %       X   -   nExamples x nPredictors design matrix
 % 
 % This program will assume the same design matrix for all of your features,
