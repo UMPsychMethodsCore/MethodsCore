@@ -78,6 +78,10 @@ if strcmpi(svmtype,'unpaired')
     superflatmat(:,logical(censor_flat))=0;
     
     fprintf('Done\n');
+    
+    %% Regress out Nuisance Regressors
+    
+    superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
 
     %% LOOCV
 
