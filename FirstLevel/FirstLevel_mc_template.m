@@ -276,7 +276,7 @@ NumCondPerCondCol = [4];
 %%% 2 = Contrast add on
 %%% 3 = test without running anything
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mode = 1;
+Mode = 3;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This sets whether the models are the same for everyone or subject-specific
@@ -307,6 +307,23 @@ ScaleOp = 'none';
 %%% Leave this blank ('') to turn off explicit masking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 explicitmask = '';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
+%%% This allows you to set up a list of weights for each run for each
+%%% contrast. This combines with the ContrastList above. Leaving a
+%%% particular row empty ([]) is equivalent to setting the contrast weights
+%%% as 1 for each run (i.e. no change from the standard contrast method).
+%%% Example:
+%%% If you have 4 runs and want to compare a condition in run 1 against a
+%%% condition in run 4 you would set the contrast weight for that contrast
+%%% as [1 0 0 -1].  If you want to only look at the contrast averaged
+%%% across runs 1 and 2 you would set the weights as [1 1 0 0]. If you just
+%%% want the standard contrast (the average across all runs) you can set it
+%%% either to [] or [1 1 1 1].
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ContrastRunWeights = {
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Set the contrast start point

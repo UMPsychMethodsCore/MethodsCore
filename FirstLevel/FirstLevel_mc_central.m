@@ -613,10 +613,30 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     Scaling = sum(CondPresent,1);
     Scaling = NumRun./Scaling;  % This needs attention
 
-
+    CondPresentInf = CondPresent;
+    CondPresentInf(find(CondPresentInf==0))=Inf;
+    CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(RegList,1))];
+    
+    
     %%%%% Set up "dynamic" contrasts %%%%%
     NumContrast=size(ContrastList,1);
+    
+    if (~exist('ContrastRunWeights','var'))
+        ContrastRunWeights = {};
+        for iContrast = 1:NumContrast
+            ContrastRunWeights{iContrast} = [];
+        end
+    end
+    
     for iContrast = 1: NumContrast
+        if (iseempty(ContrastRunWeights{iContrast}))
+            ContrastRunWeights{iContrast} = ones(1,NumRun);
+        end
+        RunWeighting = repmat(ContrastRunWeights{iContrast}',1,size(CondPresentInf,2)).*CondPresentInf;
+        RunWeighting = reshape(RunWeighting',1,prod(size(RunWeighting)));
+        RunWeighting = RunWeighting(find(~isnan(RunWeighting)));
+        RunWeighting = RunWeighting(find(~isinf(RunWeighting)));
+        
         ContrastName{iContrast} = ContrastList{iContrast,1};
         ContrastBase=[];
 
@@ -641,7 +661,14 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
             end
         end % loop through runs
-        ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+        NumRunIncluded = sum(abs(ContrastRunWeights{iContrast}));
+        
+        ContrastContent{iContrast} = 1/NumRunIncluded*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+        if (sum(ContrastContent{iContrast})>0)
+            ContrastContent{iContrast} = ContrastContent{iContrast}.*2;
+        end
+        
+        ContrastContent{iContrast} = RunWeighting.*ContrastContent{iContrast};
         ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
     end % loop through contrasts
 
