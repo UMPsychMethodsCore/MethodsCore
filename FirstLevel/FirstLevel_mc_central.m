@@ -139,8 +139,10 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     SubjRow = SubjDir{iSubject,2};  
     RunList = SubjDir{iSubject,3};
 
+    mc_Logger('log',sprintf('Now working on subject %s',Subject),3);
+    
     NumRun      = size(RunList,2);
-    TotalNumRun = size(RunDir,1);  %%% number of image runs if every run were present
+    TotalNumRun = size(RunNamesTotal,1);  %%% number of image runs if every run were present
     ContrastRunWeights = ContrastRunWeightsTotal;
 
     if (size(RunList,2) ~= TotalNumRun && ~isempty(ContrastRunWeights))
@@ -159,7 +161,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     
     %%%%% This code cuts RunDir and NumScan based which Image Runs are present  
     clear RunDir;
-    clear NumScan;
+    NumScan = [];
     for iRun=1:NumRun
         RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
         if (~isempty(NumScanTotal))
@@ -172,20 +174,33 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%Check if NumScan exists and is filled in.  If not, we need to build
     %%%NumScan based on number of frames in .nii file (or number of analyze
     %%%images)
+    nsflag = 0;
     if (isempty(NumScan))
-        for iRun = 1:NumRun
-            frames = [1];
-            Run = RunDir{iRun};
-            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
-            ImageDir = mc_GenPath(ImageDirCheck);
-            tmpP = [];
-            if (strcmp(imagetype,'nii'))
-                %%%load NIFTI image and check frames
-                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],[1:10000]);
-            else
-                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
-            end
+        nsflag = 1;
+    end
+    for iRun = 1:NumRun
+        frames = [1];
+        Run = RunDir{iRun};
+        ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
+        ImageDir = mc_GenPath(ImageDirCheck);
+        tmpP = [];
+        if (strcmp(imagetype,'nii'))
+            %%%load NIFTI image and check frames
+            tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],[1:10000]);
+        else
+            tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+        end
+
+        if (nsflag)
             NumScan(iRun) = size(tmpP,1);
+        end
+        
+        if (size(tmpP,1) ~= NumScan(iRun))
+            if (size(tmpP,1) < NumScan(iRun))
+                mc_Error(sprintf('Number of TRs requested (%d) for run %s of subject %s is greater than the number of TRs in the file.',NumScan(iRun),RunDir{iRun},Subject));
+            end
+            mc_Logger('log',sprintf('Number of TRs requested (%d) for run %s of subject %s does not match total number of frames in the file. Only %d TRs will be analyzed.',NumScan(iRun),RunDir{iRun},Subject,NumScan(iRun)),2);
+            mcWarnings = mcWarnings + 1;
         end
     end
       
@@ -533,6 +548,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         else
             tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
         end
+            
         P = strvcat(P,tmpP);
 
         if isempty(P)

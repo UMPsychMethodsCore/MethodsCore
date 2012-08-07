@@ -42,7 +42,7 @@ RunDir = {
 SubjDir = {
  '5002/Tx1',50021,[1 2]; %225 240
  '5028/Tx1',50281,[2];
-% '5029/Tx1',50291,[1 2];
+ '5029/Tx1',50291,[1 2];
 % '5031/Tx1',50311,[1 2];
 % '5032/Tx1',50321,[1 2];
 % '5034/Tx2',50342,[1 2];
@@ -327,7 +327,7 @@ TotalTrials = 9;
 %%% undesired scans there.  If you want to use all the scans in each run
 %%% then this should be left blank ([]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [50 75];
+NumScan = [100 10];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Use AR(1) auto-regression correction or not
