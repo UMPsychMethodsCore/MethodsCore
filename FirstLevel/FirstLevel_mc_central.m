@@ -384,13 +384,13 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
         for iRun=1:NumRun
             Run           = RunDir{iRun};
-            MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+            MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
 
             if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
-                SPM.Sess(iRun).C.C    = load( MotRegName );
+                SPM.Sess(iRun).C.C    = load( MotRegName2 );
                 SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
             else
-                MotReg = load( MotRegName );
+                MotReg = load( MotRegName2 );
                 for iMot=1:size(MotRegList,1)
                     SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
                     SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
@@ -400,7 +400,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
 
     %% case where there are regressors
-    if NumReg > 0
+    if (NumReg > 0 && RegOp ~= 0)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
         if RegOp == 2 % case where you preset regressors
@@ -613,10 +613,30 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     Scaling = sum(CondPresent,1);
     Scaling = NumRun./Scaling;  % This needs attention
 
-
+    CondPresentInf = CondPresent;
+    CondPresentInf(find(CondPresentInf==0))=Inf;
+    %CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(RegList,1))];
+    CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(SPM.Sess(1).C.C,2))];
+    
     %%%%% Set up "dynamic" contrasts %%%%%
     NumContrast=size(ContrastList,1);
+    
+    if (~exist('ContrastRunWeights','var'))
+        ContrastRunWeights = {};
+        for iContrast = 1:NumContrast
+            ContrastRunWeights{iContrast} = [];
+        end
+    end
+    
     for iContrast = 1: NumContrast
+        if (size(ContrastRunWeights,1)<iContrast || isempty(ContrastRunWeights{iContrast}))
+            ContrastRunWeights{iContrast} = ones(1,NumRun);
+        end
+        RunWeighting = repmat(ContrastRunWeights{iContrast}',1,size(CondPresentInf,2)).*CondPresentInf;
+        RunWeighting = reshape(RunWeighting',1,prod(size(RunWeighting)));
+        RunWeighting = RunWeighting(find(~isnan(RunWeighting)));
+        RunWeighting = RunWeighting(find(~isinf(RunWeighting)));
+        
         ContrastName{iContrast} = ContrastList{iContrast,1};
         ContrastBase=[];
 
@@ -631,17 +651,41 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             % do motion regressors from file if any
             if exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate)
                 Run          = RunDir{iRun};
-                MotRegName   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-                MotReg       = load( MotRegName );
+                MotRegName2   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                MotReg       = load( MotRegName2 );
                 zeroPad      = zeros( 1, size(MotReg,2) );
                 ContrastBase = [ContrastBase zeroPad];
             end
             % do user specified regressors
-            if NumReg > 0
+            if (NumReg > 0 && RegOp ~= 0)
                 ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
             end
         end % loop through runs
-        ContrastContent{iContrast} = 1/NumRun*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+        NumRunIncluded = sum(abs(ContrastRunWeights{iContrast}));
+
+        PosWeighting = sum(abs(ContrastRunWeights{iContrast}(find(ContrastRunWeights{iContrast}==1))));
+        NegWeighting = sum(abs(ContrastRunWeights{iContrast}(find(ContrastRunWeights{iContrast}==-1))));
+        NumRunIncluded = max(PosWeighting,NegWeighting);
+        if (sum(ContrastBase)==0 && PosWeighting>0 && NegWeighting>0)
+            NumRunIncluded = NumRunIncluded * 2;
+        end
+        if (PosWeighting == 0)
+            PosWeighting = 1;
+        end
+        if (NegWeighting == 0)
+            NegWeighting = 1;
+        end
+        if (PosWeighting==NegWeighting)
+            PosWeighting = 1;
+            NegWeighting = 1;
+        end
+        
+        RunWeighting(find(RunWeighting>0)) = RunWeighting(find(RunWeighting>0)).*NegWeighting;
+        RunWeighting(find(RunWeighting<0)) = RunWeighting(find(RunWeighting<0)).*PosWeighting;
+        
+        ContrastContent{iContrast} = 1/NumRunIncluded*ContrastBase;  % Normalize the values of the contrast vector based on the number of runs
+        
+        ContrastContent{iContrast} = RunWeighting.*ContrastContent{iContrast};
         ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
     end % loop through contrasts
 
@@ -718,4 +762,4 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end % loop through subjects
 fprintf('All Done\n');
-display('***********************************************\n\n\n')
+fprintf('***********************************************\n')

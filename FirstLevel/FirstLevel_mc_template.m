@@ -46,19 +46,19 @@ NumScan = [220 235];
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'5028/Tx1',50281,[1 2];
-'5029/Tx1',50291,[1 2];
-'5031/Tx1',50311,[1 2];
-'5032/Tx1',50321,[1 2];
-'5034/Tx2',50342,[1 2];
-'5035/Tx2',50352,[1 2];
-'5036/Tx2',50362,[1 2];
-'5037/Tx2',50372,[1 2];
-'5038/Tx2',50382,[1 2];
-'5039/Tx1',50391,[1 2];
-'5040/Tx1',50401,[1 2];
-'5041/Tx2',50412,[1 2];
-'5042/Tx2',50422,[1 2];
+ '5028/Tx1',50281,[1 2];
+% '5029/Tx1',50291,[1 2];
+% '5031/Tx1',50311,[1 2];
+% '5032/Tx1',50321,[1 2];
+% '5034/Tx2',50342,[1 2];
+% '5035/Tx2',50352,[1 2];
+% '5036/Tx2',50362,[1 2];
+% '5037/Tx2',50372,[1 2];
+% '5038/Tx2',50382,[1 2];
+% '5039/Tx1',50391,[1 2];
+% '5040/Tx1',50401,[1 2];
+% '5041/Tx2',50412,[1 2];
+% '5042/Tx2',50422,[1 2];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +120,7 @@ DurColumn = [73];
 %%% 0 = no regressors
 %%% 1 = get regressors from file 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegOp = 1;
+RegOp = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of the regressor CSV file
@@ -134,7 +134,7 @@ RegOp = 1;
 %%% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegTemplate = '[Exp]/MasterData/[RegDataName].csv';
-RegDataName = '_regressors';
+RegDataName = 'MAS_motionregressors';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Number of rows and columns to skip when reading the regressor csv file
@@ -146,6 +146,12 @@ RegDataSkipCols = 1;
 %%% List of regressor names, and column numbers for values from the regressor file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegList = { 
+    'x',5;
+    'y',6;
+    'z',7;
+    'r',8;
+    'p',9;
+    'y',10;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,8 +177,9 @@ RegRunColumn = [3];
 %%% RegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
 %%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName';
-MotRegName     = 'motion_regressors';
+MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
+MotRegTemplate = '';
+MotRegName     = 'rp*.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Cell array specifying the motion regressor names and column numbers for
@@ -232,18 +239,45 @@ ConditionName = {
 %%% The script will handle balancing it across runs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {    
-    'C'     [1  0] [0  0] [0 0];
-    'CR'    [0  1] [0  0] [0 0] ;
-    'I'     [0  0] [1  0] [0 0] ;
-    'IR'    [0  0] [0  1] [0 0] ;            
-    'C-I'   [1  0] [-1 0] [0 0] ;            
-    'C-I R' [0  1] [0 -1] [0 0] ;     
-    'I-C'   [-1 0] [1 0] [0 0] ;            
-    'I-C R' [0 -1] [0 1] [0 0] ;              
-    'AllTrials' [.5 0] [.5 0] [0 0];
-    'AllTrials R' [0 .5] [0 .5] [0 0];            
-
-
+%     'C'     [1  0] [0  0] [0 0] [0 0];
+%     'CR'    [0  1] [0  0] [0 0] [0 0];
+%     'I'     [0  0] [1  0] [0 0] [0 0];
+%     'IR'    [0  0] [0  1] [0 0] [0 0];            
+%     'C-I'   [1  0] [-1 0] [0 0] [0 0];            
+%     'C-I R' [0  1] [0 -1] [0 0] [0 0];     
+%     'I-C'   [-1 0] [1 0] [0 0] [0 0];            
+%     'I-C R' [0 -1] [0 1] [0 0] [0 0];              
+%     'AllTrials' [.5 0] [.5 0] [0 0] [0 0];
+%     'AllTrials R' [0 .5] [0 .5] [0 0] [0 0];            
+'C'     1    0    0    0 [0 0 0 0 0 0];            
+'C'     1    0    0    0 [0 0 0 0 0 0];            
+'C'     1    0    0    0 [0 0 0 0 0 0];            
+'C'     1    0    0    0 [0 0 0 0 0 0];
+'I'     0    1    0    0 [0 0 0 0 0 0];
+'I'     0    1    0    0 [0 0 0 0 0 0];
+'I'     0    1    0    0 [0 0 0 0 0 0];
+'I'     0    1    0    0 [0 0 0 0 0 0];
+'E'     0    0    1    0 [0 0 0 0 0 0];
+'E'     0    0    1    0 [0 0 0 0 0 0];
+'E'     0    0    1    0 [0 0 0 0 0 0];
+'E'     0    0    1    0 [0 0 0 0 0 0];
+'O'     0    0    0    1 [0 0 0 0 0 0];
+'O'     0    0    0    1 [0 0 0 0 0 0];
+'O'     0    0    0    1 [0 0 0 0 0 0];
+'O'     0    0    0    1 [0 0 0 0 0 0];
+'C-I'   1   -1    0    0 [0 0 0 0 0 0];
+'C-I'   1   -1    0    0 [0 0 0 0 0 0];
+'C-I'   1   -1    0    0 [0 0 0 0 0 0];
+'C-I'   1   -1    0    0 [0 0 0 0 0 0];
+'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
+'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
+'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
+'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
+'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
+'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
+'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
+'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
+'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -257,7 +291,7 @@ CondModifier = 0;
 %%% it is associated (if the design has more than one condition column)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ParList = { ...
-        'RT',61,1;
+%        'RT',61,1;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -276,7 +310,7 @@ NumCondPerCondCol = [4];
 %%% 2 = Contrast add on
 %%% 3 = test without running anything
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mode = 1;
+Mode = 3;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This sets whether the models are the same for everyone or subject-specific
@@ -307,6 +341,57 @@ ScaleOp = 'none';
 %%% Leave this blank ('') to turn off explicit masking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 explicitmask = '';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
+%%% This allows you to set up a list of weights for each run for each
+%%% contrast. This combines with the ContrastList above. Leaving a
+%%% particular row empty ([]) is equivalent to setting the contrast weights
+%%% as 1 for each run (i.e. no change from the standard contrast method).
+%%% Example:
+%%% If you have 4 runs and want to compare a condition in run 1 against a
+%%% condition in run 4 you would set the contrast weight for that contrast
+%%% as [1 0 0 -1].  If you want to only look at the contrast averaged
+%%% across runs 1 and 2 you would set the weights as [1 1 0 0]. If you just
+%%% want the standard contrast (the average across all runs) you can set it
+%%% either to [] or [1 1 1 1].
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ContrastRunWeights = {
+    [];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    
+    [1 1];
+    [1 0];
+    [0 1];
+    [1 -1];
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Set the contrast start point
