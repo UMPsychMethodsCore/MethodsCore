@@ -36,17 +36,12 @@ RunDir = {
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Number of Functional scans per run
-%%% (if you have more than 1 run, there should be more than 1 value here)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [220 235];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
- '5028/Tx1',50281,[1 2];
+ '5002/Tx1',50021,[1 2]; %225 240
+ '5028/Tx1',50281,[2];
 % '5029/Tx1',50291,[1 2];
 % '5031/Tx1',50311,[1 2];
 % '5032/Tx1',50321,[1 2];
@@ -120,7 +115,7 @@ DurColumn = [73];
 %%% 0 = no regressors
 %%% 1 = get regressors from file 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegOp = 0;
+RegOp = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of the regressor CSV file
@@ -178,7 +173,7 @@ RegRunColumn = [3];
 %%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
-MotRegTemplate = '';
+%MotRegTemplate = '';
 MotRegName     = 'rp*.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -324,6 +319,15 @@ IdenticalModels = 0;
 %%% Total number of trials in your experiment for a subject (only used if IdenticalModels = 1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 TotalTrials = 9;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Number of Functional scans per run
+%%% This should be a vector of size 1xNumRun
+%%% This value is only used to trim the end of runs when there are
+%%% undesired scans there.  If you want to use all the scans in each run
+%%% then this should be left blank ([]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NumScan = [50 75];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Use AR(1) auto-regression correction or not
