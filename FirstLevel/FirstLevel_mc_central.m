@@ -13,6 +13,8 @@ if (~result)
     %error with setting up logging
     mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
 end
+global mcLog;
+mcWarnings = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General Code
@@ -29,8 +31,15 @@ if (strcmp(spmver,'SPM8')==1)
 end
 
 RunNamesTotal = RunDir;
+if (~exist('NumScan','var'))
+    NumScan = [];
+end
 NumScanTotal = NumScan;
-
+if (exist('ContrastRunWeights','var'))
+    ContrastRunWeightsTotal = ContrastRunWeights;
+else
+    ContrastRunWeightsTotal = [];
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% First level begin
@@ -60,9 +69,11 @@ MasterFileCheck = struct('Template',MasterTemplate,...
                          'mode','check');
 MasterFile = mc_GenPath(MasterFileCheck);
 
-RegFileCheck = struct('Template',RegTemplate,...
-                      'mode','check');
-RegFile = mc_GenPath(RegFileCheck);
+if (RegOp == 1)
+    RegFileCheck = struct('Template',RegTemplate,...
+                          'mode','check');
+    RegFile = mc_GenPath(RegFileCheck);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%% Calculated parameters %%%%%%%%%%%%%%%%%%%%%%
@@ -129,26 +140,64 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     RunList = SubjDir{iSubject,3};
 
     NumRun      = size(RunList,2);
-    TotalNumRun = size(NumScanTotal,2);  %%% number of image runs if every run were present
+    TotalNumRun = size(RunDir,1);  %%% number of image runs if every run were present
+    ContrastRunWeights = ContrastRunWeightsTotal;
 
+    if (size(RunList,2) ~= TotalNumRun && ~isempty(ContrastRunWeights))
+        mcWarnings = mcWarnings + 1;
+        mc_Logger('log',sprintf('You have specified run-specific contrasts but are excluding runs for %s. Contrast results may be invalid.',Subject),2);
+    end
+    
+    %%% This code cuts ContrastRunWeights down based on included runs
+    for iRun = 1:NumRun
+        for iContrast = 1:size(ContrastRunWeights,1)
+            if (size(ContrastRunWeights{iContrast},2)>0)
+                ContrastRunWeights{iContrast} = ContrastRunWeights{iContrast}(RunList);
+            end
+        end
+    end
+    
     %%%%% This code cuts RunDir and NumScan based which Image Runs are present  
-    NumScan = [];
     clear RunDir;
+    clear NumScan;
     for iRun=1:NumRun
         RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
-        NumScan=horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
+        if (~isempty(NumScanTotal))
+            NumScan(1,iRun) = NumScanTotal(1,RunList(1,iRun));
+        end
     end
 
-    NumRun = size(NumScan,2); % number of runs
-    ImageNumRun = size(RunDir,1); %number of image folders
-
-    % TrialsPerRun = TotalTrials / TotalNumRun; % Assumes same number of trials in each run!!!
+    NumRun = size(RunDir,1); % number of runs
+    
+    %%%Check if NumScan exists and is filled in.  If not, we need to build
+    %%%NumScan based on number of frames in .nii file (or number of analyze
+    %%%images)
+    if (isempty(NumScan))
+        for iRun = 1:NumRun
+            frames = [1];
+            Run = RunDir{iRun};
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
+            ImageDir = mc_GenPath(ImageDirCheck);
+            tmpP = [];
+            if (strcmp(imagetype,'nii'))
+                %%%load NIFTI image and check frames
+                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],[1:10000]);
+            else
+                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+            end
+            NumScan(iRun) = size(tmpP,1);
+        end
+    end
+      
     % Clear the variables
     clear SPM
     P=[];
     clear CondLength
-    fprintf('Building Fixed Effects Analysis of %s\n', SubjDir{iSubject,1});
-
+    if (Mode == 1 || Mode == 3)
+        fprintf('Building Fixed Effects Analysis of %s\n', SubjDir{iSubject,1});
+        mc_Logger('log',sprintf('Building Fixed Effects Analysis of %s',Subject),3);
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%      Parse Data Columns into input variables  %%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -385,12 +434,12 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         for iRun=1:NumRun
             Run           = RunDir{iRun};
             MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-
+            MotRegressors = load(MotRegName2);
             if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
-                SPM.Sess(iRun).C.C    = load( MotRegName2 );
+                SPM.Sess(iRun).C.C    = MotRegressors(1:NumScan(iRun),:);
                 SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
             else
-                MotReg = load( MotRegName2 );
+                MotReg = MotRegressors(1:NumScan(iRun),:);
                 for iMot=1:size(MotRegList,1)
                     SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
                     SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
@@ -424,11 +473,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             RegData    = [];
             RegDataCol = [];
 
-            TotalScan = sum(NumScanTotal);
-            %Data=MasterData(find(MasterData(:,SubjColumn)==SubjRow),:);
             RegData=RegMasterData(find(RegMasterData(:,RegSubjColumn)==SubjRow),:);
-
-            %RegData=RegMasterData(((SubjRow-1)*TotalScan)+1:(((SubjRow-1)*TotalScan)+TotalScan),:);
 
             %%%% Shorten data according to runs present in RunList
             NewRegData=[];
@@ -440,26 +485,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             end
             RegData=NewRegData;
 
-            %%%% Shorten data according to runs present in RunList
-            %NewRegData=[];
-            %for iRun=1:TotalNumRun
-            %	NewDataRun=RegData(((iRun-1)*NumScanTotal(iRun))+1:(((iRun-1)*NumScanTotal(iRun))+NumScanTotal(iRun)),:);
-            %	if ismember(iRun,RunList)
-            %		NewRegData=vertcat(NewRegData,NewDataRun);
-            %	end
-            %end
-            RegData =NewRegData;
-            iScan   = 1;
-
             for iRun=1:NumRun
                 for iReg = 1:NumReg
-                    RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
+                    TempRegData = RegData(find(RegData(:,RegRunColumn)==RunList(iRun)),:);
+                    RegDataCol = TempRegData(1:NumScan(iRun),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
                     SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
                 end % loop through regressors
 
                 %% assign regressor name
                 SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList(:,1)'];
-                iScan = iScan + NumScan(1,iRun);
 
             end % loop through run
 
@@ -477,10 +511,10 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%     
     %%%% for SPM2 %%%%
     %%%%%%%%%%%%%%%%%%
-    for iRun = 1:ImageNumRun
+    for iRun = 1:NumRun
         frames = [1];
         if (strcmp(imagetype,'nii'))
-            frames = [1:NumScanTotal(RunList(iRun))];
+            frames = [1:NumScan(iRun)];
         end
         % directory of images in a subject
 
@@ -581,22 +615,28 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%% Estimation %%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    fprintf('Start Model Estimation for %s\n', SubjDir{iSubject,1});
+    if (Mode==1 || Mode==3)
+        fprintf('Start Model Estimation for %s\n', SubjDir{iSubject,1});
+        mc_Logger('log',sprintf('Start Model Estimation for %s',Subject),3);
+    end
+    
     if Mode == 1
         SPM = spm_spm(SPM);
     elseif Mode == 2
         clear SPM;
         load('SPM.mat');
     end
-
-    fprintf('Model Estimation Done for %s\n', SubjDir{iSubject,1});
-
+    
+    if (Mode==1 || Mode==3)
+        fprintf('Model Estimation Done for %s\n', SubjDir{iSubject,1});
+        mc_Logger('log',sprintf('Model Estimation Done for %s',Subject),3);
+    end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Contrasts %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     fprintf('Start Contrast Building for %s\n', SubjDir{iSubject,1});
-
+    mc_Logger('log',sprintf('Start Contrast Building for %s',Subject),3);
 
     clear ContrastContent
 
@@ -687,6 +727,11 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         
         ContrastContent{iContrast} = RunWeighting.*ContrastContent{iContrast};
         ContrastContent{iContrast} = horzcat(ContrastContent{iContrast},zeros(1,NumRun));  % Right pad the contrast vector with zeros for each SMP automatic run regressor
+        ContrastContent{iContrast}(isnan(ContrastContent{iContrast})) = 0;
+        if (sum(abs(ContrastContent{iContrast})) == 0)
+            mcWarnings = mcWarnings + 1;
+            mc_Logger('log',sprintf('Due to non-present conditions or run-specific contrasts, contrast %s was all 0s for %s and has been replaced by a dummy contrast.',ContrastName{iContrast},Subject),2);    
+        end
     end % loop through contrasts
 
 
@@ -757,9 +802,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
 
     fprintf('Contrast Test Done for %s\n', SubjDir{iSubject,1});
+    mc_Logger('log',sprintf('Contrast Test Done for %s\n',Subject),3);
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end % loop through subjects
 fprintf('All Done\n');
 fprintf('***********************************************\n')
+
+if (mcWarnings > 0)
+    fprintf('You had %d warnings.  Please check the logfile located at %s.\n',mcWarnings,mcLog);
+end
