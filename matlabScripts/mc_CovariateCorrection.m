@@ -6,6 +6,17 @@ function [ corrected, residuals, betas, intercepts ] = mc_CovariateCorrection( Y
 %       Y   -   nExamples x nFeatures matrix of observations
 %       X   -   nExamples x nPredictors design matrix
 % 
+%   RESULTS
+%       corrected   -   nExample x nFeatures matrix of corrected
+%                       observations. Calculated as intercepts + residuals
+%       residuals   -   nExamples x nFeatures matrix of residuals from
+%                       regression
+%       betas       -   nPredictors x nFeatures matrix of beta values from
+%                       regression
+%       intercepts  -   nExamples x nFeatures matrix of intercept values
+%                       from regression
+% 
+% 
 % This program will assume the same design matrix for all of your features,
 % thus enabling much more rapid computation of the residuals.
 % 
