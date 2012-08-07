@@ -615,8 +615,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     CondPresentInf = CondPresent;
     CondPresentInf(find(CondPresentInf==0))=Inf;
-    CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(RegList,1))];
-    
+    %CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(RegList,1))];
+    CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(SPM.Sess(1).C.C,2))];
     
     %%%%% Set up "dynamic" contrasts %%%%%
     NumContrast=size(ContrastList,1);

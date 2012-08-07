@@ -146,6 +146,12 @@ RegDataSkipCols = 1;
 %%% List of regressor names, and column numbers for values from the regressor file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegList = { 
+    'x',5;
+    'y',6;
+    'z',7;
+    'r',8;
+    'p',9;
+    'y',10;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -172,7 +178,7 @@ RegRunColumn = [3];
 %%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
-MotRegTemplate = '';
+%MotRegTemplate = '';
 MotRegName     = 'rp*.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
