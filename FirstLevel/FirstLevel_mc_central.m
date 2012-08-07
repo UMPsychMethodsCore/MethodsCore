@@ -400,7 +400,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
 
     %% case where there are regressors
-    if NumReg > 0
+    if (NumReg > 0 && RegOp ~= 0)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
         if RegOp == 2 % case where you preset regressors
@@ -657,7 +657,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 ContrastBase = [ContrastBase zeroPad];
             end
             % do user specified regressors
-            if NumReg > 0
+            if (NumReg > 0 && RegOp ~= 0)
                 ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
             end
         end % loop through runs
