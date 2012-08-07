@@ -336,7 +336,7 @@ if strcmpi(svmtype,'paired')
             end
             weighted_nuisance=weighted_nuisance(logical(contrastAvail(:,iContrast)),:,:); %prune based on contrast availability
             nuisance = sum(weighted_nuisance,3); % calculate delta or whatever contrast wants
-            
+            superflatmat_p1_old=superflatmat_p1;
             superflatmat_p1 = mc_CovariateCorrection(superflatmat_p1,nuisance); % correction for nuisance regressors
         end
         
