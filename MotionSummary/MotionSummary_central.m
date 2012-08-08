@@ -47,7 +47,7 @@ for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject,1};
     NumRun= size(SubjDir{iSubject,3},2);
     for jRun = 1:NumRun
-        iRun=SubjDir{iSubject,3}(1,iRun);
+        iRun=SubjDir{iSubject,3}(1,jRun);
         
  %%%%% Select appropriate output based on h user has set
  
