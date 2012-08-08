@@ -1,4 +1,6 @@
-%%%%%%%%% Basic Options %%%%%%%%%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~ Basic Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file extension for the input images. Either '.img' or '.nii'
@@ -37,7 +39,9 @@ opt.other.ContrastPrefix = 'con';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opt.other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
 
-%%%%%%%%%% Advanced Options %%%%%%%%%%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~ Advanced Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Masking option: Only one of these options can appear in a template
@@ -62,7 +66,7 @@ opt.masking.im         = 1;
 %%% The file path to the implicit mask; Leave as an empty string if
 %%% opt.masking.im = 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.masking.em         = '';
+opt.masking.em         = {''};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The variable that controls global calculation.  This should always be
@@ -106,4 +110,4 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'spm8'))
 
-jobs = RandomEffects(opt);
+jobs = SecondLevel_mc_central(opt);
