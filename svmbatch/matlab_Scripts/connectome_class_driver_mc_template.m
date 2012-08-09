@@ -160,12 +160,12 @@ SubjDir = {
 
 DoNuisanceCorrection=0;
 
-NuisanceRegressors[:,:,1]=[
+NuisanceRegressors(:,:,1)=[
     1, 2, 1;
     0, 1, 4;
     ];
 
-NuisanceRegressors[:,:,2]=[
+NuisanceRegressors(:,:,2)=[
     5, 1, 6;
     2, 6, 2;
     ];
