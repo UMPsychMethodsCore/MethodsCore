@@ -36,7 +36,7 @@ for iSub=1:size(SubjDir,1)
   conmat=load(conPath);
   rmat=conmat.rMatrix;
   if iSub==1
-    superflatmat=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
+    data=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
   end
   superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
   label(iSub,1)=Example;
