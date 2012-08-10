@@ -27,6 +27,7 @@ switch ndims(data_in)
         
         censor=sparse(any([censor_nan; censor_inf; censor_zed])); % find union of DQ's
         
+        data_clean=data_in;
         data_clean(:,logical(censor))=0; % zero out all censored elements
         
     case 3  % 3D data_in
@@ -36,6 +37,7 @@ switch ndims(data_in)
         
         censor=sparse(any([censor_nan; censor_inf; censor_zed])); % find union of DQ's
         
+        data_clean=data_in;
         data_clean(:,logical(censor),:)=0; % zero out all censored elements at all conditions
         
 end
