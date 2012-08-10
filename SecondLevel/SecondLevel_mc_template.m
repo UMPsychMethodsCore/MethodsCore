@@ -63,8 +63,7 @@ opt.masking.tm.tm_none = [];
 opt.masking.im         = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The file path to the implicit mask; Leave as an empty string if
-%%% opt.masking.im = 0
+%%% The file path to the implicit mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opt.masking.em         = {''};
 
