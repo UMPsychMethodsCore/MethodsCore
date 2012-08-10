@@ -14,7 +14,7 @@
 
 
 
-function [jobs jobs2] = RandomEffects_central(file)
+function [jobs jobs2] = SecondLevel_mc_central(file)
 
     spm('defaults','fmri');
     global defaults;
