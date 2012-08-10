@@ -1,4 +1,4 @@
-function [ discrimpower ] = mc_calc_discrim_power( data, labels, DiscrimType )
+function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, DiscrimType )
 %MC_CALC_DISCRIM_POWER Summary of this function goes here
 %   INPUT
 %       data        -   nExamples x nFeatures matrix of data
