@@ -26,8 +26,7 @@ switch DiscrimType
         [h, p] = ttest(data);
         
         discrimpower = 1 - p ; %take the complement of p
-        
+        discrimpower(isnan(discrimpower))=0; % zero out anything that was constant, cuz that's fishy
 
 end
 
-mc_bigsmall
