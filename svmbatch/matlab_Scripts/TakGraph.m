@@ -134,7 +134,7 @@ jumps=diff(B);
 jumps=[jumps];
 
 starts=[1 ;find(jumps)];
-stops=[find(jumps) + 1; size(jumps,1)];
+stops=[find(jumps) - 1; size(B,1)];
 
 
 for iBox=1:size(starts)
