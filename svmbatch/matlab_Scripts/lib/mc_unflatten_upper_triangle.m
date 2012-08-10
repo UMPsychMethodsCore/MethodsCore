@@ -6,7 +6,7 @@ function LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOC
 
 %% Figure out nROI
 
-nROI = ((8*size(flatmatrix,2)+1)^(1/2)+1)/2;
+nROI = ((8*size(LOOCV_discrimpower_consensus,2)+1)^(1/2)+1)/2;
 
 %% Reconstruct Consensus Discrim Power into Edges File
 
