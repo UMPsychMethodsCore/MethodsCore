@@ -61,10 +61,10 @@ for iSubject = 1:size(SubjDir,1)
  %%%%%%%%%%%%%%%%%%%%%%%%%%%
  
  
-        for iRow = 1:size(CombinedOutput{iSubject,jRun},1)
+        for iRow = 1:size(CombinedOutput{iSubject,iRun},1)
             chariRow = int2str(iRow);
             fprintf(theFID,'%s,%s,',Subject,RunString);
-            for iColumn=1:size(CombinedOutput{iSubject,jRun},2)
+            for iColumn=1:size(CombinedOutput{iSubject,iRun},2)
                 fprintf(theFID,'%g,',CombinedOutput{iSubject,iRun}(iRow,iColumn));
             end %iColumn
             fprintf(theFID,'\n');
