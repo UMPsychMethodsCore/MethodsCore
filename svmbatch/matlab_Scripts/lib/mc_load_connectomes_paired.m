@@ -48,9 +48,9 @@ SubjAvail = zeros(nSubs,nCond);
 unsprung=0;
 
 
-for iSub=nSubs
+for iSub=1:nSubs
   Subject = SubjDir{iSub,1};
-  for iCond = 1:condNum
+  for iCond = 1:nCond
     curRunID = SubjDir{iSub,2}(iCond);
     if curRunID ~= 0
       Run = RunDir{curRunID};
@@ -58,7 +58,7 @@ for iSub=nSubs
       conmat=load(conPath);
       rmat=conmat.rMatrix;
       if ~exist('unsprung','var') || unsprung==0
-        data_conditions=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),condNum);
+        data_conditions=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),nCond);
         unsprung=1;
       end
       SubjAvail(iSub,iCond)=1;
