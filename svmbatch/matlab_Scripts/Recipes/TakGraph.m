@@ -99,16 +99,16 @@ discrim_subset_square_networksort = discrim_subset_square(sortIDX,sortIDX);
 discrim_square_networksort=discrim_square(sortIDX,sortIDX);
 
 
-%% Make heatmap
+%% Visualize Support of Subsetted Matrix
 
-% make support
 
-discrim__subset_square_networksort_support = discrim_subset_square_networksort~=0;
+discrim_subset_square_networksort_support = discrim_subset_square_networksort~=0;
 
-imagesc(discrim__subset_square_networksort_support==0);colormap(gray)
+imagesc(discrim_subset_square_networksort_support==0);colormap(gray)
 
 %% Make heatmap of all discrim power
 
+imagesc(discrim_square_networksort);colormap(hot)
 
 %% Add overlay to heatmap
 
@@ -127,3 +127,5 @@ stops=[find(jumps) - 1; size(B,1)];
 for iBox=1:size(starts)
     mc_draw_box(starts(iBox),starts(iBox),stops(iBox),stops(iBox));
 end
+
+hold off
