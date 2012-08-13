@@ -68,7 +68,7 @@ RunDir= {
 
 %% Calculate aggregate discriminative power of edges
 
-discrim=mc_calc_discrim_power_paired(data_delta,label,'t-test');
+discrim=mc_calc_discrim_power_paired(data_delta,label,'fracfit');
 
 % subset matrix on discrim power
 
