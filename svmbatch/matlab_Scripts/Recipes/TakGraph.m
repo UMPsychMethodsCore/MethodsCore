@@ -11,47 +11,28 @@ addpath(genpath([mcRoot 'svmbatch/matlab_Scripts/']));
 % data - nExample x nFeat matrix of features
 
 SubjDir = {
-'5001',[1 2];
-'5002',[1 2];
-'5003',[1 2];
-'5004',[1 2];
-'5005',[1 2];
-'5010',[1 2];
-'5012',[1 2];
-'5014',[1 2];
-'5015',[1 2];
-'5016',[1 2];
-'5017',[1 2];
-'5018',[1 2];
-'5019',[1 2];
-'5020',[1 2];
-'5021',[1 2];
-'5023',[1 2];
-'5024',[1 2];
-'5025',[1 2];
-'5026',[1 2];
-'5028',[1 2];
-'5029',[1 2];
-'5031',[1 2];
-'5032',[1 2];
-'5034',[1 2];
-'5035',[1 2];
-'5036',[1 2];
-'5037',[1 2];
-'5038',[1 2];
-'5039',[1 2];
-'5040',[1 2];
-'5041',[1 2];
-'5042',[1 2];
+'HC01',[1 2];
+'HC02',[1 2];
+'HC03',[1 2];
+'HC05',[1 2];
+'HC06',[1 2];
+'HC07',[1 2];
+'HC08',[1 2];
+'HC09',[1 2];
+'HC10',[1 2];
+'HC11',[1 2];
+'HC12',[1 2];
+'HC13',[1 2];
+'HC14',[1 2];
        };
 
-FileTemplate = '/net/data4/MAS_Resting/Firstlevel/[Subject]/[Run]/12mmGrid_19_corr.mat';
+FileTemplate = '/net/data4/slab_SchizBDZ09/FirstLevel/[Subject]/func/[Run]/Grid/Grid_corr.mat';
 
-ParamFile='/net/data4/MAS_Resting/Firstlevel/5001/Tx1/12mmGrid_19_parameters.mat';
+ParamFile='/net/data4/slab_SchizBDZ09/FirstLevel/HC01/func/Lrz/Grid/Grid_parameters.mat';
 
 RunDir= {
-    'Tx1'
-    'Tx2'
+    'Lrz'
+    'Sal'
 } ;
 
 [data,SubjAvail]=mc_load_connectomes_paired(SubjDir,FileTemplate,RunDir);
@@ -72,7 +53,7 @@ discrim=mc_calc_discrim_power_paired(data_delta,label,'fracfit');
 
 % subset matrix on discrim power
 
-[discrim_subset  keepID] = mc_bigsmall(discrim,5000,3);
+[discrim_subset  keepID] = mc_bigsmall(discrim,500,3);
 
 %% Array in square matrix
 
