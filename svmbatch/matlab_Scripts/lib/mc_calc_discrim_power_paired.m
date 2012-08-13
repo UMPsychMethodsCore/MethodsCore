@@ -16,7 +16,7 @@ function [ discrimpower ] = mc_calc_discrim_power_paired( data, label, DiscrimTy
 data=data(label==+1,:); % subset data to only grab positive examples
 
 switch DiscrimType
-    case 'fractfit'
+    case 'fracfit'
         discrimpower=max( [...
             sum(data>0,1)/size(data,1) ;
             sum(data<0,1)/size(data,1)
