@@ -76,15 +76,19 @@ discrim=mc_calc_discrim_power_paired(data_delta,label,'fracfit');
 
 %% Array in square matrix
 
-discrim_square = mc_unflatten_upper_triangle(discrim_subset);
+discrim_subset_square = mc_unflatten_upper_triangle(discrim_subset);
 
-% Make symmetric, but leave ugly diagonal alone
+discrim_square = mc_unflatten_upper_triangle(discrim);
 
+% Make symmetric, but leave diagonal alone
+
+discrim_subset_square = discrim_subset_square + discrim_subset_square';
 discrim_square = discrim_square + discrim_square';
 
 % add diagonal
 
-for idiag=1:size(discrim_square,1)
+for idiag=1:size(discrim_subset_square,1)
+    discrim_subset_square(idiag,idiag)=1;
     discrim_square(idiag,idiag)=1;
 end
 
@@ -110,17 +114,19 @@ roiMNI_labels(:,4)=round(roiMNI_labels(:,4));
 
 
 % Sort square matrix on idx
-discrim_square_networksort = discrim_square(sortIDX,sortIDX);
-
+discrim_subset_square_networksort = discrim_subset_square(sortIDX,sortIDX);
+discrim_square_networksort=discrim_square(sortIDX,sortIDX);
 
 
 %% Make heatmap
 
 % make support
 
-discrim_square_networksort_support = discrim_square_networksort~=0;
+discrim__subset_square_networksort_support = discrim_subset_square_networksort~=0;
 
-imagesc(discrim_square_networksort_support==0);colormap(gray)
+imagesc(discrim__subset_square_networksort_support==0);colormap(gray)
+
+%% Make heatmap of all discrim power
 
 
 %% Add overlay to heatmap
