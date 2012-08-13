@@ -2,39 +2,46 @@
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp = '/net/data4/MAS/';
+Exp = '/net/data4/MAS/';  
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List the run directories that you want to process
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = { 
+    
   'run_01/';
-  'run_02/';
-  'run_03/';
-  'run_04/';
-  'run_05/';
-  'run_06/';
-         };    
+  'run_02/'
+  'run_03/'
+  'run_04/'
+  'run_05/'
+  'run_06/'
+         };
+     
+     
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% ImageTemplate: Path where images are located
+%%% Set the needed paths
 %%
 %%  Variables you can use in your template are:
-%%       Exp      = path to your experiment directory
+%%       Exp = path to your experiment directory
 %%       iSubject = index for subject
-%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
-%%       iRun     = index of run (listed in Column 3 of SubjDir)
-%%       Run      = name of run from RunDir (using iRun as index of row)
-%%        *       = wildcard (can only be placed in final part of template)
+%%       Subject = name of subject from SubjDir (using iSubject as index of row)
+%%       iRun = index of run (listed in Column 3 of SubjDir)
+%%       Run = name of run from RunDir (using iRun as index of row)
+%%        * = wildcard (can only be placed in final part of template)
 %% Examples:
-%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
-%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
+%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
-WarpTemplate  = '/net/dysthymia/mangstad/spm8//templates/T1.nii';  %%% Use this if images are scalped and you want ADULT canonical
 
+
+ImageTemplate=    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+
+WarpTemplate = '/net/dysthymia/mangstad/spm8//templates/T1.nii'  %%% Use this if images are scalped and you want ADULT canonical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set the file prefix for the file that you want displayed. In most cases this
 %% will be 'swra' for files that have been warped and smoothed.
@@ -44,6 +51,12 @@ WarpTemplate  = '/net/dysthymia/mangstad/spm8//templates/T1.nii';  %%% Use this 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        
 FilePrefix = 'swra';
+
+
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -98,4 +111,5 @@ addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
 addpath(fullfile(mcRoot,'spm8'))
    
-CheckWarp_central
+
+   CheckWarp_central
