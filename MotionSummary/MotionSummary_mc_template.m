@@ -12,15 +12,15 @@ Exp = '/net/data4/MAS/';
 RunDir = { 
     
   'run_01/';
-  'run_02/'
-  'run_03/'
-  'run_04/'
-  'run_05/'
-  'run_06/'
+  'run_02/';
+  'run_03/';
+  'run_04/';
+  'run_05/';
+  'run_06/';
          };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path where the motion correction parameter files are located
+%%  Path where the motion correction parameter files are located
 %%
 %%  Variables you can use in your template are:
 %%       Exp = path to your experiment directory
@@ -34,16 +34,12 @@ RunDir = {
 %% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputName = 'RestingState_c';
-OutputPathTemplate = '[Exp]/Output/Motion/[OutputName]';
+OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,7 +136,4 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'MotionSummary'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
    
-   
-
-
 MotionSummary_central
