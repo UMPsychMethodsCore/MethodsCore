@@ -1,21 +1,27 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath /net/dysthymia/spm8/
- addpath('/net/data4/MAS/marsbar-0.42/')
-addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for GeneratePath
 
-
- 
-
+spm_jobman('initcfg'); % hopefully this adds marsbar to path
 
  for iJob = 1: size(JobList,1)
      
      JobType = JobList{iJob,1}
 
 
-InputROIDir = eval(GeneratePathCommand(JobList{iJob,1}))
-OutputROIDir = eval(GeneratePathCommand(JobList{iJob,2}))
+%InputROIDir = eval(GeneratePathCommand(JobList{iJob,1}))
+%OutputROIDir = eval(GeneratePathCommand(JobList{iJob,2}))
+
+InputROIDirCheck = struct('Template',JobList{iJob,1},...
+                          'mode','check',...
+                          'type',1);     
+InputROIDir      = mc_GenPath(InputROIDirCheck);
+
+OutputROIDirStruct = struct('Template',JobList{iJob,2},...
+                            'mode','makedir');
+OutputROIDir       = mc_GenPath(OutputROIDirStruct);
+
+
 imgname = [InputROIDir JobList{iJob,3}];  
 roitype='image';
 

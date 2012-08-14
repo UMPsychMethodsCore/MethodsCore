@@ -3,15 +3,18 @@
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp='/net/data4/MAS/';  
-
-
-
-
+Exp='/net/data4/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% List the ROIs that you want to be converted
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  JobList; InputDirectory and OutputDir are templates.
+%%           OutputDir template can create nonexistant directories
+%%
+%%  Variables you can use in your template are:
+%%       Exp = path to your experiment directory
+%%  Example:
+%%  InputDirectory = '[Exp]/ROIS/'
+%%  OutputDir      = '[Exp]/ROIS/'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 JobList = {...
@@ -27,16 +30,7 @@ JobList = {...
        } ;
 
    
-   
-   
-   
-   
 
-
-   
-   
-   
-   
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 %DEVSTOP
