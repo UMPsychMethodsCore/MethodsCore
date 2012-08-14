@@ -11,15 +11,26 @@
 Exp='/net/data4/OXT/';  
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Name and path for your output file (leave off the .csv)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Output file for analysis (leave off the .csv)
+%%
+%%  Variables you can use in your template are:
+%%       Exp = path to your experiment directory
+%%  Example:
+%%  OutputPathTemplate = '[Exp]/Output/Level2_Extractions/OXT_mpfc_test';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 OuputPathTemplate='[Exp]/Output/Level2_Extractions/OXT_mpfc_test';
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Set up the extraction jobs you would like done
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Folder where SPM.mat is located and location for ROI file
+%%
+%%  Variables you can use in your template are:
+%%       Exp = path to your experiment directory
+%%  Examples:
+%%  ExtracttionJobs =
+%%     {'[Exp]/RANFX_spm8/GRNoFilter/Ramy/PBO_HC/','[Exp]/ROIS/mPFC_n10_42_24_roi.mat'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ExtractionJobs = {...
@@ -35,7 +46,7 @@ ExtractionJobs = {...
     
     
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 %DEVSTOP
 
 %[DEVmcRootAssign]

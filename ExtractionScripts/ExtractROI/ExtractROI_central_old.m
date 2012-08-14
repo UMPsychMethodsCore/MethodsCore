@@ -1,16 +1,6 @@
-
-
-
-
-
- addpath /net/dysthymia/spm8/
- addpath /net/dysthymia/slab/users/sripada/repos/matlabScripts %%%% this is for generate_path_CSS
- addpath('/net/data4/MAS/marsbar-0.42/')
-% addpath('/net/dysthymia/matlabScripts/marsbar-0.42/')
-
- %%%%%%  initialize variables
+%%%%%%  initialize variables
  
-
+spm_jobman('initcfg');  % Hopefully add marsbar to path
 
 clear CombinedData
 clear SPMList;
@@ -18,10 +8,12 @@ clear SPMList;
 
 UseSPM=1;
 
-  
+FullFileNameStruct = struct('Template',OutputPathTemplate,...
+                            'suffix','.csv',...
+                            'mode','makeparentdir');
+                        
+FullFileName       = mc_GenPath(FullFileNameStruct);
 
-
-FullFileName=eval(generate_PathCommand(OuputPathTemplate));
        
  for ijob = 1 : size(ExtractionJobs,1)
 % %      
@@ -30,11 +22,16 @@ FullFileName=eval(generate_PathCommand(OuputPathTemplate));
 % %  alldata(iSubject,1)=iSubject;
 % % end   
 %      end
-     pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,1});
-     ConditionPath=eval(pathcallcmd);
-     pathcallcmd=generate_PathCommand(ExtractionJobs{ijob,2});
-     ROIPath = eval(pathcallcmd);
     % ROIName = ExtractionJobs{ijob,3};
+    
+    ConditionPathCheck = struct('Template',ExtractionJobs{ijob,1},...
+                                'mode','check',...
+                                'type',1);
+    ConditionPath      = mc_GenPath(ConditionPathCheck);
+    
+    ROIPathCheck = struct('Template',ExtractionJobs{ijob,2},...
+                          'mode','check');
+    ROIPath      = mc_GenPath(ROIPathCheck);
      
  
 
@@ -43,8 +40,11 @@ FullFileName=eval(generate_PathCommand(OuputPathTemplate));
 
 
 %if UseSPM==1
-    spm_name = [ConditionPath '/SPM.mat'] ;
-    SPMList{iJob}=spm_name;
+    % spm_name = [ConditionPath '/SPM.mat'] ;
+    ConditionPathCheck = struct('Template',fullfile(ConditionPath,'SPM.mat'),...
+                                'mode','check');
+    spm_name      = mc_GenPath( ConditionPathCheck );
+    SPMList{iJob} =spm_name;
 %end
 
 roi_file = [ROIPath];
@@ -111,16 +111,7 @@ end
 
 
 %%%% write the results to a single file
-
-
-
-     
-  
-  [pn fn en] = fileparts(FullFileName);
-  eval(sprintf('!mkdir -p %s', pn))
-
-
-  theFID = fopen([FullFileName, '.csv'],'w');
+theFID = fopen(FullFileName,'w');
 
 if theFID < 0
     fprintf('Error opening the csv file\n');
