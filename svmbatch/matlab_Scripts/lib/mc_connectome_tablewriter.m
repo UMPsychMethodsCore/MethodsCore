@@ -37,6 +37,10 @@ function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,N
 %                                   will hold the value of the network
 %                                   afffiliation of Node1
 %               Node2Network    -   Similar to Node1Network, but for Node2
+%               Node1TakIDx     -   Where can this node be found on a Tak
+%                                   Graph sorted by Networks?
+%               Node2TakIDx     -   Where can this node be found on a Tak
+%                                   Graph sorted by Networks?
 
 
 
@@ -89,6 +93,18 @@ if exist('NetworkMap','var')
     table(:,4)=num2cell(Node1NetworkLookup(:,4),2);
     table(:,5)=num2cell(Node2NetworkLookup(:,4),2);
     table_labels={table_labels{:} 'Node1_Network' 'Node2_Network'};
+    
+    % Look up all network IDx
+    ROI_mni_network=mc_network_lookup(NetworkMap,ROI_mni);
+    networks=ROI_mni_network(:,4);
+    % Figure out reverse network indexing (map of where each entry ended up)
+    [network_sort network_sort_id] = sort(networks);
+    [pizza network_sort_rid] = sort(network_sort_id);
+    Node1NetworkRID=network_sort_rid(Node1idx);
+    Node2NetworkRID=network_sort_rid(Node2idx);
+    table(:,6)=num2cell(Node1NetworkRID,2);
+    table(:,7)=num2cell(Node2NetworkRID,2);
+    table_labels={table_labels{:} 'Node1_Network_TakIDX' 'Node2_Network_TakIDX'};
 end
 
 table=vertcat(table_labels,table);
