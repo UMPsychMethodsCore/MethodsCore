@@ -31,6 +31,11 @@ function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,N
 %           columns
 %               Node1           -   MNI coordinats (x,y,z) of one node
 %               Node2           -   MNI coordinates (x,y,z) of second node
+%               Node1Index      -   The index of the ROI used for node 1.
+%                                   This is useful if you need to tweak
+%                                   your edges or your nodes
+%                                   file in some way
+%               Node2Index      -   Like Node1Index, but for Node2
 %               edgeval         -   If you supplied fitness, this will show that value.
 %                                   Otherwise it will be 1
 %               Node1Network    -   If you supplied a Network Map, this
@@ -81,17 +86,19 @@ Node1MNI=ROI_mni(Node1idx,:);
 Node2MNI=ROI_mni(Node2idx,:);
 
 table(:,1)=num2cell(Node1MNI,2);
-table(:,2)=num2cell(Node2MNI,2);
-table(:,3)=num2cell(fitness_values,2);
+table(:,end+1)=num2cell(Node2MNI,2);
+table(:,end+1)=num2cell(Node1idx,2);
+table(:,end+1)=num2cell(Node2idx,2);
+table(:,end+1)=num2cell(fitness_values,2);
 
-table_labels={'Node1_MNI' 'Node2_MNI' 'Edge_Value'};
+table_labels={'Node1_MNI' 'Node2_MNI' 'Node1_IDX' 'Node2_IDX' 'Edge_Value'};
 
 % Look up network identities if available
 if exist('NetworkMap','var')
     Node1NetworkLookup=mc_network_lookup(NetworkMap,Node1MNI);
     Node2NetworkLookup=mc_network_lookup(NetworkMap,Node2MNI);
-    table(:,4)=num2cell(Node1NetworkLookup(:,4),2);
-    table(:,5)=num2cell(Node2NetworkLookup(:,4),2);
+    table(:,end+1)=num2cell(Node1NetworkLookup(:,4),2);
+    table(:,end+1)=num2cell(Node2NetworkLookup(:,4),2);
     table_labels={table_labels{:} 'Node1_Network' 'Node2_Network'};
     
     % Look up all network IDx
@@ -102,8 +109,8 @@ if exist('NetworkMap','var')
     [pizza network_sort_rid] = sort(network_sort_id);
     Node1NetworkRID=network_sort_rid(Node1idx);
     Node2NetworkRID=network_sort_rid(Node2idx);
-    table(:,6)=num2cell(Node1NetworkRID,2);
-    table(:,7)=num2cell(Node2NetworkRID,2);
+    table(:,end+1)=num2cell(Node1NetworkRID,2);
+    table(:,end+1)=num2cell(Node2NetworkRID,2);
     table_labels={table_labels{:} 'Node1_Network_TakIDX' 'Node2_Network_TakIDX'};
 end
 
