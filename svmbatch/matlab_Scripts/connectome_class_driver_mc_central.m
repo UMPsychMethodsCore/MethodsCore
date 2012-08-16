@@ -181,19 +181,37 @@ if strcmpi(svmtype,'unpaired')
         end
         
         if advancedkernel==0
-
-            models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
-
-            models_test{iL,1}=svmclassify(test,testlabels,models_train{iL});
-
-            fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
-                iL-sum(cell2mat(models_test),2),...
-                iL);
-            if iL==size(superflatmat,1) %If done looping, report final performance
-                fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
-                    size(models_test,2)-sum(models_test),...
-                    size(models_test,2),...
-                    100*(size(models_test,2)-sum(models_test))/size(models_test,2));
+            
+            switch svmlib
+                case 1
+                    models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
+                    
+                    models_test{iL,1}=svmclassify(test,testlabels,models_train{iL});
+                    
+                    fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+                        iL-sum(cell2mat(models_test),2),...
+                        iL);
+                    if iL==size(superflatmat,1) %If done looping, report final performance
+                        fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
+                            size(models_test,2)-sum(models_test),...
+                            size(models_test,2),...
+                            100*(size(models_test,2)-sum(models_test))/size(models_test,2));
+                        
+                    end
+                    
+                case 2
+                    
+                    svm_light_c = mean(sum(train.*train,2),1);
+                    
+                    models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)];
+                    
+                    [pred_lab, acc, dec_val] = svmpredict(testlabels,test,models_train{iL);
+                    
+                    model.pred_lab=pred_lab;
+                    model.acc=acc;
+                    model.dec_val=dec_val;
+                    
+                    models_test{iL,1}=model;
             end
         end
     end
