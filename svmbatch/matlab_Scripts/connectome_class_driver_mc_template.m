@@ -146,6 +146,7 @@ SubjDir = {
 % SVM Library
 % 1 - svmlight (Default)
 % 2 - LIBSVM (NEW!)
+svmlib=1;
    
 
 
