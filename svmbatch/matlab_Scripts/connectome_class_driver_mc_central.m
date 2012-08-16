@@ -1,3 +1,4 @@
+
 %% Central Part
 
 % Gather option variables into single struct variable
@@ -13,6 +14,12 @@ clear WSVARS
 
 conPathTemplate.Template = ConnTemplate;
 conPathTemplate.mode='check';
+
+%% Set defaults
+
+if(~exist('svmlib','var')
+    svmlib=1;
+end
 
 %% Confirm that you are running on an allowed host
 
