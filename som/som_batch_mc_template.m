@@ -239,10 +239,13 @@ Fraction = 1;
 %%% Type of input
 %%%         coordinates - provide the center of each seed and a radius
 %%%         files       - provide a list of ROI files
+%%%         directory   - provide a directory containing ROI files and the
+%%%                       script will load all images in that directory to 
+%%%                       use as ROIs
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'coordinates';
+ROIInput = 'directory';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI coordinates you need to provide a list of centers in 
@@ -270,7 +273,9 @@ ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
-%%% cell array list of ROI images.
+%%% cell array list of ROI images.  If specifying an ROI directory, you only
+%%% need to specify an ROITemplate.  The script will then load all images
+%%% in that directory to use as the ROIImages cell array.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROITemplate = '[Exp]/ROIS';
 ROIImages = {
