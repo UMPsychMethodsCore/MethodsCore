@@ -140,7 +140,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                     ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
                 end
                 parameters.rois.files = char(ROI);
-            
+            case 'directory'
+                ROIFolder = mc_GenPath(ROITemplate);
+                parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
             case 'coordinates'
                 parameters.rois.mni.coordinates = ROICenters;
                 if (iscell(ROISize))
@@ -170,7 +172,7 @@ if (RunMode(1) | sum(RunMode) == 0)
         end
 
         parameters.Output.correlation = ROIOutput;
-	parameters.Output.saveroiTC = saveroiTC;
+        parameters.Output.saveroiTC = saveroiTC;
         %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = OutputName;
