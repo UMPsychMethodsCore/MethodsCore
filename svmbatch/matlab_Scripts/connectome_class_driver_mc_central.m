@@ -78,6 +78,10 @@ if strcmpi(svmtype,'unpaired')
     superflatmat(:,logical(censor_flat))=0;
     
     fprintf('Done\n');
+    
+    %% Regress out Nuisance Regressors
+    
+    superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
 
     %% LOOCV
 
@@ -324,6 +328,18 @@ if strcmpi(svmtype,'paired')
         weighted_superflatmat_grouped = weighted_superflatmat_grouped(logical(contrastAvail(:,iContrast)),:,:);
 
         superflatmat_p1 = sum(weighted_superflatmat_grouped,3);
+        
+        % correct for nuisance regressors if they exist
+        if exist('DoNuisanceCorrection','var') && DoNuisanceCorrection==1
+            for iCond = 1:condNum
+                weighted_nuisance(:,:,iCond)=NuisanceRegressors(:,:,iCond) * curContrast(iCond); % weight by contrasting info
+            end
+            weighted_nuisance=weighted_nuisance(logical(contrastAvail(:,iContrast)),:,:); %prune based on contrast availability
+            nuisance = sum(weighted_nuisance,3); % calculate delta or whatever contrast wants
+            superflatmat_p1_old=superflatmat_p1;
+            superflatmat_p1 = mc_CovariateCorrection(superflatmat_p1,nuisance); % correction for nuisance regressors
+        end
+        
         superflatmat_p2 = -1 * superflatmat_p1;
 
         superflatmat_paired(1:2:(size(superflatmat_p1)*2),:)=superflatmat_p1;
