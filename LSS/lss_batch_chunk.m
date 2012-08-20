@@ -421,7 +421,7 @@ for iSubject = 1:NumSubject
                 'mat',      M,...
                 'pinfo',    [1 0 0]',...
                 'descrip',  '');
-            Vbeta.fname = sprintf('beta%04d.img',iBeta);
+            Vbeta.fname = sprintf('beta_%04d.img',iBeta);
             Vbeta.descrip = sprintf('spm_spm:beta (%04d)',iBeta);
             Vbeta = spm_create_vol(Vbeta);
             jj = NaN(SPM.xY.VY(1).dim);
