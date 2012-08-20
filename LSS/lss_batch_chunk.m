@@ -90,8 +90,13 @@ if RegOp ==1;
 end
 
 OrigImageTemplate = ImageTemplate;
+NumScanTotal2 = NumScanTotal;
 
 for iSubject = 1:NumSubject
+    NumScanTotal = NumScanTotal2;
+    if (SubjDir{iSubject,4} ~= 0)
+        NumScanTotal = SubjDir{iSubject,4};
+    end
     ImageTemplate = OrigImageTemplate;
     betas = [];
     allQ = [];
@@ -346,7 +351,7 @@ for iSubject = 1:NumSubject
                 for iRun=1:NumRun
                     for iReg = 1:NumReg
                         RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2});
-                        SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; %needs offset (not done?)
+                        SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol(1:NumScan(iRun),:)]; %needs offset (not done?)
                     end
                     SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList(:,1)'];
                     iScan = iScan + NumScan(1,iRun);
@@ -429,7 +434,7 @@ for iSubject = 1:NumSubject
             clear currentbeta;
         end
     end
-    systemcall = sprintf('cp %s/* %s/',SandboxOutput,OutputDir);
+    systemcall = sprintf('/bin/cp -f %s/* %s/',SandboxOutput,OutputDir);
     system(systemcall);
 end
 

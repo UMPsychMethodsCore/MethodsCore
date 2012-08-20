@@ -41,12 +41,14 @@ for iChunk = 1:NumProcesses
             tempSubjDir{end+1,1} = SubjDir{iSubject,1};
             tempSubjDir{end,2} = SubjDir{iSubject,2};
             tempSubjDir{end,3} = SubjDir{iSubject,3};
+            tempSubjDir{end,4} = SubjDir{iSubject,4};
         end
     else
         for iSubject = 1+offset:size(SubjDir,1)
             tempSubjDir{end+1,1} = SubjDir{iSubject,1};
             tempSubjDir{end,2} = SubjDir{iSubject,2};
             tempSubjDir{end,3} = SubjDir{iSubject,3};
+            tempSubjDir{end,4} = SubjDir{iSubject,4};
         end
     end
     SubjDir = tempSubjDir;
