@@ -168,8 +168,8 @@ for iSubject = 1:NumSubject
     end
     iBeta = 0;
     for jRun = 1:NumRun
-        for iTrial = 1:TrialsPerRun(jRun) %%%Hardcoded to use only 1 condition column, need to FIX
-            logstring = sprintf('%s: Subject %s trial #%d in run %d\n',datestr(now),Subject,iTrial,jRun);
+        for iiTrial = 1:TrialsPerRun(jRun) %%%Hardcoded to use only 1 condition column, need to FIX
+            logstring = sprintf('%s: Subject %s trial #%d in run %d\n',datestr(now),Subject,iiTrial,jRun);
             iBeta = iBeta + 1;
             mc_Logger('log',logstring,3);
 
@@ -179,7 +179,7 @@ for iSubject = 1:NumSubject
                 CondValues{iCondVal}(:) = 2;
             end
             temp = [0 cumsum(TrialsPerRun)];
-            CondValues{1}(iTrial+TrialsPerRun(jRun)) = 1; %%%Hardcoded to use only 1 condition column, need to FIX
+            CondValues{1}(iiTrial+temp(jRun)) = 1; %%%Hardcoded to use only 1 condition column, need to FIX
 
             NumCond = 2;
             ConditionName = {'trial','others'};
@@ -409,8 +409,8 @@ for iSubject = 1:NumSubject
                 SPM.xM.VM = spm_vol(explicitmask);
             end
 
-            %now run SPM model for jRun and iTrial and save beta_1+jRun-1
-            [SPM currentbeta Q] = lss_runSPM(SPM,jRun,iTrial);
+            %now run SPM model for jRun and iiTrial and save beta_1+jRun-1
+            [SPM currentbeta Q] = lss_runSPM(SPM,jRun,iiTrial);
             clear Vbeta;
             DIM = SPM.xY.VY(1).dim(1:3)';
             M = SPM.xY.VY(1).mat;

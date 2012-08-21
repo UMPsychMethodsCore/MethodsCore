@@ -9,7 +9,7 @@ reg = [];
 for iSess = 1:size(SPM.Sess,2)
     reg(iSess) = size(SPM.Sess(iSess).C.name,2);
 end
-adjust = cumsum(reg);
+adjust = [0 cumsum(reg)];
 
 switch trick
     case 0
