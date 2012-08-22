@@ -314,14 +314,14 @@ for iSubject = 1:NumSubject
             %% Store Motion regressors for all runs in 1 subject
             if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
                 for iRun=1:NumRun
-                    Run           = RunDir{iRun};
-                    MotRegName    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-
+                    Run = RunDir{iRun};
+                    MotRegName2 = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                    MotRegressors = load(MotRegName2);
                     if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
-                        SPM.Sess(iRun).C.C    = load( MotRegName );
+                        SPM.Sess(iRun).C.C = MotRegressors(1:NumScan(iRun),:);
                         SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
                     else
-                        MotReg = load( MotRegName );
+                        MotReg = MotRegressors(1:NumScan(iRun),:);
                         for iMot=1:size(MotRegList,1)
                             SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
                             SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
@@ -346,15 +346,14 @@ for iSubject = 1:NumSubject
                     end
                 end
                 RegData=NewRegData;
-                iScan=1;
 
                 for iRun=1:NumRun
-                    for iReg = 1:NumReg
-                        RegDataCol = RegData(iScan:iScan+(NumScan(1,iRun)-1),RegList{iReg,2});
-                        SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol(1:NumScan(iRun),:)]; %needs offset (not done?)
+                    for iReg = 1:NumReg                    
+                        TempRegData = RegData(find(RegData(:,RegRunColumn)==RunList(iRun)),:);
+                        RegDataCol = TempRegData(1:NumScan(iRun),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
+                        SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
                     end
                     SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList(:,1)'];
-                    iScan = iScan + NumScan(1,iRun);
                 end
             end
 
