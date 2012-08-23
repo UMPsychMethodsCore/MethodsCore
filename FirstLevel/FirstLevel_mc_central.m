@@ -16,6 +16,16 @@ end
 global mcLog;
 mcWarnings = 0;
 
+if (UseSandbox)
+    username = getenv('USER');
+    pid = num2str(feature('GetPID'));
+    [ans hostname] = system('hostname -s');
+    [fd fn fe] = fileparts(mcLog);
+    Sandbox = fullfile([filesep hostname(1:end-1)],'sandbox',[username '_' pid '_' fn]);
+else
+    Sandbox = '';
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General Code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -388,12 +398,16 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     OutputDir = mc_GenPath(OutputTemplate);
+    SandboxOutputDir = mc_GenPath(fullfile(Sandbox,OutputTemplate));
     display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
 
     if (Mode == 1 | Mode ==2) 
-        mc_GenPath( struct('Template',OutputDir,...
-                           'mode','makedir') );
-        cd(OutputDir)
+        if (strcmp(OutputDir(end),filesep))
+            OutputDir = OutputDir(1:end-1);
+        end
+        mc_GenPath( struct('Template',OutputDir,'mode','makeparentdir') );
+        mc_GenPath(struct('Template',SandboxOutputDir,'mode','makedir'));
+        cd(SandboxOutputDir)
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -540,13 +554,22 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         %fullfile(Exp,ImageLevel1,SubjDir{iSubject,1},ImageLevel2,RunDir{iRun},ImageLevel3); 
         %CheckPath(ImageDir,'Check your ImageTemplate');
 
-
+        %%%%%%%%% Copy Images to Sandbox directory if necessary
+        if (UseSandbox)
+            mc_GenPath(struct('Template',fullfile(Sandbox,ImageTemplate),'mode','makeparentdir'));
+            shellcommand = sprintf('cp -af %s %s',fullfile(ImageDir,'*'),fullfile(Sandbox,ImageDir));
+            [status result] = system(shellcommand);
+            if (status ~= 0)
+                mc_Error('Image folder %s could not be copied to sandbox.\nPlease check your paths and permissions.',ImageDir);
+            end
+        end
+        
         % for SPM2
         if (spm2)
             mc_Error(strcat('FATAL ERROR: %s is not supported.\n',...
                             '* * * A B O R T I N G * * *\n'),'SPM2');
         else
-            tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+            tmpP = spm_select('ExtFPList',fullfile(Sandbox,ImageDir),['^' basefile '.*.' imagetype],frames);
         end
             
         P = strvcat(P,tmpP);
@@ -782,7 +805,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     % 
     if (Mode == 1 | Mode == 2)
         clear jobs
-        jobs{1}.stats{1}.con.spmmat = {fullfile(OutputDir,'SPM.mat')};
+        jobs{1}.stats{1}.con.spmmat = {fullfile(SandboxOutputDir,'SPM.mat')};
         if (StartOp == 2)
             jobs{1}.stats{1}.con.delete = 0;
         else
@@ -819,6 +842,27 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     fprintf('Contrast Test Done for %s\n', SubjDir{iSubject,1});
     mc_Logger('log',sprintf('Contrast Test Done for %s\n',Subject),3);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%% Move results back to OutputDir %%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if (UseSandbox)
+        shellcommand = sprintf('cp -af %s %s',SandboxOutputDir,OutputDir);
+        [status result] = system(shellcommand);
+        if (status ~= 0)
+            mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);
+        end
+        shellcommand = sprintf('rm -rf %s',Sandbox);
+        [status result] = system(shellcommand);
+        if (status ~= 0)
+            mcWarnings = mcWarnings + 1;
+            mc_Logger('log','Unable to remove sandbox directory',2);
+        end
+        
+        mc_FixSPM(OutputDir,Sandbox,'');
+        
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
