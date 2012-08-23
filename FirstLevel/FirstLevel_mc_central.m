@@ -853,12 +853,6 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         if (status ~= 0)
             mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);
         end
-        shellcommand = sprintf('rm -rf %s',Sandbox);
-        [status result] = system(shellcommand);
-        if (status ~= 0)
-            mcWarnings = mcWarnings + 1;
-            mc_Logger('log','Unable to remove sandbox directory',2);
-        end
         
         mc_FixSPM(OutputDir,Sandbox,'');
         
@@ -868,6 +862,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end % loop through subjects
+
+
+shellcommand = sprintf('rm -rf %s',Sandbox);
+[status result] = system(shellcommand);
+if (status ~= 0)
+    mcWarnings = mcWarnings + 1;
+    mc_Logger('log','Unable to remove sandbox directory',2);
+end
+        
 fprintf('All Done\n');
 fprintf('***********************************************\n')
 
