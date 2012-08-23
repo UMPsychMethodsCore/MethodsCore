@@ -16,6 +16,9 @@ LogTemplate = '[Exp]/Logs';
 %%% Analyze data on a local drive on the machine you run the script on
 %%% If your data is located on /net/data4 or a similar network drive, using
 %%% this option will greatly reduce the required processing time.
+%%% IMPORTANT NOTE: Due to the method of sandboxing, using this WILL
+%%% OVERWRITE existing results without prompting you, so please be sure
+%%% your paths are all correct before running.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 UseSandbox = 1;
 

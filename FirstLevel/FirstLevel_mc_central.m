@@ -402,6 +402,9 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
 
     if (Mode == 1 | Mode ==2) 
+        if (strcmp(OutputDir(end),filesep))
+            OutputDir = OutputDir(1:end-1);
+        end
         mc_GenPath( struct('Template',OutputDir,'mode','makeparentdir') );
         mc_GenPath(struct('Template',SandboxOutputDir,'mode','makedir'));
         cd(SandboxOutputDir)
@@ -844,13 +847,22 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%% Move results back to OutputDir %%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    shellcommand = sprintf('cp -af %s %s',SandboxOutputDir,OutputDir);
-    [status result] = system(shellcommand);
-    if (status ~= 0)
-        mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);
+    if (UseSandbox)
+        shellcommand = sprintf('cp -af %s %s',SandboxOutputDir,OutputDir);
+        [status result] = system(shellcommand);
+        if (status ~= 0)
+            mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);
+        end
+        shellcommand = sprintf('rm -rf %s',Sandbox);
+        [status result] = system(shellcommand);
+        if (status ~= 0)
+            mcWarnings = mcWarnings + 1;
+            mc_Log('log','Unable to remove sandbox directory',2);
+        end
+        
+        mc_FixSPM(OutputDir,Sandbox,'');
+        
     end
-    
-    mc_FixSPM(OutputDir,Sandbox,'');
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
