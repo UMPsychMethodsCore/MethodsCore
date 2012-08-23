@@ -857,7 +857,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         [status result] = system(shellcommand);
         if (status ~= 0)
             mcWarnings = mcWarnings + 1;
-            mc_Log('log','Unable to remove sandbox directory',2);
+            mc_Logger('log','Unable to remove sandbox directory',2);
         end
         
         mc_FixSPM(OutputDir,Sandbox,'');
