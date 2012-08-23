@@ -17,7 +17,6 @@ if (strcmp(fe,'.mat'))
 end
 
 mc_GenPath(struct('Template',spmpath,'mode','check'));
-mc_GenPath(struct('Template',newpath,'mode','check'));
 
 load(fullfile(spmpath,'SPM.mat'));
 
