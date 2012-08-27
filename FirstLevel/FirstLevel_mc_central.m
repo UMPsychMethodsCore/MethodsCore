@@ -773,12 +773,6 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         end
     end % loop through contrasts
 
-
-    if ((Mode == 1 | Mode ==2) & StartOp ~=1) % case where you want do *not* want to set your own start (and thus want to simply append to previous contrasts)
-        StartPoint=length(SPM.xCon)+1;
-    end
-
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%% Assign Contrasts to SPM variables %%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
