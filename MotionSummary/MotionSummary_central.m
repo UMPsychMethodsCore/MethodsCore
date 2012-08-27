@@ -22,7 +22,14 @@ for iSubject = 1:size(SubjDir,1)
         MotionPath       = mc_GenPath(MotionPathCheck);
         MotionParameters = load(MotionPath);
         
-        CombinedOutput{iSubject,jRun} = euclideanDisplacement(MotionParameters,LeverArm);
+        [pathstr,name,ext] = fileparts(MotionPath);
+        if any(strcmp(ext,{'.par','.dat'}))
+            Output = euclideanDisplacement(MotionParameters,LeverArm);
+        else
+            Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
+        end
+        if ~isstruct(Output) && Output == -1; return; end;
+        CombinedOutput{iSubject,jRun} = Output;
     end
 
 end
