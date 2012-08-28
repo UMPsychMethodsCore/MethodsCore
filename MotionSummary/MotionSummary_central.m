@@ -13,64 +13,55 @@ display ('-----')
 clear CombinedOutput
 clear MotionPath
 for iSubject = 1:size(SubjDir,1)
+    Subject = SubjDir{iSubject,1};    
+    for jRun = 1:size(SubjDir{iSubject,3},2)
+        RunNum = SubjDir{iSubject,3}(jRun);
+        Run    = RunDir{RunNum};
 
-    NumRun= size(SubjDir{iSubject,3},2);
-    
-    for jRun = 1:NumRun
-        Subject = SubjDir{iSubject,1};
-        iRun=SubjDir{iSubject,3}(1,jRun);
-        %       CharjRun = sprintf('%02d',jRun);
-        Run = RunDir{iRun};
-
-        MotionPathCheck = struct('Template',MotionPathTemplate,...
-                                 'mode','check');
-        MotionPath = mc_GenPath(MotionPathCheck);
-
+        MotionPathCheck  = struct('Template',MotionPathTemplate,'mode','check');
+        MotionPath       = mc_GenPath(MotionPathCheck);
+        MotionParameters = load(MotionPath);
         
-        MotionParameters = load (MotionPath);
-        Output=euclideanDisplacement(MotionParameters,LeverArm);
-        CombinedOutput{iSubject,iRun}=horzcat(Output.maxSpace,Output.meanSpace,Output.maxAngle, Output.meanAngle);
+        [pathstr,name,ext] = fileparts(MotionPath);
+        if any(strcmp(ext,{'.par','.dat'}))
+            Output = euclideanDisplacement(MotionParameters,LeverArm);
+        else
+            Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
+        end
+        if ~isstruct(Output) && Output == -1; return; end;
+        CombinedOutput{iSubject,jRun} = Output;
+    end
 
-    end %% loop over runs
-
-end %%% loop over subjects
+end
 
 %%%%%%% Save results to CSV file
-
 theFID = fopen(OutputPathFile,'w');
 if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
-    return
+    return;
 end
 fprintf(theFID,'Subject,Run,maxSpace,meanSpace,maxAngle,meanAngle\n'); %header
 for iSubject = 1:size(SubjDir,1)
-    Subject=SubjDir{iSubject,1};
-    NumRun= size(SubjDir{iSubject,3},2);
-    for jRun = 1:NumRun
-        iRun=SubjDir{iSubject,3}(1,jRun);
+    Subject = SubjDir{iSubject,1};
+    for jRun = 1:size(SubjDir{iSubject,3},2)
+        RunNum = SubjDir{iSubject,3}(jRun);
         
- %%%%% Select appropriate output based on h user has set
- 
+        %%%%% Select appropriate output based on h user has set
         index=strfind(MotionPathTemplate,'Run');
         if size(index)>0
-            RunString=RunDir{iRun};
+            RunString=RunDir{jRun};
         else
-            RunString=num2str(iRun);
-%    RunString = sprintf('%02d',jRun);
+            RunString=num2str(jRun);
         end
- %%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
- 
-        for iRow = 1:size(CombinedOutput{iSubject,iRun},1)
-            chariRow = int2str(iRow);
-            fprintf(theFID,'%s,%s,',Subject,RunString);
-            for iColumn=1:size(CombinedOutput{iSubject,iRun},2)
-                fprintf(theFID,'%g,',CombinedOutput{iSubject,iRun}(iRow,iColumn));
-            end %iColumn
-            fprintf(theFID,'\n');
-        end %iRow
-    end %iRun
-end %iSubject
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        fprintf(theFID,'%s,%s,',Subject,RunString);
+        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxSpace);
+        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanSpace);
+        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxAngle);
+        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.meanAngle);
+    end
+end
 
 fclose(theFID);
 display('All Done')
