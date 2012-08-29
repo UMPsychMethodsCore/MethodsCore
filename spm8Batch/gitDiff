@@ -82,7 +82,7 @@ do
     else
 	echo 
 	echo -n "Checking $FILE "
-	GITSTATUS=`git status HEAD $FILE | tail -2 | head -1 | awk '{print $2}' | awk -F: '{print $1}'`
+	GITSTATUS=`git status HEAD $FILE | grep -e "${FILE}" | awk '{print $2}' | awk -F: '{print $1}'`
 	if [ "${GITSTATUS}" == "new" ] 
 	then
 	    echo new
