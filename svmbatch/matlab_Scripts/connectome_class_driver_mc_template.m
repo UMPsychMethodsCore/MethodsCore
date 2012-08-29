@@ -20,8 +20,12 @@ svmtype='paired';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Pruning Method. For non-paired SVM, how would you like the select the
 %%% most discriminant features. Presently supported options are...
-%%%     'ttest'     -   two-sample t-test
-%%%     'taub'      -   Kendall's tau-b coefficient of correlation with labels
+%%%     unpaired data
+%%%         'ttest'     -   two-sample t-test
+%%%         'taub'      -   Kendall's tau-b coefficient of correlation with labels
+%%%     paired data
+%%%         't-test'    -   paired t-test
+%%%         'fractfit'  -   fractional fitness
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pruneMethod = 'ttest';
