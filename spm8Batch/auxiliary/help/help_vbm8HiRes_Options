@@ -1,6 +1,7 @@
-    echo "${helpComment} anatomy path             : $anatomyPATH"
-    echo "${helpComment} name of hisres image     : $HIRESNAME"
-    echo "${helpComment} directory to vbm8        : $coregPATH/"
+    echo "${helpComment} anatomy path             : ${anatomyPATH}"
+    echo "${helpComment} name of hisres image     : ${HIRESNAME}"
+    echo "${helpComment} directory to vbm8        : ${coregPATH}/"
+    echo "${helpComment} all(1) or biasfield(0)   : ${BIASFIELDFLAG}"
     echo 
 
     . ${thisDir}/auxiliary/help/help_options_end

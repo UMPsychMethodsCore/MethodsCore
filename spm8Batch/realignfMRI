@@ -32,7 +32,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="BADdfiMmnStUv#"
+allowedOptions="ABDdfiMmnStUv#"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -73,6 +73,9 @@ let standardVolume--
 
 # Write out debug status
 . ${thisDir}/auxiliary/debugStatus
+
+# First we need to check to make sure that everything we are being asked to do can be accomplished
+. ${thisDir}/auxiliary/checkFuncDir
 
 # Ok, lets do the business.
  
@@ -125,6 +128,12 @@ else
     echo "      REFRUN=\`ls | grep run_ | head -1\`"                                         >> ${FULLSCRIPTNAME}.sh
 fi
 echo "      ${thisDir}/extractReferenceImage \${REFRUN} ${volumeWILD} ${standardVolume}"     >> ${FULLSCRIPTNAME}.sh
+
+#
+# put in error checking for exit code for extractReferenceImage
+#
+. ${thisDir}/auxiliary/doWeAbortFSL
+
 echo "    else"                                                                              >> ${FULLSCRIPTNAME}.sh
 echo "      echo Using pre-existing reference volume."                                       >> ${FULLSCRIPTNAME}.sh
 echo "    fi"                                                                                >> ${FULLSCRIPTNAME}.sh
@@ -163,6 +172,12 @@ echo "             then"                                                        
 echo "               CURRUN4D=\${CURRUN4D:0:\${#CURRUN4D}-4}"                                >> ${FULLSCRIPTNAME}.sh
 echo "               FSLOUTPUTTYPE=NIFTI"                                                    >> ${FULLSCRIPTNAME}.sh
 echo "               mcflirt -in \${CURRUN4D} -o r_mcflirt_\${CURRUN4D} -reffile \${REFFILE}.nii $mcOPT"    >> ${FULLSCRIPTNAME}.sh
+
+#
+# put in error checking for exit code of mcflirt
+#
+. ${thisDir}/auxiliary/doWeAbortFSL
+
 echo "               mv r_mcflirt_\${CURRUN4D}.par  mcflirt_realign_\${CURRUN4D}.dat"                       >> ${FULLSCRIPTNAME}.sh
 echo "               mv r_mcflirt_\${CURRUN4D}.nii  ${outputName}\${CURRUN4D}.nii"                          >> ${FULLSCRIPTNAME}.sh
 echo "               logTheUMProcess realignfMRI ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh

@@ -14,7 +14,7 @@
 #                         Robert C. Welsh
 #                         Copyright 2005-2011
 #
-# warpHiRes
+# vbm8HiRes
 #
 # # # # # # # # # # # # # # # # # #
 
@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="aBDdhIMnOtUwz"
+allowedOptions="aBDdHhIMnOtUwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart

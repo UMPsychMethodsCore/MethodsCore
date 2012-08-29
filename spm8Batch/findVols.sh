@@ -63,7 +63,7 @@ then
 fi
 
 # Become recursive for the other directories present.
-for newDIR in `ls -l 2> /dev/null | grep -e drw -e lrw | awk '{print $9}'`
+for newDIR in `ls -l 2> /dev/null | grep -e drw -e lrw | awk '{print $NF}'`
 do
   if [ -d "${newDIR}" ]
       then

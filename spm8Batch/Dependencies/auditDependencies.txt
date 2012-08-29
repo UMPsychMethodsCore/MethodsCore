@@ -1,0 +1,282 @@
+
+Running checks at Tue Aug 28 14:14:48 EDT 2012 for the command : coregHiRes
+-----------------------------------------------------------------------------
+
+Checking coregHiRes stable
+
+Checking auxiliary/commonCode_CoReg_01 stable
+
+Checking auxiliary/coregResliceStatusMsg stable
+
+Checking auxiliary/coregPart_01 stable
+
+Checking auxiliary/coregPart_02 stable
+
+Checking auxiliary/checkCoRegParts modified
+
+Checking auxiliary/coregDirectoryErrorCheck modified
+
+Checking auxiliary/coregFindSourceAndMove modified
+
+Checking auxiliary/coregPrepOtherImages modified
+
+Checking auxiliary/initialization_coregHiRes stable
+
+Checking auxiliary/setCoRegPath modified
+
+Checking auxiliary/verifyTargetImage modified
+
+Checking parts/coreg_part_1.m modified
+
+Checking parts/coreg_part_2.m modified
+
+Checking auxiliary/help/coregHiRes_Help modified
+
+Checking auxiliary/help/help_coregHiRes_Options stable
+
+Checking auxiliary/help/help_case_coreg_path stable
+
+Checking matlabScripts/UMBatchCoReg.m modified
+
+
+Running checks at Tue Aug 28 14:14:49 EDT 2012 for the command : coregOverlay
+-----------------------------------------------------------------------------
+
+Checking coregOverlay modified
+
+Checking auxiliary/commonCode_CoReg_01 stable
+
+Checking auxiliary/coregResliceStatusMsg stable
+
+Checking auxiliary/coregPart_01 stable
+
+Checking auxiliary/coregPart_02 stable
+
+Checking auxiliary/checkCoRegParts modified
+
+Checking auxiliary/coregDirectoryErrorCheck modified
+
+Checking auxiliary/coregFindSourceAndMove modified
+
+Checking auxiliary/coregPrepOtherImages modified
+
+Checking auxiliary/initialization_coregOverlay stable
+
+Checking auxiliary/setCoRegPath modified
+
+Checking parts/coreg_part_1.m modified
+
+Checking parts/coreg_part_2.m modified
+
+Checking auxiliary/help/coregOverlay_Help stable
+
+Checking auxiliary/help/help_coregOverlay_Options stable
+
+Checking auxiliary/help/help_case_coreg_path stable
+
+Checking matlabScripts/UMBatchCoReg.m modified
+
+
+Running checks at Tue Aug 28 14:14:49 EDT 2012 for the command : realignfMRI
+-----------------------------------------------------------------------------
+
+Checking realignfMRI modified
+
+Checking auxiliary/commonCode_FSL_01 stable
+
+Checking auxiliary/checkFSLParts modified
+
+Checking auxiliary/fslCommonCode_B stable
+
+Checking auxiliary/checkRuns modified
+
+Checking auxiliary/listRuns stable
+
+Checking auxiliary/doWeAbortFSL new
+
+Checking auxiliary/initialization_realignfMRI modified
+
+Checking auxiliary/help/help_realignfMRI_Options stable
+
+Checking auxiliary/help/realignfMRI_Help modified
+
+
+Running checks at Tue Aug 28 14:14:50 EDT 2012 for the command : reconSpiral
+-----------------------------------------------------------------------------
+
+Checking reconSpiral new
+
+Checking auxiliary/commonCode_reconSpiral new
+
+Checking auxiliary/help/help_case_reconrunnumber new
+
+Checking auxiliary/help/help_reconSpiral_Options new
+
+Checking auxiliary/help/reconSpiral_Help new
+
+Checking auxiliary/initialization_reconSpiral new
+
+Checking auxiliary/recon_part_01 new
+
+Checking auxiliary/checkReconParts new
+
+Checking auxiliary/checkFuncDir new
+
+Checking auxiliary/checkPfiles new
+
+Checking auxiliary/help/help_case_reconrunnumber new
+
+Checking auxiliary/help/help_reconSpiral_Options new
+
+Checking auxiliary/help/reconSpiral_Help new
+
+Checking parts/recon_part_01.m new
+
+Checking parts/recon_part_02.m new
+
+Checking matlabScripts/UMBatchRecon.m new
+
+
+Running checks at Tue Aug 28 14:14:51 EDT 2012 for the command : sliceTime
+-----------------------------------------------------------------------------
+
+Checking sliceTime modified
+
+Checking auxiliary/commonCode_FSL_01 stable
+
+Checking auxiliary/checkFSLParts modified
+
+Checking auxiliary/fslCommonCode_B stable
+
+Checking auxiliary/checkRuns modified
+
+Checking auxiliary/listRuns stable
+
+Checking auxiliary/doWeAbortFSL new
+
+Checking auxiliary/initialization_sliceTime modified
+
+Checking auxiliary/help/help_sliceTime_Options stable
+
+Checking auxiliary/help/sliceTime_Help modified
+
+
+Running checks at Tue Aug 28 14:14:51 EDT 2012 for the command : smoothfMRI
+-----------------------------------------------------------------------------
+
+Checking smoothfMRI stable
+
+Checking auxiliary/smoothPart_01 stable
+
+Checking auxiliary/commonCode_Smooth_01 stable
+
+Checking auxiliary/checkSmoothParts modified
+
+Checking auxiliary/initialization_smoothfMRI stable
+
+Checking auxiliary/help/help_smoothfMRI_Options stable
+
+Checking auxiliary/help/smoothfMRI_Help stable
+
+Checking parts/smooth_part_1.m modified
+
+Checking parts/smooth_part_2.m modified
+
+Checking matlabScripts/UMBatchSmooth.m modified
+
+
+Running checks at Tue Aug 28 14:14:51 EDT 2012 for the command : vbm8HiRes
+-----------------------------------------------------------------------------
+
+Checking vbm8HiRes modified
+
+Checking auxiliary/commonCode_VBM8_01 stable
+
+Checking auxiliary/vbm8_part_01 modified
+
+Checking auxiliary/coregDirectoryErrorCheck modified
+
+Checking auxiliary/vbm8FindSourceAndMove modified
+
+Checking auxiliary/help/help_vbm8HiRes_Options modified
+
+Checking auxiliary/initialization_vbm8HiRes stable
+
+Checking auxiliary/help/vbm8HiRes_Help stable
+
+Checking parts/vbm8_part_01.m modified
+
+Checking parts/vbm8_part_02.m modified
+
+Checking matlabScripts/UMBatchVBM8.m modified
+
+
+Running checks at Tue Aug 28 14:14:52 EDT 2012 for the command : warpHiRes
+-----------------------------------------------------------------------------
+
+Checking warpHiRes stable
+
+Checking auxiliary/commonCode_Warp_01 stable
+
+Checking auxiliary/warpPart_01 stable
+
+Checking auxiliary/verifyTargetImage modified
+
+Checking auxiliary/warpPrepOtherImages modified
+
+Checking auxiliary/warp_HiRes_Part_01 stable
+
+Checking auxiliary/checkWarpParts modified
+
+Checking auxiliary/initialization_warpHiRes stable
+
+Checking auxiliary/verifyTargetImage modified
+
+Checking parts/warp_part_1.m modified
+
+Checking parts/warp_HIRES_part_2.m modified
+
+Checking auxiliary/help/help_warpHiRes_Options stable
+
+Checking auxiliary/help/warpHiRes_Help stable
+
+Checking matlabScripts/UMBatchWarp.m modified
+
+
+Running checks at Tue Aug 28 14:14:53 EDT 2012 for the command : warpfMRI
+-----------------------------------------------------------------------------
+
+Checking warpfMRI modified
+
+Checking auxiliary/commonCode_Warp_01 stable
+
+Checking auxiliary/warpPart_01 stable
+
+Checking auxiliary/verifyTargetImage modified
+
+Checking auxiliary/warpPrepOtherImages modified
+
+Checking auxiliary/warpPart_01 stable
+
+Checking auxiliary/checkWarpParts modified
+
+Checking auxiliary/initialization_warpfMRI stable
+
+Checking auxiliary/verifyTargetImage modified
+
+Checking auxiliary/setWarpMethod modified
+
+Checking parts/warp_part_1.m modified
+
+Checking parts/warp_fMRI_part_2.m modified
+
+Checking auxiliary/help/help_warpfMRI_Options stable
+
+Checking auxiliary/help/warpfMRI_Help stable
+
+Checking auxiliary/help/help_case_warpmethod modified
+
+Checking matlabScripts/UMBatchWarp.m modified
+
+Checking matlabScripts/UMBatchWarpVBM8.m modified
+

@@ -11,6 +11,12 @@
 echo "Parsing commands:"
 echo
 
+#
+# Set the error code to bad input parameter.
+#
+SPM8BATCH_ERROR_CODE=64
+#
+
 while (( $argn < $args ))
 do
   #
@@ -130,6 +136,14 @@ do
 		"g")
                     . ${thisDir}/auxiliary/setGradientValue
                     ;;
+              # case_homogeniety
+ 	      # 
+	      # homogeniety correction flag
+	      #
+		"H")
+		    . ${thisDir}/auxiliary/setBiasFieldFLAG
+		    ;;
+
               # case_hires_name 
  	      # 
 	      # SPGR (hiRES) name to use 
@@ -167,6 +181,14 @@ do
 	      #
 		"m")
 		    . ${thisDir}/auxiliary/setMCFlirtOptions
+		    ;;
+		
+              # case_set_run_number
+	      #
+	      # Set the run number to start the recon.
+	      #
+		"N")
+		    . ${thisDir}/auxiliary/setReconRunNumber
 		    ;;
 		
               # case_output_name 
@@ -382,3 +404,8 @@ do
     shift
     let argn++
 done
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

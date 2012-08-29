@@ -31,6 +31,9 @@ if CS == 1
       fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
       fprintf('ERROR moving the hidden log file out of the sandbox\n');
       fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
+      results = -74;
+      UMCheckFailure(results);
+      exit(abs(results))
     end
   else
     fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
@@ -39,7 +42,9 @@ if CS == 1
     fprintf('%s\n',fullfile(SandBoxPID,FILESTOMOVE(1).name));
     fprintf('%s\n',UMImgDIRS{iSub}{iRun});
     fprintf('* * * * * * * * * * * * * * * * * * * * * * *\n');
-    exit
+    results = -74;
+    UMCheckFailure(results);
+    exit(abs(results))
   end	
 else
   fprintf('No need to try to move out of sandbox, it is presently disabled.\n');

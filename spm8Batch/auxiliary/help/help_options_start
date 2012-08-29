@@ -7,8 +7,9 @@
 	echo "      matlabScripts/spm8Batch/${thisCommand}/YYYY_MM directory"
 	echo
 	echo " directly below the current directory and will launch this script in"
-	echo " background. The names of the matlab and shell scripts will be in the format"
-	echo " of :"
+	echo " background. The names of the matlab (if matlab based command) and shell "
+	echo " scripts will be in the format of :"
+	echo
 	echo "          ${thisCommand}_yymmdd_HH_MM_[USER]_[COMPUTER].m   and"
 	echo "          ${thisCommand}_yymmdd_HH_MM_[USER]_[COMPUTER].sh"
 	echo
@@ -78,6 +79,9 @@
 	    "g") 
 	        . ${thisDir}/auxiliary/help/help_case_BET_gradient
 	        ;;
+	    "H") 
+	        . ${thisDir}/auxiliary/help/help_case_biasfield_flag
+	        ;;
 	    "h") 
 	        . ${thisDir}/auxiliary/help/help_case_hires_name
 	        ;;
@@ -94,7 +98,7 @@
 	        . ${thisDir}/auxiliary/help/help_case_flirt_options
 	        ;;
 	    "N") 
-	        . ${thisDir}/auxiliary/help/help_case_output_name
+	        . ${thisDir}/auxiliary/help/help_case_reconrunnumber
 	        ;;
 	    "n") 
 	        . ${thisDir}/auxiliary/help/help_case_output_name

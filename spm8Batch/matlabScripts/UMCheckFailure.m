@@ -11,17 +11,36 @@
 %
 % function UMCheckFailure(results)
 %
+% Input:
+% 
+%    results < 0 then error, else not.
+% 
+% Output (using logical output essentially)
+% 
+%    errorresults  = 0, success
+%                  = 1, failure 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function UMCheckFailure(results)
+function errorresults = UMCheckFailure(results)
 
 global UMBatchProcessName
 
-if results == -1
+% All error code will return negative numbers.
+
+[dbStruct] = dbstack;
+
+if results < 0
   fprintf('* * * * * FAILURE * * * *\n')
-  fprintf('     %s failed.\n',UMBatchProcessName);
+  fprintf('     %s failed in %s.\n',UMBatchProcessName,dbStruct(min([2 length(dbStruct)])).name);
   fprintf('* * * * * FAILURE * * * *\n')
+  errorresults = 1;
+  UMBatchAbort;
+  return
 end
+
+% no error
+
+errorresults = 0;
 
 return
 

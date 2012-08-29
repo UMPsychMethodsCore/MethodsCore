@@ -56,6 +56,9 @@ resliceFLAG=0
 # Default voxel size
 voxelSize=0
 
+# Default to not only calculate bias field corrected image in VBM8
+BIASFIELDFLAG=1
+
 # standard volume for mcflirt
 standardVolume=10
 
@@ -65,6 +68,9 @@ FSLOUTPUTTYPE=NIFTI
 # Runs to process.
 nRUN=0
 runNAMES=
+
+# A flag to let us know if the user has called "-w"
+setOutputNameCalledFLAG=0
 
 # MCFLIRT defaults:
 
@@ -95,6 +101,10 @@ BATCHCOMMAND=1
 # Is this command to run in the background
 
 BACKGROUNDJOBFLAG=1
+
+# Flags needed to reconstruction
+
+reconRunNumber=1
 
 #
 # Now the process specific initialization

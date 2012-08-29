@@ -60,6 +60,7 @@ UMBatchPrep
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
+  results = -70;
   return
 end
 
@@ -77,6 +78,7 @@ end
 
 if exist('WARPMETHOD') == 1 & WARPMETHOD
   results = UMBatchWarpVBM8(ParamImage,ObjectMask,Images2Write,TestFlag,VoxelSize,OutputName);
+  UMCheckFailure(results);
   return
 end
 
@@ -93,6 +95,8 @@ tic;
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -65;
+    UMCheckFailure(results);
     return
 end
 
@@ -116,6 +120,8 @@ else
     if exist(ObjectMask) == 0
         fprintf('Object mask specified is missing\n');
         fprintf('  * * * A B O R T I N G * * *\n\n');
+        UMCheckFailure(results);
+        results = -65;
         return
     end
 end
@@ -137,8 +143,11 @@ else
       tmpFile = tmpFile(1:commaIDX(1)-1);
     end
     if exist(tmpFile) == 0
-      WriteImage = 0
+      WriteImage = 0;
       fprintf('Error, image file : %s \n does not exist\n',tmpFile);
+      results = -65;
+      UMCheckFailure(results);
+      return;
     end
   end
   %
@@ -148,9 +157,15 @@ else
   if DetermineParam == 0 & exist(WarpMATName) == 0
     fprintf('Error, warping matrix file: %s\n does not exist.\n',WarpMATName);
     WriteImage == 0;
+    results = -65;
+    UMCheckFailure(results);
+    return;
   end
   if WriteImage == 0
     fprintf('\n  * * * A B O R T I N G * * *\n\n');
+    results = -65;
+    UMCheckFailure(results);
+    return;
   end  
 end
 
@@ -160,6 +175,8 @@ end
 
 if DetermineParam == 0 & WriteImage == 0
     fprintf('You have chosen to do nothing, check your input params.\n');
+    results = -64;
+    UMCheckFailure(results);
     return
 end
 

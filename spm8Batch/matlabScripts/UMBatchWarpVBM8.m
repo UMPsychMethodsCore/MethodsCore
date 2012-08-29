@@ -37,8 +37,8 @@
 %
 %  Output
 %  
-%     results        = -1 if failure
-%                       # of seconds to execute.
+%     results           < 0, if failure
+%                       > 0, # of seconds to execute.
 %
 %  If you wish to use any normalization parameters other than the default
 %  you must set them yourself!
@@ -80,6 +80,8 @@ tic;
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -66;
+    UMCheckFailure(results);
     return
 end
 
@@ -88,6 +90,8 @@ end
 if exist('spm_vbm8.m') ~= 2
   fprintf('\n\n* * * * * * MISSING THE VBM8 TOOLBOX * * * * * * \n')
   fprintf('  * * * A B O R T I N G * * *\n\n');
+  results = -69;
+  UMCheckFailure(results);
   return
 end
   
@@ -112,6 +116,8 @@ matlabbatch{1}.spm.util.defs.comp{1}.def{1} = fullfile(ParamImageDirectory,['y_r
 if isempty(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) | exist(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) == 0
     fprintf('\n\nDeformation field is missing!\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -66;
+    UMCheckFailure(results);
     return
 end
 
@@ -172,6 +178,8 @@ matlabbatch{1}.spm.util.defs.interp = 1;
 if isempty(Images2Write)
   fprintf('\nYou did not specify any images to write deformed\m');
   fprintf('\n  * * * A B O R T I N G * * *\n\n');
+  results = -66;
+  UMCheckFailure(results);
   return
 else
   for iP = 1:size(Images2Write,1)
@@ -184,6 +192,8 @@ else
       WriteImage = 0
       fprintf('Error, image file : %s \n does not exist\n',tmpFile);
       fprintf('\n  * * * A B O R T I N G * * *\n\n');
+      results = -66;
+      UMCheckFailure(results);
       return
     end
   end
@@ -231,6 +241,8 @@ else
       fprintf('FATAL ERROR - I CAN''T FIND THE OUTPUT FILE EXPECTED : %s\n',newFile);
       fprintf('ABORTING\n');
       fprintf('\n\n* * * * * * * * * * * * \n\n');
+      results = -74;
+      UMCheckFailure(results);
       return
     end
     % If the prefix is "w" then we just need to report the images that
@@ -256,6 +268,8 @@ else
               fprintf('FATAL ERROR - I CAN''T NAME OUTPUT FILE AS EXPECTED : \n   %s\n   %s\n',oldFile,newFile);
               fprintf('ABORTING\n');
               fprintf('\n\n* * * * * * * * * * * * \n\n');
+              results = -74;
+	      UMCheckFailure(results);
               return
           end
           newImages2WriteUnique = strvcat(newImages2WriteUnique, newFile);

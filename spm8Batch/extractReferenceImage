@@ -9,6 +9,11 @@
 #
 # # # # # # # # # # # # # # # # # # 
 
+# We need to know where we live.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
 CURPID=$$
 
 RUNDIR=$1
@@ -20,7 +25,7 @@ tmpfile=mcflirt_${CURPID}
 if [ ! -d "${RUNDIR}" ]
 then
     echo "Missing run directory : $RUNDIR"
-    exit 1
+    exit 65
 fi
 
 cd ${RUNDIR}
@@ -30,7 +35,7 @@ VOLNII=`ls ${VOLUME}*.nii 2> /dev/null`
 if [ -z "${VOLNII}" ]
 then
     echo "Missing nifti file in $RUNDIR for $VOLUME"
-    exit 1
+    exit 65
 fi
 
 rm -r ${tmpfile}
@@ -50,7 +55,7 @@ REFFILE=${tmpfile}_${REFNO}
 if [ ! -e ${REFFILE}.img ]
 then
     echo "Conversion failed, or coudn't find ${REFFILE}.img"
-    exit 1
+    . ${thisDir}/auxiliary/exit_w_removal
 fi
 
 mv ${REFFILE}.img ../

@@ -43,7 +43,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
+function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName,BIASFIELDFLAG);
 
 % Get the defaults from SPM.
 
@@ -63,6 +63,8 @@ if isempty(vbm8)
     fprintf('    FATAL ERROR \n');
     fprintf('    You do no have the VBM8 toolbox\n');
     fprintf('\n\n* * * * * * * * * * * * \n\n');
+    results = -69;
+    UMCheckFailure(results);
     return
   else
     fprintf('\nConfiguring VBM8 to defaults\n');
@@ -76,6 +78,8 @@ UMBatchPrep
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
+  results = -70;
+  UMCheckFailure(results);
   return
 end
 
@@ -86,6 +90,12 @@ fprintf('Entering UMBatchVBM8 V2.0 SPM8 Compatible\n');
 if TestFlag~=0
     fprintf('\nTesting only, no work to be done\n\n');
 end 
+
+% make sure the biasfield flag it passed, else default to 0.
+
+if exist('BIASFIELDFLAG') == 0
+  BIASFIELDFLAG=1;
+end
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -98,6 +108,8 @@ tic;
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -65;
+    UMCheckFailure(results);
     return
 end
 
@@ -106,6 +118,8 @@ end
 if exist('spm_vbm8.m') ~= 2
   fprintf('\n\n* * * * * * MISSING THE VBM8 TOOLBOX * * * * * * \n')
   fprintf('  * * * A B O R T I N G * * *\n\n');
+  results = -69;
+  UMCheckFailure(results);
   return
 end
 
@@ -117,20 +131,20 @@ matlabbatch{1}.spm.tools.vbm8.estwrite.output = rmfield(vbm8.output,'surf');
 
 % But now we also turn on ALL native output.
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.native    = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.warped    = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.native    = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.warped    = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.native    = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.warped    = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.native    = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.warped    = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.native   = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.warped   = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.native   = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.warped   = BIASFIELDFLAG;
 
 matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.native  = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.warped  = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.warped  = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.native = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.warped = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.native = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.warped = BIASFIELDFLAG;
 
 matlabbatch{1}.spm.tools.vbm8.estwrite.output.warps        = [1 0];
 
@@ -222,14 +236,18 @@ if exist(ReferenceImage) | VoxelSize(1) > 0 | strcmp(OutputName,'w')==0
     PList = strvcat(PList,Pthis);
   end
   results = UMBatchWarpVBM8(ParamImage,ReferenceImage,PList,TestFlag,VoxelSize,OutputName);
-  UMCheckFailure(results);
+  if UMCheckFailure(results)
+    return;
+  end
 end
 
 % Now warp other images that might be speficied.
 
 if length(Img2Write) > 0
   results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
-  UMCheckFailure(results);
+  if UMCheckFailure(results)
+    return
+  end
 end
 
 clear matlabbatch

@@ -49,7 +49,10 @@ for iSub = 1:length(UMBatchSubjs)
     % 
     % Detect the spikes
     %
-    UMBatchDetectSpike(Images,OutputFile,UMImgDIRS{iSub}{iRun});
+    results = UMBatchDetectSpike(Images,OutputFile,UMImgDIRS{iSub}{iRun});
+    if UMCheckFailure(results)
+      exit(abs(results))
+    end
 
   end
 end
