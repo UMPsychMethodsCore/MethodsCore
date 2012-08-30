@@ -41,7 +41,7 @@
                     fi		    		    
                   done
 		  #
-                  # Now make sure both are there.
+                  # Now make sure all three are there.
                   #
                   let nOPTIONS=0
                   for OPT in rate down disdaq
@@ -50,7 +50,7 @@
                     if [ -z "$Z" ]
                     then                    
                        echo
-                       echo "You need to specifiy threee: 'rate','disdaq', and 'down', aborting"
+                       echo "You need to specify three: 'rate','disdaq', and 'down', aborting"
                        echo
      	               . ${thisDir}/auxiliary/exit_w_removal
                     fi
