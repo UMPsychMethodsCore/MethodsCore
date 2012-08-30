@@ -40,7 +40,7 @@ attr=zeros(2,nConEl);
 
 %% Figure out indices into Node1 and Node2
 
-[Node1Idx Node2Idx] = find(mc_unflatten_upper_triangle(ones(nConEl)));
+[Node1Idx Node2Idx] = find(mc_unflatten_upper_triangle(ones(1,nConEl)));
 
 %% If trying to get Network info, look it up
 
