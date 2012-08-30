@@ -16,6 +16,10 @@ end
 global mcLog;
 mcWarnings = 0;
 
+if (Mode == 2)
+    UseSandbox = 0;
+end
+
 if (UseSandbox)
     username = getenv('USER');
     pid = num2str(feature('GetPID'));
@@ -404,6 +408,12 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     OutputDir = mc_GenPath(OutputTemplate);
+    if (exist(OutputDir,'dir')) %if outputdir already exists, remove it for new results
+        result = rmdir(OutputDir,'s');
+        if (result == 0)
+            mc_Error('Output directory %s\nalready exists and cannot be removed. Please check you permissions.',OutputDir);
+        end
+    end
     SandboxOutputDir = mc_GenPath(fullfile(Sandbox,OutputTemplate));
     display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
 
