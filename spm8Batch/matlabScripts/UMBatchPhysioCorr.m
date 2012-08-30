@@ -309,6 +309,8 @@ for iRUN = 1:nRUNS
   % Now log it.
   PhysioCorrectionDirectory=fileparts(NIFTIRUNFILE.name);
   UMBatchLogProcess(PhysioCorrectionDirectory,sprintf('UMBatchPhysioCorr : Corrected file : %s',NIFTIRUNFILE.name))
+  else
+  results = 0; % if you've made it this far, and didn't make pruns, you're good
   end
 end
 
