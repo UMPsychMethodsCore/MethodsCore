@@ -121,11 +121,14 @@ TimColumn = [58];
 DurColumn = [73];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% User Specified Regressors (affects only regressor CSV file)
-%%% 0 = no regressors
-%%% 1 = get regressors from file 
+%%% User Specified Regressors 
+%%% The value in the first column controls the master regressor file
+%%% The value in the second column controls the subject specific motion
+%%% regressors.
+%%% 0 = don't use regressors
+%%% 1 = use regressors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegOp = 1;
+RegOp = [1 0];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of the regressor CSV file
@@ -170,9 +173,9 @@ RegSubjColumn = [2];
 RegRunColumn = [3];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Location motion regressor files generated during realignment stage in
-%%%  preprocessing.  If these regressors are included in the motion
-%%%  regressor csv file, leave MotRegTemplate as an empty string.
+%%%  Location of motion regressor files generated during realignment stage 
+%%%  in preprocessing.  To use these make sure column 2 of RegOp is set to
+%%%  1 above.
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp         = path to your experiment directory

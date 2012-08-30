@@ -68,7 +68,11 @@ StartPoint = 2; % manual start point doesn't work with SPM5
 NanVar = NaN;
 
 if (~exist('RegOp'))
-    RegOp = 0;
+    RegOp = [0 0];
+end
+
+if (size(RegOp,2)==1)
+    RegOp(2) = 0;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,7 +83,7 @@ MasterFileCheck = struct('Template',MasterTemplate,...
                          'mode','check');
 MasterFile = mc_GenPath(MasterFileCheck);
 
-if (RegOp == 1)
+if (RegOp(1) == 1)
     RegFileCheck = struct('Template',RegTemplate,...
                           'mode','check');
     RegFile = mc_GenPath(RegFileCheck);
@@ -97,7 +101,7 @@ CondColumn    = CondColumn - MasterDataSkipCols;
 TimColumn     = TimColumn - MasterDataSkipCols;
 DurColumn     = DurColumn - MasterDataSkipCols;
 
-if (RegOp == 1)
+if (RegOp(1) == 1)
     for x = 1:size(RegList,1)
         RegList{x,2} = RegList{x,2} - RegDataSkipCols;
     end
@@ -130,7 +134,7 @@ else
 end
 
 % regressor line
-if RegOp ==1;
+if RegOp(1) ==1;
     if strcmp(RegFile(end-3:end),'.csv')
         RegMasterData = csvread ([RegFile],RegDataSkipRows,RegDataSkipCols);     
     else
@@ -458,12 +462,14 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         SPM.Sess(iSess).C.name = {}; 
     end
 
-    %% Store Motion regressors for all runs in 1 subject   
+    %% Store Motion regressors for all runs in 1 subject  
+    if (RegOp(2) == 1)
     if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
         for iRun=1:NumRun
             Run           = RunDir{iRun};
             MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
             MotRegressors = load(MotRegName2);
+            mc_Logger('log',sprintf('Found %d motion regressors',size(MotRegressors,2)),3);
             if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
                 SPM.Sess(iRun).C.C    = MotRegressors(1:NumScan(iRun),:);
                 SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
@@ -476,29 +482,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             end                  
         end
     end
+    end
+    
 
     %% case where there are regressors
-    if (NumReg > 0 && RegOp ~= 0)
+    if (NumReg > 0 && RegOp(1) == 1)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-        if RegOp == 2 % case where you preset regressors
+        if RegOp(1) == 1 % case where you preset regressors
 
-            %set preset regressor values below
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            reg(:,1) = [ones(200,1); zeros(600,1)];
-            reg(:,2) = [zeros(200,1); ones(200,1); zeros(400,1)];
-            reg(:,3) = [zeros(400,1); ones(200,1); zeros(200,1)];
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            %% assign regressor name
-            for iRun=1:NumRun  
-                clear RegNameHor;
-                SPM.Sess(iRun).C.C    = [SPM.Sess(iRun).C.C reg];
-                SPM.Sess(iRun).C.name = [SPM.Sess(iRun).C.name RegList'];
-            end
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
-        else % case where you get your regressors from file
             RegData    = [];
             RegDataCol = [];
 
@@ -728,6 +720,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 end
             end % loop through conditions
             % do motion regressors from file if any
+            if (RegOp(2) == 1)
             if exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate)
                 Run          = RunDir{iRun};
                 MotRegName2   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
@@ -735,8 +728,9 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 zeroPad      = zeros( 1, size(MotReg,2) );
                 ContrastBase = [ContrastBase zeroPad];
             end
+            end
             % do user specified regressors
-            if (NumReg > 0 && RegOp ~= 0)
+            if (NumReg > 0 && RegOp(1) == 1)
                 ContrastBase = horzcat(ContrastBase, ContrastList{iContrast, NumCond+2});
             end
         end % loop through runs
