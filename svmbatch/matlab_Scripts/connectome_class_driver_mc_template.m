@@ -174,7 +174,31 @@ NuisanceRegressors(:,:,2)=[
     2, 6, 2;
     ];
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Network-Specific Analysis
+%%%
+%%% If you'd just like to run classification on a subset of edges based on
+%%% network affiliation of their nodes, you can specify that here.
+%%%
+%%% Set network_specific to 1 to enable this functionality.
+%%%
+%%% Then, setup network_subset. This should be a nRow * 2 matrix that will
+%%% identify all of the potential edges to include. Don't worry about
+%%% sequence, specifying [1 2] will be the same as [2 1]
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+network_specific = 0;
+
+network_subset = [ 
+    1 1;
+    1 2;
+    1 3;
+    1 4;
+    1 5;
+    1 6;
+    ];
 
 % Enable Advanced Kernel Functions
 % NOTE - This will disable visualization
