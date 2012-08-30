@@ -1,0 +1,4 @@
+    echo "    -q		         set QualityCheck mode on"
+    echo "    			 For physioCorr, this will skip"
+    echo "			 producing prun files"
+    echo "                                "

@@ -208,7 +208,13 @@ do
 		"P")
 		    . ${thisDir}/auxiliary/setPhysioOptions
 		    ;;
-
+		
+              # case_qualitycheck
+	      #
+	      #
+                "q")
+                    . ${thisDir}/auxiliary/setQualityCheckFlag
+                    ;;
               # case_reslice_2 
 	      #
 	      # reslice the geometry only with no estimation?
