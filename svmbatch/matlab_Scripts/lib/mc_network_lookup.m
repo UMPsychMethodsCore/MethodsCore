@@ -28,4 +28,5 @@ for i=1:size(mmlist,1)
     zind=ind(3);
     
     labeled_voxels(i,4)=map(xind,yind,zind);
+    labeled_voxels(i,4)=round(labeled_voxels(i,4));
 end
