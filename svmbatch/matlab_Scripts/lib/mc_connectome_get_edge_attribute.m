@@ -1,9 +1,8 @@
-function [ attr ] = mc_connectome_get_edge_attribute(nConEl,ParamPath,attrIdx,NetMapPath)
+function [ attr ] = mc_connectome_get_edge_attribute(ParamPath,attrIdx,NetMapPath)
 %MC_CONNECTOME_GET_EDGE_ATTRIBUTES Retrieve node attributes for a set of edges
 % 
 % 
 %   INPUT
-%       nConEl      -   The number of elements in your connectome
 %       ParamPath   -   A full file path to a "parameters" file as might be
 %                       produced by SOM
 %       attrIdx     -   Index of the attribute you want to retrieve
