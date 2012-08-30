@@ -22,8 +22,10 @@ if (UseSandbox)
     [ans hostname] = system('hostname -s');
     [fd fn fe] = fileparts(mcLog);
     Sandbox = fullfile([filesep hostname(1:end-1)],'sandbox',[username '_' pid '_' fn]);
+    mc_Logger('log',sprintf('Using sandbox %s',Sandbox),3);
 else
     Sandbox = '';
+    mc_Logger('log','Not using sandbox',3);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -470,6 +472,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
             MotRegressors = load(MotRegName2);
             mc_Logger('log',sprintf('Found %d motion regressors',size(MotRegressors,2)),3);
+            fprintf('Found %d motion regressors\n',size(MotRegressors,2));
             if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
                 SPM.Sess(iRun).C.C    = MotRegressors(1:NumScan(iRun),:);
                 SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
@@ -505,7 +508,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 end
             end
             RegData=NewRegData;
-
+            mc_Logger('log',sprintf('Loaded %d regressors from %s',NumReg,RegFile),3);
+            fprintf('Loaded %d regressors from %s\n',NumReg,RegFile);
             for iRun=1:NumRun
                 for iReg = 1:NumReg
                     TempRegData = RegData(find(RegData(:,RegRunColumn)==RunList(iRun)),:);
