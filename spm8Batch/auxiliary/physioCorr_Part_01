@@ -54,7 +54,7 @@ echo "%"                                                      >> ${FULLSCRIPTNAM
 echo "UMfMRITR       = ${TR};"                                >> ${FULLSCRIPTNAME}.m
 echo " "                                                      >> ${FULLSCRIPTNAME}.m
 
-echo "UMqualitycheck      = ${QUALITYCHECKFLAG}               >> ${FULLSCRIPTNAME}.m
+echo "UMQualityCheck      = ${QUALITYCHECKFLAG}               >> ${FULLSCRIPTNAME}.m
 
 echo " "                                                      >> ${FULLSCRIPTNAME}.m
 echo "SandBoxDIR     = '${SANDBOX}/';"                        >> ${FULLSCRIPTNAME}.m

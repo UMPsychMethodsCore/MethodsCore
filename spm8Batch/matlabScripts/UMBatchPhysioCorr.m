@@ -12,7 +12,7 @@
 %
 %  Call as :
 %
-   %  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMqualitycheck)
+   %  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMQualityCheck)
 %
 %  To Make this work you need to provide the following input:
 %
@@ -28,7 +28,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag,UMqualitycheck);
+function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag,UMQualityCheck);
 
 global defaults
 
@@ -304,7 +304,7 @@ for iRUN = 1:nRUNS
   else
     PhysioMat = mkPhysioMatGE(physioDatFILE, UMrate, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
   end     
-  if ~exist('UMqualitycheck','var') || UMqualitycheck==0
+  if ~exist('UMQualityCheck','var') || UMQualityCheck==0
   results = rmReg_nii(NIFTIRUNFILE.name, [UMOutName NIFTIRUNFILE.name], PhysioMat);
   % Now log it.
   PhysioCorrectionDirectory=fileparts(NIFTIRUNFILE.name);
