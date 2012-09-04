@@ -12,15 +12,10 @@ Exp = '/net/data4/MAS/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LogTemplate = '[Exp]/Logs';
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Analyze data on a local drive on the machine you run the script on
-%%% If your data is located on /net/data4 or a similar network drive, using
-%%% this option will greatly reduce the required processing time.
-%%% IMPORTANT NOTE: Due to the method of sandboxing, using this WILL
-%%% OVERWRITE existing results without prompting you, so please be sure
-%%% your paths are all correct before running.
+%%% Image and subject information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-UseSandbox = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -38,6 +33,21 @@ UseSandbox = 1;
 ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The  prefix of each functional file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+basefile = 'run';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Image Type should be either 'nii' or 'img'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+imagetype = 'nii';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The TR your data was collected at
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+TR = 2;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find the images to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
@@ -50,31 +60,16 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-  '5002/Tx1',50021,[1 2]; %225 240
-%  '5028/Tx1',50281,[2];
-%  '5029/Tx1',50291,[1 2];
-% '5031/Tx1',50311,[1 2];
-% '5032/Tx1',50321,[1 2];
-% '5034/Tx2',50342,[1 2];
-% '5035/Tx2',50352,[1 2];
-% '5036/Tx2',50362,[1 2];
-% '5037/Tx2',50372,[1 2];
-% '5038/Tx2',50382,[1 2];
-% '5039/Tx1',50391,[1 2];
-% '5040/Tx1',50401,[1 2];
-% '5041/Tx2',50412,[1 2];
-% '5042/Tx2',50422,[1 2];
+  '5002/Tx1',50021,[1 2];
+  '5028/Tx1',50281,[2];
+  '5029/Tx1',50291,[1 2];
 };
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The  prefix of each functional file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'run';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Image Type should be either 'nii' or 'img'
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-imagetype = 'nii';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Master Data File and Condition information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of master data CSV file
@@ -121,6 +116,30 @@ TimColumn = [58];
 DurColumn = [73];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of conditions in your model
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ConditionName = {
+    'Congruent';
+    'Incongruent';
+    'Error';
+    'NonResp';
+};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% If you are including any Parametric regressors in your model
+%%% syntax: 'Parameter Name', column for values, condition column with which
+%%% it is associated (if the design has more than one condition column)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ParList = { ...
+        'RT',61,1;
+};
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% User specified regressor information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% User Specified Regressors 
 %%% The value in the first column controls the master regressor file
 %%% The value in the second column controls the subject specific motion
@@ -128,7 +147,7 @@ DurColumn = [73];
 %%% 0 = don't use regressors
 %%% 1 = use regressors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegOp = [1 0];
+RegOp = [0 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of the regressor CSV file
@@ -151,6 +170,16 @@ RegDataSkipRows = 1;
 RegDataSkipCols = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where your subject numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegSubjColumn = [2];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where you run numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegRunColumn = [3];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of regressor names, and column numbers for values from the regressor file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegList = { 
@@ -161,16 +190,6 @@ RegList = {
     'p',9;
     'y',10;
 };
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Column number in the Regressor file where your subject numbers are located
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegSubjColumn = [2];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Column number in the Regressor file where you run numbers are located
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegRunColumn = [3];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of motion regressor files generated during realignment stage 
@@ -186,8 +205,7 @@ RegRunColumn = [3];
 %%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
-MotRegTemplate = '';
-MotRegName     = 'rp*.txt';
+MotRegName     = 'mcflirt*.dat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Cell array specifying the motion regressor names and column numbers for
@@ -203,6 +221,35 @@ MotRegName     = 'rp*.txt';
 MotRegList = { 
 };
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Contrast information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of contrasts to add to the estimated model
+%%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
+%%% You need to properly balance/weight your contrasts below as if it was just one run/session
+%%% The script will handle balancing it across runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ContrastList = {    
+    'C'     [1  0] [0  0] [0 0] [0 0] [0 0 0 0 0 0];
+    'CR'    [0  1] [0  0] [0 0] [0 0] [0 0 0 0 0 0];
+    'I'     [0  0] [1  0] [0 0] [0 0] [0 0 0 0 0 0];
+    'IR'    [0  0] [0  1] [0 0] [0 0] [0 0 0 0 0 0];            
+    'C-I'   [1  0] [-1 0] [0 0] [0 0] [0 0 0 0 0 0];            
+    'C-I R' [0  1] [0 -1] [0 0] [0 0] [0 0 0 0 0 0];     
+    'I-C'   [-1 0] [1 0] [0 0] [0 0] [0 0 0 0 0 0];            
+    'I-C R' [0 -1] [0 1] [0 0] [0 0] [0 0 0 0 0 0];              
+    'AllTrials' [.5 0] [.5 0] [0 0] [0 0] [0 0 0 0 0 0];
+    'AllTrials R' [0 .5] [0 .5] [0 0] [0 0] [0 0 0 0 0 0];            
+};
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Output path information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path for output images
 %%%
@@ -216,97 +263,14 @@ MotRegList = {
 %%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName     = 'SandboxTest';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The TR your data was collected at
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TR = 2;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% ref point for data out of 16, use same fraction as ref slice for slice timing
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fMRI_T0 = 8;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% List of conditions in your model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ConditionName = {
-    'Congruent';
-    'Incongruent';
-    'Error';
-    'NonResp';
+OutputName     = 'MSITtest';
 
 
-};
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% List of contrasts to add to the estimated model
-%%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
-%%% You need to properly balance/weight your contrasts below as if it was just one run/session
-%%% The script will handle balancing it across runs
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ContrastList = {    
-%     'C'     [1  0] [0  0] [0 0] [0 0];
-%     'CR'    [0  1] [0  0] [0 0] [0 0];
-%     'I'     [0  0] [1  0] [0 0] [0 0];
-%     'IR'    [0  0] [0  1] [0 0] [0 0];            
-%     'C-I'   [1  0] [-1 0] [0 0] [0 0];            
-%     'C-I R' [0  1] [0 -1] [0 0] [0 0];     
-%     'I-C'   [-1 0] [1 0] [0 0] [0 0];            
-%     'I-C R' [0 -1] [0 1] [0 0] [0 0];              
-%     'AllTrials' [.5 0] [.5 0] [0 0] [0 0];
-%     'AllTrials R' [0 .5] [0 .5] [0 0] [0 0];            
-'C'     1    0    0    0 [0 0 0 0 0 0];            
-'C'     1    0    0    0 [0 0 0 0 0 0];            
-'C'     1    0    0    0 [0 0 0 0 0 0];            
-'C'     1    0    0    0 [0 0 0 0 0 0];
-'I'     0    1    0    0 [0 0 0 0 0 0];
-'I'     0    1    0    0 [0 0 0 0 0 0];
-'I'     0    1    0    0 [0 0 0 0 0 0];
-% 'I'     0    1    0    0 [0 0 0 0 0 0];
-% 'E'     0    0    1    0 [0 0 0 0 0 0];
-% 'E'     0    0    1    0 [0 0 0 0 0 0];
-% 'E'     0    0    1    0 [0 0 0 0 0 0];
-% 'E'     0    0    1    0 [0 0 0 0 0 0];
-% 'O'     0    0    0    1 [0 0 0 0 0 0];
-% 'O'     0    0    0    1 [0 0 0 0 0 0];
-% 'O'     0    0    0    1 [0 0 0 0 0 0];
-% 'O'     0    0    0    1 [0 0 0 0 0 0];
-% 'C-I'   1   -1    0    0 [0 0 0 0 0 0];
-% 'C-I'   1   -1    0    0 [0 0 0 0 0 0];
-% 'C-I'   1   -1    0    0 [0 0 0 0 0 0];
-% 'C-I'   1   -1    0    0 [0 0 0 0 0 0];
-% 'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
-% 'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
-% 'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
-% 'C-E'  1/2  1/2  -1    0 [0 0 0 0 0 0];
-% 'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
-% 'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
-% 'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
-% 'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
-% 'O-A' -1/3 -1/3 -1/3   1 [0 0 0 0 0 0];
-};
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CondModifier - Remove the last n conditions from the model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CondModifier = 0;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% If you are including any Parametric regressors in your model
-%%% syntax: 'Parameter Name', column for values, condition column with which
-%%% it is associated (if the design has more than one condition column)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ParList = { ...
-%        'RT',61,1;
-};
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Number of conditions in each column 
-%%% (if you have multiple condition columns, this should also have multiple values)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumCondPerCondCol = [4];
+
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -319,6 +283,34 @@ NumCondPerCondCol = [4];
 %%% 3 = test without running anything
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Mode = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Analyze data on a local drive on the machine you run the script on
+%%% If your data is located on /net/data4 or a similar network drive, using
+%%% this option will greatly reduce the required processing time.
+%%% IMPORTANT NOTE: Due to the method of sandboxing, using this WILL
+%%% OVERWRITE existing results without prompting you, so please be sure
+%%% your paths are all correct before running.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+UseSandbox = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ref point for data out of 16, use same fraction as ref slice for slice timing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fMRI_T0 = 8;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CondModifier - Remove the last n conditions from the model
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CondModifier = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CondThreshold
+%%% 0 = only remove empty conditions
+%%% 1 = remove singleton conditions (useful b/c SPM won't estimate a beta for
+%%% parameters that modulate a singleton condition)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CondThreshold = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This sets whether the models are the same for everyone or subject-specific
@@ -360,6 +352,13 @@ ScaleOp = 'none';
 explicitmask = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Set the contrast start point
+%%% 1 = Overwrite Previous Contrasts
+%%% 2 = Append new contrasts to previous ones 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+StartOp=1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
 %%% This allows you to set up a list of weights for each run for each
 %%% contrast. This combines with the ContrastList above. Leaving a
@@ -374,56 +373,9 @@ explicitmask = '';
 %%% either to [] or [1 1 1 1].
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastRunWeights = {
-    [];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
-    
-    [1 1];
-    [1 0];
-    [0 1];
-    [1 -1];
     };
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Set the contrast start point
-%%% 1 = Overwrite Previous Contrasts
-%%% 2 = Append new contrasts to previous ones 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-StartOp=1;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CondThreshold
-%%% 0 = only remove empty conditions
-%%% 1 = remove singleton conditions (useful b/c SPM won't estimate a beta for
-%%% parameters that modulate a singleton condition)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CondThreshold = 0;
 
 global mcRoot;
 %DEVSTART
