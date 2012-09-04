@@ -416,7 +416,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
     SandboxOutputDir = mc_GenPath(fullfile(Sandbox,OutputTemplate));
     display(sprintf('\n\nI am going to save the output here: %s', OutputDir));
-
+    curpath = pwd;
     if (Mode == 1 | Mode ==2) 
         if (strcmp(OutputDir(end),filesep))
             OutputDir = OutputDir(1:end-1);
@@ -865,7 +865,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         mc_FixSPM(OutputDir,Sandbox,'');
         
     end
-    
+    cd(curpath);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
