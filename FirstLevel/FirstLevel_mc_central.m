@@ -697,11 +697,6 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     Scaling = sum(CondPresent,1);
     Scaling = NumRun./Scaling;  % This needs attention
-
-    CondPresentInf = CondPresent;
-    CondPresentInf(find(CondPresentInf==0))=Inf;
-    %CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(RegList,1))];
-    CondPresentInf = [CondPresentInf ones(size(CondPresentInf,1),size(SPM.Sess(1).C.C,2))];
     
     %%%%% Set up "dynamic" contrasts %%%%%
     NumContrast=size(ContrastList,1);
@@ -717,6 +712,17 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         if (size(ContrastRunWeights,1)<iContrast || isempty(ContrastRunWeights{iContrast}))
             ContrastRunWeights{iContrast} = ones(1,NumRun);
         end
+        CondPresentInf = [];
+        for iRun = 1:NumRun
+            for iCond = 1:NumCond-CondModifier
+                CondPresentInf{iRun,iCond} = ones(1,size(ContrastList{iContrast,iCond+1},2));
+                if (CondPresent(iRun,iCond)==0)
+                    CondPresentInf{iRun,iCond} = Inf.*CondPresentInf{iRun,iCond};
+                end
+            end
+        end
+        
+        CondPresentInf = [cell2mat(CondPresentInf) ones(size(CondPresentInf,1),size(SPM.Sess(1).C.C,2))];
         RunWeighting = repmat(ContrastRunWeights{iContrast}',1,size(CondPresentInf,2)).*CondPresentInf;
         RunWeighting = reshape(RunWeighting',1,prod(size(RunWeighting)));
         RunWeighting = RunWeighting(find(~isnan(RunWeighting)));
