@@ -170,5 +170,4 @@ addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
 
 
-Processing = [1 0];
-PreprocessFirstLevel_central
+Preprocess_mc_central
