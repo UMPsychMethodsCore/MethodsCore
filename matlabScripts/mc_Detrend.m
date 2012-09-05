@@ -1,6 +1,7 @@
-function result = mc_Detrend(Images,Threshold,Order)
+function mc_Detrend(Images,Threshold,Order)
 % A utility function to apply a detrending to an input image (or series of
-% images)
+% images).  If successful, this will write out the detrended image series
+% with a 'd' prepended to the filenames.
 %
 % FORMAT result = mc_Detrend(Images,[Order])
 %
@@ -17,10 +18,7 @@ function result = mc_Detrend(Images,Threshold,Order)
 % Order                  An optional argument to specify the order of the
 %                        polynomial to remove. Defaults to 1.
 %
-% result                 1 if successful, 0 if there was an error.
-%
 
-result = 1;
 
 if (~exist('Threshold','var') | isempty(Threshold))
     Threshold = 0;
