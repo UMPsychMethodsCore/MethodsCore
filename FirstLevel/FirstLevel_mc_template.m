@@ -30,12 +30,12 @@ LogTemplate = '[Exp]/Logs';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'run';
+basefile = 'swra_MSITrun';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -60,19 +60,18 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-  '5002/Tx1',50021,[1 2];
-  '5028/Tx1',50281,[2];
-  '5029/Tx1',50291,[1 2];
+      '5001/Tx1',50011,[1 2];
+      '5028/Tx1',50281,[2];
+      '5029/Tx1',50291,[1 2];
 };
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MasterData File and Condition information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Master Data File and Condition information
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Location of master data CSV file
+%%%  Location of masterdata CSV file
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp            = path to your experiment directory
@@ -82,7 +81,7 @@ SubjDir = {
 %%% MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MasterTemplate ='[Exp]/Scripts/MasterData/[MasterDataName].csv';
-MasterDataName ='MSIT_Master';
+MasterDataName ='MSIT_Master_methodscore';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Number of rows and columns to skip when reading the MasterData csv file
@@ -93,27 +92,27 @@ MasterDataSkipCols = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Column number in the MasterData file where subject numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjColumn = [5];
+SubjColumn = [1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Column number in the MasterData file where run numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RunColumn = [1];
+RunColumn = [2];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number(s) in the MasterData file where conditions numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CondColumn = [60];
+CondColumn = [5];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Onset times are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TimColumn = [58];
+TimColumn = [4];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Durations are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-DurColumn = [73];
+DurColumn = [6];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of conditions in your model
@@ -121,17 +120,16 @@ DurColumn = [73];
 ConditionName = {
     'Congruent';
     'Incongruent';
-    'Error';
-    'NonResp';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If you are including any Parametric regressors in your model
-%%% syntax: 'Parameter Name', column for values, condition column with which
-%%% it is associated (if the design has more than one condition column)
+%%% syntax: 'Parameter Name', column number in MasterData file that contains
+%%% the parameter value. If using multiple condition columns above, you must
+%%% provide a third entry that indicates with which condition column the parametric
+%%% regressor is associated.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ParList = { ...
-        'RT',61,1;
 };
 
 
@@ -141,11 +139,10 @@ ParList = { ...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% User Specified Regressors 
-%%% The value in the first column controls the master regressor file
-%%% The value in the second column controls the subject specific motion
-%%% regressors.
-%%% 0 = don't use regressors
-%%% 1 = use regressors
+%%% The value in the first column controls the master file method
+%%% The value in the second column controls the subject-specific motion file method.
+%%% 0 = don't use method
+%%% 1 = use method
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegOp = [0 1];
 
@@ -233,17 +230,18 @@ MotRegList = {
 %%% The script will handle balancing it across runs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {    
-    'C'     [1  0] [0  0] 0 0 [0 0 0 0 0 0];
-    'CR'    [0  1] [0  0] 0 0 [0 0 0 0 0 0];
-    'I'     [0  0] [1  0] 0 0 [0 0 0 0 0 0];
-    'IR'    [0  0] [0  1] 0 0 [0 0 0 0 0 0];            
-    'C-I'   [1  0] [-1 0] 0 0 [0 0 0 0 0 0];            
-    'C-I R' [0  1] [0 -1] 0 0 [0 0 0 0 0 0];     
-    'I-C'   [-1 0] [1 0] 0 0 [0 0 0 0 0 0];            
-    'I-C R' [0 -1] [0 1] 0 0 [0 0 0 0 0 0];              
-    'AllTrials' [.5 0] [.5 0] 0 0 [0 0 0 0 0 0];
-    'AllTrials R' [0 .5] [0 .5] 0 0 [0 0 0 0 0 0];            
+    'C'            1  0   [0 0 0 0 0 0];
+    'I'            0  1   [0 0 0 0 0 0];         
+    'C-I'          1 -1   [0 0 0 0 0 0];             
+    'I-C'         -1  1   [0 0 0 0 0 0];                   
+    'AllTrials'   .5 .5   [0 0 0 0 0 0];
+
 };
+
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,7 +261,7 @@ ContrastList = {
 %%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName     = 'MSITtest';
+OutputName     = 'MSITtest1';
 
 
 
