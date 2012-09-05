@@ -1,0 +1,7 @@
+
+# The user wants to run the job in the foreground, only recommended for daisy-chaining.
+# We also set the mail account to be null that way jobs in foreground do not by default send 
+# out email. However, this can be overridden with the -U flag.
+
+		  BACKGROUNDJOBFLAG=0
+		  USEREMAIL="NOMAIL"

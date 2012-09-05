@@ -67,6 +67,15 @@ do
 		    . ${thisDir}/auxiliary/setAnatomyPath
 		    ;;
 
+              # case_no_background_job
+              #
+              # don't launch the job into the background, but run in the foreground, 
+              # this will facilitate daisy-chaining jobs.
+              #
+                "B")
+                    . ${thisDir}/auxiliary/setNoBackgroundJob
+		    ;;
+
               # case_bet_best_flag 
 	      #
 	      # look at the BET best flag
@@ -107,6 +116,13 @@ do
 		    . ${thisDir}/auxiliary/setFunctionalPath
 		    ;;
 		
+              # case_set_TGLOBAL
+              #
+              # Set the TGLOBAL value for slice time
+              #
+		"G")
+                    . ${thisDir}/auxiliary/setTGlobalValue
+                    ;;
               # case_set_BET_gradient
               #
               # Set the gradient scale for bestBET
