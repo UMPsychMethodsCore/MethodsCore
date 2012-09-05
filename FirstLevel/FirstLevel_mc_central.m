@@ -44,6 +44,9 @@ spmver = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
 	spm_jobman('initcfg');
 	spm_get_defaults('cmdline',true);
+    if (exist('spmdefaults','var'))
+        mc_SetSPMDefaults(spmdefaults);
+    end
 end
 
 RunNamesTotal = RunDir;
