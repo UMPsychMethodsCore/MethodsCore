@@ -50,3 +50,6 @@ Release Notes:
 	   suite of command-line scripts to preprocess fMRI data as well as 
 	   perform several basic data quality checks.
 
+9/5/2012 - Release 1.1 
+	   This release adds a suite of matlab-driven
+	   scripts to support first level analysis.
