@@ -119,7 +119,7 @@ NumCondCol = size(CondColumn,2); % number of columns that assign conditions
 NumPar = size(ParList,1);
 for iPar = 1: NumPar
     ParName{iPar}   = ParList{iPar,1};
-    ParColumn{iPar} = ParList{iPar,2};
+    ParColumn{iPar} = ParList{iPar,2} - MasterDataSkipCols;
 
     if NumCondCol > 1
         ParCondCol{iPar} = ParList{iPar,3};
@@ -171,11 +171,9 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
     
     %%% This code cuts ContrastRunWeights down based on included runs
-    for iRun = 1:NumRun
-        for iContrast = 1:size(ContrastRunWeights,1)
-            if (size(ContrastRunWeights{iContrast},2)>0)
-                ContrastRunWeights{iContrast} = ContrastRunWeights{iContrast}(RunList);
-            end
+    for iContrast = 1:size(ContrastRunWeights,1)
+        if (size(ContrastRunWeights{iContrast},2)>0)
+            ContrastRunWeights{iContrast} = ContrastRunWeights{iContrast}(RunList);
         end
     end
     
@@ -375,7 +373,9 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 fprintf('(%g, ',Timing{iRun}{1,iCond}(iVal))
                 fprintf('%g',Duration{iRun}{1,iCond}(iVal))
                 for iPar = 1: NumPar
-                    fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
+                    if (~isempty(Parameter{iPar,iRun}{1,iCond}))
+                        fprintf(', %g',Parameter{iPar,iRun}{1,iCond}(iVal))
+                    end
                 end;
                 fprintf(') ');     
             end  % loop through iVals
