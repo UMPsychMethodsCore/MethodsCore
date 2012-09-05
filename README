@@ -46,7 +46,7 @@ Please give us your feedback about how we're doing.
 Release Notes:
 
 8/1/2012 - Release 1.0 
-	   First public release of MethodsCore tools. This release contains a 
+	   First public release of MethodsCore tools.  This release contains a 
 	   suite of command-line scripts to preprocess fMRI data as well as 
 	   perform several basic data quality checks.
 
