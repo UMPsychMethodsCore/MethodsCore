@@ -375,6 +375,28 @@ StartOp=1;
 ContrastRunWeights = {
     };
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SPM Default Values for First Level analysis
+%%% this is set up as a cell array where each row corresponds to a default
+%%% value in SPM.  The first element is a string with the name of the
+%%% default field (without defaults. at the beginning).  You can view
+%%% spm_defaults.m for a list of possible fields to set.  The second
+%%% element is the value you want to set for that default.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The main default that impacts first level analysis is the implicit 
+%%% masking threshold. The default is 0.8 which means that voxels that have
+%%% a value of less than 80% of the grand mean will be masked out of the
+%%% analysis.  This default value can be problematic in some susceptibility
+%%% prone areas like OFC.  A more liberal value like 0.5 can help to keep
+%%% these regions in the analysis.  If you set this value very low, you'll
+%%% want to use an explicit mask to exclude non-brain regions from
+%%% analysis.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+spmdefaults = {
+    'mask.thresh'   0.8;
+};
 
 
 global mcRoot;
