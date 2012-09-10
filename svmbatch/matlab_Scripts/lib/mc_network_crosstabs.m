@@ -1,7 +1,16 @@
-function [ crosstabs, networks ] = mc_network_crosstabs ( edge_bin, path_param, path_networkmap )
+function [ table ] = mc_network_crosstabs ( edge_bin, path_param, path_networkmap )
 %MC_NETWORK_CROSSTABS Crosstabulate your edge support by networks
 % 
+%   INPUT
+%       edge_bin        -   1 * nEdges matrix. 0's indicate don't count, 1's
+%                           indicate do count for cross-tabulation
 % 
+%       path_param      -   A fully qualified path to your parameters file.
+%                           Used to read-in MNI coordinates of nodes for
+%                           network mapping
+% 
+%       path_networkmap -   A fully qualified path to your network map HDR.
+%                           Used to look up values for network mapping.
 % 
 % NOTE - Because some network maps include 0 as a region, the first
 % row/column are dedicated to network 0.
@@ -12,9 +21,9 @@ nets=mc_connectome_get_edge_attribute(path_param,4,path_networkmap);
 
 %% Other work
 
-nets=nets(logical(edge_bin); % subset to only include those requested
-
 maxNet=max(nets(:));
+
+nets=nets(logical(edge_bin)); % subset to only include those requested
 
 
 %% Built up your table
