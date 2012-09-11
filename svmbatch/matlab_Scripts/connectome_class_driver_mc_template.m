@@ -145,7 +145,7 @@ SubjDir = {
 
 % SVM Library
 % 1 - svmlight (Default)
-% 2 - LIBSVM (NEW!)
+% 2 - LIBSVM (NEW! Supports regression using advancedkernel flags)
 svmlib=1;
    
 
