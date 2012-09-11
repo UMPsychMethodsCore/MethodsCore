@@ -80,9 +80,9 @@ if strcmpi(svmtype,'unpaired')
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
-    
-    superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
-
+    if DoNuisanceCorrection
+        superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
+    end
     %% LOOCV
 
     fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
