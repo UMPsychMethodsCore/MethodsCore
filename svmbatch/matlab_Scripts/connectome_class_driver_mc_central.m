@@ -201,7 +201,7 @@ if strcmpi(svmtype,'unpaired')
                     
                 case 2
                     
-                    svm_light_c = mean(sum(train.*train,2),1);
+                    svm_light_c = 1/mean(sum(train.*train,2),1);
                     
                     models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)];
                     
