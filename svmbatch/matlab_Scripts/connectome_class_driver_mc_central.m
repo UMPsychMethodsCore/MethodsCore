@@ -205,11 +205,7 @@ if strcmpi(svmtype,'unpaired')
                     
                     models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)];
                     
-                    [pred_lab, acc, dec_val] = svmpredict(testlabels,test,models_train{iL);
-                    
-                    model.pred_lab=pred_lab;
-                    model.acc=acc;
-                    model.dec_val=dec_val;
+                    [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL);
                     
                     models_test{iL,1}=model;
             end
