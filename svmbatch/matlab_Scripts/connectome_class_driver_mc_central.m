@@ -80,9 +80,9 @@ if strcmpi(svmtype,'unpaired')
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
-    
-    superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
-
+    if DoNuisanceCorrection
+        superflatmat = mc_CovariateCorrection(superflatmat,NuisanceRegressors);
+    end
     %% LOOCV
 
     fprintf('Doing LOOCV pruning. More results will pop up on your screen soon\n');
@@ -187,10 +187,16 @@ if strcmpi(svmtype,'unpaired')
                 iL-sum(cell2mat(models_test),2),...
                 iL);
             if iL==size(superflatmat,1) %If done looping, report final performance
+                cnt = 0;
+                for icnt = 1: size(models_test,2)
+                    if models_test{icnt} == 1
+                        cnt = cnt+1;
+                    end
+                end
                 fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
-                    size(models_test,2)-sum(models_test),...
+                    size(models_test,2)-cnt,...
                     size(models_test,2),...
-                    100*(size(models_test,2)-sum(models_test))/size(models_test,2));
+                    100*(size(models_test,2)-cnt)/size(models_test,2));
             end
         end
     end
