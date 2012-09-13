@@ -394,7 +394,7 @@ if strcmpi(svmtype,'paired')
                     searchgrid=mc_svm_define_searchgrid(gridstruct);
                 end
                 
-                result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid);
+                result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid,svmlib);
                 models_test{iL,iContrast}=vertcat(searchgrid,result);
                 
             end
