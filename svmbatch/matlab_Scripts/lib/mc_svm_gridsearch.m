@@ -1,4 +1,4 @@
-function [ svm_grid_models ] = mc_svm_gridsearch( train, trainlabels, test, testlabels, kernel, searchgrid )
+function [ svm_grid_models ] = mc_svm_gridsearch( train, trainlabels, test, testlabels, kernel, searchgrid, svmlib )
 %MC_SVM_GRIDSEARCH A function to search SVM performance over a grid of tuning parameters
 %   
 % FORMAT [svm_grid_models] = mc_svm_gridsearch (train, trainlabels, test, testlabels, kernel, searchgrid)
@@ -33,7 +33,10 @@ function [ svm_grid_models ] = mc_svm_gridsearch( train, trainlabels, test, test
 %                       arguments to use in constructing options to pass to
 %                       svm_learn. For example, on the first iteration of
 %                       this grid search, svm_learn will be called with
-%                       option string ' -d 1 -r 0'.         
+%                       option string ' -d 1 -r 0'.     
+%   svmlib          -   Which SVM Library you want to use. Default is 1
+%                       1   -   SVM-Light
+%                       2   -   LIBSVM
 % 
 %   RESULT
 %       svm_grid_models     -   1 x (nParameterCombos + 1) cell array.
@@ -68,14 +71,24 @@ for iRow=1:size(argsettings,1)
 end
 end
 
+% Set svmlib to default value if undefined
+if ~exist('svmlib)','var')
+    svmlib=1;
+end
 
 % Preallocate a bit of space to shut up MLint
 svm_grid_models=cell(1,size(searchgrid,2)-1);
 
 for iGrid=2:size(searchgrid,2)
     svm_learn_args=svm_learn_parseargs (kernel, searchgrid(:,[1 iGrid]));
-    svm_model_temp = svmlearn(train,trainlabels,svm_learn_args);
-    svm_grid_models{1,iGrid} = svmclassify(test,testlabels,svm_model_temp);
+    switch svmlib
+        case 1 %svm light
+            svm_model_temp = svmlearn(train,trainlabels,svm_learn_args);
+            svm_grid_models{1,iGrid} = svmclassify(test,testlabels,svm_model_temp);
+        case 2 % libSVM
+            svm_model_temp = svmtrain(trainlabels,train,svm_learn_args);
+            [a, acc] = svmpredict(testlabels,test,svm_model_temp);
+            svm_grid_models{1,iGrid} = 1 - acc;
 end
 
 end
