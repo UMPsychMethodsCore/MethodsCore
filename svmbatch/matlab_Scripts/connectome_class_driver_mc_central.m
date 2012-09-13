@@ -420,6 +420,8 @@ if strcmpi(svmtype,'paired')
                         [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
 
                         models_test{iL,1}=model;
+                        
+                end
             end
 
 
