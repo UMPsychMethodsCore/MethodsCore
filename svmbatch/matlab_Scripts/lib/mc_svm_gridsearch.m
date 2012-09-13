@@ -88,7 +88,7 @@ for iGrid=2:size(searchgrid,2)
         case 2 % libSVM
             svm_model_temp = svmtrain(trainlabels,train,svm_learn_args);
             [a, acc] = svmpredict(testlabels,test,svm_model_temp);
-            svm_grid_models{1,iGrid} = 1 - acc;
+            svm_grid_models{1,iGrid} = 1 - acc(1)/100;
     end
 end
 
