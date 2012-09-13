@@ -178,7 +178,8 @@ kernel = 0;
 kernelsearchmode = 1;
 
 % If you set kernelsearchmode to 1, define your gridstruct here
-% See mc_svm_define_searchgrid help for details
+% See mc_svm_define_searchgrid help for details. Use this to enable
+% regression mode.
 
 gridstruct(1).arg=' -c ';
 gridstruct(1).value=logspace(1,10,10);
