@@ -17,7 +17,7 @@ conPathTemplate.mode='check';
 
 %% Set defaults
 
-if(~exist('svmlib','var')
+if(~exist('svmlib','var'))
     svmlib=1;
 end
 
@@ -203,9 +203,9 @@ if strcmpi(svmtype,'unpaired')
 
                     svm_light_c = 1/mean(sum(train.*train,2),1);
 
-                    models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)];
+                    models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)]);
 
-                    [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL);
+                    [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
 
                     models_test{iL,1}=model;
             end
@@ -415,9 +415,9 @@ if strcmpi(svmtype,'paired')
                     case 2
                         svm_light_c = 1/mean(sum(train.*train,2),1);
 
-                        models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)];
+                        models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)]);
 
-                        [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL);
+                        [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
 
                         models_test{iL,1}=model;
             end
