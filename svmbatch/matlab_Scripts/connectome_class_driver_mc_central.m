@@ -175,7 +175,7 @@ if strcmpi(svmtype,'unpaired')
                 searchgrid=mc_svm_define_searchgrid(gridstruct);
             end
 
-            result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid);
+            result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid,svmlib);
             models_test{iL,1}=vertcat(searchgrid,result);
 
         end
