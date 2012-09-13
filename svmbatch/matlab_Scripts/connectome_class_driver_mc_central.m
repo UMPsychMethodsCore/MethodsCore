@@ -207,7 +207,7 @@ if strcmpi(svmtype,'unpaired')
 
                     [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
 
-                    models_test{iL,1}=model;
+                    models_test{iL,1}=1-model.acc(1)/100;
             end
         end
     end
@@ -419,7 +419,7 @@ if strcmpi(svmtype,'paired')
 
                         [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
 
-                        models_test{iL,1}=model;
+                        models_test{iL,1}=1-model.acc(1)/100;
                         
                 end
             end
