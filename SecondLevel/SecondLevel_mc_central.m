@@ -9,7 +9,7 @@
 %%% Instead refer to the directions and create a jobfile and scanfile
 %%% to match your data setup.
 %%% If you find bugs with this script, please contact
-%%% mangstad@med.umich.edu or m.angstadt@gmail.com
+%%% mangstad@med.umich.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -19,7 +19,7 @@ function [jobs jobs2] = SecondLevel_mc_central(file)
     spm('defaults','fmri');
     global defaults;
     global options;
-    %options = load('re_default_options.mat');
+    
     options = [];
     options = parse_options(file,options);
     factorial_design = common(options);
@@ -93,15 +93,21 @@ function [jobs jobs2] = SecondLevel_mc_central(file)
               con.consess{1}.tcon.name = ['image 1 > image 2'];
               con.consess{2}.tcon.name = ['image 2 > image 1'];                 
           end
+          % 9/14/2012 - fixed column order in contrasts for paired T-tests
+          % due to change in SPM
           if (isfield(models(N),'reg'))
-              con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
+              %con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
+              con.consess{1}.tcon.convect = [1 -1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
               con.consess{1}.tcon.sessrep = 'none';
-              con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
+              %con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
+              con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
               con.consess{2}.tcon.sessrep = 'none';
           else
-              con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
+              %con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
+              con.consess{1}.tcon.convec = [1 -1 zeros(1,length(des.pt.pair))];
               con.consess{1}.tcon.sessrep = 'none';
-              con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
+              %con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
+              con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair))];
               con.consess{2}.tcon.sessrep = 'none';
           end
               desmtxcols = length(des.pt.pair);
@@ -779,6 +785,7 @@ function [specall con icell] = get_within_images3(model,columns)
     end
 	m = p1 * p2 * i1 * i2;
 	repl = [1:(n*m)]';
+    repl = ones(1,n*m)';
 	group = [];
 	for g = 1:ng
 		group = [group;g*ones(1,m*npg(g))'];
@@ -1171,8 +1178,7 @@ function options = parse_options(file,opt)
         end
 	    options = file;
     end
-    
-    
+     
 function mtx = recurse_loop(mtx, n, m, d)
 	if (isempty(mtx))
 		for x = 1:size(n,2)
