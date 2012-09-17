@@ -22,6 +22,8 @@ svmtype='paired';
 %%% most discriminant features. Presently supported options are...
 %%%     'ttest'     -   two-sample t-test
 %%%     'taub'      -   Kendall's tau-b coefficient of correlation with labels
+%%%     'PearsonR'  -   Use p-value's resulting from Pearson R's.
+%%%                     Appropriate for SVR (regression) applications
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pruneMethod = 'ttest';
