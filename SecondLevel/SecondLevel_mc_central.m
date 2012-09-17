@@ -849,7 +849,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		nc = ng*m;
 		meg = [];
 		for g = 1:ng-1
-			meg{g} = [zeros(1,n) zeros(1,(m*(g-1))) ones(1,m) -1*ones(1,m) zeros(1,(nc-(2*m)-(m*(g-1))))];
+			meg{g} = [zeros(1,(m*(g-1))) ones(1,m) -1*ones(1,m) zeros(1,(nc-(2*m)-(m*(g-1)))) zeros(1,n)];
 		end
 	end
 	
@@ -899,7 +899,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		consess{connum}.fcon.sessrep = 'none';
 		consess{connum}.fcon.convec = {};
 		for z = 1:size(mtx{y},1)
-			mtx{y}{z} = [zeros(1,n) repmat(mtx{y}{z},1,ng)];
+			mtx{y}{z} = [repmat(mtx{y}{z},1,ng) zeros(1,n)];
 			consess{connum}.fcon.convec{z} = mtx{y}{z};
 		end
 		connum = connum + 1;
