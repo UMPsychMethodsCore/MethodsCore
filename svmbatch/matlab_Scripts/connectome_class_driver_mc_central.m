@@ -1,3 +1,4 @@
+
 %% Central Part
 
 % Gather option variables into single struct variable
@@ -13,6 +14,12 @@ clear WSVARS
 
 conPathTemplate.Template = ConnTemplate;
 conPathTemplate.mode='check';
+
+%% Set defaults
+
+if(~exist('svmlib','var'))
+    svmlib=1;
+end
 
 %% Confirm that you are running on an allowed host
 
@@ -172,31 +179,47 @@ if strcmpi(svmtype,'unpaired')
                 searchgrid=mc_svm_define_searchgrid(gridstruct);
             end
 
-            result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid);
+            result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid,svmlib);
             models_test{iL,1}=vertcat(searchgrid,result);
 
         end
         
         if advancedkernel==0
+            
+            switch svmlib
+                case 1
+                    models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
 
-            models_train{iL}=svmlearn(train,trainlabels,'-o 100 -x 0');
+                    models_test{iL,1}=svmclassify(test,testlabels,models_train{iL});
+                    
+                    fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+                        iL-sum(cell2mat(models_test),2),...
+                        iL);
+                    if iL==size(superflatmat,1) %If done looping, report final performance
+                        cnt = 0;
+                        for icnt = 1: size(models_test,2)
+                            if models_test{icnt} == 1
+                                cnt = cnt+1;
+                            end
+                        end
+                        fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
+                            size(models_test,2)-cnt,...
+                            size(models_test,2),...
+                            100*(size(models_test,2)-cnt)/size(models_test,2));
 
-            models_test{iL,1}=svmclassify(test,testlabels,models_train{iL});
-
-            fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
-                iL-sum(cell2mat(models_test),2),...
-                iL);
-            if iL==size(superflatmat,1) %If done looping, report final performance
-                cnt = 0;
-                for icnt = 1: size(models_test,2)
-                    if models_test{icnt} == 1
-                        cnt = cnt+1;
                     end
-                end
-                fprintf(1,'\nLOOCV performance is %.0f out of %.0f, for %.0f%% accuracy.\n\n',...
-                    size(models_test,2)-cnt,...
-                    size(models_test,2),...
-                    100*(size(models_test,2)-cnt)/size(models_test,2));
+
+                case 2
+
+                    svm_light_c = 1/mean(sum(train.*train,2),1);
+
+                    models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)]);
+
+
+                    [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
+
+                    models_test{iL,1}=1-model.acc(1)/100;
+
             end
         end
     end
@@ -401,20 +424,34 @@ if strcmpi(svmtype,'paired')
                     searchgrid=mc_svm_define_searchgrid(gridstruct);
                 end
                 
-                result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid);
+                result=mc_svm_gridsearch(train,trainlabels,test,testlabels,kernel,searchgrid,svmlib);
                 models_test{iL,iContrast}=vertcat(searchgrid,result);
                 
             end
             
             if advancedkernel==0
-            
-                models_train{iL,iContrast}=svmlearn(train,trainlabels,'-o 100 -x 0');
+                switch  svmlib
 
-                models_test{iL,iContrast}=svmclassify(test,testlabels,models_train{iL,iContrast});
+                    case 1
 
-                fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
-                    iL-sum(cell2mat(models_test(:,iContrast))),...
-                    iL);
+                        models_train{iL,iContrast}=svmlearn(train,trainlabels,'-o 100 -x 0');
+
+                        models_test{iL,iContrast}=svmclassify(test,testlabels,models_train{iL,iContrast});
+
+                        fprintf(1,'\nLOOCV performance thus far is %.0f out of %.0f.\n\n',...
+                            iL-sum(cell2mat(models_test(:,iContrast))),...
+                            iL);
+
+                    case 2
+                        svm_light_c = 1/mean(sum(train.*train,2),1);
+
+                        models_train{iL}=svmtrain(trainlabels,train,['-s 0 -t 0 -c ' num2str(svm_light_c)]);
+
+                        [model.pred_lab, model.acc, model.dec_val] = svmpredict(testlabels,test,models_train{iL});
+
+                        models_test{iL,1}=1-model.acc(1)/100;
+                        
+                end
             end
 
 
