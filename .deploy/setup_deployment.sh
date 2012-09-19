@@ -24,3 +24,5 @@ ssh-keygen -f $thisdir/../.local/deploy -N ""
 
 #Do a checkout to create CurrentVersionSHA
 git checkout HEAD
+
+git config core.filemode false
