@@ -27,6 +27,8 @@ switch DiscrimType
         discrimpower=calc_taub(data,labels);
     case 'mutinfo'
         discrimpower = calc_mutinfo( data, labels );
+    case 'PearsonR'
+        discrimpower = calc_PearsonR(data,labels);
 end
 
 
@@ -62,7 +64,7 @@ discrimpower = abs(featurefitness);
 function discrimpower = calc_mutinfo(data,labels)
 discrimpower = mc_compute_mi( data, labels );
 
-
-
-
-
+function discrimpower = calc_PearsonR(data,labels)
+[rho pval] = corr(labels,data);
+pval(isnan(pval))=1; % Clean out NaNs by setting to 1 (no significance)
+discrimpower=1-pval; % take complement so that bigger values are more discrim power
