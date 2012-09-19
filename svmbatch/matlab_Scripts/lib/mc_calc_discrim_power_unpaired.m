@@ -6,8 +6,9 @@ function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, Discri
 %       DiscrimType -   string
 %           'tau-b'     -   Use tau-beta (very slow!)
 %           'mutinfo'   -   Use mutual information criteria
-%           'fracfit'   -   Use fractional fitness approach
 %           't-test'    -   Do t-test
+%           'PearsonR'  -   Calculate Pearson's R between labels & data
+% 
 %
 %   OUTPUT
 %       discrimpower    -   1 * nFeatures matrix of discrim power.
@@ -16,18 +17,10 @@ function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, Discri
 % greater discrim power. For results that return p-values, we will take the
 % complement, so a p of .05 will become .95.
 %
-% NOTE - Labels should +1 or -1. For one-class cases, provide only +1's and
-% only provide one of the cases (no need to give both positive and
-% negations).
 
 
-% Determine if this is a one class problem or not
 
-oneclass=0;
 
-if all(unique(labels)==1)
-    oneclass=1;
-end
 
 
 
