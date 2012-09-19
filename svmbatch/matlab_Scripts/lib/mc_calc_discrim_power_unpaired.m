@@ -8,7 +8,7 @@ function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, Discri
 %           'mutinfo'   -   Use mutual information criteria
 %           't-test'    -   Do t-test
 %           'PearsonR'  -   Calculate Pearson's R between labels & data
-% 
+%
 %
 %   OUTPUT
 %       discrimpower    -   1 * nFeatures matrix of discrim power.
@@ -20,56 +20,49 @@ function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, Discri
 
 
 
-
-
-
-
 switch DiscrimType
-    case 't-test'% In ttest mode, do a 2-sample (groupwise) t-test on all features
-        
-        [h,p] = ttest2(data(labels==+1,:),data(labels==-1,:));
-        
-        % Clean out NaNs by setting to 1 (no significance)
-        p(isnan(p))=1;
-        
-        
-        % To keep the direction of discriminative power consistent,
-        % (i.e larger values indicate MORE discriminant power),
-        % take complement of p-values so small values (more
-        % significant) become large (more discriminant)
-        discrimpower=1-p;
-        
-        
-        
+    case 't-test'
+        disccrimpower=calc_ttest2(data,labels);
     case 'tau-b'
-        % Initialize the fractions object which will store the
-        % tau-b's
-        discrimpower=zeros(1,size(data,2));
-        
-        % Loop over features
-        for iFeat=1:size(data,2)
-            
-            if any(diff(data(:,iFeat))) % Check to be sure that all elements aren't the same
-                discrimpower(iFeat)=ktaub([labels(:,1) data(:,iFeat)],.05,0);
-                
-            end
-        end
-        discrimpower = abs(featurefitness);
-        
+        discrimpower=calc_taub(data,labels);
     case 'mutinfo'
-        %|------------------- Mutual Information ----------------------------------------|%
-        
-        discrimpower = mc_compute_mi( data, labels );
-        %%
-        
-    case 'fractfit'
-        discrimpower=max( [...
-            sum(data>0,1)/size(data,1) ;
-            sum(data<0,1)/size(data,1)
-            ]);
-        
+        discrimpower = calc_mutinfo( data, labels );
 end
 
+
+function calc_ttest2(data,labels)
+% In ttest mode, do a 2-sample (groupwise) t-test on all features
+[h,p] = ttest2(data(labels==+1,:),data(labels==-1,:));
+
+% Clean out NaNs by setting to 1 (no significance)
+p(isnan(p))=1;
+
+
+% To keep the direction of discriminative power consistent,
+% (i.e larger values indicate MORE discriminant power),
+% take complement of p-values so small values (more
+% significant) become large (more discriminant)
+discrimpower=1-p;
+
+function calc_taub
+% Initialize the fractions object which will store the
+% tau-b's
+discrimpower=zeros(1,size(data,2));
+
+% Loop over features
+for iFeat=1:size(data,2)
+    
+    if any(diff(data(:,iFeat))) % Check to be sure that all elements aren't the same
+        discrimpower(iFeat)=ktaub([labels(:,1) data(:,iFeat)],.05,0);
+        
+    end
 end
+discrimpower = abs(featurefitness);
+
+function discrimpower = calc_mutinfo(data,labels)
+discrimpower = mc_compute_mi( data, labels );
+
+
+
 
 
