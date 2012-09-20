@@ -69,7 +69,11 @@ function result = mc_Logger(cmd,cmdstring,loglevel)
             if (status ~= 0)
                 mc_Error(r);
             end
-            shellcommand = sprintf('sed -i ''%s,%s s/^/%%/'' %s',num2str(1),num2str(lines),scriptcopy);
+            macsedfix = '';
+            if (ismac())
+                macsedfix = ' ""';
+            end
+            shellcommand = sprintf('sed -i %s ''%s,%s s/^/%%/'' %s',macsedfix,num2str(1),num2str(lines),scriptcopy);
             [status r] = system(shellcommand);
             if (status ~= 0)
                 mc_Error(r);
