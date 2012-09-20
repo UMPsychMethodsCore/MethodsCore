@@ -115,46 +115,9 @@ if strcmpi(svmtype,'unpaired')
         
         
         if nFeatPrune~=0
+            
+            featurefitness=mc_calc_discrim_power_unpaired(train,labels,pruneMethod);
 
-            switch pruneMethod  % Do different types of pruning based on user-specified option
-                case 'ttest'% In ttest mode, do a 2-sample (groupwise) t-test on all features
-
-                    [h,p] = ttest2(train(trainlabels==+1,:),train(trainlabels==-1,:));
-
-                    % Clean out NaNs by setting to 1 (no significance)
-                    p(isnan(p))=1;
-
-
-                    % To keep the direction of discriminative power consistent,
-                    % (i.e larger values indicate MORE discriminant power),
-                    % take complement of p-values so small values (more
-                    % significant) become large (more discriminant)
-                    featurefitness=1-p;
-
-
-
-                case 'tau-b'
-                    % Initialize the fractions object which will store the
-                    % tau-b's
-                    featurefitness=zeros(1,size(train,2));
-
-                    % Loop over features
-                    for iFeat=1:size(train,2)
-
-                        if any(diff(train(:,iFeat))) % Check to be sure that all elements aren't the same
-                            featurefitness(iFeat)=ktaub([trainlabels(:,1) train(:,iFeat)],.05,0);
-
-                        end
-                    end
-                    featurefitness = abs(featurefitness);
-
-                case 'mutualinfo'
-                    %|------------------- Mutual Information ----------------------------------------|%
-
-                    featurefitness = mc_compute_mi( train, trainlabels );
-                    %%
-
-            end
 
             % Store this LOO fold's feature-wise discriminant power
             LOOCV_featurefitness(iL,:) = featurefitness;
