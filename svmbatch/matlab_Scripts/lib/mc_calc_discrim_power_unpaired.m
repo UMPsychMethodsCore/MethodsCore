@@ -29,6 +29,8 @@ switch DiscrimType
         discrimpower = calc_mutinfo( data, labels );
     case 'PearsonR'
         discrimpower = calc_PearsonR(data,labels);
+    otherwise
+        mc_Error('You asked to do %s-style feature pruning, but I''m not familiar with that one',DiscrimType);
 end
 
 
