@@ -72,7 +72,7 @@ end
 end
 
 % Set svmlib to default value if undefined
-if ~exist('svmlib)','var')
+if ~exist('svmlib','var')
     svmlib=1;
 end
 
