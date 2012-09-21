@@ -8,15 +8,17 @@ modified = 1;
 reg = [];
 for iSess = 1:size(SPM.Sess,2)
     reg(iSess) = size(SPM.Sess(iSess).C.name,2);
+    cond(iSess) = size(SPM.Sess(iSess).U,2);
 end
-adjust = [0 cumsum(reg)];
+adjustreg = [0 cumsum(reg)];
+adjustcond = [0 cumsum(cond)];
 
 switch trick
     case 0
         %call modified spm_spm code
         if (modified)
             [SPM allbetas Q] = lss_spm_spm(SPM);
-            beta = allbetas(jRun+adjust(jRun),:); %need to adjust this for possible regressor columns
+            beta = allbetas(1+adjustreg(jRun)+adjustcond(jRun),:); %need to adjust this for possible regressor columns
             
         else
             SPM = spm_spm(SPM);
