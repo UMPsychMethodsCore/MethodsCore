@@ -159,7 +159,8 @@ for iSubject = 1:NumSubject
 
     for iCondCol = 1:NumCondCol
         NumCondPerCondCol(iCondCol) = size(find(~isnan(unique(MasterData(:,CondColumn(iCondCol))))),1);
-        CondValues{iCondCol} = Data(1:size(Data,1), CondColumn(iCondCol));
+        OrigCondValues{iCondCol} = Data(1:size(Data,1), CondColumn(iCondCol)) + 1;
+        CondValues{iCondCol} = Data(1:size(Data,1), CondColumn(iCondCol)) + 1; %adjust all condition numbers up by 1 to account for single trial
         TimValues{iCondCol} = Data(1:size(Data,1), TimColumn(iCondCol));
         DurValues{iCondCol} = Data(1:size(Data,1), DurColumn(iCondCol));
         for iPar = 1 : NumPar
@@ -176,13 +177,13 @@ for iSubject = 1:NumSubject
             clear SPM CondLength;
             P = [];
             for iCondVal = 1:NumCondCol
-                CondValues{iCondVal}(:) = 2;
+                CondValues{iCondVal}(:) = OrigCondValues{iCondVal}(:);
             end
             temp = [0 cumsum(TrialsPerRun)];
             CondValues{1}(iiTrial+temp(jRun)) = 1; %%%Hardcoded to use only 1 condition column, need to FIX
 
-            NumCond = 2;
-            ConditionName = {'trial','others'};
+            NumCond = NumCond+1;
+            ConditionName = {'trial' ConditionName{:}};
 
             clear Timing
             clear Duration
