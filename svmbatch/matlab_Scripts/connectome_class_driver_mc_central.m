@@ -116,7 +116,7 @@ if strcmpi(svmtype,'unpaired')
         
         if nFeatPrune~=0
             
-            featurefitness=mc_calc_discrim_power_unpaired(train,labels,pruneMethod);
+            featurefitness=mc_calc_discrim_power_unpaired(train,trainlabels,pruneMethod);
 
 
             % Store this LOO fold's feature-wise discriminant power
