@@ -1092,7 +1092,8 @@ function images = get_images(p,i)
         imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),options.other.InputImgExt);
         imageCheck.Template = fullfile(options.other.MainDir,subject,options.other.ModelDir,imageName);
         imageCheck.mode = 'check';
-        image = mc_GenPath(imageCheck);
+        %image = mc_GenPath(imageCheck);
+        image = imageCheck.Template;
         images{n} = strcat(image,',1');
     end
     images = images';
