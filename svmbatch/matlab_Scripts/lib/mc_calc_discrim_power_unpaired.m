@@ -22,7 +22,7 @@ function [ discrimpower ] = mc_calc_discrim_power_unpaired( data, labels, Discri
 
 switch DiscrimType
     case 't-test'
-        disccrimpower=calc_ttest2(data,labels);
+        discrimpower=calc_ttest2(data,labels);
     case 'tau-b'
         discrimpower=calc_taub(data,labels);
     case 'mutinfo'
@@ -34,7 +34,7 @@ switch DiscrimType
 end
 
 
-function calc_ttest2(data,labels)
+function discrimpower = calc_ttest2(data,labels)
 % In ttest mode, do a 2-sample (groupwise) t-test on all features
 [h,p] = ttest2(data(labels==+1,:),data(labels==-1,:));
 
@@ -48,7 +48,7 @@ p(isnan(p))=1;
 % significant) become large (more discriminant)
 discrimpower=1-p;
 
-function calc_taub
+function discrimpower = calc_taub(data,labels)
 % Initialize the fractions object which will store the
 % tau-b's
 discrimpower=zeros(1,size(data,2));
