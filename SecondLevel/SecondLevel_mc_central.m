@@ -816,7 +816,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 		for s = 1:n
 			offset = (s-1)*m;
-			[a b c d] = fileparts(scans{offset+1});
+			[a b c] = fileparts(scans{offset+1});
 			%jobs{s}.util{1}.imcalc.output = ['me_group_' cell2mat(model.withinnames) '.img'];
 			%jobs{s}.util{1}.imcalc.outdir = {a};
 			jobs{s}.util{1}.imcalc.output = ['me_group' strrep(strrep(strrep(a,options.other.MainDir,''),options.other.ModelDir,''),'/','_') '.img'];
@@ -1092,7 +1092,8 @@ function images = get_images(p,i)
         imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),options.other.InputImgExt);
         imageCheck.Template = fullfile(options.other.MainDir,subject,options.other.ModelDir,imageName);
         imageCheck.mode = 'check';
-        image = mc_GenPath(imageCheck);
+        %image = mc_GenPath(imageCheck);
+        image = imageCheck.Template;
         images{n} = strcat(image,',1');
     end
     images = images';
