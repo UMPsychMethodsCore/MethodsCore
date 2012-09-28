@@ -2,42 +2,53 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~ Basic Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The folder that contains your subject folders
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Exp = '/data/SIM/ANOVA';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogTemplate = '[Exp]/Logs';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file extension for the input images. Either '.img' or '.nii'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.InputImgExt = '.img';
+InputImgExt = '.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file name of the job file.  The full path to the job file is needed
 %%% if the template and job file are in different directories.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.jobfile     = 'jobfile.csv';
+JobFileTemplate     = 'jobfile.csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file name of the scan file.  The full path to the scan file is
 %%% needed if the template and scan file are in different directories.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.scanfile    = 'scanfile.csv';
+ScanFileTemplate    = 'scanfile.csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The location to the subjects' first level analysis folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.MainDir        = '/data/SIM/ANOVA/Flexible';
+FirstLevelTemplate        = '[Exp]/Flexible/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The model directory within each subject to find images.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.ModelDir       = '';
+ModelDir       = 'Faces';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file name prefix for the images to use, which is typically 'con'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.ContrastPrefix = 'con';
+ContrastPrefix = 'con';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The directory where to output the results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.OutputDir = '/data/SIM/ANOVA/Flexible/SecondLevel';
+OutputTemplate = '[Exp]/SecondLevel';
+
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %~~~~~~~~~~~~~~~~~~~~~~~~~ Advanced Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,7 +107,33 @@ opt.globalm.glonorm        = 1;
 %%%  the image number.  This option is deprecated and my be removed in the
 %%%  future.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-opt.other.ImColFlag = 1;
+ImColFlag = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SPM Default Values for Second Level analysis
+%%% this is set up as a cell array where each row corresponds to a default
+%%% value in SPM.  The first element is a string with the name of the
+%%% default field (without defaults. at the beginning).  You can view
+%%% spm_defaults.m for a list of possible fields to set.  The second
+%%% element is the value you want to set for that default.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The main default that impacts second level analysis is the
+%%% stats.fmri.ufp value.  This value is an initial main effects
+%%% F-threshold that is applied to the data during ReML estimation to
+%%% select voxels which SPM uses to estimate non-sphericity.  SPM's default
+%%% value for this is an uncorrected p = 0.001.  Sometimes a second level
+%%% model will fail with the message "no significant voxels" which
+%%% indicates that no voxels survived this initial main effects test.  In
+%%% order to get past this error and estimate the model anyway, you can try
+%%% changing the fmri.ufp value to a more liberal p-value.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+spmdefaults = {
+    'stats.fmri.ufp'    0.001
+};
+
+
 
 
 %DEVSTART
@@ -109,4 +146,4 @@ addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'SecondLevel'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
-jobs = SecondLevel_mc_central(opt);
+[jobs jobs2] = SecondLevel_mc_central(opt);
