@@ -13,21 +13,45 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-function [jobs jobs2] = SecondLevel_mc_central(file)
+function [jobs jobs2] = SecondLevel_mc_central(opt)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Code to create logfile name
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    LogDirectory = evalin('caller',sprintf('mc_GenPath(struct(''Template'',LogTemplate,''mode'',''check''))'));
+    result = mc_Logger('setup',LogDirectory);
+    if (~result)
+        %error with setting up logging
+        mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+    end
+    global mcLog;
+    mcWarnings = 0;
 
     spm('defaults','fmri');
     global defaults;
     global options;
     
+    opt.other.scanfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',ScanFileTemplate,''mode'',''check''))'));
+    opt.other.jobfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',JobFileTemplate,''mode'',''check''))'));
+   
+    opt.other.MainDir = evalin('caller',sprintf('mc_GenPath(struct(''Template'',FirstLevelTemplate,''mode'',''check''))'));
+    opt.other.OutputDir = evalin('caller',sprintf('mc_GenPath(OutputTemplate)'));
+    
+    opt.other.InputImgExt = evalin('caller','InputImgExt');
+    opt.other.ModelDir = evalin('caller','ModelDir');
+    opt.other.ContrastPrefix = evalin('caller','ContrastPrefix');
+    opt.other.ImColFlag = evalin('caller','ImColFlag');
+
     options = [];
-    options = parse_options(file,options);
+    options = parse_options(opt,options);
     factorial_design = common(options);
     [options.models options.columns] = parse_scans(options.other);
     options.spmver = spm('Ver');
     if (strcmp(options.spmver,'SPM8')==1)
 	    spm_jobman('initcfg');
 	    spm_get_defaults('cmdline',true);
+        if (exist('spmdefaults','var'))
+            mc_SetSPMDefaults(spmdefaults);
+        end
     end
     
     n = 1;
@@ -156,7 +180,24 @@ function [jobs jobs2] = SecondLevel_mc_central(file)
 			jobs2{n2}.stats{2}.fmri_est.spmmat = {fullfile(factorial_design.dir{1},'ME_Group/SPM.mat')};
 			jobs2{n2}.stats{2}.fmri_est.method.Classical = 1;
 			job{1} = jobs2{n2};
-			save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'me_group.mat'),'job');
+            
+            if (strcmp(options.spmver,'SPM8')==1)
+                savetemp{1} = {jobs2{n2}};
+                savetemp2 = spm_jobman('spm5tospm8',savetemp);
+                matlabbatch{1} = savetemp2{1}{1};
+                matlabbatch{2} = savetemp2{1}{2};
+                save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'me_group.mat'),'matlabbatch');
+                clear savetemp savetemp2 matlabbatch;
+            else
+                savetemp = jobs;
+                clear jobs;
+                jobs{1} = job{1};
+                save(fullfile(jobs{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'jobs');
+                clear jobs;
+                jobs = savetemp;
+                clear savetemp job;
+            end
+            
 			n2 = n2 + 1;
 		end
 		con.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
@@ -167,7 +208,23 @@ function [jobs jobs2] = SecondLevel_mc_central(file)
 		jobs{n}.stats{2}.fmri_est.method.Classical = 1;
 		jobs{n}.stats{3}.con = con;
 		job{1} = jobs{n};
-		save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'job');
+        if (strcmp(options.spmver,'SPM8')==1)
+            savetemp{1} = {jobs{n}};
+            savetemp2 = spm_jobman('spm5tospm8',savetemp);
+            matlabbatch{1} = savetemp2{1}{1};
+            matlabbatch{2} = savetemp2{1}{2};
+            matlabbatch{3} = savetemp2{1}{3};
+            save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'matlabbatch');
+            clear savetemp savetemp2 matlabbatch;
+        else
+            savetemp = jobs;
+            clear jobs;
+            jobs{1} = job{1};
+            save(fullfile(jobs{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'jobs');
+            clear jobs;
+            jobs = savetemp;
+            clear savetemp job;
+        end
 		n = n + 1;
 	end
     end
