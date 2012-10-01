@@ -1245,11 +1245,14 @@ function options = parse_options(file,opt)
         
         if isfield(file.other,'InputImgExt')
             if ~any( strcmp(file.other.InputImgExt,{'.nii','.img'}) )
-
-                mc_Error(['Warning: Invalid opt.other.InputImgExt\n',...
+                if (any(strcmp(file.other.InputImgExt,{'nii', 'img'})))
+                    file.other.InputImgExt = ['.' file.other.InputImgExt];
+                else
+                    mc_Error(['Warning: Invalid opt.other.InputImgExt\n',...
                           'Expected ''.nii'' or ''.img'', but found %s\n',...
                           ' * * * A B O R T I N G * * *\n'],file.other.InputImgExt);
-                      
+                end
+                
             end
         else
             file.other.InputImgExt = '.img';
