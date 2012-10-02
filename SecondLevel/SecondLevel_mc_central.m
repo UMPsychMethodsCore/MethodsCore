@@ -30,6 +30,8 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
     global defaults;
     global options;
     
+    spmdefaults = evalin('caller','spmdefaults');
+    
     opt.other.scanfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',ScanFileTemplate,''mode'',''check''))'));
     opt.other.jobfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',JobFileTemplate,''mode'',''check''))'));
    
@@ -134,7 +136,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
           % due to change in SPM
           if (isfield(models(N),'reg'))
               %con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
-              con.consess{1}.tcon.convect = [1 -1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
+              con.consess{1}.tcon.convec = [1 -1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
               con.consess{1}.tcon.sessrep = 'none';
               %con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
               con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
@@ -147,7 +149,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
               con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair))];
               con.consess{2}.tcon.sessrep = 'none';
           end
-              desmtxcols = length(des.pt.pair);
+              desmtxcols = 2;
 		 case 4
              mc_Logger('log',sprintf('Working on model %d - Multiple Regression in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
 		  des = mreg(options.models(N),options.columns);
@@ -243,16 +245,17 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
         end
 		n = n + 1;
         end
-    if (strcmp(options.spmver,'SPM8')==1)
-    	temp{1} = jobs;
-    	temp{2} = jobs2;
-        matlabbatch = spm_jobman('spm5tospm8',temp)
-        spm_jobman('run',matlabbatch);
-    else
-    	spm_jobman('run',jobs);
-    	spm_jobman('run',jobs2);
-    end
-        
+        if (~isempty(jobs))
+            if (strcmp(options.spmver,'SPM8')==1)
+                temp{1} = jobs;
+                temp{2} = jobs2;
+                matlabbatch = spm_jobman('spm5tospm8',temp)
+                spm_jobman('run',matlabbatch);
+            else
+                spm_jobman('run',jobs);
+                spm_jobman('run',jobs2);
+            end
+        end
     end
     mc_Logger('log',sprintf('Finshed processing %d models at %s',length(options.models),datestr(now)),3);
     
