@@ -9,53 +9,97 @@
 %%% Instead refer to the directions and create a jobfile and scanfile
 %%% to match your data setup.
 %%% If you find bugs with this script, please contact
-%%% mangstad@med.umich.edu or m.angstadt@gmail.com
+%%% MethodsCoreHelp@umich.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-function [jobs jobs2] = RandomEffects_central(file)
+function [jobs jobs2] = SecondLevel_mc_central(opt)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Code to create logfile name
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    LogDirectory = evalin('caller',sprintf('mc_GenPath(struct(''Template'',LogTemplate,''mode'',''makedir''))'));
+    result = mc_Logger('setup',LogDirectory);
+    if (~result)
+        %error with setting up logging
+        mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+    end
+    global mcLog;
+    mcWarnings = 0;
 
     spm('defaults','fmri');
     global defaults;
     global options;
-    %options = load('re_default_options.mat');
-        options = [];
-    options = parse_options(file,options);
+    
+    spmdefaults = evalin('caller','spmdefaults');
+    
+    opt.other.scanfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',ScanFileTemplate,''mode'',''check''))'));
+    opt.other.jobfile = evalin('caller',sprintf('mc_GenPath(struct(''Template'',JobFileTemplate,''mode'',''check''))'));
+   
+    opt.other.MainDir = evalin('caller',sprintf('mc_GenPath(struct(''Template'',FirstLevelTemplate,''mode'',''check''))'));
+    opt.other.OutputDir = evalin('caller',sprintf('mc_GenPath(OutputTemplate)'));
+    
+    opt.other.InputImgExt = evalin('caller','InputImgExt');
+    opt.other.ModelDir = evalin('caller','ModelDir');
+    opt.other.ContrastPrefix = evalin('caller','ContrastPrefix');
+    opt.other.ImColFlag = evalin('caller','ImColFlag');
+
+    mc_Logger('log',sprintf('Started processing at %s\n',datestr(now)),3);
+    mc_Logger('log',sprintf('Using scanfile: %s and jobfile: %s\n',opt.other.scanfile,opt.other.jobfile),3);
+    
+    options = [];
+    options = parse_options(opt,options);
     factorial_design = common(options);
     [options.models options.columns] = parse_scans(options.other);
     options.spmver = spm('Ver');
     if (strcmp(options.spmver,'SPM8')==1)
 	    spm_jobman('initcfg');
 	    spm_get_defaults('cmdline',true);
+        if (exist('spmdefaults','var'))
+            mc_SetSPMDefaults(spmdefaults);
+        end
     end
+    
     n = 1;
     n2 = 1;
     jobs = [];
     jobs2 = [];
     for N = 1:length(options.models)
+        if (isempty(options.models(N).include))
+            continue;
+        end
+        n = 1;
+        n2 = 1;
+        jobs = [];
+        jobs2 = [];
         des = [];
         con.consess = [];
         models = options.models;
         columns = options.columns;
-
+        
         if (options.models(N).include)
-		if (isempty(options.models(N).outputpath) | strcmp(options.models(N).outputpath(end),'/'))
-			%output path is empty or a folder, construct it from column headers
-			options.models(N).outputpath = make_path(options.models(N),options.columns);
-		end
+            if (isempty(options.models(N).outputpath) | strcmp(options.models(N).outputpath(end),'/'))
+                %output path is empty or a folder, construct it from column headers
+                options.models(N).outputpath = make_path(options.models(N),options.columns);
+            end
         	desmtxcols = 0;
-		switch (options.models(N).type)
+        switch (options.models(N).type)
 		 case 1
-		  des = t1(options.models(N),options.columns);
-		  con.consess{1}.tcon.name = [columns(models(N).imagecolumn).description ' positive'];
-		  con.consess{1}.tcon.convec = [1];
-		  con.consess{1}.tcon.sessrep = 'none';
-		  con.consess{2}.tcon.name = [columns(models(N).imagecolumn).description ' negative'];
-		  con.consess{2}.tcon.convec = [-1];
-		  con.consess{2}.tcon.sessrep = 'none';
-		  desmtxcols = 1;
+             mc_Logger('log',sprintf('Working on model %d - One-sample T-test in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
+          if options.other.ImColFlag == 1 % Assume only 1 description
+              ImDes  = options.models(N).NumDes.ImDes;
+          else
+              ImDes  = options.columns(models(N).imagecolumn).description;
+          end             
+          des = t1(options.models(N),options.columns);
+          con.consess{1}.tcon.name = [ImDes ' positive'];
+          con.consess{1}.tcon.convec = [1];
+          con.consess{1}.tcon.sessrep = 'none';
+          con.consess{2}.tcon.name = [ImDes ' negative'];
+          con.consess{2}.tcon.convec = [-1];
+          con.consess{2}.tcon.sessrep = 'none';
+          desmtxcols = 1;
 		 case 2
+             mc_Logger('log',sprintf('Working on model %d - Two-sample T-test in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
 		  [des m c] = t2(options.models(N),options.columns);
 		  models(N) = m;
 		  columns = c;
@@ -73,30 +117,41 @@ function [jobs jobs2] = RandomEffects_central(file)
 		  con.consess{2}.tcon.sessrep = 'none';
 		  desmtxcols = 2;
 		 case 3
-		  des = pt(options.models(N),options.columns);
-		  if (length(models(N).imagecolumn) > 1)
-		      con.consess{1}.tcon.name = [columns(models(N).imagecolumn(1)).description ' > ' columns(models(N).imagecolumn(2)).description];
-		      con.consess{2}.tcon.name = [columns(models(N).imagecolumn(2)).description ' > ' columns(models(N).imagecolumn(1)).description];          
-		  elseif (length(models(N).pathcolumn) > 1)
-		      con.consess{1}.tcon.name = [columns(models(N).pathcolumn(1)).description ' > ' columns(models(N).pathcolumn(2)).description];
-		      con.consess{2}.tcon.name = [columns(models(N).pathcolumn(2)).description ' > ' columns(models(N).pathcolumn(1)).description];            
-		  else
-		      con.consess{1}.tcon.name = ['image 1 > image 2'];
-		      con.consess{2}.tcon.name = ['image 2 > image 1'];                 
-		  end
-		  if (isfield(models(N),'reg'))
-			  con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
-			  con.consess{1}.tcon.sessrep = 'none';
-			  con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
-			  con.consess{2}.tcon.sessrep = 'none';
-		  else
-			  con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
-			  con.consess{1}.tcon.sessrep = 'none';
-			  con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
-			  con.consess{2}.tcon.sessrep = 'none';
-		  end
-		  desmtxcols = length(des.pt.pair);
+             mc_Logger('log',sprintf('Working on model %d - Paired T-test in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
+          des = pt(options.models(N),options.columns);   
+          if (options.other.ImColFlag ~= 1 && length(models(N).imagecolumn) > 1)
+              con.consess{1}.tcon.name = [columns(models(N).imagecolumn(1)).description ' > ' columns(models(N).imagecolumn(2)).description];
+              con.consess{2}.tcon.name = [columns(models(N).imagecolumn(2)).description ' > ' columns(models(N).imagecolumn(1)).description];
+          elseif options.other.ImColFlag == 1 && length(options.models(N).NumDes) > 1
+              con.consess{1}.tcon.name = [options.models(N).NumDes(1).ImDes ' > ' options.models(N).NumDes(2).ImDes];
+              con.consess{2}.tcon.name = [options.models(N).NumDes(2).ImDes ' > ' options.models(N).NumDes(1).ImDes];
+          elseif (length(models(N).pathcolumn) > 1)
+              con.consess{1}.tcon.name = [columns(models(N).pathcolumn(1)).description ' > ' columns(models(N).pathcolumn(2)).description];
+              con.consess{2}.tcon.name = [columns(models(N).pathcolumn(2)).description ' > ' columns(models(N).pathcolumn(1)).description];            
+          else
+              con.consess{1}.tcon.name = ['image 1 > image 2'];
+              con.consess{2}.tcon.name = ['image 2 > image 1'];                 
+          end
+          % 9/14/2012 - fixed column order in contrasts for paired T-tests
+          % due to change in SPM
+          if (isfield(models(N),'reg'))
+              %con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) 1 -1];
+              con.consess{1}.tcon.convec = [1 -1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
+              con.consess{1}.tcon.sessrep = 'none';
+              %con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2)) -1 1];
+              con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair)) zeros(1,size(models(N).reg,2))];
+              con.consess{2}.tcon.sessrep = 'none';
+          else
+              %con.consess{1}.tcon.convec = [zeros(1,length(des.pt.pair)) 1 -1];
+              con.consess{1}.tcon.convec = [1 -1 zeros(1,length(des.pt.pair))];
+              con.consess{1}.tcon.sessrep = 'none';
+              %con.consess{2}.tcon.convec = [zeros(1,length(des.pt.pair)) -1 1];
+              con.consess{2}.tcon.convec = [-1 1 zeros(1,length(des.pt.pair))];
+              con.consess{2}.tcon.sessrep = 'none';
+          end
+              desmtxcols = 2;
 		 case 4
+             mc_Logger('log',sprintf('Working on model %d - Multiple Regression in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
 		  des = mreg(options.models(N),options.columns);
 		  cn = 1;
 		  for r = 1:length(options.models(N).reg)
@@ -111,9 +166,11 @@ function [jobs jobs2] = RandomEffects_central(file)
 		  end
 		  desmtxcols = length(options.models(N).reg);
 		 case 5
+             mc_Logger('log',sprintf('Working on model %d - Full Factorial ANOVA in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
 		  des = fd(options.models(N),options.columns);
 		  desmtxcols = size(des.fd.icell,2);
 		 case 6
+             mc_Logger('log',sprintf('Working on model %d - Flexible Factorial ANOVA in: %s',N,fullfile(opt.other.OutputDir,models(N).outputpath)),3);
 		  [des con des2] = fblock(options.models(N),options.columns);
 		  desmtxcols = 1;
 		end
@@ -126,52 +183,94 @@ function [jobs jobs2] = RandomEffects_central(file)
 			con.consess{end+1}.tcon.name = [cov(c).cname ' neg'];
 			con.consess{end}.tcon.convec = [zeros(1,[desmtxcols + (c-1)]) -1 zeros(1,nc-c)];
 			con.consess{end}.tcon.sessrep = 'none';
-		end
-		factorial_design.dir = {[options.other.OutputDir '/' options.models(N).outputpath]};
-		if (exist(factorial_design.dir{1}) ~= 7)
-			mkdir(factorial_design.dir{1});
-		end
+        end
+        FactorialDesignName = fullfile(options.other.OutputDir,options.models(N).outputpath);
+        FactorialDesignCheck = struct('Template',FactorialDesignName,'mode','makedir');
+        factorial_design.dir = {mc_GenPath(FactorialDesignCheck)};
+
 		if (options.models(N).type == 6)
-			if (exist([factorial_design.dir{1} '/ME_Group']) ~=7 )
-				mkdir([factorial_design.dir{1} '/ME_Group']);	
-			end
+            mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
+                               'mode','makedir') );
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
 			jobs2{n2}.stats{1}.factorial_design.des = des2;
 			jobs2{n2}.stats{1}.factorial_design.cov = [];
-			jobs2{n2}.stats{1}.factorial_design.dir = {[factorial_design.dir{1} '/ME_Group/']};
-			jobs2{n2}.stats{2}.fmri_est.spmmat = {[factorial_design.dir{1} '/ME_Group/SPM.mat']};
+			jobs2{n2}.stats{1}.factorial_design.dir = {fullfile(factorial_design.dir{1},'ME_Group/')};
+			jobs2{n2}.stats{2}.fmri_est.spmmat = {fullfile(factorial_design.dir{1},'ME_Group/SPM.mat')};
 			jobs2{n2}.stats{2}.fmri_est.method.Classical = 1;
 			job{1} = jobs2{n2};
-			save([job{1}.stats{1}.factorial_design.dir{1} '/me_group.mat'],'job');
+            
+            if (strcmp(options.spmver,'SPM8')==1)
+                savetemp{1} = {jobs2{n2}};
+                savetemp2 = spm_jobman('spm5tospm8',savetemp);
+                matlabbatch{1} = savetemp2{1}{1};
+                matlabbatch{2} = savetemp2{1}{2};
+                save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'me_group.mat'),'matlabbatch');
+                clear savetemp savetemp2 matlabbatch;
+            else
+                savetemp = jobs;
+                clear jobs;
+                jobs{1} = job{1};
+                save(fullfile(jobs{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'jobs');
+                clear jobs;
+                jobs = savetemp;
+                clear savetemp job;
+            end
+            
 			n2 = n2 + 1;
 		end
-		con.spmmat = {[factorial_design.dir{1} '/SPM.mat']};
+		con.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{1}.factorial_design = factorial_design;
 		jobs{n}.stats{1}.factorial_design.des = des;
 		jobs{n}.stats{1}.factorial_design.cov = cov;
-		jobs{n}.stats{2}.fmri_est.spmmat = {[factorial_design.dir{1} '/SPM.mat']};
+		jobs{n}.stats{2}.fmri_est.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{2}.fmri_est.method.Classical = 1;
 		jobs{n}.stats{3}.con = con;
 		job{1} = jobs{n};
-		save([job{1}.stats{1}.factorial_design.dir{1} '/second_level.mat'],'job');
+        if (strcmp(options.spmver,'SPM8')==1)
+            savetemp{1} = {jobs{n}};
+            savetemp2 = spm_jobman('spm5tospm8',savetemp);
+            matlabbatch{1} = savetemp2{1}{1};
+            matlabbatch{2} = savetemp2{1}{2};
+            matlabbatch{3} = savetemp2{1}{3};
+            save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'matlabbatch');
+            clear savetemp savetemp2 matlabbatch;
+        else
+            savetemp = jobs;
+            clear jobs;
+            jobs{1} = job{1};
+            save(fullfile(jobs{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'jobs');
+            clear jobs;
+            jobs = savetemp;
+            clear savetemp job;
+        end
 		n = n + 1;
-	end
+        end
+        if (~isempty(jobs))
+            if (strcmp(options.spmver,'SPM8')==1)
+                temp{1} = jobs;
+                temp{2} = jobs2;
+                matlabbatch = spm_jobman('spm5tospm8',temp)
+                spm_jobman('run',matlabbatch);
+            else
+                spm_jobman('run',jobs);
+                spm_jobman('run',jobs2);
+            end
+        end
     end
-    if (strcmp(options.spmver,'SPM8')==1)
-    	temp{1} = jobs;
-    	temp{2} = jobs2;
-        matlabbatch = spm_jobman('spm5tospm8',temp)
-        spm_jobman('run',matlabbatch);
-    else
-    	spm_jobman('run',jobs);
-    	spm_jobman('run',jobs2);
-    end
+    mc_Logger('log',sprintf('Finshed processing %d models at %s',length(options.models),datestr(now)),3);
+    
 
 function path = make_path(model,columns)
+    global options;
 	path = model.outputpath;
 	switch (model.type)
 		case 1
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            if options.other.ImColFlag == 1
+                ImDes = model.NumDes.ImDes;
+            else
+                ImDes = columns(model.imagecolumn).description;
+            end
+			path = strcat(path,columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', ImDes);
 		case 2	  
 			if (~strcmp(columns(model.factor(1).column).description,'') & ~isempty(strfind(columns(model.factor(1).column).description,' ')))
 				temp = textscan(columns(model.factor(1).column).description,'%s %s');
@@ -180,24 +279,39 @@ function path = make_path(model,columns)
 			else
 				grp1 = 'Group1';
 				grp2 = 'Group2';
-			end
-			path = [path columns(model.pathcolumn).description '_' grp1 'v' grp2 '_' columns(model.imagecolumn).description];
-		case 3
-			if (length(model.imagecolumn) > 1)         
-				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn(1)).description 'v' columns(model.imagecolumn(2)).description];
+            end
+            if options.other.ImColFlag == 1
+                ImDes = model.NumDes.ImDes;
+            else
+                ImDes = columns(model.imagecolumn).description;
+            end
+			path = strcat(path, columns(model.pathcolumn).description, '_', grp1, 'v', grp2, '_', ImDes);
+		case 3            
+			if (options.other.ImColFlag ~= 1 && length(model.imagecolumn) > 1)
+				path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', columns(model.imagecolumn(1)).description, 'v', columns(model.imagecolumn(2)).description);
+            elseif option.other.ImColFlag == 1 && length(model.NumDes) > 1
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes(1).ImDes, 'v', model.NumDes(2).ImDes);
 			elseif (length(model.pathcolumn) > 1)        
 				path = [path columns(model.pathcolumn(1)).description 'v' columns(model.pathcolumn(2)).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
 			else
 				path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];             
 			end		
 		case 4
-			path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            if options.other.ImColFlag == 1
+                path = strcat(path, columns(model.pathcolumn).description, '_', columns(model.factor(1).column).description, '_', model.NumDes.ImDes);
+            else
+                path = [path columns(model.pathcolumn).description '_' columns(model.factor(1).column).description '_' columns(model.imagecolumn).description];
+            end
 		case 5
 			path = [path 'Full_' columns(model.pathcolumn).description '_' model.factor(1).name ];
 			for n = 2:size(model.factor,2)
 				path = [path 'x' model.factor(n).name];
-			end
-			path = [path '_' columns(model.imagecolumn).description];
+            end
+            if options.other.ImColflag == 1
+                path = strcat(path, '_', model.NumDes.ImDes);
+            else
+                path = [path '_' columns(model.imagecolumn).description];
+            end
 		case 6
 			path = [path 'Flex_'];
 			ng = max(columns(model.factor(1).column).data);
@@ -278,7 +392,15 @@ function [models columns] = parse_scans(options)
         model(n-1).type = str2num(joblist{n}{2});
         model(n-1).outputpath = joblist{n}{3};
         model(n-1).pathcolumn = str2num(joblist{n}{4});
-        model(n-1).imagecolumn = str2num(joblist{n}{5});
+        
+        if options.ImColFlag == 1
+            model(n-1).NumDes = ImColTokenizer(joblist{n}{5},model(n-1).type);
+            model(n-1).imagecolumn = [];
+        else
+            model(n-1).imagecolumn = str2num(joblist{n}{5});
+            model(n-1).NumDes = [];
+        end
+        
         %model(n-1).subjectrepl = str2num(joblist{n}{6});
         %model(n-1).withinnames = joblist{n}{6};
         model(n-1).withinnames = {};
@@ -298,8 +420,18 @@ function [models columns] = parse_scans(options)
                     model(n-1).factor(x).name = joblist{n}{col};
                     model(n-1).factor(x).column = str2num(joblist{n}{col+1});
                     if (model(n-1).type > 1)
-                        model(n-1).factor(x).independent = str2num(joblist{n}{col+2});
-                        model(n-1).factor(x).variance = str2num(joblist{n}{col+3});
+                        if any(strcmp(joblist{1}{col+2},{'Indep','Dep'}))
+                            model(n-1).factor(x).independent = str2num(joblist{n}{col+2});
+                        else
+                            model(n-1).factor(x).independent = 0;
+                            offset = offset - 1;
+                        end
+                        if strcmp(joblist{1}{col+3},'Var')
+                            model(n-1).factor(x).variance = str2num(joblist{n}{col+3});
+                        else
+                            model(n-1).factor(x).variance = 1;
+                            offset = offset - 1;
+                        end
                         if (strcmp(joblist{1}{col+4},'GMSCA'))
                         	model(n-1).factor(x).gmsca = str2num(joblist{n}{col+4});
                         else
@@ -313,14 +445,26 @@ function [models columns] = parse_scans(options)
                         	offset = offset - 1;
                         end
                     else
-			    if (~strcmp(joblist{1}{col+4},'GMSCA'))
-				offset = offset - 1;
-			    end
-			    if (~strcmp(joblist{1}{col+5},'ANCOVA'))
-				offset = offset - 1;
-			    end
-		   end
+                        if ~any(strcmp(joblist{1}{col+2},{'Indep','Dep'}))
+                            offset = offset - 1;
+                        end
+                        if ~strcmp(joblist{1}{col+3},'Var')
+                            offset = offset - 1;
+                        end
+                        if (~strcmp(joblist{1}{col+4},'GMSCA'))
+                            offset = offset - 1;
+                        end
+                        if (~strcmp(joblist{1}{col+5},'ANCOVA'))
+                            offset = offset - 1;
+                        end
+                     end
                 else
+                    if ~any( strcmp(joblist{1}{col+2},{'Indep','Dep'}) )
+                        offset = offset - 1;
+                    end
+                    if ~strcmp(joblist{1}{col+3},'Var')
+                        offset = offset - 1;
+                    end
                     if (~strcmp(joblist{1}{col+4},'GMSCA'))
                     	offset = offset - 1;
                     end
@@ -331,18 +475,36 @@ function [models columns] = parse_scans(options)
             end
             col = col+offset;
         end
-        num_reg = (length(joblist{n}) - (col-1)) / 4;
-        for x = 1:num_reg
+        
+        x = 1;
+        while size(joblist{n},1) >= col
+            offset = 4;
             if (isempty(joblist{n}{col}))
                 break;
             end
             model(n-1).reg(x).name = joblist{n}{col};
             model(n-1).reg(x).column = str2num(joblist{n}{col+1});
-            model(n-1).reg(x).iCFI = str2num(joblist{n}{col+2});
-            model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
-            col = col + 4;
+            
+            if strcmp(joblist{1}{col+2},'iCFI')
+                model(n-1).reg(x).iCFI = str2num(joblist{n}{col+2});
+            else
+                model(n-1).reg(x).iCFI = 1;
+                offset = offset - 1;
+            end
+            
+            if strcmp(joblist{1}{col+3},'iCC')
+                model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
+            else
+                model(n-1).reg(x).iCC = 1;
+                offset = offset - 1;
+            end
+            
+            col = col + offset;
+            x = x + 1;
         end
     end
+    scanFileCheck = struct('Template',options.scanfile,'mode','check');
+    mc_GenPath(scanFileCheck);
     fid = fopen(options.scanfile);
     n = 1;
     while 1
@@ -377,16 +539,23 @@ function [models columns] = parse_scans(options)
     columns = column;
     
 function des = t1(model,columns)
+    global options;
+    if options.other.ImColFlag == 1
+        ImData = model.NumDes.ImNum;
+    else
+        ImData = columns(model.imagecolumn).data;
+    end
+
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
-        error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
+        mc_Error(['The type of column ' num2str(model.factor(1).column) ' does not match type factor']);        
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
-        error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+        mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
-        error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
+        mc_Error(['The type of column ' num2str(model.imagecolumn) ' does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    images = get_images(columns(model.pathcolumn).data, ImData);
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
@@ -400,6 +569,13 @@ function des = t1(model,columns)
     des.t1.scans = scans';
     
 function [des model columns] = t2(model,columns)
+    global options;
+    if options.other.ImColFlag == 1
+        ImData = model.NumDes.ImNum;
+    else
+        ImData = columns(model.imagecolumn).data;
+    end
+
     if (size(model.factor(1).column,2)>1)
     	newcol = size(columns,2) + 1;
     	columns(newcol).columntype = 'factor';
@@ -408,15 +584,15 @@ function [des model columns] = t2(model,columns)
     	model.factor(1).column = newcol;
     end
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
-        error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
+        mc_Error(['The type of column ' num2str(model.factor(1).column) ' does not match type factor']);        
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
-        error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+        mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
-        error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
+        mc_Error(['The type of column ' num2str(model.imagecolumn) ' does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    images = get_images(columns(model.pathcolumn).data, ImData);
     scan1{1} = [];
     scan2{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
@@ -442,41 +618,57 @@ function [des model columns] = t2(model,columns)
     des.t2.ancova = model.factor(1).ancova;
     
 function des = pt(model,columns)
+    global options;
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
-        error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
+        mc_Error(['The type of column ' num2str(model.factor(1).column) ' does not match type factor']);        
     end
     if (length(model.pathcolumn) > 1) 
         if (~strcmp(columns(model.pathcolumn(1)).columntype,'path'))
-            error(['The type of column ' num2str(model.pathcolumn(1)) 'does not match type path']);
+            mc_Error(['The type of column ' num2str(model.pathcolumn(1)) ' does not match type path']);
         end
         if (~strcmp(columns(model.pathcolumn(2)).columntype,'path'))
-            error(['The type of column ' num2str(model.pathcolumn(2)) 'does not match type path']);
+            mc_Error(['The type of column ' num2str(model.pathcolumn(2)) ' does not match type path']);
         end
-        if (~strcmp(columns(model.imagecolumn).columntype,'image'))
-            error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
+        if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
+            mc_Error(['The type of column ' num2str(model.imagecolumn) ' does not match type image']);
         end 
         type = 'path';
-    elseif (length(model.imagecolumn) > 1)
+    elseif (options.other.ImColFlag ~= 1 && length(model.imagecolumn) > 1)
         if (~strcmp(columns(model.pathcolumn).columntype,'path'))
-            error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+            mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
         end
         if (~strcmp(columns(model.imagecolumn(1)).columntype,'image'))
-            error(['The type of column ' num2str(model.imagecolumn(1)) 'does not match type image']);
+            mc_Error(['The type of column ' num2str(model.imagecolumn(1)) ' does not match type image']);
         end         
         if (~strcmp(columns(model.imagecolumn(2)).columntype,'image'))
-            error(['The type of column ' num2str(model.imagecolumn(2)) 'does not match type image']);
+            mc_Error(['The type of column ' num2str(model.imagecolumn(2)) ' does not match type image']);
         end   
         type = 'image';
+    elseif options.other.ImColFlag == 1
+        if (~strcmp(columns(model.pathcolumn).columntype,'path'))
+            mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
+        end
+        type = 'image';
     else
-        error(['Your paired samples T-test is not set up correctly. You need either 2 entries in the Path column or 2 entries in the Image column']);
+        mc_Error(['Your paired samples T-test is not set up correctly. You need either 2 entries in the Path column or 2 entries in the Image column']);
     end
     switch (type)
      case 'path'
-      images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
-      images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
+      if options.other.ImColFlag == 1
+          images1 = get_images(columns(model.pathcolumn(1)).data,model.NumDes.ImNum);
+          images2 = get_images(columns(model.pathcolumn(2)).data,model.NumDes.ImNum);
+      else
+          images1 = get_images(columns(model.pathcolumn(1)).data,columns(model.imagecolumn).data);
+          images2 = get_images(columns(model.pathcolumn(2)).data,columns(model.imagecolumn).data);
+      end
      case 'image'
-      images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
-      images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
+      if options.other.ImColFlag == 1
+          images1 = get_images(columns(model.pathcolumn).data,model.NumDes(1).ImNum);
+          images2 = get_images(columns(model.pathcolumn).data,model.NumDes(2).ImNum);
+      else
+          images1 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(1)).data);
+          images2 = get_images(columns(model.pathcolumn).data,columns(model.imagecolumn(2)).data);
+      end
     end
     pair = [];
     for n = 1:length(columns(model.factor(1).column).data)
@@ -499,17 +691,23 @@ function des = pt(model,columns)
     des.pt.ancova = model.factor(1).ancova;
     
 function des = mreg(model,columns)
+    global options;
     if (~strcmp(columns(model.factor(1).column).columntype,'factor'))
-        error(['The type of column ' num2str(model.factor(1).column) 'does not match type factor']);        
+        mc_Error(['The type of column ' num2str(model.factor(1).column) ' does not match type factor']);        
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
-        error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+        mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
-        error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
+        mc_Error(['The type of column ' num2str(model.imagecolumn) ' does not match type image']);
     end
     
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    if options.other.ImColFlag == 1
+        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum); % Assume only one image number
+    else
+        images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    end
+    
     scans{1} = [];
     for n = 1:length(columns(model.factor(1).column).data)
         if (columns(model.factor(1).column).data(n) == 1)
@@ -530,19 +728,26 @@ function des = mreg(model,columns)
     des.mreg.mcov = mcov;
     
 function des = fd(model,columns)
+    global options;
     num_factors = length(model.factor);
     for n = 1:num_factors
         if (~strcmp(columns(model.factor(n).column).columntype,'factor'))
-            error(['The type of column ' num2str(model.factor(n).column) 'does not match type factor']);        
+            mc_Error(['The type of column ' num2str(model.factor(n).column) ' does not match type factor']);        
         end
     end
     if (~strcmp(columns(model.pathcolumn).columntype,'path'))
-        error(['The type of column ' num2str(model.pathcolumn) 'does not match type path']);
+        mc_Error(['The type of column ' num2str(model.pathcolumn) ' does not match type path']);
     end
-    if (~strcmp(columns(model.imagecolumn).columntype,'image'))
-        error(['The type of column ' num2str(model.imagecolumn) 'does not match type image']);
+    if (options.other.ImColFlag ~= 1 && ~strcmp(columns(model.imagecolumn).columntype,'image'))
+        mc_Error(['The type of column ' num2str(model.imagecolumn) ' does not match type image']);
     end
-    images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    
+    if options.other.ImColFlag == 1
+        images = get_images(columns(model.pathcolumn).data, model.NumDes.ImNum);
+    else
+        images = get_images(columns(model.pathcolumn).data, columns(model.imagecolumn).data);
+    end
+    
     fact = [];
     for n = 1:num_factors
         fact(n).levels = max(columns(model.factor(n).column).data);
@@ -599,49 +804,6 @@ function des = fd(model,columns)
     des.fd.fact = fact;
     des.fd.icell = icell;
 
-function [fsubject] = get_within_images2(model,columns)
-    global options;
-    factnum = 1;
-    for n = 1:length(columns)
-        if (strcmp(columns(n).columntype,'wpath'))
-            fact(factnum).pc = n;
-            fact(factnum).fc = n+1;
-            fact(factnum).ic = n+2;
-            factnum = factnum + 1;
-        end
-    end
-    total = [];
-    between = [];
-    for n = 1:length(model.factor)
-        if (model.factor(n).column ~= 0)
-            between = [between columns(model.factor(n).column).data];
-        end
-    end
-    
-    for x = 1:length(fact)
-        i = columns(fact(x).ic).data;
-        p = columns(fact(x).pc).data;
-        f(x).f = [between columns(fact(x).fc).data];
-        f(x).images = get_images(p,i);
-        f(x).x = [ones(1,length(f(x).f))*x];
-        f(x).count = [1:length(f(x).f)];
-        f(x).sortby = [f(x).count' f(x).x' f(x).f];
-        total = [total;f(x).sortby];
-    end
-    factors = length(model.factor);
-    sort_total = sortrows(total,[1 3:(factors+2)]);
-    for n = 1:length(sort_total)
-        images{n} = f(sort_total(n,2)).images{sort_total(n,1)};
-    end
-    images = images';
-    for n = 1:length(sort_total)
-        fsubject(sort_total(n,1)).scans{sort_total(n,2)} = images{n};
-        fsubject(sort_total(n,1)).conds(sort_total(n,2),:) = sort_total(n,3:(factors+2));
-    end
-    for n = 1:length(fsubject)
-        fsubject(n).scans = fsubject(n).scans';
-    end
-
 function [specall con icell] = get_within_images3(model,columns)
 	global options;
 	
@@ -657,27 +819,52 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 	end
 	scans = {};
-	for s = 1:size(include,1) %loop over included subject rows
-		for p1 = 1:size(model.pathcolumn,1) %loop over paths
-			for p2 = 1:size(model.pathcolumn,2)
-				for i1 = 1:size(model.imagecolumn,1) %loop over images
-					for i2 = 1:size(model.imagecolumn,2)
-						p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
-						i = columns(model.imagecolumn(i1,i2)).data(include(s));
-						scans{end+1} = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) '.img,1']);
-					end
-				end
-			end
-		end
-	end
-	
+    
+    if options.other.ImColFlag == 1
+        for s=1:size(include,1) %loop over included subject rows
+            for p1=1:size(model.pathcolumn,1) % loop over paths
+                for p2=1:size(model.pathcolumn,2)
+                    for i1=1:size(model.NumDes.ImNum,1)
+                        for i2=1:size(model.NumDes.ImNum,2)
+                            VecImNum = repmat(model.NumDes.ImNum(i1,i2),length(between),1);
+                            p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
+                            i = VecImNum(include(s));
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) options.other.InputImgExt]);
+                            ImNameCheck = struct('Template',ImName,'mode','check');
+                            ImName = mc_GenPath(ImNameCheck);
+                            scans{end+1} = strcat(ImName,',1');
+                        end
+                    end
+                end
+            end
+        end
+    else                
+        for s = 1:size(include,1) %loop over included subject rows
+            for p1 = 1:size(model.pathcolumn,1) %loop over paths
+                for p2 = 1:size(model.pathcolumn,2)
+                    for i1 = 1:size(model.imagecolumn,1) %loop over images
+                        for i2 = 1:size(model.imagecolumn,2)
+                            p = columns(model.pathcolumn(p1,p2)).data(include(s),:);
+                            i = columns(model.imagecolumn(i1,i2)).data(include(s));
+                            ImName = fullfile(options.other.MainDir,deblank(p),options.other.ModelDir,[options.other.ContrastPrefix '_' sprintf('%04d',i) options.other.InputImgExt]);
+                            ImNameCheck = struct('Template',ImName,'mode','check');
+                            ImName = mc_GenPath(ImNameCheck);
+                            scans{end+1} = strcat(ImName,',1');
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
 	n = size(include,1);
 	ng = size(unique(between(include)),1);
 	for i = 1:ng
 		npg(i) = sum(between(include)==i);
-	end
+    end
 	m = p1 * p2 * i1 * i2;
 	repl = [1:(n*m)]';
+    repl = ones(1,n*m)';
 	group = [];
 	for g = 1:ng
 		group = [group;g*ones(1,m*npg(g))'];
@@ -697,10 +884,9 @@ function [specall con icell] = get_within_images3(model,columns)
 	%auto calculate average image per subject for use in full factorial anova
 	icell = [];
 	if (ng > 1)
-		meg_outputdir = {[options.other.OutputDir '/' model.outputpath '/ME_Group']};
-		if (exist(meg_outputdir{1} ) ~=7 )
-			mkdir(meg_outputdir{1});	
-		end
+        meg_outputdir = fullfile(options.other.OutputDir,model.outputpath,'ME_Group');
+        MegOutputDirCheck = struct('Template',meg_outputdir,'mode','makedir');
+        meg_outputdir = {mc_GenPath(MegOutputDirCheck)};
 		
 		numlevels = max(columns(model.factor(1).column).data);
 		for l = 1:numlevels
@@ -709,7 +895,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 		for s = 1:n
 			offset = (s-1)*m;
-			[a b c d] = fileparts(scans{offset+1});
+			[a b c] = fileparts(scans{offset+1});
 			%jobs{s}.util{1}.imcalc.output = ['me_group_' cell2mat(model.withinnames) '.img'];
 			%jobs{s}.util{1}.imcalc.outdir = {a};
 			jobs{s}.util{1}.imcalc.output = ['me_group' strrep(strrep(strrep(a,options.other.MainDir,''),options.other.ModelDir,''),'/','_') '.img'];
@@ -727,7 +913,8 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 		for l = 1:numlevels
 			icell(l).scans = icell(l).scans';
-		end
+        end
+        mc_Logger('log','Creating average images for main effect of group model.',3);
 		if (strcmp(options.spmver,'SPM8')==1)
 		    	temp{1} = jobs;
 		        matlabbatch = spm_jobman('spm5tospm8',temp)
@@ -742,7 +929,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		nc = ng*m;
 		meg = [];
 		for g = 1:ng-1
-			meg{g} = [zeros(1,n) zeros(1,(m*(g-1))) ones(1,m) -1*ones(1,m) zeros(1,(nc-(2*m)-(m*(g-1))))];
+			meg{g} = [zeros(1,(m*(g-1))) ones(1,m) -1*ones(1,m) zeros(1,(nc-(2*m)-(m*(g-1)))) zeros(1,n)];
 		end
 	end
 	
@@ -761,18 +948,28 @@ function [specall con icell] = get_within_images3(model,columns)
 		withinfactors{end}.levels = size(model.pathcolumn,2);
 		m = [m size(model.pathcolumn,2)];
 	end
-	if (size(model.imagecolumn,1)>1)
+	if options.other.ImColFlag ~= 1 && (size(model.imagecolumn,1)>1)
 		wf = wf + 1;	
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,1);
 		m = [m size(model.imagecolumn,1)];
+    elseif options.other.ImColFlag == 1 && (size(model.NumDes.ImNum,1)>1)
+        wf = wf + 1;
+        withinfactors{end+1}.name = model.withinnames{wf};
+        withinfactors{end}.levels = size(model.NumDes.ImNum,1);
+        m = [m size(model.NumDes.ImNum,1)];
 	end
-	if (size(model.imagecolumn,2)>1)
+	if options.other.ImColFlag ~= 1 && (size(model.imagecolumn,2)>1)
 		wf = wf + 1;
 		withinfactors{end+1}.name = model.withinnames{wf};
 		withinfactors{end}.levels = size(model.imagecolumn,2);	
 		m = [m size(model.imagecolumn,2)];
-	end	
+    elseif options.other.ImColFlag == 1 && (size(model.NumDes.ImNum,2)>1)
+        wf = wf + 1;
+        withinfactors{end+1}.name = model.withinnames{wf};
+        withinfactors{end}.levels = size(model.NumDes.ImNum,2);
+        m = [m size(model.NumDes.ImNum,2)];
+    end
 	connum = 1;
 
 	%main effect of within
@@ -782,7 +979,7 @@ function [specall con icell] = get_within_images3(model,columns)
 		consess{connum}.fcon.sessrep = 'none';
 		consess{connum}.fcon.convec = {};
 		for z = 1:size(mtx{y},1)
-			mtx{y}{z} = [zeros(1,n) repmat(mtx{y}{z},1,ng)];
+			mtx{y}{z} = [repmat(mtx{y}{z},1,ng) zeros(1,n)];
 			consess{connum}.fcon.convec{z} = mtx{y}{z};
 		end
 		connum = connum + 1;
@@ -951,7 +1148,7 @@ function [des con des2] = fblock(model,columns)
 	
 	des.fblock.fac = fac;
 	des.fblock.fsuball = fsuball;
-    	des.fblock.maininters = maininters;
+    des.fblock.maininters = maininters;
 
 %currently hardcoded, need to improve
 	num_factors = 1;
@@ -967,171 +1164,17 @@ function [des con des2] = fblock(model,columns)
 
 	des2.fd.fact = fact;
 	des2.fd.icell = icell;	
-
-function des = fblock_old(model,columns)
-    if (model.subjectrepl(1) ~= 1)
-        des = fd(model,columns);
-    else
-        num_factors = length(model.factor);
-        [fsubject] = get_within_images2(model,columns);
-        fact = [];
-        fac(1).name = 'subject';
-        fac(1).dept = 0;
-        fac(1).variance = 0;
-        fac(1).gmsca = 0;
-        fac(1).ancova = 0;
-        maininters{1}.fmain.fnum = 1;
-        offset = 1;
-        switch (model.subjectrepl(2))
-         case 1
-          fac(2).name = 'repl';
-          fac(2).dept = 1;
-          fac(2).variance = 0;
-          fac(2).gmsca = 0;
-          fac(2).ancova = 0;
-          maininters{2}.fmain.fnum = 2;
-          offset = offset + 1;
-        end
-        
-        for n = 1:num_factors
-            fac(n+offset).name = model.factor(n).name;
-            fac(n+offset).dept = model.factor(n).independent;
-            fac(n+offset).variance = model.factor(n).variance;
-            fac(n+offset).gmsca = model.factor(n).gmsca;
-            fac(n+offset).ancova = model.factor(n).ancova;
-            maininters{n+offset}.fmain.fnum = n+offset;
-        end
-        fsuball.fsubject = fsubject;
-        switch (num_factors)
-         case 1
-          switch (model.subjectrel(2))
-           case 1
-            maininters{end+1}.inter.fnums = [2 3]';
-          end
-          
-         case 2
-          switch (model.subjectrepl(2))
-           case 0
-            maininters{end+1}.inter.fnums = [2 3]';
-           case 1
-            maininters{end+1}.inter.fnums = [2 3]';
-            maininters{end+1}.inter.fnums = [2 4]';
-            maininters{end+1}.inter.fnums = [3 4]';
-          end
-         case 3
-          switch (model.subjectrepl(2))
-           case 0
-            maininters{end+1}.inter.fnums = [2 3]';
-            maininters{end+1}.inter.fnums = [2 4]';
-            maininters{end+1}.inter.fnums = [3 4]';
-           case 1
-            maininters{end+1}.inter.fnums = [2 3]';
-            maininters{end+1}.inter.fnums = [2 4]';
-            maininters{end+1}.inter.fnums = [2 5]';
-            maininters{end+1}.inter.fnums = [3 4]';
-            maininters{end+1}.inter.fnums = [3 5]';
-            maininters{end+1}.inter.fnums = [4 5]';
-          end
-        end
-    end
-    des.fblock.fac = fac;
-    des.fblock.fsuball = fsuball;
-    des.fblock.maininters = maininters;
-
-function des = fblock_older(model,columns)
-    flag = 0;
-    subfact = 0;
-    for n = 1:length(model.factor)
-        if (strcmp(model.factor(n).name,'subject'))
-            flag = 1;
-            subfact = n;
-        end
-    end
-    if (~flag)
-        des = fd(model,columns);
-    else
-        num_factors = length(model.factor);
-        if (~strcmp(columns(model.factor(subfact).column).columntype,'subjectnum'))
-            error(['The type of column ' num2str(model.factor(subfact).column) 'does not match type factor']);
-        end
-        [images matrix] = get_within_images(model,columns,subfact);
-        fact = [];
-        for n = 1:num_factors
-            fac(n).name = model.factor(n).name;
-            fac(n).dept = model.factor(n).independent;
-            fac(n).variance = model.factor(n).variance;
-            fac(n).gmsca = model.factor(n).gmsca;
-            fac(n).ancova = model.factor(n).ancova;
-            %maininters{n}.fmain.fnum = n;
-        end
-        fsuball.specall.scans = images;
-        fsuball.specall.imatrix = matrix;
-        switch (num_factors)
-         case 2
-          %maininters{end+1}.inter.fnums = [1 2]';
-         case 3
-          maininters{1}.fmain.fnum = subfact;
-          maininters{end+1}.inter.fnums = setxor([1 2 3],subfact)';
-          %maininters{end+1}.inter.fnums = [1 2]';
-          %maininters{end+1}.inter.fnums = [1 3]';
-          %maininters{end+1}.inter.fnums = [2 3]';
-          %maininters{end+1}.inter.fnums = [1 2 3]';
-        end
-    end
-    des.fblock.fac = fac;
-    des.fblock.fsuball = fsuball;
-    des.fblock.maininters = maininters;
-
-function [images matrix] = get_within_images(model,columns,subfact)
-    global options;
-    factnum = 1;
-    for n = 1:length(columns)
-        if (strcmp(columns(n).columntype,'wpath'))
-            fact(factnum).pc = n;
-            fact(factnum).fc = n+1;
-            fact(factnum).ic = n+2;
-            factnum = factnum + 1;
-        end
-    end
-    total = [];
-    for x = 1:length(fact)
-        i = columns(fact(x).ic).data;
-        p = columns(fact(x).pc).data;
-        switch (subfact)
-         case 1
-          f(x).f = [columns(model.factor(subfact).column).data columns(fact(x).fc).data];
-         case 2
-          f(x).f = [columns(fact(x).fc).data(:,1) columns(model.factor(subfact).column).data columns(fact(x).fc).data(:,2)];
-         case 3
-          f(x).f = [columns(fact(x).fc).data columns(model.factor(subfact).column).data];
-        end
-        %f(x).f = [columns(model.factor(subfact).column).data columns(fact(x).fc).data];
-        f(x).images = get_images(p,i);
-        f(x).x = [ones(1,length(f(x).f))*x];
-        f(x).count = [1:length(f(x).f)];
-        f(x).sortby = [f(x).f f(x).x' f(x).count'];
-        total = [total;f(x).sortby];
-    end
-    sort_total = sortrows(total,[1 2 3]);
-    for n = 1:length(sort_total)
-        images{n} = f(sort_total(n,4)).images{sort_total(n,5)};
-    end
-    count = [1:length(sort_total)]';
-    matrix = [count sort_total(:,1:3)];
-    images = images';
     
 function images = get_images(p,i)
     global options;
-    for n = 1:length(i)
-        zeros = '';
-        if (i(n) < 10)
-            zeros = '000';
-        elseif (i(n) < 100)
-            zeros = '00';
-        elseif (i(n) < 1000)
-            zeros = '0';
-        end
-        images{n} = strcat(options.other.MainDir,'/',p(n,:),'/',options.other.ModelDir,'/',options.other.ContrastPrefix,'_',zeros,num2str(i(n)),'.img,1');
+    for n=1:size(p,1)
+        subject = strtrim( p(n,:) );
+        imageName = strcat(options.other.ContrastPrefix,'_',sprintf('%04d',i(1)),options.other.InputImgExt);
+        imageCheck.Template = fullfile(options.other.MainDir,subject,options.other.ModelDir,imageName);
+        imageCheck.mode = 'check';
+        %image = mc_GenPath(imageCheck);
+        image = imageCheck.Template;
+        images{n} = strcat(image,',1');
     end
     images = images';
     
@@ -1199,10 +1242,27 @@ function options = parse_options(file,opt)
 	    end
 	    options = opt;
     else
+        if ~isfield(file.other,'ImColFlag')
+            file.other.ImColFlag = 0;
+        end
+        
+        if isfield(file.other,'InputImgExt')
+            if ~any( strcmp(file.other.InputImgExt,{'.nii','.img'}) )
+                if (any(strcmp(file.other.InputImgExt,{'nii', 'img'})))
+                    file.other.InputImgExt = ['.' file.other.InputImgExt];
+                else
+                    mc_Error(['Warning: Invalid opt.other.InputImgExt\n',...
+                          'Expected ''.nii'' or ''.img'', but found %s\n',...
+                          ' * * * A B O R T I N G * * *\n'],file.other.InputImgExt);
+                end
+                
+            end
+        else
+            file.other.InputImgExt = '.img';
+        end
 	    options = file;
     end
-    
-    
+     
 function mtx = recurse_loop(mtx, n, m, d)
 	if (isempty(mtx))
 		for x = 1:size(n,2)
@@ -1230,4 +1290,109 @@ function mtx = recurse_loop(mtx, n, m, d)
 				end
 			end
 		end
-	end
+    end
+    
+function TheTokens = ImColTokenizer(input,type)
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% ImColTokenizer
+%
+% A routine that parses the 'ImCol' column in the job file when ImColFlag =
+% 1.
+%
+% Call as :
+%
+%   function TheTokens = ImColtokenizer(input)
+%
+% To Make this work you need to provide the following input:
+%
+%   input = a string that adheres to the following syntax:
+%            1. Descriptions are optional
+%            2. Descriptions are always followed by a ':' -- whitespace is
+%               ignored
+%            3. Image numbers are mandotory
+%            4. If type == 3, either both image numbers are missing their
+%               descriptions or both have their descriptions
+%            5. No descriptions should be present for type == 6
+%            Examples: 'asdf:1'
+%                      '1 2'
+%                      'asdf:1 qwerty:2'
+%   type = the model type
+%
+% Output
+%
+%   TheTokens = an array of Token structures
+%
+% Return structures
+%
+%   struct NumDes {
+%                   array double ImNum;
+%                   string ImDes;
+%                  };
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NumDes = struct('ImNum',[],'ImDes','');
+input  = strtrim(input);
+
+if isempty(type)
+    TheTokens = NumDes;
+    return;
+end
+
+switch type
+    case {1, 2, 4, 5}
+        ColonLoc = regexp(input,':');
+        if length(ColonLoc) == 0
+            NumDes.ImNum = str2num(input);
+        elseif length(ColonLoc) == 1
+            NumDes.ImDes = strtrim( input(1:ColonLoc-1) );
+            NumDes.ImNum = str2num( input(ColonLoc+1:end) );
+        else
+            mc_Error(['\nWarning: Invalid ImCol syntax: %s\n'...
+                   '   * * * A B O R T I N G * * * \n'],input);
+        end
+    case {3} % PairedSamplesT
+        ColonLoc = regexp(input,':');
+        if length(ColonLoc) == 0
+            Spaces = regexp(input,' ');
+            if isempty(Spaces) % Only one image number
+                NumDes.ImNum = str2num(input);
+            else               % Two image numbers
+                NumDes2 = NumDes;
+                NumDes.ImNum = str2num( input(1:Spaces(1)-1) );
+                NumDes2.ImNum = str2num( input(Spaces(end)+1:end) );
+                NumDes = [NumDes NumDes2];
+            end
+        elseif length(ColonLoc) == 1 % Only supports when 1 image number is present, otherwise things will break
+            NumDes.ImDes = strtrim( input(1:ColonLoc-1) );
+            NumDes.ImNum = str2num( input(ColonLoc+1:end) );
+        elseif length(ColonLoc) == 2
+            Spaces  = regexp(input,' ');
+            NumDes2 = NumDes;
+            NumDes.ImDes = strtrim( input(1:ColonLoc(1)-1) );
+            NumDes.ImNum = str2num( input(ColonLoc(1)+1:Spaces(1)-1) );
+            NumDes2.ImDes = strtrim( input(Spaces(end)+1:ColonLoc(2)-1) );
+            NumDes2.ImNum = str2num( input(ColonLoc(2)+1:end) );
+            NumDes = [NumDes NumDes2];
+        else
+            mc_Error(['\nWarnig: Invalid ImCol syntax: %s\n'...
+                   'Too many '':'' in argument\n'...
+                   '   * * * A B O R T I N G * * *\n'],input);
+        end
+    case {6} % Flexible factorial, header is not used
+        NumDes.ImNum = str2num(input);
+    otherwise
+        mc_Error(['\nUnknown model type\n'...
+               '   * * * A B O R T I N G * * *\n'],[]);
+end
+TheTokens = NumDes;
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
