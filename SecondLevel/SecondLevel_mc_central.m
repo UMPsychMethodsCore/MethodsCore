@@ -9,7 +9,7 @@
 %%% Instead refer to the directions and create a jobfile and scanfile
 %%% to match your data setup.
 %%% If you find bugs with this script, please contact
-%%% mangstad@med.umich.edu
+%%% MethodsCoreHelp@umich.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
