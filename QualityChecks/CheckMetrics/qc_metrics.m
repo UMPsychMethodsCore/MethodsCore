@@ -35,6 +35,7 @@ Data      = fname_nii.dat(:,:,:,:);
 clear fname_nii;
 
 [dx dy dz dt] = size(Data);
+Data = reshape(Data,dx*dy,dz,dt);
 
 if  dz < 1
     fprintf(1,'FATAL ERROR: z dimensions must be greater than 1.\n');
@@ -50,10 +51,22 @@ end
 
 % Create implicit mask or use already defined one
 if exist('fmask','var') ~= 1
-    mask   = mean(Data,4) > mean(Data(:));
+    mask = true(dx*dy,dz);
+    for i = 1:dt
+        temp = Data(:,:,i);
+        tm = temp < (mean(temp(:))/2);
+        mask(tm) = 0;
+    end
 else
     fmask_nii = nifti(fmask);
-    mask      = logical(fmask_nii.dat(:,:,:,:));
+    mask = logical(fmask_nii.dat(:,:,:,:));
+    [mx my mz mt] = size(mask);
+    if mx~=dx || my~=dy || mz~=dz || mt~=1
+        fprintf(1,'FATAL ERROR: Inavlid mask.\n');
+        fprintf(1,' * * * A B O R T I N G * * *\n');
+        return;
+    end
+    mask = reshape(mask,dx*dy,dz);
     clear fmask_nii;
 end
 
@@ -62,8 +75,6 @@ if sum(mask(:)) < 1000
     return;
 end
 
-Data       = reshape(Data,dx*dy,dz,dt);
-mask       = reshape(mask,dx*dy,dz);
 bgmask     = ~mask;
 GlobalMean = mean(Data(:));
 
@@ -94,13 +105,18 @@ for i = 1:dz
     if stdMean == 0; stdMean = 1; end;
     SliceZScore(i,:) = (SliceMean(i,:)-mean(SliceMean(i,:)))/stdMean;
     SliceStd(i,:)    = std(Slices,[],1);
-    Tmse(i,:)        = [0 mean(diff(Slices,1,2).^2,1)/GlobalMean];
+    for k = 2:dt-1
+        mse1 = mean((Slices(:,k) - Slices(:,k-1)).^2);
+        mse2 = mean((Slices(:,k) - Slices(:,k+1)).^2);
+        Tmse(i,k) = mean(mse1 + mse2)/GlobalMean;
+    end
+    Tmse(i,1) = mean((Slices(:,1) - Slices(:,2)).^2)/GlobalMean;
+    Tmse(i,end) = mean((Slices(:,end) - Slices(:,end-1)).^2)/GlobalMean;
 end
 Out.WholeSliceMean = SliceMean;
 Out.WholeSliceStd  = SliceStd;
 Out.SliceTmse      = Tmse;
 Out.SliceZScore    = SliceZScore;
-
 
 % Calculate whole scan metrics
 VolumeMean    = zeros(1,dt);
