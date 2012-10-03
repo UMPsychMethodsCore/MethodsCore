@@ -17,7 +17,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Code to create logfile name
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    LogDirectory = evalin('caller',sprintf('mc_GenPath(struct(''Template'',LogTemplate,''mode'',''check''))'));
+    LogDirectory = evalin('caller',sprintf('mc_GenPath(struct(''Template'',LogTemplate,''mode'',''makedir''))'));
     result = mc_Logger('setup',LogDirectory);
     if (~result)
         %error with setting up logging
