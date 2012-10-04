@@ -115,46 +115,9 @@ if strcmpi(svmtype,'unpaired')
         
         
         if nFeatPrune~=0
+            
+            featurefitness=mc_calc_discrim_power_unpaired(train,trainlabels,pruneMethod);
 
-            switch pruneMethod  % Do different types of pruning based on user-specified option
-                case 'ttest'% In ttest mode, do a 2-sample (groupwise) t-test on all features
-
-                    [h,p] = ttest2(train(trainlabels==+1,:),train(trainlabels==-1,:));
-
-                    % Clean out NaNs by setting to 1 (no significance)
-                    p(isnan(p))=1;
-
-
-                    % To keep the direction of discriminative power consistent,
-                    % (i.e larger values indicate MORE discriminant power),
-                    % take complement of p-values so small values (more
-                    % significant) become large (more discriminant)
-                    featurefitness=1-p;
-
-
-
-                case 'tau-b'
-                    % Initialize the fractions object which will store the
-                    % tau-b's
-                    featurefitness=zeros(1,size(train,2));
-
-                    % Loop over features
-                    for iFeat=1:size(train,2)
-
-                        if any(diff(train(:,iFeat))) % Check to be sure that all elements aren't the same
-                            featurefitness(iFeat)=ktaub([trainlabels(:,1) train(:,iFeat)],.05,0);
-
-                        end
-                    end
-                    featurefitness = abs(featurefitness);
-
-                case 'mutualinfo'
-                    %|------------------- Mutual Information ----------------------------------------|%
-
-                    featurefitness = mc_compute_mi( train, trainlabels );
-                    %%
-
-            end
 
             % Store this LOO fold's feature-wise discriminant power
             LOOCV_featurefitness(iL,:) = featurefitness;
@@ -472,7 +435,7 @@ if advancedkernel==1
     gridsearch_performance=cell(size(models_test,2),1);
     
     nLOOCV=sum(~cellfun(@isempty,models_test),1); %Count how many LOOCV folds in each contrast
-    
+    try
     for iContrast=1:size(models_test,2)
         gridsearch_performance{iContrast,1}=zeros(nLOOCV(iContrast),size(models_test{1,iContrast},2)-1); %Preallocate
         for iL=1:size(models_test,1)
@@ -481,6 +444,8 @@ if advancedkernel==1
     end
     
     SVM_ConnectomeResults.gridsearch_performance=gridsearch_performance;
+    catch
+    end
 end
 
 %% Save results to file

@@ -72,7 +72,7 @@ end
 end
 
 % Set svmlib to default value if undefined
-if ~exist('svmlib)','var')
+if ~exist('svmlib','var')
     svmlib=1;
 end
 
@@ -87,8 +87,11 @@ for iGrid=2:size(searchgrid,2)
             svm_grid_models{1,iGrid} = svmclassify(test,testlabels,svm_model_temp);
         case 2 % libSVM
             svm_model_temp = svmtrain(trainlabels,train,svm_learn_args);
-            [a, acc] = svmpredict(testlabels,test,svm_model_temp);
-            svm_grid_models{1,iGrid} = 1 - acc(1)/100;
+            [a, b, c] = svmpredict(testlabels,test,svm_model_temp);
+            Result.a=a;
+            Result.b=b;
+            Result.c=c;
+            svm_grid_models{1,iGrid} = Result;
     end
 end
 
