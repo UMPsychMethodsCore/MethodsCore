@@ -236,7 +236,7 @@ if (RunMode(2))
         %spawn NumProcesses-1 other matlab processes
         for iChunk = 1:NumProcesses-1
             chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
-            systemcall = sprintf('/net/misc/matlab2007b/bin/matlab -nosplash -nodesktop -r "addpath(fullfile(''%s'',''matlabScripts''));,addpath(fullfile(''%s'',''cPPI''));,addpath(fullfile(''%s'',''som''));,addpath(fullfile(''%s'',''spm8''));,cppi_batch_chunk(''%s'');,quit;" &',mcRoot,mcRoot,mcRoot,mcRoot,chunkFile);
+            systemcall = sprintf('matlab -nosplash -nodesktop -r "addpath(fullfile(''%s'',''matlabScripts''));,addpath(fullfile(''%s'',''cPPI''));,addpath(fullfile(''%s'',''som''));,addpath(fullfile(''%s'',''SPM/SPM8/spm8_with_R4667''));,cppi_batch_chunk(''%s'');,quit;" &',mcRoot,mcRoot,mcRoot,mcRoot,chunkFile);
             [status result] = system(systemcall);
         end
         %now the last one in this matlab.  This one will always be equal to
