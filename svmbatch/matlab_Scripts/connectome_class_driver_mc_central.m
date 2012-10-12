@@ -244,22 +244,24 @@ if strcmpi(svmtype,'paired')
             end
             censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; %For all indices in rmat that are NaN, zero out cleanconMat
             
-            if (strcmp(matrixtype,'nodiag'))
-                censor_square = censor_square + eye(size(censor_square));
-            end
+
         end
 
         % Flatten censor matrix
         
-        if (strcmp(matrixtype,'upper'))
-            censor_flat = mc_flatten_upper_triangle(censor_square);
-        else
-            censor_flat = reshape(censor_square,1,prod(size(censor_square)));
-        end
+
 
 
     end
-
+    if (strcmp(matrixtype,'nodiag'))
+        censor_square(logical(eye(size(censor_square)))) = 1;
+    end
+    
+    if (strcmp(matrixtype,'upper'))
+        censor_flat = mc_flatten_upper_triangle(censor_square);
+    else
+        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
+    end
     fprintf('Done\n');
 
 
@@ -291,7 +293,7 @@ if strcmpi(svmtype,'paired')
                 if (strcmp(matrixtype,'upper'))
                     superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
                 else
-                    superflatmat_group(iSub,:,iCond) = reshape(rmat,1,prod(size(rmat)));
+                    superflatmat_grouped(iSub,:,iCond) = reshape(rmat,1,prod(size(rmat)));
                 end
             end
 
