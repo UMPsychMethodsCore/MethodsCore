@@ -38,6 +38,8 @@ if Opt.Thresh < 0
     return;
 end
 
+fileExp = ['^' Opt.FileExp '.*nii'];
+
 for i = 1:nsubjects
     subjDir = fullfile(Opt.Exp,Opt.Postpend.Exp,Opt.List.Subjects{i,1},Opt.Postpend.Subjects);
     for k = Opt.List.Subjects{i,2}
@@ -49,7 +51,7 @@ for i = 1:nsubjects
             return;
         end
             
-        funcFile = spm_select('FPList',runDir,Opt.FileExp);
+        funcFile = spm_select('FPList',runDir,fileExp);
         if isempty(funcFile)
             fprintf(1,'FATAL ERROR: No function file in directory: %s\n',funcDir);
             fprintf(1,' * * * A B O R T I N G * * *\n');
