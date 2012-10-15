@@ -20,9 +20,9 @@ Opt.Postpend.Exp = '';
 Opt.Postpend.Subjects = 'day4/func';
 Opt.Postpend.Runs = '';
 
-Opt.FileExp = 'rarun';
+Opt.FileExp = 'run';
 
-Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/rarun_detected.txt';
+Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/run_detected.txt';
 
 Opt.Thresh = 4;
 
