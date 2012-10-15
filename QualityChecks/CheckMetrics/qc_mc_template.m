@@ -1,4 +1,3 @@
-loadSPM8r4667
 
 Opt.Exp  = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
 
@@ -17,12 +16,20 @@ Opt.List.Runs = {
                   'run_07';
                 };
 
-Opt.ImageDir  = '[Exp]/[Subject]/day4/func/[Run]';
-Opt.File.Func = 'rarun';
+Opt.Postpend.Exp = '';
+Opt.Postpend.Subjects = 'day4/func';
+Opt.Postpend.Runs = '';
 
-Opt.Detected = fullfile(Opt.Exp,'rarun_detected.txt');
-Opt.Thresh   = 4;
+Opt.FileExp = 'rarun';
 
-addpath('../../matlabScripts/');
+Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/rarun_detected.txt';
+
+Opt.Thresh = 4;
+
+mcRoot = '/zubdata/apps/Tools/MethodsCore';
+
+addpath(fullfile(mcRoot,'matlabScripts'));
+addpath(fullfile(mcRoot,'QualityChecks/CheckMetrics'));
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
 qc_mc_central(Opt);
