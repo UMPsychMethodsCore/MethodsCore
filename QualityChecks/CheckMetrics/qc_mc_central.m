@@ -40,7 +40,7 @@ for i = 1:size(checkedFiles,1)
             fprintf(fid,'%s\n',metrics.Fname);
             fprintf(fid,'{\n');
             for l = 1:length(z)
-                fprintf(fid,'\tslice: %3d timepoint: %3d z-score: %2.3f mse: %3.3f\n',z(l),t(l),metrics.SliceZScore(z(l),t(l)),metrics.SliceTmse(z(l),t(l)));
+                fprintf(fid,'\tslice: %3d timepoint: %3d z-score: %2.3f mse: %3.3f\n',z(l)-1,t(l)-1,metrics.SliceZScore(z(l),t(l)),metrics.SliceTmse(z(l),t(l)));
             end
             fprintf(fid,'}\n');
         end
