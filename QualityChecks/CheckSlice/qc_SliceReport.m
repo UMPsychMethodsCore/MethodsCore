@@ -16,6 +16,7 @@ function qc_SliceReport(Out,Rname)
 %  WholeVolumeStd - whole volume standard deviation, 1 x t
 %  Wvtmse - mean squared error between whole scans
 %
+% Rname - fullpath to output .ps/.pdf
 
 scrsz = get(0,'ScreenSize');
                  
@@ -59,3 +60,13 @@ xlabel('Scan','FontSize',16);ylabel('MSE','FontSize',16);
 set(gca,'fontsize',16)
 print('-dpsc','-loose','-append',Rname,h);
 close(h);
+
+if isunix || ismac
+    [pathstr file ext] = fileparts(Rname);
+    pdfName = fullfile(pathstr,[file '.pdf']);
+    cmd = sprintf('ps2pdf %s %s',Rname,pdfName);
+    system(cmd);
+    delete(Rname);
+else
+    fprintf(1,'No PDF for you!\n');
+end
