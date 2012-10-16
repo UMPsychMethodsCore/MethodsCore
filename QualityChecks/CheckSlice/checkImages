@@ -12,7 +12,7 @@ BEGIN {
     metricsBegin = "{";
     metricsEnd = "}";
     currentImage = "";
-    header = "WALL OF SHAME";
+    header = "SLICE WALL OF SHAME";
     state = 0;
 }
 {
