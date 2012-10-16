@@ -1,4 +1,4 @@
-function checkedFiles = qc_checkopt(Opt)
+function checkedFiles = qc_CheckSliceOpt(Opt)
 %
 % Input: 
 %   Opt.

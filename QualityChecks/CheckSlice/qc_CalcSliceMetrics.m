@@ -1,4 +1,4 @@
-function [Out] = qc_metrics(fname,fmask)
+function [Out] = qc_CalcSliceMetrics(fname,fmask)
 %
 % Input
 %  fname - 4D nifti file

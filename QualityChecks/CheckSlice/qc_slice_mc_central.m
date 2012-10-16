@@ -1,4 +1,4 @@
-function Results = qc_mc_central(Opt)
+function Results = qc_slice_mc_central(Opt)
 %
 % Input: 
 %   Opt.

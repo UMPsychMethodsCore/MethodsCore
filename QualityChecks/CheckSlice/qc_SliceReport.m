@@ -1,4 +1,4 @@
-function qc_report(Out,Rname)
+function qc_SliceReport(Out,Rname)
 %
 % Out.
 %  Fname - file name

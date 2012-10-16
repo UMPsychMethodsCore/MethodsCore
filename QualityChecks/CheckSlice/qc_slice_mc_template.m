@@ -26,10 +26,10 @@ Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/run_detected
 
 Opt.Thresh = 4;
 
-mcRoot = '/zubdata/apps/Tools/MethodsCore';
+mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'QualityChecks/CheckMetrics'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
-qc_mc_central(Opt);
+qc_slice_mc_central(Opt);
