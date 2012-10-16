@@ -53,15 +53,16 @@ for i = 1:nsubjects
             
         funcFile = spm_select('FPList',runDir,fileExp);
         if isempty(funcFile)
-            fprintf(1,'FATAL ERROR: No function file in directory: %s\n',funcDir);
+            fprintf(1,'FATAL ERROR: No function file in directory: %s\n',runDir);
+            fprintf(1,'Please check Opt.FileExp filter.\n');
             fprintf(1,' * * * A B O R T I N G * * *\n');
             checkedFiles = [];
             return;
         end
         
         if size(funcFile,1) > 1
-            fprintf(1,'FATAL ERROR: Expected only one 4D functional image in directory: %s\n',funcDir);
-            fprintf(1,'Please check Opt.File.Func filter\n');
+            fprintf(1,'FATAL ERROR: Expected only one 4D functional image in directory: %s\n',runDir);
+            fprintf(1,'Please check Opt.FileExp filter\n');
             fprintf(1,' * * * A B O R T I N G * * *\n');
             checkedFiles = [];
             return;
