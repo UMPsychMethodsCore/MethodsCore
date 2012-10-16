@@ -25,7 +25,7 @@ function [ output_args ] = mc_TakGraph( varargin )
 switch nargin
     case 1
         if isstruct(varargin{1})
-            TakGraph=varargin;
+            TakGraph=varargin{1};
             struct_TakGraph(TakGraph)
         end
         
