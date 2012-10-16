@@ -17,22 +17,23 @@ function Results = qc_slice_mc_central(Opt)
 Results = -1;
 
 % Check everything first
-checkedFiles = qc_checkopt(Opt);
+checkedFiles = qc_CheckSliceOpt(Opt);
 if isempty(checkedFiles)
     return;
 end
 
 fid = fopen(Opt.OutlierText,'w');
-fprintf(fid,'WALL OF SHAME\n');
+fprintf(fid,'SLICE WALL OF SHAME\n');
 
 % Perform calculations
 fprintf(1,'Calculating metrics...\n');
 for i = 1:size(checkedFiles,1)
     fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
-    metrics = qc_metrics(checkedFiles{i,1});
+    metrics = qc_CalcSliceMetrics(checkedFiles{i,1});
     if ~isempty(metrics)
         [pathstr file ext] = fileparts(checkedFiles{i,1});
-        save(fullfile(pathstr,'qc_metrics.mat'),'metrics');
+        save(fullfile(pathstr,'sliceMetrics.mat'),'metrics');
+        qc_SliceReport(metrics,fullfile(pathstr,'sliceMetrics.ps'));
         
         [z t] = find(metrics.SliceZScore > Opt.Thresh);
         if ~isempty(z)
@@ -51,4 +52,7 @@ fclose('all');
 fprintf(1,'All done!\n');
 Results = 1;
 
+% Log usage
+str = sprintf('%d runs processed.\n',size(checkedFiles,1));
+mc_Usage(str,'CheckSlice');
 
