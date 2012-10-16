@@ -65,8 +65,6 @@ networks=roi_MNI_labels(:,4);
 % Figure out square consensus connectome
 prune = all(in.SVM_ConnectomeResults.LOOCV_pruning{1});
 prune_square = mc_unflatten_upper_triangle(prune);
-prune_square = prune_square + prune_square'; %  make symmetric
-prune_square = prune_square + eye(size(prune_square,1)); % add diagonal
 
 % Permute edges to follow labels
 
