@@ -72,6 +72,8 @@ prune_square = mc_unflatten_upper_triangle(prune);
 
 prune_square = prune_square(sortIDX,sortIDX);
 
+prune_square = triu(logical(prune_square + prune_square'));
+
 % Make heatmap
 
 imagesc(prune_square==0);colormap(gray);
