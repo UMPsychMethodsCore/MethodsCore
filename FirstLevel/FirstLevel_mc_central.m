@@ -411,7 +411,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     OutputDir = mc_GenPath(OutputTemplate);
-    if (exist(OutputDir,'dir')) %if outputdir already exists, remove it for new results
+    if (exist(OutputDir,'dir') && Mode == 1) %if outputdir already exists, remove it for new results
         result = rmdir(OutputDir,'s');
         if (result == 0)
             mc_Error('Output directory %s\nalready exists and cannot be removed. Please check you permissions.',OutputDir);
