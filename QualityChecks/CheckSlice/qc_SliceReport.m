@@ -21,7 +21,7 @@ function qc_SliceReport(Out,Rname)
 scrsz = get(0,'ScreenSize');
                  
 h = figure('Position',[1 scrsz(4)/2 1280 720],'visible','off');
-plot(abs(Out.SliceZScore));
+plot(abs(Out.SliceZScore'));
 title('Slice Z Score','FontSize',16);
 xlabel('Slice','FontSize',16); ylabel('Z score','FontSize',16);
 set(gca,'fontsize',16)
@@ -29,7 +29,7 @@ print('-dpsc','-loose',Rname,h);
 close(h);
 
 h = figure('Position',[1 scrsz(4)/2 1280 720],'visible','off');
-plot(abs(Out.SliceTmse));
+plot(abs(Out.SliceTmse'));
 title('MSE between Slices','FontSize',16);
 xlabel('Slice','FontSize',16); ylabel('Normalized MSE','FontSize',16);
 set(gca,'fontsize',16)
