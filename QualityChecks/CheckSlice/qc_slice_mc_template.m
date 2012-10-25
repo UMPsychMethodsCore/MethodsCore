@@ -31,20 +31,17 @@ Opt.List.Runs = {
                   'run_07';
                 };
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Path where your images are located
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp      = path to your experiment directory
+%%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%%       Run      = name of run from RunDir (using iRun as index of row)
+%%% Examples:
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% What to put after Opt.Exp
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.Postpend.Exp = '';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% What to put after Opt.List.Subjects{:,i}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.Postpend.Subjects = 'day4/func';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% What to put after Opt.List.Runs{i}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.Postpend.Runs = '';
+Opt.ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Prefix of scan images to use

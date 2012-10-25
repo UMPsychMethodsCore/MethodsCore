@@ -5,14 +5,11 @@ function checkedFiles = qc_CheckSliceOpt(Opt)
 %       Exp  -  Experiment top dir
 %       List.
 %           Subjects {Subjects,IncludedRuns}
-%           Runs     - list of run name folders
-%       Postpend.
-%           Exp      - what goes after Exp
-%           Subjects - what goes after .List.Subjects{:,1}
-%           Runs     - what goes after Runs
-%       FileExp      - Regexp for file names
-%       OutlierText  - full path to output text file
-%       Thresh       - z-score threshold value
+%           Runs      - list of run name folders
+%       ImageTemplate - template to image
+%       FileExp       - Prefix for file names
+%       OutlierText   - full path to output text file
+%       Thresh        - z-score threshold value
 %
 % Output:
 %   checkedFiles{:,1} - file names
@@ -26,46 +23,37 @@ index = 1;
 
 fid = fopen(Opt.OutlierText,'w');
 if fid == -1
-    fprintf(1,'Cannot write to %s\n',Opt.Detected);
-    fprintf(1,' * * * A B O R T I N G * * *\n');
-    return;
+    mc_Error(['Cannot write to %s\n'...
+              ' * * * A B O R T I N G * * *\n'], Opt.Detected);
 end
 fclose(fid);
 
 if Opt.Thresh < 0
-    fprintf(1,'Invalid threshold %f\n',Opt.Thresh);
-    fprintf(1,' * * * A B O R T I N G * * * \n');
-    return;
+    mc_Error(['Invalid threshold %3.2f\n'...
+              ' * * * A B O R T I N G * * *\n'], Opt.Thresh);
 end
 
 fileExp = ['^' Opt.FileExp '.*nii'];
-
+Exp = Opt.Exp;
+check.Template = Opt.ImageTemplate;
+check.mode = 'check';
 for i = 1:nsubjects
-    subjDir = fullfile(Opt.Exp,Opt.Postpend.Exp,Opt.List.Subjects{i,1},Opt.Postpend.Subjects);
     for k = Opt.List.Subjects{i,2}
-        runDir = fullfile(subjDir,Opt.List.Runs{k},Opt.Postpend.Runs);
-        if exist(runDir,'dir') ~= 7
-            fprintf(1,'FATAL ERROR: Directory does not exist %s\n',runDir);
-            fprintf(1,' * * * A B O R T I N G * * *\n');
-            checkedFiles = [];
-            return;
-        end
-            
+        Run = Opt.List.Runs{k};
+        Subject = Opt.List.Subjects{i,1};
+        runDir = mc_GenPath(check);            
+        
         funcFile = spm_select('FPList',runDir,fileExp);
         if isempty(funcFile)
-            fprintf(1,'FATAL ERROR: No function file in directory: %s\n',runDir);
-            fprintf(1,'Please check Opt.FileExp filter.\n');
-            fprintf(1,' * * * A B O R T I N G * * *\n');
-            checkedFiles = [];
-            return;
+            mc_Error(['FATAL ERROR: No function file in directory: %s\n'...
+                      'Please check Opt.FileExp filter.\n'...
+                      ' * * * A B O R T I N G * * * \n'],runDir);
         end
         
         if size(funcFile,1) > 1
-            fprintf(1,'FATAL ERROR: Expected only one 4D functional image in directory: %s\n',runDir);
-            fprintf(1,'Please check Opt.FileExp filter\n');
-            fprintf(1,' * * * A B O R T I N G * * *\n');
-            checkedFiles = [];
-            return;
+            mc_Error(['FATAL ERROR: Expected only one 4D function image in directory: %s\n'...
+                      'Please check Opt.FileExp filter\n'...
+                      ' * * * A B O R T I N G * * *\n'], rundDir);
         end
         
         checkedFiles{index,1} = funcFile;
