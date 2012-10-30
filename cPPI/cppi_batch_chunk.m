@@ -3,10 +3,15 @@ function results = cppi_batch_chunk(chunkFile)
     spm_get_defaults('cmdline',true);
     results = -1;
     load(chunkFile);
+    global mcLog;
     SubjDir = tempSubjDir;
     for iSubject = 1:size(SubjDir,1)
         clear D0 parameters results;
         Subject=SubjDir{iSubject,1};
+        
+        logstring = sprintf('%s: Now running subject %s\n',datestr(now),Subject);
+        mc_Logger('log',logstring,3);
+    
         %load existing parameter file
         OutputPath = mc_GenPath(OutputTemplate);
         load(fullfile(OutputPath,ParameterFilename));
@@ -25,6 +30,9 @@ function results = cppi_batch_chunk(chunkFile)
                 SOM_LOG('FATAL ERROR : ');
                 mc_Error('There is something wrong with your template or your data. No results were returned from SOM_CalculateCorrelations');
             end
-        end        
+        end 
+        
+        logstring = sprintf('%s: Finished subject %s\n',datestr(now),Subject);
+        mc_Logger('log',logstring,3);
     end
 return;

@@ -2,6 +2,19 @@
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Code to create logfile name
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup',LogDirectory);
+if (~result)
+    %error with setting up logging
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+
+global mcLog;
+tempLog = mcLog;
+
 if (~exist('ROIOutput','var'))
     ROIOutput = 'maps';
 end
@@ -103,14 +116,18 @@ if (RunMode(1) | sum(RunMode) == 0)
             RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
             parameters.data.run(iRun).P = ImageFiles;
-
+            if (SubjDir{iSubject,4}(1) ~= 0)
+                parameters.data.run(iRun).nTIME = SubjDir{iSubject,4}(iRun);
+            else
+                parameters.data.run(iRun).nTIME = NumScan(iRun);
+            end
             RealignmentParameters = load(RealignmentParametersFile);
             RealignmentParametersDeriv = diff(RealignmentParameters);
             %RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
 
             %parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-            parameters.data.run(iRun).MotionParameters = RealignmentParameters;
-            parameters.data.run(iRun).nTIME = NumScan(iRun);
+            parameters.data.run(iRun).MotionParameters = RealignmentParameters(1:parameters.data.run(iRun).nTIME,:);
+
             parameters.data.MaskFLAG = MaskBrain;
 
             parameters.TIME.run(iRun).TR = TR;
@@ -161,7 +178,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
             case 'grid'
-                ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
                 ROIGridMaskHdr = spm_vol(ROIGridMask);
                 ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
@@ -205,8 +222,8 @@ end
 if (RunMode(2))
     %partition SubjDir into parameters.cppi.NumProcesses equal parts
     NumSubj = size(SubjDir,1);
-    if (NumProcesses > 4)
-        NumProcesses = 4;
+    if (NumProcesses > 12)
+        NumProcesses = 12;
     end
     SubjPerChunk = floor(NumSubj / NumProcesses);
     for iChunk = 1:NumProcesses
@@ -218,17 +235,21 @@ if (RunMode(2))
                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
                 tempSubjDir{end,2} = SubjDir{iSubject,2};
                 tempSubjDir{end,3} = SubjDir{iSubject,3};
+                tempSubjDir{end,4} = SubjDir{iSubject,4};
             end
         else
             for iSubject = 1+offset:size(SubjDir,1)
                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
                 tempSubjDir{end,2} = SubjDir{iSubject,2};
                 tempSubjDir{end,3} = SubjDir{iSubject,3};
+                tempSubjDir{end,4} = SubjDir{iSubject,4};
             end
         end
+        [fd fn fe] = fileparts(mcLog);
+        mcLog = fullfile(fd,[fn '_chunk' num2str(iChunk) fe]);
         chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
-        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename');
-   
+        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename','NumScan');
+        mcLog = tempLog;
     end
         %send a system call to start matlab, load a chunk file, and call
         %cppi_batch_chunk with the loaded variables

@@ -113,6 +113,7 @@ for iRun = 1:size(SPM.Sess,2)
     %---------------------------------------------------------------------
     %PSY = zeros(N*NT,1);
     j = size(U.u,2) + 1;
+    clear R;
     for i = 1:size(U.u,2)
         PSY{i} = full(U.u(:,i));
         PSYxn{i} = PSY{i}.*xn;
