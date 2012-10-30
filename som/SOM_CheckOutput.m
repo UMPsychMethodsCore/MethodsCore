@@ -47,7 +47,7 @@ Output = parameters.Output;
 
 if ~isfield(Output,'saveroiTC')
    Output.saveroiTC = 0;
-   SOM_Log('STATUS : Using saveroiTC = 0');
+   SOM_LOG('STATUS : Using saveroiTC = 0');
 end
 
 
