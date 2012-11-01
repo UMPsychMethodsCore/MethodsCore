@@ -59,20 +59,43 @@ SubjDir = {
 %% input path pattern
 InTemplate = '[Exp]/subject_MAS_resting/[Subj]/[Run]/swrarestrun*.nii';
 
+%% network template
+NWTemplate = '[Exp]/rspit_templates.zip_FILES/templates';
+
 %% Out path pattern
 OutTemplate = '[Exp]/Out_TemplateMatchingAlg3_1sess';
 
-%% network template
-NWTemplate = '[Exp]/rspit_templates.zip_FILES/templates';
+%% Enter Name (Prefix) Of Output Files
+prefix = 'driving';
 
 %% number of components for PCA data reduction 
 % if doEstimation == 1: you don't need to specify numOfPC1 and numOfPC2
 % if doEstimation == 0: you need to specify numOfPC1 and numOfPC2 by
 % yourself. The default is 30 and 25.
-doEstimation = 0;
+doEstimation = 1;
 
 numOfPC1 = 15;
 numOfPC2 = 10;
+
+%% 'Which ICA Algorithm Do You Want To Use';
+% see icatb_icaAlgorithm for details or type icatb_icaAlgorithm at the
+% command prompt.
+% Note: Use only one subject and one session for Semi-blind ICA. Also specify atmost two reference function names
+
+% 1 means infomax, 2 means fastICA, etc.
+algoType = 1;
+
+%% Do ICASSO?
+% Options are 1 and 2.
+% 1 - don't do ICASSO
+% 2 - do ICASSO
+% if doICASSO is choosed, fill in numofICASSO; otherwise leave if with any
+% number
+%   -if using Infomax, numofICASSO recommended to be 20
+%   -if fastICA, numofICASSO recommended to be 100
+doICASSO = 2;
+numofICASSO = 20;
+
 
 %% output back projection or not
 BackProj = 1;
