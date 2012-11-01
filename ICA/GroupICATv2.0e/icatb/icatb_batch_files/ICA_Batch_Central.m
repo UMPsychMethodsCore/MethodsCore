@@ -312,7 +312,7 @@ numOfPC2 = numOfPC2;
 % 2 - Scale to Z scores
 % 3 - Normalize spatial maps using the maximum intensity value and multiply timecourses using the maximum intensity value
 % 4 - Scale timecourses using the maximum intensity value and spatial maps using the standard deviation of timecourses
-scaleType = 0;
+scaleType = 2;
 
 
 %% 'Which ICA Algorithm Do You Want To Use';
