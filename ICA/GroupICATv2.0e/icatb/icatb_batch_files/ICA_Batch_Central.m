@@ -321,7 +321,7 @@ scaleType = 2;
 % Note: Use only one subject and one session for Semi-blind ICA. Also specify atmost two reference function names
 
 % 1 means infomax, 2 means fastICA, etc.
-algoType = 1;
+algoType = algoType;
 
 % %% Specify atmost two reference function names if you select Semi-blind ICA algorithm.
 % % Reference function names can be acessed by loading SPM.mat in MATLAB and accessing 
