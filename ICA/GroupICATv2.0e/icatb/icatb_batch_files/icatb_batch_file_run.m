@@ -63,7 +63,7 @@ if doTemplateMatching
     
     %%%%%%%%%%%%%%% component
     % all session info
-    compfileinfo(nSess+1) = dir ([OutPath, '/*mean_component_ica_s_all*zip*']);
+    compfileinfo(nSess+1) = dir ([OutPath, '/*agg_component_ica_s_all*zip*']);
     if size(compfileinfo,1)
         compfile{nSess+1} = fullfile(OutPath,compfileinfo(nSess+1).name);
     else
