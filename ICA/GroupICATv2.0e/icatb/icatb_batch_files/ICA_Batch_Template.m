@@ -85,6 +85,7 @@ doTemplateMatching = 1;
 %% template matching algorithm
 % 1: use simple component map (intensity) and template map matching algorithm
 % 2: use voxel time series and component time series z-score matching algorithm
+% 3: template matching by GIFT(spatial/temperal sorting)
 TempMatchAlg = 3;
 
 %% add path
