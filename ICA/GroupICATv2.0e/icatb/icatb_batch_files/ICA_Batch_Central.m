@@ -20,7 +20,7 @@ icasso_opts.sel_mode = 'randinit';  % Options are 'randinit', 'bootstrap' and 'b
 icasso_opts.num_ica_runs = numofICASSO; % Number of times ICA will be run
 % Most stable run estimate is based on these settings. 
 icasso_opts.min_cluster_size = 2; % Minimum cluster size
-icasso_opts.max_cluster_size = 15; % Max cluster size. Max is the no. of components
+icasso_opts.max_cluster_size = 5; % Max cluster size. Max is the no. of components
 
 
 %% Group PCA performance settings. Best setting for each option will be selected based on variable MAX_AVAILABLE_RAM in icatb_defaults.m. 
