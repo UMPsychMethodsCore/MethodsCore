@@ -693,14 +693,10 @@ blockno = 1;  % running block counter for kurtosis interrupts
 
 while step < maxsteps, %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%  !!!!! changed here  !!!!!!  %%%%%%%%%%%%%%%
-   % avoid randomness
-   rand('state', step);
+%   randomness is necessary for icasso(determine stability)
+%   rand('state', step);	if avoid randomness is preferred, uncomment this line
    permut=randperm(datalength); % shuffle data order at each step
 
-%    permute1=1:datalength;
-%    permut = NaN(1,datalength);
-%    permut(2:end) = permute1(1:end-1);  permut(1) = permute1(end);
-%    
    for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
       if biasflag                                                   
          u=weights*data(:,permut(t:t+block-1)) + bias*onesrow;      
