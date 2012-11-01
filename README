@@ -1,1 +1,61 @@
-This is the README for the Methods Core
+This directory contains a release of the University of Michigan Psychiatry 
+Neuroimaging Methods Core tools.  The version number of the release can be
+found in ./.local/mc_releasetag
+
+For help with these tools contact us at MethodsCoreHelp@umich.edu
+
+The goal of the Neuroimaging Methods core is to provide all investigators in 
+the Department of Psychiatry -- especially junior faculty and young 
+investigators -- with the latest and best in neuroimaging analysis tools.
+
+The Core consists of Robert Welsh and Chandra Sripada (Co-directors) as well as
+Mike Angstadt, Joseph Heffernan, and Daniel Kessler (Research Area Computer
+Specialists).  An Executive Committee consisting of five PIs from the 
+department sets the Core's agenda and oversees activities. They are Jon-Kar 
+Zubieta, Steve Taylor, Israel Liberzon, Mary Heitzeg, and James Swain.
+
+The current (tentative) schedule for upcoming releases is as follows: 
+August 1st               Preprocessing, Registration Checks
+September 5th            First-Level Script
+October 3rd              Second-Level Script
+November 7th             Companion Scripts (PPI, Physio Correction, 
+                         Motion Regressor Statistics, ROI Scripts, power 
+                         analysis, and others)
+December 5th             Repeated Measures ANOVA
+
+Our goal is to make sure Methods Core tools are:
+    *User-friendly including extensive commenting and informative error 
+    messages.
+    
+    *Integrated and consistent across tools.
+    
+    *Fast using a variety of methods to reduce disk operations and accelerate 
+    performance.
+    
+    *Well documented including help files and, in many cases, practical video 
+    documentation.
+    
+    *Supported by Methods Core personnel at MethodsCoreHelp@umich.edu
+    
+    *Frequently updated to work with current versions of SPM, FSL, MarsBar, etc.
+
+
+Please give us your feedback about how we're doing.
+
+
+Release Notes:
+
+10/2/2012  - Release 1.2
+             This release adds matlab scripts to perform second level analysis
+             in SPM.
+
+9/5/2012   - Release 1.1 
+	     This release adds a suite of matlab-driven
+	     scripts to support first level analysis.
+
+8/1/2012   - Release 1.0 
+	     First public release of MethodsCore tools.  This release contains a 
+	     suite of command-line scripts to preprocess fMRI data as well as 
+	     perform several basic data quality checks.
+
+
