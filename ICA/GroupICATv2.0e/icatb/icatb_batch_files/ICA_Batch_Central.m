@@ -186,7 +186,7 @@ OutTemplate.mode = 'makedir';
 outputDir = mc_GenPath(OutTemplate);
 
 %% Enter Name (Prefix) Of Output Files
-prefix = 'driving';
+prefix = prefix;
 
 %% Enter location (full file path) of the image file to use as mask
 % or use Default mask which is []
