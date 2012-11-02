@@ -18,6 +18,15 @@ Exp = '/net/data4/DEA_Resting/';
 svmtype='paired';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Portion of the matrix to use for features
+%%%     'upper'     - upper section (above the diagonal)
+%%%     'nodiag'    - both upper and lower section but exclude diagonal
+%%%     'full'      - use the full matrix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+matrixtype = 'nodiag';
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Pruning Method. For non-paired SVM, how would you like the select the
 %%% most discriminant features. Presently supported options are...
 %%%     unpaired data

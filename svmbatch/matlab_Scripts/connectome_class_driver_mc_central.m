@@ -52,13 +52,21 @@ if strcmpi(svmtype,'unpaired')
             nfeat=size(rmat(:));
         end
         censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
+        
+        if (strcmp(matrixtype,'nodiag'))
+            censor_square = censor_square + eye(size(censor_square));
+        end
     end
 
     fprintf('Done\n');
 
     % Flatten censor matrix
     
-    censor_flat = mc_flatten_upper_triangle(censor_square);
+    if (strcmp(matrixtype,'upper'))
+        censor_flat = mc_flatten_upper_triangle(censor_square);
+    else
+        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
+    end
     
     %% Read and flatten valid features
     
@@ -74,9 +82,13 @@ if strcmpi(svmtype,'unpaired')
         rmat=conmat.rMatrix;
         %     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
         if iSub==1
-            superflatmat=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
+            superflatmat=zeros(nSubs,size(censor_flat,2));
         end
-        superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+        if(strcmp(matrixtype,'upper'))
+            superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+        else
+            superflatmat(iSub,:) = reshape(rmat,1,prod(size(rmat)));
+        end
         superlabel(iSub,1)=Example;
 
     end
@@ -117,8 +129,10 @@ if strcmpi(svmtype,'unpaired')
         if nFeatPrune~=0
             
             featurefitness=mc_calc_discrim_power_unpaired(train,trainlabels,pruneMethod);
-
-
+            if (~strcmp(matrixtype,'upper'))
+                featurefitness = mc_prune_discrim_power(featurefitness);
+            end
+            
             % Store this LOO fold's feature-wise discriminant power
             LOOCV_featurefitness(iL,:) = featurefitness;
 
@@ -229,15 +243,25 @@ if strcmpi(svmtype,'paired')
 
             end
             censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; %For all indices in rmat that are NaN, zero out cleanconMat
+            
+
         end
 
         % Flatten censor matrix
         
-        censor_flat = mc_flatten_upper_triangle(censor_square);
+
 
 
     end
-
+    if (strcmp(matrixtype,'nodiag'))
+        censor_square(logical(eye(size(censor_square)))) = 1;
+    end
+    
+    if (strcmp(matrixtype,'upper'))
+        censor_flat = mc_flatten_upper_triangle(censor_square);
+    else
+        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
+    end
     fprintf('Done\n');
 
 
@@ -262,11 +286,15 @@ if strcmpi(svmtype,'paired')
                 conmat=load(conPath);
                 rmat=conmat.rMatrix;
                 if ~exist('unsprung','var') || unsprung==0
-                    superflatmat_grouped=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),condNum);
+                    superflatmat_grouped=zeros(nSubs,size(censor_flat,2),condNum);
                     unsprung=1;
                 end
-
-                superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
+                
+                if (strcmp(matrixtype,'upper'))
+                    superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
+                else
+                    superflatmat_grouped(iSub,:,iCond) = reshape(rmat,1,prod(size(rmat)));
+                end
             end
 
         end
@@ -369,6 +397,10 @@ if strcmpi(svmtype,'paired')
                     
                 featurefitness=mc_calc_discrim_power_paired(train,trainlabels,pruneMethod);
 
+                if (~strcmp(matrixtype,'upper'))
+                    featurefitness = mc_prune_discrim_power(featurefitness);
+                end
+                
                 LOOCV_featurefitness{iContrast}(iL,:) = featurefitness;
 
                 [d keepID] = mc_bigsmall(featurefitness,nFeatPrune,1);
