@@ -248,7 +248,7 @@ if (RunMode(2))
         [fd fn fe] = fileparts(mcLog);
         mcLog = fullfile(fd,[fn '_chunk' num2str(iChunk) fe]);
         chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
-        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename','NumScan');
+        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename','NumScan','mcLog');
         mcLog = tempLog;
     end
         %send a system call to start matlab, load a chunk file, and call

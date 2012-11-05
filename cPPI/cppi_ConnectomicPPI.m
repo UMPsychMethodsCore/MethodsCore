@@ -10,6 +10,7 @@ function results = cppi_ConnectomicPPI(D0,parameters)
 % SOM_CalculateCorrelations.m code
 
 global SOM;
+global mcLog
 
 results = -1;
 

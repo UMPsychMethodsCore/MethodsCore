@@ -2,8 +2,9 @@ function results = cppi_batch_chunk(chunkFile)
     spm_jobman('initcfg');
     spm_get_defaults('cmdline',true);
     results = -1;
-    load(chunkFile);
     global mcLog;
+    load(chunkFile);
+    mc_Logger('log',sprintf('Current MATLAB PID: %d\n',feature('GetPID')),3);
     SubjDir = tempSubjDir;
     for iSubject = 1:size(SubjDir,1)
         clear D0 parameters results;

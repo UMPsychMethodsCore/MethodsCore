@@ -47,6 +47,8 @@ for iRun = 1:size(SPM.Sess,2)
     U.w = [];
 
     u = length(Sess.U);
+    %%%%%%%%%%%%%%%%%%%REMOVE THIS LATER
+    u = 2;
     for i = 1:u
         for j = 1:length(Sess.U(i).name)
             U.w = [U.w 1];
