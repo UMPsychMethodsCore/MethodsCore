@@ -33,6 +33,15 @@ end
 
 SVM=struct_Parse(SVM);
 EdgeTable = struct_EdgeTable(SVM);
+writepath = set_edgetable_path(SVM.SVMSetup);
+result = write_EdgeTable(EdgeTable,writepath);
+
+function out = set_edgetable_path(in)
+%This function expects you to pass it the SVMSetup field. It will
+%return an output path where it will write the edge table
+unpack_struct(in);
+abspath=mc_GenPath(in.OutputTemplate);
+out = [abspath '/EdgeTable.csv'];
 
 
 
@@ -96,3 +105,20 @@ out{1,5}='Pearson R Baseline';
 out{1,end}='Pearson R Con2 - Con1';
 
 
+function out = write_EdgeTable(edgetable,path) % Write the edge tab
+fid = fopen(path,'w');
+for iE=1:size(edgetable,1)
+    for iL=1:size(edgetable,2)
+        thing=edgetable{iE,iL};
+        if ischar(thing)
+            fprintf(fid,'"%s",',edgetable{iE,iL});
+        elseif isnumeric(thing) & size(thing,2)==1
+            fprintf(fid,'"%d",',edgetable{iE,iL});
+        else
+            fprintf(fid,'"[%d, %d, %d]",',thing);
+        end
+    end
+    fprintf(fid,'\n');
+end
+fclose(fid);
+out=1;
