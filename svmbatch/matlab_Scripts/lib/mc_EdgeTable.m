@@ -51,7 +51,11 @@ unpack_struct(in);
 abspath=mc_GenPath(in.OutputTemplate);
 out = [abspath '/EdgeTable.csv'];
 
-
+function out = struct_CheckMatrixType(in)
+out='upper';
+if isfield(in.SVMSetup,'matrixtype')
+    out = in.SVMSetup.matrixtype;
+end
 
 
 function out = path_EdgeTable(in)
@@ -108,6 +112,13 @@ out = regexprep(filled_template,nsrstr,nrepstr);
 
 function out = struct_EdgeTable(in) % Heavy lifting happens here
 
+%% Check matrix mode
+matrixtype = struct_CheckMatrixType(in); 
+
+if strcmp(matrixtype,'nodiag')
+    in = struct_nodiagHelper_pre(in);
+end
+
 %% Figure out pruned subset
 prune = all(in.LOOCV_pruning{1},1);
 
@@ -122,7 +133,7 @@ in.SVMSetup.ConnTemplate=pathclean(in.SVMSetup.ConnTemplate,'\[Exp\]',in.SVMSetu
 
 %% Load up, clean, and delta the paired data
 
-[data SubjAvail]=mc_load_connectomes_paired(in.SVMSetup.SubjDir,in.SVMSetup.ConnTemplate,in.SVMSetup.RunDir);
+[data SubjAvail]=mc_load_connectomes_paired(in.SVMSetup.SubjDir,in.SVMSetup.ConnTemplate,in.SVMSetup.RunDir,matrixtype);
 
 data=mc_connectome_clean(data);
 
@@ -133,14 +144,19 @@ data_delta=mean(data_delta(label==1,:));
 
 %% Create the tables
 
-TblBaseLine=mc_connectome_tablewriter(prune,ROI,data_baseline,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
-TblDelta=mc_connectome_tablewriter(prune,ROI,data_delta,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
+TblBaseLine=mc_connectome_tablewriter(prune,ROI,data_baseline,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',matrixtype);
+TblDelta=mc_connectome_tablewriter(prune,ROI,data_delta,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',matrixtype);
 
 out=[TblBaseLine TblDelta(:,5)];
 
 out{1,5}='Pearson R Baseline';
 out{1,end}='Pearson R Con2 - Con1';
 
+if strcmp(matrixtype,'nodiag')
+    TblTwinCt=mc_connectome_tablewriter(prune,ROI,in.twincount,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',matrixtype);
+    out = [out TblTwinCt(:,5)];
+    out{1,end}='TwinCount';
+end
 
 function out = write_EdgeTable(edgetable,path) % Write the edge tab
 fid = fopen(path,'w');
@@ -159,3 +175,72 @@ for iE=1:size(edgetable,1)
 end
 fclose(fid);
 out=1;
+
+function out = struct_nodiagHelper_pre(in)
+% Clean up prune object so that ties are broken. We'll find the consensus our own way
+
+%initialize 
+out = in;
+
+%% Make upper and lower version
+
+prunes=in.LOOCV_pruning{1};
+[nrow ncol]=size(prunes);
+
+nroi=sqrt(ncol);
+
+for iR = 1:nrow
+    up(iR,:) = mc_flatten_upper_triangle(reshape(prunes(iR,:),nroi,nroi));
+    dn(iR,:) = mc_flatten_upper_triangle(reshape(prunes(iR,:),nroi,nroi)');
+    
+end
+
+%% Figure out the consensus
+
+threed(:,:,1) = up;
+threed(:,:,2) = dn;
+
+twins = any(threed,3);
+supertwins=all(threed,3);
+
+
+consensus = all(twins,1);
+
+%% Figure out the twin winners
+
+upct = sum(up,1);
+dnct = sum(dn,1);
+
+% Remove all but the consensus
+upct(~consensus)=0;
+dnct(~consensus)=0;
+
+% Store an overall twincount measure
+twinct_sq = mc_unflatten_upper_triangle(upct) + mc_unflatten_upper_triangle(dnct)';
+twinct_flat = reshape(twinct_sq,1,nroi^2);
+
+out.twincount = twinct_flat;
+
+% Identify preference
+stack=[upct; dnct];
+
+ministack=stack(:,any(stack))';
+
+
+[stackmax, pref] = max(stack);
+
+pref(~consensus)=0;
+
+uppref=pref==1;
+dnpref=pref==2;
+
+uppref_sq=mc_unflatten_upper_triangle(uppref);
+dnpref_sq=mc_unflatten_upper_triangle(dnpref);
+
+fullpref_sq=uppref_sq+dnpref_sq';
+
+fullpref_flat = reshape(fullpref_sq,1,numel(fullpref_sq));
+
+%% Make Overall Edge Table
+out.LOOCV_pruning{1}=fullpref_flat;
+
