@@ -150,7 +150,7 @@ for iE=1:size(edgetable,1)
         if ischar(thing)
             fprintf(fid,'"%s",',edgetable{iE,iL});
         elseif isnumeric(thing) & size(thing,2)==1
-            fprintf(fid,'"%d",',edgetable{iE,iL});
+            fprintf(fid,'"%f",',edgetable{iE,iL});
         else
             fprintf(fid,'"[%d, %d, %d]",',thing);
         end
