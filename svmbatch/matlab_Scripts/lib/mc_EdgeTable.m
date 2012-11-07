@@ -109,7 +109,7 @@ out = regexprep(filled_template,nsrstr,nrepstr);
 function out = struct_EdgeTable(in) % Heavy lifting happens here
 
 %% Figure out pruned subset
-prune = all(in.LOOCV_pruning{1});
+prune = all(in.LOOCV_pruning{1},1);
 
 %% Get ROI's in MNI space
 parameters=load(build_first_param_path(in.SVMSetup));
