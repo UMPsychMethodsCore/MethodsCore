@@ -32,9 +32,17 @@ switch nargin
 end
 
 SVM=struct_Parse(SVM);
+SVM = template_cleaner(SVM);
 EdgeTable = struct_EdgeTable(SVM);
 writepath = set_edgetable_path(SVM.SVMSetup);
 result = write_EdgeTable(EdgeTable,writepath);
+
+function out = unpack_struct(in)
+%Unpack the fields of a struct in the environment of the caller
+SNames = fieldnames(in);
+for ii = 1:numel(SNames)
+    assignin('caller',SNames{ii},in.(SNames{ii}));
+end
 
 function out = set_edgetable_path(in)
 %This function expects you to pass it the SVMSetup field. It will
@@ -58,16 +66,45 @@ if isfield(in,'SVM_ConnectomeResults');
 end
 
 
-function abspath = build_first_path(template,SubjDir,RunDir,Exp)
-
+function abspath = build_first_param_path(in)
+unpack_struct(in);
 Subject=SubjDir{1,1};
 Run=RunDir{1};
-
-abspath=mc_GenPath(template);
+abspath=mc_GenPath(ROITemplate);
 
 function out = pathclean(oldpath,pattern,newpattern);
 out=regexprep(oldpath,pattern,newpattern);
 
+function out =  template_cleaner(in)
+out = in;
+environ = in.SVMSetup;
+retaincells = {'Exp','Subject','Run'};
+out.SVMSetup.ConnTemplate = mc_GenPath_helper(in.SVMSetup.ConnTemplate,environ,retaincells);
+out.SVMSetup.OutputTemplate = mc_GenPath_helper(in.SVMSetup.OutputTemplate,environ,retaincells);
+out.SVMSetup.ROITemplate = mc_GenPath_helper(in.SVMSetup.ROITemplate,environ,retaincells);
+
+
+function out = mc_GenPath_helper(template,environ,retaincells)
+% This function will protect the strings specified
+unpack_struct(environ);
+
+orstr='';
+
+for ii=1:numel(retaincells)
+    orstr=strcat(orstr,'|',retaincells{ii});
+end
+orstr(1) = []; % Get rid of the first pipe
+
+srstr = [ '\[(' orstr ')\]' ] ;
+repstr = '\0$1\0';
+
+protected_template = regexprep(template,srstr,repstr);
+filled_template = mc_GenPath(protected_template);
+
+nsrstr = [ '\0(' orstr ')\0' ] ;
+nrepstr = '\[$1\]';
+
+out = regexprep(filled_template,nsrstr,nrepstr);
 
 function out = struct_EdgeTable(in) % Heavy lifting happens here
 
@@ -75,7 +112,7 @@ function out = struct_EdgeTable(in) % Heavy lifting happens here
 prune = all(in.LOOCV_pruning{1});
 
 %% Get ROI's in MNI space
-parameters=load(build_first_path(in.SVMSetup.ROITemplate,in.SVMSetup.SubjDir,in.SVMSetup.RunDir,in.SVMSetup.Exp));
+parameters=load(build_first_param_path(in.SVMSetup));
 
 ROI=parameters.parameters.rois.mni.coordinates;
 
