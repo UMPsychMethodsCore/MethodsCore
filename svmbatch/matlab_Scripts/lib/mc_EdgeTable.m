@@ -1,4 +1,4 @@
-function [ EdgeTable ] = mc_EdgeTable( SVM )
+function [ EdgeTable ] = mc_EdgeTable( SVM, NetSphereRad )
 %MC_EDGETABLE Make an "Edge Table"
 %
 % Usage 1
@@ -7,6 +7,12 @@ function [ EdgeTable ] = mc_EdgeTable( SVM )
 % Usage 2
 %   Provide a path to a file that was the result of an SVM run
 %   
+% Optionally provide a NetSphereRad. If you do, any unlabeled nodes
+% (network 0) will be submitted to a function to try to recover
+% label information. It will do this by creating a sphere of radius
+% NetSphereRad (in units of your network map volume, typically MNI
+% mm) and searching in that.
+
 
 %% Parse arguments
 
