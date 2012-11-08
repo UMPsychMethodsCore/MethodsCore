@@ -16,19 +16,14 @@ function [ EdgeTable ] = mc_EdgeTable( SVM, NetSphereRad )
 
 %% Parse arguments
 
-switch nargin
-    case 1
-        if isstruct(SVM)
-            SVM=SVM;
-        end
-
-        if ischar(SVM)
-            SVM=path_EdgeTable(SVM);
-        end
-        
-    otherwise
+if isstruct(SVM)
+    SVM=SVM;
 end
 
+if ischar(SVM)
+    SVM=path_EdgeTable(SVM);
+end
+        
 SVM=struct_Parse(SVM);
 SVM = template_cleaner(SVM);
 EdgeTable = struct_EdgeTable(SVM);
