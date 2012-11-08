@@ -1,4 +1,4 @@
-function [ EdgeTable ] = mc_EdgeTable( varargin )
+function [ EdgeTable ] = mc_EdgeTable( SVM )
 %MC_EDGETABLE Make an "Edge Table"
 %
 % Usage 1
@@ -12,12 +12,12 @@ function [ EdgeTable ] = mc_EdgeTable( varargin )
 
 switch nargin
     case 1
-        if isstruct(varargin{1})
-            SVM=varargin{1};
+        if isstruct(SVM)
+            SVM=SVM;
         end
 
-        if ischar(varargin{1})
-            SVM=path_EdgeTable(varargin{1});
+        if ischar(SVM)
+            SVM=path_EdgeTable(SVM);
         end
         
     otherwise
