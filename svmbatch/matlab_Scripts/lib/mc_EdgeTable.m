@@ -6,14 +6,6 @@ function [ EdgeTable ] = mc_EdgeTable( varargin )
 %
 % Usage 2
 %   Provide a path to a file that was the result of an SVM run
-%
-% Usage 3
-%   Provide all of the pieces necessary to create a TakGraph (in progress)
-%
-%   Inputs
-% 
-%       Feature Weights
-%       Path to Network Map
 %   
 
 %% Parse arguments
