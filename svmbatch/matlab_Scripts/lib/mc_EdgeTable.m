@@ -23,10 +23,15 @@ end
 if ischar(SVM)
     SVM=path_EdgeTable(SVM);
 end
+
+% Set defaults
+if ~exist('NetSphereRad','var')
+    NetSphereRad=0;
+end
         
 SVM=struct_Parse(SVM);
 SVM = template_cleaner(SVM);
-EdgeTable = struct_EdgeTable(SVM);
+EdgeTable = struct_EdgeTable(SVM,NetSphereRad);
 writepath = set_edgetable_path(SVM.SVMSetup);
 result = write_EdgeTable(EdgeTable,writepath);
 
@@ -103,7 +108,7 @@ nrepstr = '\[$1\]';
 
 out = regexprep(filled_template,nsrstr,nrepstr);
 
-function out = struct_EdgeTable(in) % Heavy lifting happens here
+function out = struct_EdgeTable(in,NetSphereRad) % Heavy lifting happens here
 
 %% Check matrix mode
 matrixtype = struct_CheckMatrixType(in); 
@@ -149,6 +154,21 @@ if strcmp(matrixtype,'nodiag')
     TblTwinCt=mc_connectome_tablewriter(prune,ROI,in.twincount,0,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',matrixtype);
     out = [out TblTwinCt(:,5)];
     out{1,end}='TwinCount';
+end
+
+if NetSphereRad~=0 % Recover otherwise zero-labeled nodes if radius is specified
+    ROI1 = cell2mat(out(2:end,1));
+    ROI2 = cell2mat(out(2:end,2));
+    
+    ROI1relabel = mc_NearestNetworkNode(ROI1,NetSphereRad)';
+    ROI2relabel = mc_NearestNetworkNode(ROI2,NetSphereRad)';
+    
+    out{1,end+1}='Node1Relabel';
+    out{1,end+1}='Node2Relabel';
+    
+    out(2:end,end-1) = mat2cell(ROI1relabel,ones(size(out,1)-1,1),1);
+    out(2:end,end) = mat2cell(ROI2relabel,ones(size(out,1)-1,1),1);
+    
 end
 
 function out = write_EdgeTable(edgetable,path) % Write the edge tab
