@@ -1,4 +1,4 @@
-function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,NetworkMap )
+function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,NetworkMap,matrixtype )
 %MC_CONNECTOME_TABLEWRITER Create a summary table of your relevant edges
 % NOTES
 %   If you have multiple summary statistics that you woul dlike to report
@@ -23,6 +23,13 @@ function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,N
 %                                   such that each ROI_mni can be uniquely indexed
 %                                   into one voxel. This is used to label the nodes
 %                                   in the table
+%           matrixtype          -   Used to specify matrix mode. If
+%                                   doing a cPPI, you may be using
+%                                   a flattened form of the entire
+%                                   connectivity matrix. In this
+%                                   case, flattening and
+%                                   unflattening will work a little
+%                                   bit differently. 
 %   Output
 %       table                   -   cell array summarizing your relevant edges.
 %                                   Will be (nEdges + 1) * 6, as first row
@@ -47,7 +54,10 @@ function [ table ] = mc_connectome_tablewriter( prune,ROI_mni,fitness,subprune,N
 %               Node2TakIDx     -   Where can this node be found on a Tak
 %                                   Graph sorted by Networks?
 
-
+%% Parse Options
+if ~exist('matrixtype','var')
+    matrixtype='upper';
+end
 
 
 % Count ROIs
@@ -71,7 +81,12 @@ if exist('subprune','var') && subprune~=0
 end
 
 % Convert fitness back to a square matrix
-fitness_square=mc_unflatten_upper_triangle(fitness,nROI);
+switch matrixtype
+  case 'upper'
+    fitness_square=mc_unflatten_upper_triangle(fitness,nROI);
+  case 'nodiag'
+    fitness_square=reshape(fitness,nROI,nROI);
+end
 
 % Identify the indices of the nonzero elements. These index into the ROI
 % list
