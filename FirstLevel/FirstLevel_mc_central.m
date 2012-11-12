@@ -649,9 +649,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     SPM.xM.VM = [];
-    if (~isempty(explicitmask))
-        SPM.xM.VM = spm_vol(explicitmask);
-    end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Configure design matrix %%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -659,6 +657,11 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         SPM = spm_fmri_spm_ui(SPM);
     end
 
+    if (exist('explicitmask','var') && ~isempty(explicitmask))
+        SPM.xM.VM = spm_vol(explicitmask);
+        SPM.xM.xs.Masking = [SPM.xM.xs.Masking '+explicit mask'];
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Estimation %%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
