@@ -117,6 +117,8 @@ TempMatchAlg = 3;
 %                     each col in the .mat is the r^2 of correlation between all the components and a template in the PhysioTemplate folder; 
 %                     the order of the column will be the same as the order of templates as sorted by name
 % if not do, set doPhysioCheck =0; ignore PhysioTemplate
+% - usually if r^2 to grey matter is < 0.025; the certain comp should be discarded
+% - usually if r^2 to white matter/csf is > 0.025; the certain comp should be discarded
 doPhysioCheck = 1;
 PhysioTemplate = '/net/data4/ICA/mni_templates';
 
