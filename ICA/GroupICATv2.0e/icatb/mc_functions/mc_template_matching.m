@@ -18,7 +18,7 @@ rereference_inpath = NWTemplatePath;    %input path of template
 % image in this output folder
 rereference_out.Template = [NWTemplatePath,'_rereferenced'];
 rereference_out.mode = 'makedir';
-rereference_outpath = mc_genpath(rereference_out);
+rereference_outpath = mc_GenPath(rereference_out);
 
 % pick up a component img for rereferencing
 % here the first found component in the 'all session' folder is chosen

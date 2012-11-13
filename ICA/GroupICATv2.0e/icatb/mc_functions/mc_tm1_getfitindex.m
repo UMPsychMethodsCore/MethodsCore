@@ -18,4 +18,4 @@ unmatching_vol = (1-vols1).*vols2;
 % 
 % score = (mean(zscore(valid_matching_vol)))/(mean(zscore(valid_unmatching_vol)));
 
-score = (mean(mean(mean(matching_vol))))/(mean(mean(mean(unmatching_vol))));
+score = (mean(mean(mean(matching_vol))))-(mean(mean(mean(unmatching_vol))));

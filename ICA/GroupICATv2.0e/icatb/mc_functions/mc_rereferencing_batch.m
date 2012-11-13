@@ -18,7 +18,7 @@ files = dir(inpath);
 
 for ifile = 1: length(files)
     filename = files(ifile).name;
-    [pathstr, name, ext, versn] = fileparts(filename);
+    [pathstr, name, ext] = fileparts(filename);
     if isequal(ext, '.nii') || isequal(ext, '.img')
         inimg2 = fullfile(inpath, files(ifile).name);
         

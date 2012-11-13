@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS_ICA_data';
+Exp = '/net/data4/ICA/MAS';
 
 %% session number
 % number of sessions per subject
@@ -21,61 +21,61 @@ RunDir = {
 SubjDir = {
     '5001';
     '5002';
-%     '5003';
-%     '5004';
-%     '5005';
-%     '5010';
-% %     '5011';
-%     '5012';
-% %     '5013';
-%     '5014';
-%     '5015';
-%     '5016';
-%     '5017';
-%     '5018';
-%     '5019';
-%     '5020';
-%     '5021';
-%     '5023';
-%     '5024';
-%     '5025';
-%     '5026';
-%     '5028';
-%     '5029';
-%     '5031';
-%     '5032';
-%     '5034';
-%     '5035';
-%     '5036';
-%     '5037';
-%     '5038';
-%     '5039';
-%     '5040';
-%     '5041';
-%     '5042';
+    '5003';
+    '5004';
+    '5005';
+    '5010';
+%     '5011';
+    '5012';
+%     '5013';
+    '5014';
+    '5015';
+    '5016';
+    '5017';
+    '5018';
+    '5019';
+    '5020';
+    '5021';
+    '5023';
+    '5024';
+    '5025';
+    '5026';
+    '5028';
+    '5029';
+    '5031';
+    '5032';
+    '5034';
+    '5035';
+    '5036';
+    '5037';
+    '5038';
+    '5039';
+    '5040';
+    '5041';
+    '5042';
 
 };
 
 %% input path pattern
-InTemplate = '[Exp]/subject_MAS_resting/[Subj]/[Run]/swrarestrun*.nii';
+InTemplate = '[Exp]/Subjects/Resting/[Subj]/[Run]/swrarestrun*.nii';
 
 %% network template
-NWTemplate = '[Exp]/rspit_templates.zip_FILES/templates';
+NWTemplate = '/net/data4/ICA/mni_templates';
 
 %% Out path pattern
-OutTemplate = '[Exp]/Out_TemplateMatchingAlg3_1sess';
+OutTemplate = '[Exp]/Outputs/Infomax';
 
 %% Enter Name (Prefix) Of Output Files
-prefix = 'driving';
+prefix = 'Infomax';
 
 %% number of components for PCA data reduction 
 % if doEstimation == 1: you don't need to specify numOfPC1 and numOfPC2
 % if doEstimation == 0: you need to specify numOfPC1 and numOfPC2 by
 % yourself. The default is 30 and 25.
-doEstimation = 1;
+doEstimation = 0;
 
-numOfPC1 = 15;
-numOfPC2 = 10;
+numOfPC1 = round(33*1.5);
+numOfPC2 = 33;
 
 %% 'Which ICA Algorithm Do You Want To Use';
 % see icatb_icaAlgorithm for details or type icatb_icaAlgorithm at the
@@ -111,14 +111,24 @@ doTemplateMatching = 1;
 % 3: template matching by GIFT(spatial/temperal sorting)
 TempMatchAlg = 3;
 
+%% PhysioCheck: quality checks of gm/wm/csf
+% if do physio check, set doPhysioCheck =1; set up the physio check template path: PhysioTemplate
+%                     the output will be a matrix called comp_nw_corr.mat;
+%                     each col in the .mat is the r^2 of correlation between all the components and a template in the PhysioTemplate folder; 
+%                     the order of the column will be the same as the order of templates as sorted by name
+% if not do, set doPhysioCheck =0; ignore PhysioTemplate
+doPhysioCheck = 1;
+PhysioTemplate = '/net/data4/ICA/mni_templates';
+
+
 %% add path
 %DEVSTART
-mcRoot = '/home/slab/users/guosj/repos/MethodsCore2/';
+mcRoot = '/home/slab/users/guosj/MethodsCoreDev/';
 %fullfile(fileparts(mfilename('fullpath')),'..','..','..','..');
 % DEVSTOP
 
 addpath(genpath(fullfile(mcRoot,'matlabScripts')))
-addpath(fullfile(mcRoot,'SPM','SPM8'))
+addpath(genpath(fullfile(mcRoot,'SPM','SPM8')))
 addpath(genpath(fullfile(mcRoot,'ICA/GroupICATv2.0e/icatb')))
 
 

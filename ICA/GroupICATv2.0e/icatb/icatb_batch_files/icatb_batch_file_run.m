@@ -48,7 +48,7 @@ for nFile = 1:length(inputFiles)
     load(param_file);
     
     %% Run Analysis (All steps)
-    icatb_runAnalysis(sesInfo, 1);
+        icatb_runAnalysis(sesInfo, 1);
     
     clear sesInfo;
     
@@ -63,17 +63,20 @@ if doTemplateMatching
     
     %%%%%%%%%%%%%%% component
     % all session info
-    compfileinfo(nSess+1) = dir ([OutPath, '/*agg_component_ica_s_all*zip*']);
+    compfileinfo(nSess+1) = dir ([OutPath, '/*agg_*zip*']);
     if size(compfileinfo,1)
         compfile{nSess+1} = fullfile(OutPath,compfileinfo(nSess+1).name);
     else
-        fprintf('cannot find all session group components info...\n');
+        fprintf('cannot find group source components info...\n');
     end
     [path, name, ext] = fileparts(compfile{nSess+1});
     comppath{nSess+1}.Template = [path,'/',name];   comppath{nSess+1}.mode = 'makedir';
     comppath{nSess+1} = mc_GenPath(comppath{nSess+1});
     unzip(compfile{nSess+1}, comppath{nSess+1});
     
+    
+% * -----------------------------------------------------------------------------      
+% * --------------------------  FOR Outdated alg 2  -----------------------------
     % define component file needs to be extracted; 1xnSess+1: the last one is
     % the concatenated group info
     for iSess = 1:nSess
@@ -87,9 +90,12 @@ if doTemplateMatching
         
         % unzip compfile
         [path, name, ext] = fileparts(compfile{iSess}{iSubj});
-        comppath{iSess}{iSubj}.Template = [path,'/',name];   comppath{iSess}{iSubj}.mode = 'makedir';
-        comppath{iSess}{iSubj} = mc_GenPath(comppath{iSess}{iSubj});
-        unzip(compfile{iSess}{iSubj}, comppath{iSess}{iSubj});
+        comppath{iSess}{iSubj}.Template = [path,'/',name];   
+        % !!!to save time running other alg except for 2; to run 2, turn the
+        % 3 lines below back on!!!
+% % % %         comppath{iSess}{iSubj}.mode = 'makedir';
+% % % %         comppath{iSess}{iSubj} = mc_GenPath(comppath{iSess}{iSubj});
+% % % %         unzip(compfile{iSess}{iSubj}, comppath{iSess}{iSubj});
         end
     end
     
@@ -106,7 +112,8 @@ if doTemplateMatching
             subjpath{iSubj,iSess} = mc_GenPath(InTemplate);
         end
     end
-    
+% * -----------------------------------------------------------------------------  
+
     %% calculate template matching fit index
     compPath = comppath;    % 1xnSess cell array contains group component info for each session
     subjPath = subjpath;    % nSubjxnSess cell array contains back projected component info for each subj and each session
@@ -114,22 +121,22 @@ if doTemplateMatching
     
     mc_template_matching(TempMatchAlg, NWTemplatePath, compPath, subjPath, OutPath);
     
-    % remove the unzipped file used before
-    for irm = 1:size(compPath,2)
-        if irm ~= size(compPath,2)
-            for j = 1: nSubj
-                cmd = ['rm -r ', compPath{irm}{j}];
-            end
-        else
-            cmd = ['rm -r ', compPath{irm}];
-        end
-        system(cmd);
-    end
-    
-    %% write out component summary file
-    if TempMatchAlg == 2
-        mc_components_summary(NWTemplatePath, OutPath, nSess, nSubj, numOfPC2);
-    end
+%     % remove the unzipped file used before
+%     for irm = 1:size(compPath,2)
+%         if irm ~= size(compPath,2)
+%             for j = 1: nSubj
+%                 cmd = ['rm -r ', compPath{irm}{j}];
+%             end
+%         else
+%             cmd = ['rm -r ', compPath{irm}];
+%         end
+%         system(cmd);
+%     end
+%     
+%     %% write out component summary file
+%     if (TempMatchAlg == 1 || TempMatchAlg == 2)
+%         mc_components_summary(NWTemplatePath, OutPath, nSess, nSubj, numOfPC2);
+%     end
 end
 
 
