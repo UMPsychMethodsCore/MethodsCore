@@ -119,16 +119,8 @@ if doTemplateMatching || doPhysioCheck
     compPath = comppath;    % 1xnSess cell array contains group component info for each session
     subjPath = subjpath;    % nSubjxnSess cell array contains back projected component info for each subj and each session
     NWTemplatePath = mc_GenPath(NWTemplate);        %expand network template path
-    PhysioTemplatePath = mc_GenPath(PhysioTemplate); 
     
-    
-    if doTemplateMatching
-        mc_template_matching(TempMatchAlg, NWTemplatePath, compPath, subjPath, OutPath);
-    end
-    
-    if doPhysioCheck
-        mc_PhysioCheck(PhysioTemplatePath,compPath, subjPath);
-    end
+    mc_template_matching(TempMatchAlg, NWTemplatePath, compPath, subjPath, OutPath);
     
 %     % remove the unzipped file used before
 %     for irm = 1:size(compPath,2)
