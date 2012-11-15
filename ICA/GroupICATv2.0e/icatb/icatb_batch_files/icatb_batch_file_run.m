@@ -1,7 +1,7 @@
 function icatb_batch_file_run(inputFiles)
 spm_get_defaults('cmdline',true);
 load UserSettings.mat;
-
+warning off
 %% Batch file for running group ICA
 %
 % Inputs:
