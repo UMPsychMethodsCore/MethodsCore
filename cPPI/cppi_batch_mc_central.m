@@ -226,25 +226,36 @@ if (RunMode(2))
         NumProcesses = 12;
     end
     SubjPerChunk = floor(NumSubj / NumProcesses);
+    SubjRemain = mod(NumSubj,NumProcesses);
+    
     for iChunk = 1:NumProcesses
         %save each piece of SubjDir into a chunkN.mat file in temp location
         offset = (iChunk - 1) * SubjPerChunk;
         tempSubjDir = [];
-        if (iChunk < NumProcesses)
+%        if (iChunk < NumProcesses)
             for iSubject = 1+offset:SubjPerChunk+offset
                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
                 tempSubjDir{end,2} = SubjDir{iSubject,2};
                 tempSubjDir{end,3} = SubjDir{iSubject,3};
                 tempSubjDir{end,4} = SubjDir{iSubject,4};
             end
-        else
-            for iSubject = 1+offset:size(SubjDir,1)
-                tempSubjDir{end+1,1} = SubjDir{iSubject,1};
-                tempSubjDir{end,2} = SubjDir{iSubject,2};
-                tempSubjDir{end,3} = SubjDir{iSubject,3};
-                tempSubjDir{end,4} = SubjDir{iSubject,4};
-            end
+%         else
+%             for iSubject = 1+offset:size(SubjDir,1)
+%                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+%                 tempSubjDir{end,2} = SubjDir{iSubject,2};
+%                 tempSubjDir{end,3} = SubjDir{iSubject,3};
+%                 tempSubjDir{end,4} = SubjDir{iSubject,4};
+%             end
+%        end
+        if (SubjRemain > 0)
+            iSubject = NumSubj+1-SubjRemain;
+            tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+            tempSubjDir{end,2} = SubjDir{iSubject,2};
+            tempSubjDir{end,3} = SubjDir{iSubject,3};
+            tempSubjDir{end,4} = SubjDir{iSubject,4};
+            SubjRemain = SubjRemain - 1;
         end
+            
         [fd fn fe] = fileparts(mcLog);
         mcLog = fullfile(fd,[fn '_chunk' num2str(iChunk) fe]);
         chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);

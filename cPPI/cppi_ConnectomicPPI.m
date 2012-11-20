@@ -83,7 +83,11 @@ switch parameters.Output.type
         for iROI = 1:parameters.rois.nroisRequested
             roiTCscaled(:,iROI) = roiTC(:,iROI).*SPM.xGX.gSF;
         end
+        logstring = sprintf('%s: %d ROIs total',datestr(now),parameters.rois.nroisRequested);
+        mc_Logger('log',logstring,3);
         for iROI = 1:parameters.rois.nroisRequested
+           logstring = sprintf('%s: Working on ROI %d',datestr(now),iROI);
+           mc_Logger('log',logstring,3);
            %[cppiregressors betanames] =
            %cppi_CreateRegressors_spm(parameters.rois.mni.coordinates(iROI,:),parameters,roiTC(:,iROI));
            %roiTCtemp = roiTC(:,iROI).*SPM.xGX.gSF;
