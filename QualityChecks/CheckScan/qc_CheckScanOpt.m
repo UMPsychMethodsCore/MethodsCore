@@ -24,13 +24,13 @@ index = 1;
 fid = fopen(Opt.OutlierText,'w');
 if fid == -1
     mc_Error(['Cannot write to %s\n'...
-              ' * * * A B O R T I N G * * *\n']);
+              ' * * * A B O R T I N G * * *\n'],Opt.OutlierText);
 end
 fclose(fid);
 
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %f\n'...
-              ' * * * A B O R T I N G * * *\n']);
+              ' * * * A B O R T I N G * * *\n'],Opt.Thresh);
 end
 
 fileExp = ['^' Opt.FileExp '.*nii'];
@@ -45,20 +45,20 @@ for i = 1:nsubjects
         
         if exist(runDir,'dir') ~= 7
             mc_Error(['FATAL ERROR: Directory does not exist %s\n'...
-                      ' * * * A B O R T I N G * * *\n']);
+                      ' * * * A B O R T I N G * * *\n'],runDir);
         end
 
         funcFile = spm_select('FPList',runDir,fileExp);
         if isempty(funcFile)
             mc_Error(['FATAL ERROR: No funciton file in directory: %s\n'...
                      'Please check Opt.FileExp filter.\n'...
-                     ' * * * A B O R T I N G * * *\n']);
+                     ' * * * A B O R T I N G * * *\n'],runDir);
         end
 
         if size(funcFile,1) > 1
             mc_Error(['FATAL ERROR: Expected only one 4D functional image in directory: %s\n'...
                       'Please check Opt.FileExp filter\n'...
-                      ' * * * A B O R T I N G * * *\n']);
+                      ' * * * A B O R T I N G * * *\n'],runDir);
         end
 
         checkedFiles{index,1} = funcFile;
