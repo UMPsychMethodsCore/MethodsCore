@@ -140,7 +140,7 @@ function [taub tau h sig Z S sigma sen n senplot CIlower CIupper D Dall C3 nsigm
         vr = [str2double(vmat{1}) str2double(vmat{2})];
         
         if vr(1) >= 7
-            if vr(2) >=9
+            if vr(2) >=9 | vr(1) > 7
                 % Then matlab version should work
             else
                 txt = 'Your version of matlab is %s. \nYou need at least version 7.9 to run.\n Some of the syntax will not parse correctly.';
