@@ -51,17 +51,18 @@ discrimpower=1-p;
 function discrimpower = calc_taub(data,labels)
 % Initialize the fractions object which will store the
 % tau-b's
-discrimpower=zeros(1,size(data,2));
+discrimpower=ones(1,size(data,2)); % Discrim power will hold p-values, so initialize at no sig (p=1)
 
 % Loop over features
 for iFeat=1:size(data,2)
     
     if any(diff(data(:,iFeat))) % Check to be sure that all elements aren't the same
-        discrimpower(iFeat)=ktaub([labels(:,1) data(:,iFeat)],.05,0);
+        [taub tau h sig Z S sigma sen n senplot CIlower CIupper D Dall C3] = ktaub([labels(:,1) data(:,iFeat)],.05,0);
+        discrimpower(iFeat)=sig;
         
     end
 end
-discrimpower = abs(featurefitness);
+discrimpower = 1 - discrimpower;
 
 function discrimpower = calc_mutinfo(data,labels)
 discrimpower = mc_compute_mi( data, labels );
