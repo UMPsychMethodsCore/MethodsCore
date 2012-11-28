@@ -309,29 +309,6 @@ if strcmpi(svmtype,'paired')
     
     fprintf('Done\n');
 
-    
-    %% Subset by network, if turned on
-    
-    if exist('network_specific') && network_specific==1
-        network_subset_all=[network_subset ; [network_subset(:,2) network_subset(:,1)] ]; %flip around
-        network_subset_all=unique(network_subset_all,'rows');
-
-        roiPathTemplate.Template = ROITemplate;
-        roiPathTemplate.mode='check';
-
-        roiPath=mc_GenPath(roiPathTemplate);
-
-        network_info=mc_connectome_get_edge_attribute(roiPath,4,'/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr');
-
-        for iNet=1:size(network_subset_all,1)
-            network_pass = zeros(1,size(network_info,2));
-            network_pass = network_pass + all(network_info == repmat(network_subset_all(iNet,:)',1,size(network_info,2)));
-        end
-
-        network_pass = network_pass~=0;
-
-        superflatmat_grouped(:,~network_pass,:) = 0;
-    end
 
     %% Figure out subject availability for contrasts
 
