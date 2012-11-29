@@ -24,7 +24,7 @@ end
 %% Confirm that you are running on an allowed host
 
 goodlist={
-'psyche.psych.med.umich.edu';
+'psyche.psych.med.umich.edu';'freewill';
 };
 
 [d,curhost]=system('hostname');
