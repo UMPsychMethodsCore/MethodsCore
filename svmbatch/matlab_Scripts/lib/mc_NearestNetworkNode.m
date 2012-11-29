@@ -8,7 +8,7 @@ function [ labels ] = mc_NearestNetworkNode(voxlist, radius)
 %               radius  -       Radius of sphere to search in MNI distance
 %       Output Args
 %       
-%               labels  -       nRoi*1 list of values taken from
+%               labels  -       1*nRoi list of values taken from
 %                               nearest neighbor
 % NOTES
 %       Currently hardcoded to use the YeoNetwork Map
