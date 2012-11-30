@@ -26,6 +26,7 @@ switch nargin
     case 1
         if isstruct(varargin{1})
             TakGraph=varargin{1};
+            TakGraph = struct_Parse(TakGraph);
             struct_TakGraph(TakGraph)
         end
         
@@ -40,6 +41,12 @@ switch nargin
         
 end
 
+function out = struct_Parse(in)
+out=in;
+if isfield(in,'SVMSetup');
+    clear out
+    out.SVM_ConnectomeResults = in;
+end
 
 
 function out = path_TakGraph(in)
@@ -61,6 +68,12 @@ parameters=load(param_path);
 roiMNI=parameters.parameters.rois.mni.coordinates;
 roi_MNI_labels = mc_network_lookup('/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr',roiMNI);
 networks=roi_MNI_labels(:,4);
+
+% Recover otherwise zero networks
+
+if isfield(in.SVM_ConnectomeResults.SVMSetup,'NearestNetworkNodeRad') && in.SVM_ConnectomeResults.SVMSetup.NearestNetworkNodeRad ~= 0
+    networks = mc_NearestNetworkNode(roiMNI,in.SVM_ConnectomeResults.SVMSetup.NearestNetworkNodeRad)';
+end
 
 % Figure out square consensus connectome
 prune = all(in.SVM_ConnectomeResults.LOOCV_pruning{1});

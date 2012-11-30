@@ -89,6 +89,16 @@ nFeatPlot = 25 ;
 Vizi = 1;
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Invoke mc_NearestNetworkNode on any visualization involving network        %
+% identification. At present, this only influences TakGraphs, but more       %
+% integrations are planned. See mc_NearestNetworkNode help for more details. %
+% This argument supplies the radius argument to mc_NearestNetworkNode        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+NearestNetworkNodeRad = 0; 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Do you have multiple runs (or something run-like to iterave over?) If
 %%%% so, specify it here.
