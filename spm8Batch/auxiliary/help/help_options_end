@@ -2,6 +2,8 @@
     echo "${helpComment} functional images path    : $fmriPATH"
     echo "${helpComment} Subject directory         : ${SUBJDIR}"
     echo
+    echo "${helpComment} Back(1)/fore(0)ground     : ${BACKGROUNDJOBFLAG}"
+    echo 
     echo "${helpComment} spm8 is located in        : $SPM8B1"
     echo "${helpComment} spm8Batch is located in   : $SPM8B2"
     echo "${helpComment} spm8 patch is located in  : $SPM8B3"

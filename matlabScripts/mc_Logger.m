@@ -1,4 +1,4 @@
-function result = mc_Logger(cmd,argument,loglevel)
+function result = mc_Logger(cmd,cmdstring,loglevel)
 % A utility function to setup script copies and log messages to a log file
 % FORMAT [result] = mc_Logger(cmd,cmdstring[,loglevel]);
 % 
@@ -78,7 +78,7 @@ function result = mc_Logger(cmd,argument,loglevel)
             mcLog = scriptlog;
             result = 1;
         case 'log'
-            if (~exist(loglevel,'var') || isempty(loglevel))
+            if (~exist('loglevel','var') || isempty(loglevel))
                 loglevel = 1;
             end
             switch(loglevel)
@@ -108,6 +108,7 @@ function result = mc_Logger(cmd,argument,loglevel)
                 mc_Error('Could not open logfile %s for writing.',mcLog);
             end
             fprintf(fid,'%s\t%s\n',loglevelstr,cmdstring);
+            fclose(fid);
             result = 1;
     end
     

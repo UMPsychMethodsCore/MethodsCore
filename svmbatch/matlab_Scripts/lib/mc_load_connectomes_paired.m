@@ -1,4 +1,4 @@
-function [ data_conditions, SubjAvail ] = mc_load_connectomes_paired( SubjDir, FileTemplate, RunDir )
+function [ data_conditions, SubjAvail ] = mc_load_connectomes_paired( SubjDir, FileTemplate, RunDir, matrixtype )
 %MC_LOAD_SVM_DATASET Load connectomic data
 %   Prior to performing SVM, you will need to load your connectomic data.
 %   These can be produced by the som toolbox including in the advanced
@@ -24,6 +24,13 @@ function [ data_conditions, SubjAvail ] = mc_load_connectomes_paired( SubjDir, F
 %                           '/net/data4/MAS/FirstLevel/[Subject]/conn.mat'
 %       RunDir          -   Do you have multiple runs (or something run-like 
 %                           to iterave over?) If so, specify it here.
+%       matrixtype      -   Used to specify matrix mode. If
+%                           doing a cPPI, you may be using
+%                           a flattened form of the entire
+%                           connectivity matrix. In this
+%                           case, flattening and
+%                           unflattening will work a little
+%                           bit differently. 
 % 
 %   OUTPUT
 %       data_conditions -   All of your loaded data! Should be a three
@@ -58,11 +65,22 @@ for iSub=1:nSubs
       conmat=load(conPath);
       rmat=conmat.rMatrix;
       if ~exist('unsprung','var') || unsprung==0
-        data_conditions=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),nCond);
-        unsprung=1;
+        switch matrixtype
+          case 'upper'
+            data_conditions=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2),nCond);
+            unsprung=1;
+          case 'nodiag'
+            data_conditions=zeros(nSubs,numel(rmat),nCond);
+            unsprung=1;
+        end
       end
       SubjAvail(iSub,iCond)=1;
-      data_conditions(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
+      switch matrixtype
+        case 'upper'
+          data_conditions(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
+        case 'nodiag'
+          data_conditions(iSub,:,iCond) = reshape(rmat,numel(rmat),1);
+      end
     end
   end
 end

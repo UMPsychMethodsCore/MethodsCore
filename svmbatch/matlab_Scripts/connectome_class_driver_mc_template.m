@@ -18,6 +18,15 @@ Exp = '/net/data4/DEA_Resting/';
 svmtype='paired';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Portion of the matrix to use for features
+%%%     'upper'     - upper section (above the diagonal)
+%%%     'nodiag'    - both upper and lower section but exclude diagonal
+%%%     'full'      - use the full matrix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+matrixtype = 'nodiag';
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Pruning Method. For non-paired SVM, how would you like the select the
 %%% most discriminant features. Presently supported options are...
 %%%     unpaired data
@@ -26,6 +35,8 @@ svmtype='paired';
 %%%     paired data
 %%%         't-test'    -   paired t-test
 %%%         'fractfit'  -   fractional fitness
+%%%     Regression SVM
+%%%         'PearsonR'  -   Use p-values resulting from Pearson R's between data and labels
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pruneMethod = 'ttest';
@@ -174,6 +185,11 @@ NuisanceRegressors(:,:,2)=[
     2, 6, 2;
     ];
 
+% SVM Library
+% 1 - svmlight (Default)
+% 2 - LIBSVM (NEW! Supports regression using advancedkernel flags)
+svmlib=1;
+   
 
 
 % Enable Advanced Kernel Functions
@@ -204,7 +220,8 @@ kernel = 0;
 kernelsearchmode = 1;
 
 % If you set kernelsearchmode to 1, define your gridstruct here
-% See mc_svm_define_searchgrid help for details
+% See mc_svm_define_searchgrid help for details. Use this to enable
+% regression mode.
 
 gridstruct(1).arg=' -c ';
 gridstruct(1).value=logspace(1,10,10);
