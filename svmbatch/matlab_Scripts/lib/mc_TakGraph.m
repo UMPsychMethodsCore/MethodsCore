@@ -77,24 +77,30 @@ end
 
 % Figure out square consensus connectome
 prune = all(in.SVM_ConnectomeResults.LOOCV_pruning{1});
-prune_square = mc_unflatten_upper_triangle(prune);
+if isfield(in.SVM_ConnectomeResults.SVMSetup,'ColorizeTakGraph') && in.SVM_ConnectomeResults.SVMSetup.ColorizeTakGraph==1;
+    mean_delta = mean_delta_C2_minus_C1(in);
 
-% Permute edges to follow labels
+    prune_pos = prune & mean_delta > 0;
+    prune_neg = prune & mean_delta < 0;
 
-[sorted, sortIDX] = sort(networks);
-
-prune_square = prune_square(sortIDX,sortIDX);
-
-% Dilate Edges if requested
-if isfield(in.SVM_ConnectomeResults.SVMSetup,'DilateMat')
-    prune_square = enlarge_dots(prune_square,in.SVM_ConnectomeResults.SVMSetup.DilateMat);
+    [prune_pos_square sorted] = generate_square_mat(in,prune_pos,networks);
+    prune_neg_square = generate_square_mat(in,prune_neg,networks);
+    
+    prune_square = prune_neg_square ; % final prune square will have 1s for negative edges
+    
+    prune_square(find(prune_pos_square)) = 2; % set some of the points to be two
+else
+    [prune_square sorted] = generate_square_mat(in,prune,networks);
 end
 
-prune_square = triu(logical(prune_square + prune_square'));
 
 % Make heatmap
 
-imagesc(prune_square==0);colormap(gray);
+customcolor = [1 1 1;  %0 is white
+               0 0 0;  %1 is black
+               1 0 0;] %2 is red;
+
+imagesc(prune_square);colormap(customcolor);
 
 % Add overlay to heatmap
 
@@ -159,3 +165,67 @@ end
 
 out = in;
 
+function out = connectome_load(in)
+% Just pass it the SVM object, and it will load the data in whatever manner is appropriate, and even do your delta
+
+% Extract SVMSetup, cuz that's all your really need
+
+a = in.SVM_ConnectomeResults.SVMSetup;
+
+switch a.svmtype
+  case 'paired'
+    [data SubjAvail] = mc_load_connectomes_paired(a.SubjDir,a.ConnTemplate,a.RunDir,a.matrixtype);
+    data = mc_connectome_clean(data);
+    data=mc_connectome_clean(data);
+
+  case 'unpaired'
+    [data] = mc_load_connectomes_unpaired(a.SubjDir,a.ConnTemplate);
+end
+
+out=data;
+
+function out = mean_delta_C2_minus_C1(in)
+% Provide your SVM object and it will do the rest and return
+% out - 1 * nEdges, where each value represents the mean delta from C2 - C1
+
+% At present this only works paired data
+
+a = in.SVM_ConnectomeResults.SVMSetup;
+
+a.ConnTemplate = pathclean(a.ConnTemplate,'\[Exp\]',a.Exp); % Clean path to avoid Exp
+
+switch a.svmtype
+  case 'paired'
+    [data SubjAvail] = mc_load_connectomes_paired(a.SubjDir,a.ConnTemplate,a.RunDir,a.matrixtype);
+    data = mc_connectome_clean(data);
+    data=mc_connectome_clean(data);
+
+    [data_baseline label]=mc_calc_deltas_paired(data,SubjAvail,[1 0]);
+    data_baseline=mean(data_baseline(label==1,:));
+    [data_delta label]=mc_calc_deltas_paired(data,SubjAvail,[-1 1]);
+    data_delta=mean(data_delta(label==1,:));
+
+    out = data_delta;
+end
+
+
+function [prune_square sorted] = generate_square_mat(in,prune,networks)
+% Provide SVM, prune, and networks, and it will do everything including making square, resorting, and dilation
+
+prune_square = mc_unflatten_upper_triangle(prune);
+
+% Permute edges to follow labels
+
+[sorted, sortIDX] = sort(networks);
+
+prune_square = prune_square(sortIDX,sortIDX);
+
+% Dilate Edges if requested
+if isfield(in.SVM_ConnectomeResults.SVMSetup,'DilateMat')
+    prune_square = enlarge_dots(prune_square,in.SVM_ConnectomeResults.SVMSetup.DilateMat);
+end
+
+prune_square = triu(prune_square + prune_square');
+
+function out = pathclean(oldpath,pattern,newpattern);
+out=regexprep(oldpath,pattern,newpattern);
