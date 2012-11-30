@@ -99,6 +99,16 @@ Vizi = 1;
 
 NearestNetworkNodeRad = 0; 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If you are planning to later make a TakGraph, you can set DilateMat %
+% add dots around the support of your TakGraph. See the enlarge_dots  %
+% subfunction of mc_TakGraph for more details.                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
+%                    -1 1; 1 1; -1 -1; 1 -1; %fill out square
+%                    -2 0; 0 2; 2 0; 0 -2]; % cross around square
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Do you have multiple runs (or something run-like to iterave over?) If
 %%%% so, specify it here.

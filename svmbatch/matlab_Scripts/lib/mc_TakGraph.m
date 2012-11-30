@@ -85,6 +85,11 @@ prune_square = mc_unflatten_upper_triangle(prune);
 
 prune_square = prune_square(sortIDX,sortIDX);
 
+% Dilate Edges if requested
+if isfield(in.SVM_ConnectomeResults.SVMSetup,'DilateMat')
+    prune_square = enlarge_dots(prune_square,in.SVM_ConnectomeResults.SVMSetup.DilateMat);
+end
+
 prune_square = triu(logical(prune_square + prune_square'));
 
 % Make heatmap
@@ -122,3 +127,35 @@ for iBox=1:size(starts)
 end
 
 hold off
+
+function out=enlarge_dots(in,mat)
+%Enlarge the dots in your heatmat. You will need to supply
+%your original square matrix (typically prune_square)
+%
+% mat will be a n*2 matrix of offsets that you wish to expand
+% For example, to enlarge the dots by adding dots 
+% above, below, and to either side, use:
+% mat = [1 0; -1 0; 0 1; 0 -1];
+
+[hotx hoty] = find(in);
+
+[maxx maxy] = size(in);
+
+for ioff = 1:size(mat,1);
+    newx = hotx + mat(ioff,1);
+    newy = hoty + mat(ioff,2);
+    logicx = newx <= maxx & newx >=1;
+    logicy = newy <= maxy & newy >=1;
+    logicall = logicx & logicy ; 
+    
+    newx = newx(logicall);
+    newy = newy(logicall);
+    
+    for j = 1:size(newx,1)
+            in(newx(j),newy(j)) = 1;
+    end
+
+end
+
+out = in;
+
