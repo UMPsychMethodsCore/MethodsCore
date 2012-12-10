@@ -2,9 +2,12 @@ function [ flatmat ] = mc_flatten_upper_triangle( squaremat , censor)
 % Flatten Upper Trianngle - A function to extract, as a vector, the upper
 % triangular elements of a square matrix. At present, if any elements in
 % the upper triangle are inf, this will lead to an error.
+% NOTE - It will strip logicals down to doubles and return as such    
+
+
+squaremat = +squaremat; % Coerce away from logical
 
 % Check if any elements are inf.
-
 if any(isnan(squaremat(:)))
     % raise error message and abort. Add this functionality once mc_error
     % is written.
