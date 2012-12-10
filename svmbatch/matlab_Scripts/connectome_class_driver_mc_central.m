@@ -21,6 +21,10 @@ if(~exist('svmlib','var'))
     svmlib=1;
 end
 
+if(~exist('matrixtype','var'))
+    matrixtype='upper';
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
