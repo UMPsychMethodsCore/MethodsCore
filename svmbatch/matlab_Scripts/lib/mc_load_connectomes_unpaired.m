@@ -38,7 +38,7 @@ for iSub=1:size(SubjDir,1)
   if iSub==1
     data=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
   end
-  superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+  data(iSub,:)=mc_flatten_upper_triangle(rmat);
   label(iSub,1)=Example;
 end
 
