@@ -98,7 +98,7 @@ end
 
 customcolor = [1 1 1;  %0 is white
                0 0 0;  %1 is black
-               1 0 0;] %2 is red;
+               1 0 0;]; %2 is red;
 
 imagesc(prune_square);colormap(customcolor);
 
