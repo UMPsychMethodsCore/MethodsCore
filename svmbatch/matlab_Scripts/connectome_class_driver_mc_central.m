@@ -306,7 +306,10 @@ if strcmpi(svmtype,'paired')
     
     fprintf('Done\n');
 
-
+    %Arrange data as if it were unpaired (and interleave it, cuz that's what downstream stuff expects)
+    superflatmat_unpaired(1:2:(size(superflatmat_grouped,1)*2),:) = squeeze(superflatmat_grouped(:,:,1));
+    superflatmat_unpaired(2:2:(size(superflatmat_grouped,1)*2),:) = squeeze(superflatmat_grouped(:,:,2));
+    
     %% Figure out subject availability for contrasts
 
     contrastAvail = zeros(nSubs,size(ContrastVec,1));
@@ -378,8 +381,10 @@ if strcmpi(svmtype,'paired')
 
 
             train=superflatmat_paired(train_idx,:);
+            train_unpaired = superflatmat_unpaired(train_idx,:);
             trainlabels=repmat([1; -1],size(train,1)/2,1);
             test=superflatmat_paired([iL*2-1 iL*2],:);
+            test_unpaired = superflatmat_unpaired([iL*2-1 iL*2],:);
             testlabels=repmat([1; -1],size(test,1)/2,1);
             
             if nFeatPrune~=0
@@ -389,13 +394,12 @@ if strcmpi(svmtype,'paired')
                 % signed direction. Do it just for one pair, since the second pair
                 % is the first * -1
 
-                allowedpruneMethod={'t-test','fractfit'};
                 
-                if ~any(strcmp(pruneMethod,allowedpruneMethod))
-                    pruneMethod='fractfit'; % if not properly set, use fractfit
+                if(strcmp(pruneMethod,'2sampleT'))
+                    featurefitness=mc_calc_discrim_power_unpaired(train_unpaired,trainlabels,'t-test');
+                else
+                    featurefitness=mc_calc_discrim_power_paired(train,trainlabels,pruneMethod);
                 end
-                    
-                featurefitness=mc_calc_discrim_power_paired(train,trainlabels,pruneMethod);
 
                 if (~strcmp(matrixtype,'upper'))
                     featurefitness = mc_prune_discrim_power(featurefitness);

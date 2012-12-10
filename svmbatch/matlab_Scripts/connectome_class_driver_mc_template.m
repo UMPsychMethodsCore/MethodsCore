@@ -35,6 +35,7 @@ matrixtype = 'nodiag';
 %%%     paired data
 %%%         't-test'    -   paired t-test
 %%%         'fractfit'  -   fractional fitness
+%%%         '2sampleT'  -   Treat your data as if it were unpaired and do a two-sample t-test for purposes of pruning
 %%%     Regression SVM
 %%%         'PearsonR'  -   Use p-values resulting from Pearson R's between data and labels
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
