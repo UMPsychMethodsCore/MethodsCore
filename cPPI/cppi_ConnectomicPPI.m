@@ -98,7 +98,7 @@ switch parameters.Output.type
            
            model = cppi_CreateModel(cppiregressors,roiTC,parameters);
 
-           [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI);
+           [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI,roiTC);
            
            if (result)
                [status result] = system(sprintf('rm -rf %s',model));

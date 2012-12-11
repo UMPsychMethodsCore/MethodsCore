@@ -56,6 +56,14 @@ defaults.mask.thresh = -Inf;
 SPM = spm_fmri_spm_ui(SPM);
 SPM = spm_spm(SPM); 
 
+numbetas = size(SPM.xX.X,2);
+SPM = rmfield(SPM,'xCon');
+for iB = 1:numbetas
+    contrast = [zeros(1,iB-1) 1 zeros(1,numbetas-iB)];
+    SPM.xCon(iB) = spm_FcUtil('Set',sprintf('beta%d',iB),'T','c',contrast',SPM.xX.xKXs);    
+end
+SPM = spm_contrasts(SPM);
+
 %return path to model when finished
 model = pwd;
 cd(curpath);
