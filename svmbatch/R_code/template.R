@@ -1,0 +1,38 @@
+
+############################################
+## Where is your master datafile located? ##
+############################################
+
+masterpath = '/net/data4/Schiz_COBRE/MasterData_COBRE.csv' 
+
+###########################################################################
+## Does your master datafile contain a "factor" column with 1's and 0's  ##
+## indicating which subjects to include in the present analysis? If so,  ##
+## give the name of that column as a string here. If not, pass an emptry ##
+## string as includefactor = ''                                          ##
+###########################################################################
+
+includefactor = ''
+
+#####################################################################################
+## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
+## ported to R, so your capacity to flexibly specify path names is bit             ##
+## more limited. Here, you'll specify the path to your connectome                  ##
+## files. These files should be square matrices that will be flattened             ##
+## internally by the R script. Your path will be built up by concatening           ##
+## the following                                                                   ##
+## 1) connTemplate.prefix                                                          ##
+## 2) the current value of Subject. You'll need to specify which column            ##
+## of your masterdata file has your subject folder names in connTemplate.SubjField ##
+## 3) connTemplate.suffix                                                          ##
+##                                                                                 ##
+## NOTE - Depending on you application, it may be ok to set either                 ##
+## connTemplate.prefix or connTemplate.suffix to an empty string                   ##
+## (e.g. '')                                                                       ##
+#####################################################################################
+
+connTemplate.prefix = '/net/data4/Schiz_COBRE/Subjects/FirstLevel_12s19vr_adjusted/'
+
+connTemplate.SubjField = 'SUB_ID'
+
+connTemplate.suffix = '/Grid/Grid_corr.mat'
