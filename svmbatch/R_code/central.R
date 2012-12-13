@@ -6,7 +6,7 @@
 master = read.csv(masterpath,colClasses = 'character')
 
 if( includefactor != '' ){
-  master = master[,includefactor] #Subset only to those subjects intended for this analysis
+  master = master[master[,includefactor] == 1,] #Subset only to those subjects intended for this analysis
 }
 
 nSub = nrow(master)
@@ -31,18 +31,24 @@ for (iSub in 1:nSub){
 
 ## Do the modeling
 
-model.formula = R ~ TYPE + AGE
+model.formula = R ~ TYPE
 
-nBeta = length(all.vars(x))
-
+nBeta = length(all.vars(model.formula))
 t.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
 
 for (iFeat in 1:nFeat){
   mini = data.frame(R = superflatmat[,iFeat],master)
   mini$AGE = as.numeric(mini$AGE)
   model.fit = lm(model.formula,mini)
+  if (iFeat == 1){
+    row.names(t.array) = model.fit$coefficients
+   }
   t.array[,iFeat] = summary(model.fit)$coef[,'t value']
   if(iFeat %% 1000 == 0){
     print(iFeat)
   }
 }
+
+## Write out the results
+
+#writeMat(outputTemplate,tvals = t.array)

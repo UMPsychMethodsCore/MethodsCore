@@ -12,7 +12,7 @@ masterpath = '/net/data4/Schiz_COBRE/MasterData_COBRE.csv'
 ## string as includefactor = ''                                          ##
 ###########################################################################
 
-includefactor = ''
+includefactor = 'Include'
 
 #####################################################################################
 ## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
@@ -36,3 +36,16 @@ connTemplate.prefix = '/net/data4/Schiz_COBRE/Subjects/FirstLevel_12s19vr_adjust
 connTemplate.SubjField = 'SUB_ID'
 
 connTemplate.suffix = '/Grid/Grid_corr.mat'
+
+
+
+############################################################################
+## Where should the results be written? This should be a fully qualified  ##
+## path. It will write out a single .mat file that will contain a         ##
+## variable holding a matrix of your t-values. Rows index the betas in    ##
+## the fit model, and columns correspond to features. It is important the ##
+## the folder containing your target file already exists or this will     ##
+## result in an error.                                                    ##
+############################################################################
+
+outputTemplate = '/net/data4/Schiz_COBRE/'
