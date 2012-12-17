@@ -11,11 +11,18 @@ function [ output_args ] = mc_TakGraph( varargin )
 % Usage 3
 %   Provide all of the pieces necessary to create a TakGraph (in progress)
 %
-%   Inputs
-% 
-%       Feature Weights
-%       Path to Network Map
-%       
+%   For this usage, you will still be passing a struct "a", but it will be a bit more
+%   bare bones than a full SVM result struct. It needs the following fields:
+%
+%   Required Fields
+%       a.ManualTakGraph - Set this field to one so that the parser knows you are using the third usage of mc_TakGraph       
+%       a.prune - 1 x nFeat logical matrix of features to plot
+%       a.NetworkLabels - 1 x nROI matrix of network labels. You do the lookup, expansion, etc, yourself before passing them to this function
+%
+%   Optional Fields
+%       a.DotDilationMat - A matrix of offsets to expand dots on the TakGraph by
+%       a.pruneColor.values - 1 x nFeat matrix of color values that will index into a.pruneColor.map
+%       a.pruneColor.map - A colormap object that will be directly indexed by pruneColor.values. 
 
 
 
