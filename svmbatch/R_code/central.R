@@ -1,4 +1,4 @@
-## Load
+## Load functions
 
 
 ## Load masterdatafile
@@ -14,6 +14,7 @@ nSub = nrow(master)
 ## Load connectomes
 
 library('R.matlab') #Make sure you are able to load matlab files
+library('Matrix')
 
 for (iSub in 1:nSub){
   SubjPath = master[iSub,connTemplate.SubjField]
@@ -29,26 +30,34 @@ for (iSub in 1:nSub){
   row.names(superflatmat)[iSub] = SubjPath # Label the row of the matrix with the subject
 }
 
+## Convert the R's to z's
+superflatmat.orig = superflatmat
+superflatmat = apply(superflatmat,c(1,2),fisherz)
+
 ## Do the modeling
 
-model.formula = R ~ TYPE
+
 
 nBeta = length(all.vars(model.formula))
 t.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
+p.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
+
 
 for (iFeat in 1:nFeat){
   mini = data.frame(R = superflatmat[,iFeat],master)
   mini$AGE = as.numeric(mini$AGE)
+  mini$meanFD = as.numeric(mini$meanFD)
   model.fit = lm(model.formula,mini)
   if (iFeat == 1){
     row.names(t.array) = model.fit$coefficients
    }
   t.array[,iFeat] = summary(model.fit)$coef[,'t value']
+  p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
   if(iFeat %% 1000 == 0){
     print(iFeat)
   }
 }
-
+ 
 ## Write out the results
 
-#writeMat(outputTemplate,tvals = t.array)
+writeMat(outputTemplate,tvals = t.array,pvals = p.array)

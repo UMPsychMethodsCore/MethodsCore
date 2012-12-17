@@ -48,4 +48,23 @@ connTemplate.suffix = '/Grid/Grid_corr.mat'
 ## result in an error.                                                    ##
 ############################################################################
 
-outputTemplate = '/net/data4/Schiz_COBRE/'
+outputTemplate = '/net/data4/Schiz_COBRE/UnivariateConnectomics/Results/Grid1080WMotion.mat'
+
+
+##########################################################################
+## How do you want to model your data? You'll need to create a formula  ##
+## object in the way that R likes it. This means it will look something ##
+## like this: "R ~ dx + motion". The left hand term will always be R,   ##
+## this is hardcoded into the central script to be the Pearson R        ##
+## correlation for the current feature of interest. All of the terms    ##
+## on the right hand side need to be the same as column names in your   ##
+## master datafile.                                                     ##
+##########################################################################
+model.formula = R ~ TYPE + meanFD
+
+
+#############################
+## Call the Central Script ##
+#############################
+
+source('central.R')
