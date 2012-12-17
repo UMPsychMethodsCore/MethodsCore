@@ -1,4 +1,4 @@
-function [ corrected, residuals, betas, intercepts ] = mc_CovariateCorrection( Y, X )
+function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X )
 %MC_COVARIATECORRECTION Correction for a series of covariates using
 %multiple regression
 % 
@@ -15,6 +15,7 @@ function [ corrected, residuals, betas, intercepts ] = mc_CovariateCorrection( Y
 %                       regression
 %       intercepts  -   nExamples x nFeatures matrix of intercept values
 %                       from regression
+%       pvals       -   P Values corresponding to each beta    
 % 
 % 
 % This program will assume the same design matrix for all of your features,
@@ -41,7 +42,13 @@ intercepts = X(:,1)*betas(1,:);
 
 corrected = intercepts + residuals;
 
- 
+C = pinv(X'*X);
+
+for iC = 1 : size(X,2)
+    tvals(iC,:) = betas (iC,:) ./ sqrt(C(iC,iC) * sum(residuals.^2,1)/(size(Y,1) - (size(betas,1))));
+end
+
+pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
 
 
 end
