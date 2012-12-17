@@ -166,6 +166,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                     ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
                 end
                 parameters.rois.files = char(ROI);
+            case 'directory'
+                ROIFolder = mc_GenPath(ROITemplate);
+                parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
             
             case 'coordinates'
                 parameters.rois.mni.coordinates = ROICenters;

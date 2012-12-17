@@ -91,6 +91,7 @@ switch parameters.Output.type
            %[cppiregressors betanames] =
            %cppi_CreateRegressors_spm(parameters.rois.mni.coordinates(iROI,:),parameters,roiTC(:,iROI));
            %roiTCtemp = roiTC(:,iROI).*SPM.xGX.gSF;
+           roiTCscaled(isnan(roiTCscaled)) = 0;
            [cppiregressors betanames] = cppi_CreateRegressors(roiTCscaled(:,iROI),parameters);
            for iB = 1:size(betanames,2)
                cppi_grid{1,iB} = betanames{iB};

@@ -13,6 +13,12 @@ numimages = size(P,1);
 Pt = spm_select('FPList',model,'spmT.*img');
 numt = size(Pt,1);
 
+load(fullfile(model,'SPM.mat'));
+reg = [];
+for iRun = 1:size(SPM.Sess,2)
+    reg = [reg SPM.Sess(iRun).C.C];
+end
+
 nummotion = size(parameters.data.run(1).MotionParameters,2);
 domotion = parameters.cppi.domotion;
 numrun = size(parameters.data.run,2);
@@ -41,7 +47,7 @@ for iB = 1:size(goodbeta,2)
     cppi_grid{3,index}(iROI,:) = datat';
     
     if (parameters.cppi.StandardizeBetas)
-        sx = std(cppiregressors(:,index));
+        sx = std(reg(:,iB));
         sy = std(roiTC);
         cppi_grid{4,index}(iROI,:) = data' .* (sx./sy);
     end
