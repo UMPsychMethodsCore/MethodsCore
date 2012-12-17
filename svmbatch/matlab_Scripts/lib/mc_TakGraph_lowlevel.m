@@ -15,8 +15,7 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
-    a.pruneColor.values(~logical(a.prune)) = 0; % Zero out colors outside of prune
-    a.prune = a.pruneColor.values; % Let prune take on the values of the pruned color object
+    a.pruneColor.values(~logical(a.prune)) = 1; % Set colors outside of prune to 1, so they will use first colormap color
 else % If no a.pruneColor passed, set it up as if the colormap goes white, black, and the values are 1s and 2s
     a.pruneColor.values = zeros(size(a.prune))
     a.pruneColor.values(logical(a.prune)) = 2;
@@ -32,6 +31,10 @@ square_prune = mc_unflatten_upper_triangle(a.prune);
 [sorted, sortIDX] = sort(a.NetworkLabels);
 
 square = square(sortIDX,sortIDX);
+square_prune = square_prune(sortIDX,sortIDX);
+
+square = triu(square + square'); %get it all back on the upper triangle
+square_prune = triu(square_prune + square_prune');
 
 %% Enlarge the dots, if enabled
 
@@ -73,14 +76,14 @@ for ihot = 1:size(hotx,1) % Loop over values to enlarge
     curVal = enlarge(hotx(ihot),hoty(ihot)); % Grab the value of the current thing to expand
     
     for ioff = 1:size(mat,1) % Loop over enlargements
-        newx = hotx + mat(ioff,1); %new x coordinate
-        newy = hoty + mat(ioff,2); %new y coordinate
+        newx = hotx(ihot) + mat(ioff,1); %new x coordinate
+        newy = hoty(ihot) + mat(ioff,2); %new y coordinate
         logicx = newx <= maxx & newx >=1; % check if new x coordinate is in bounds
         logicy = newy <= maxy & newy >=1; % check if new y coordinate is in bounds
         logicall = logicx & logicy ;  % check that both x and y coordinate are in bounds
         
         if logicall % if it's good, let's enlarge
-            out(newx,newy) - curVal;
+            out(newx,newy) = curVal;
         end
     end
 end
@@ -89,6 +92,8 @@ function network_overlay(sorted)
 hold on
 
 % figure out jump points in labels
+
+sorted = sorted';
 
 jumps=diff(sorted);
 
