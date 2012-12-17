@@ -32,7 +32,7 @@ for (iSub in 1:nSub){
 
 ## Convert the R's to z's
 superflatmat.orig = superflatmat
-superflatmat = apply(superflatmat,c(1,2),fisherz)
+superflatmat = fisherz(superflatmat.orig)
 
 ## Do the modeling
 
