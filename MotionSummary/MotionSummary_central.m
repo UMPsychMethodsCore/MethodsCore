@@ -24,9 +24,9 @@ for iSubject = 1:size(SubjDir,1)
         
         [pathstr,name,ext] = fileparts(MotionPath);
         if any(strcmp(ext,{'.par','.dat'}))
-            Output = euclideanDisplacement(MotionParameters,LeverArm);
+            Output = euclideanDisplacement(MotionParameters,LeverArm,FDcriteria);
         else
-            Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
+            Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm,FDcriteria);
         end
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
@@ -40,7 +40,7 @@ if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return;
 end
-fprintf(theFID,'Subject,Run,maxSpace,meanSpace,maxAngle,meanAngle\n'); %header
+fprintf(theFID,'Subject,Run,maxSpace,meanSpace,maxAngle,meanAngle,meanFD,nonzeroFD\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
     for jRun = 1:size(SubjDir{iSubject,3},2)
@@ -59,7 +59,9 @@ for iSubject = 1:size(SubjDir,1)
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxSpace);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanSpace);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxAngle);
-        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.meanAngle);
+        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanAngle);
+        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanFD);
+        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.nonzeroFD);
     end
 end
 

@@ -27,7 +27,8 @@
 %                     using "leverArm"
 %        .meanAngle = mean of the above.
 %        .sumAngle  = sum of the above.
-% 
+%        .meanFD = mean of all of the framewise displacements
+%        .nonzeroFD = number of time points whose FD is above certain criteria   
 %
 %  If results == -1 then you have an error in your input!!!
 %
@@ -37,7 +38,7 @@
 % - - - - - - - - - - - - - - - - - - - - -
 
 
-function results = euclideanDisplacement(motionParameters,leverArm)
+function results = euclideanDisplacement(motionParameters,leverArm,FDcriteria)
 
 % default return
 
@@ -94,5 +95,10 @@ displacementAngle = sqrt(sum(folcrum.*folcrum,2));
 results.maxAngle  = max(displacementAngle);
 results.meanAngle = mean(displacementAngle);
 results.sumAngle  = sum(displacementAngle);
+
+% Now calculate for FD values
+[FD,FDjudge]=mc_FD_calculation(motionParameters,FDcriteria);
+results.meanFD = mean(FD);
+results.nonzeroFD = length(find(FDjudge));
 
 return
