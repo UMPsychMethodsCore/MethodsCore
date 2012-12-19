@@ -15,8 +15,19 @@ numt = size(Pt,1);
 
 load(fullfile(model,'SPM.mat'));
 reg = [];
+maxTP = 0;
 for iRun = 1:size(SPM.Sess,2)
-    reg = [reg SPM.Sess(iRun).C.C];
+    if (size(SPM.Sess(iRun).C.C,1) > maxTP)
+        maxTP = size(SPM.Sess(iRun).C.C,1);
+    end
+end
+
+for iRun = 1:size(SPM.Sess,2)
+    add = [];
+    if (size(SPM.Sess(iRun).C.C,1) < maxTP)
+        add = NaN*zeros(maxTP-size(SPM.Sess(iRun).C.C,1),size(SPM.Sess(iRun).C.C,2));
+    end
+    reg = [reg [SPM.Sess(iRun).C.C;add]];
 end
 
 nummotion = size(parameters.data.run(1).MotionParameters,2);
@@ -47,7 +58,8 @@ for iB = 1:size(goodbeta,2)
     cppi_grid{3,index}(iROI,:) = datat';
     
     if (parameters.cppi.StandardizeBetas)
-        sx = std(reg(:,iB));
+        temp = reg(:,iB);
+        sx = std(temp(~isnan(temp)));
         sy = std(roiTC);
         cppi_grid{4,index}(iROI,:) = data' .* (sx./sy);
     end
