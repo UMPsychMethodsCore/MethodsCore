@@ -183,7 +183,6 @@ switch a.svmtype
   case 'paired'
     [data SubjAvail] = mc_load_connectomes_paired(a.SubjDir,a.ConnTemplate,a.RunDir,a.matrixtype);
     data = mc_connectome_clean(data);
-    data=mc_connectome_clean(data);
 
   case 'unpaired'
     [data] = mc_load_connectomes_unpaired(a.SubjDir,a.ConnTemplate);
@@ -210,7 +209,6 @@ switch a.svmtype
   case 'paired'
     [data SubjAvail] = mc_load_connectomes_paired(a.SubjDir,a.ConnTemplate,a.RunDir,a.matrixtype);
     data = mc_connectome_clean(data);
-    data=mc_connectome_clean(data);
 
     [data_baseline label]=mc_calc_deltas_paired(data,SubjAvail,[1 0]);
     data_baseline=mean(data_baseline(label==1,:));
