@@ -96,18 +96,26 @@ if isfield(in.SVM_ConnectomeResults.SVMSetup,'ColorizeTakGraph') && in.SVM_Conne
     prune_square = prune_neg_square ; % final prune square will have 1s for negative edges
     
     prune_square(find(prune_pos_square)) = 2; % set some of the points to be two
+    
+    prune_square = prune_square + 1; % set it up so that it indexes cleany into customcolor
+
+    customcolor = [1 1 1;  %0 is white
+               0 0 1;  %1 is blue
+               1 0 0;]; %2 is red;
+    
 else
     [prune_square sorted] = generate_square_mat(in,prune,networks);
-end
+    
+    prune_square = prune_square + 1; % set it up so that it indexes cleany into customcolor
+    
+    customcolor = [1 1 1;  %0 is white
+               0 0 0] ;  %1 is black
 
+end
 
 % Make heatmap
 
-customcolor = [1 1 1;  %0 is white
-               0 0 0;  %1 is black
-               1 0 0;]; %2 is red;
-
-imagesc(prune_square);colormap(customcolor);
+figure;image(prune_square);colormap(customcolor);
 
 % Add overlay to heatmap
 
