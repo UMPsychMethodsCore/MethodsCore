@@ -235,13 +235,13 @@ prune_square = mc_unflatten_upper_triangle(prune);
 [sorted, sortIDX] = sort(networks);
 
 prune_square = prune_square(sortIDX,sortIDX);
+prune_square = triu(prune_square + prune_square',1); % Get it all up on upper diagonal
 
 % Dilate Edges if requested
 if isfield(in.SVM_ConnectomeResults.SVMSetup,'DilateMat')
     prune_square = enlarge_dots(prune_square,in.SVM_ConnectomeResults.SVMSetup.DilateMat);
 end
 
-prune_square = triu(prune_square + prune_square');
 
 function out = pathclean(oldpath,pattern,newpattern);
 out=regexprep(oldpath,pattern,newpattern);
