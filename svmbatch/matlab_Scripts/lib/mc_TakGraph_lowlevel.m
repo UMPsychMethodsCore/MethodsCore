@@ -6,7 +6,7 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %       INPUTS
 %               REQUIRED
 %                       a.prune                 -       1 x nFeat logical matrix of features to plot
-%                       a.NetworkLabels         -       1 x nFeat matrix of network labels. This will be used literally.
+%                       a.NetworkLabels         -       1 x nROI matrix of network labels. This will be used literally.
 %
 %               OPTIONAL
 %                       a.DotDilateMat          -       Matrix of offsets to expand dots on the Takgraph by. This should be nOffset x 2.
@@ -33,7 +33,7 @@ square_prune = mc_unflatten_upper_triangle(a.prune);
 square = square(sortIDX,sortIDX);
 square_prune = square_prune(sortIDX,sortIDX);
 
-square = triu(square + square'); %get it all back on the upper triangle
+square = triu(square + square',1); %get it all back on the upper triangle
 square_prune = triu(square_prune + square_prune');
 
 %% Enlarge the dots, if enabled
