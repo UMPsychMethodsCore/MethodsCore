@@ -43,8 +43,7 @@ if(isfield(a,'DotDilateMat'))
 end
 
 %% Plot the TakGraph
-image(square);colormap(a.pruneColor.map)
-
+figure;image(square);colormap(a.pruneColor.map)
 %% Add the network overlay
 network_overlay(sorted);
 
