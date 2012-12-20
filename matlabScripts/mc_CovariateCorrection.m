@@ -15,6 +15,7 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 %                       regression
 %       intercepts  -   nExamples x nFeatures matrix of intercept values
 %                       from regression
+%       tvals       -   T values corresponding to each beta
 %       pvals       -   P Values corresponding to each beta    
 % 
 % 
