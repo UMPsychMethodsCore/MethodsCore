@@ -30,7 +30,7 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 
 
 % Mean center all your covariates
-% X = mc_SweepMean(X);
+X = mc_SweepMean(X);
 
 % Prepend a constant to the predictor matrix
 X = horzcat(ones(size(X,1),1),X);
