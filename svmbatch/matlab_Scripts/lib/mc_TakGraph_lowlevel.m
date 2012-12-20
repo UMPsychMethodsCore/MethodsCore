@@ -37,7 +37,7 @@ square = triu(square + square'); %get it all back on the upper triangle
 square_prune = triu(square_prune + square_prune');
 
 %% Counting size,number of positive points and number of negative points of each cell
-[CellSize, NumPos, NumNeg] = Initial_Count(square,sorted);
+[CellSize, NumPos, NumNeg, Cell_length] = initial_count(square,sorted);
 
 %% Enlarge the dots, if enabled
 
@@ -47,6 +47,16 @@ end
 
 %% Plot the TakGraph
 image(square);colormap(a.pruneColor.map)
+
+%% Add the shading on TakGraph
+hold on;
+
+% Transparency of the shading block
+transp = 0.5;
+
+add_shading(Cell_length, stats_result, transp);
+
+hold off;
 
 %% Add the network overlay
 network_overlay(sorted);
@@ -113,14 +123,22 @@ end
 
 hold off
 
-function [CellSize, NumPos, NumNeg] = Initial_Count(square,sorted)
+function [CellSize, NumPos, NumNeg, Cell_length] = initial_count(square,sorted)
 % Based on the matrix that already sorted by network labels, count the
 % basic numbers that is useful in the next step.
 % Input:
 % square - This is your matrix that is already sorted based on the network
 % label, the elements of this matrix is supposed only to contain: 1, 2 and
-% 3. 1 is backgroun, 2 is positive points, and 3 is negative points.
+% 3. 1 is background, 2 is positive points, and 3 is negative points.
 % sorted - Matrix of network labels that marks the cell distribution.
+% Output:
+% CellSize - a matrix that contains the size of each cell
+% NumPos - a matrix that contains the number of positive points in each
+% cell
+% NumNeg - a matrix that contains the number of negative points in each
+% cell
+% Cell_length - a vector that contains the length(1D) of each cell, which
+% will be used in the shading function
 
 % Find out how many networks do we have
 Net_num = max(sorted) - min(sorted) +1;
@@ -143,39 +161,106 @@ for i = 1:Net_num
             CellSize(i,j) = Cell_length(i)*(Cell_length(i)-1)/2;
         else
             CellSize(i,j) = Cell_length(i)*Cell_length(j);
-        end
-            
+        end                    
     end
 end
 
 % Count positive and negative points
 for i = 1:Net_num
-    for j = i:Net_num
-        
-        submat = zeros(Cell_length(i),Cell_length(j));
-        
+    for j = i:Net_num        
+        submat = zeros(Cell_length(i),Cell_length(j));        
         if i ==1
             subi = 1:Cell_length(1);
         else
             subi = sum(Cell_length(1:i-1))+1:sum(Cell_length(1:i));
-        end
-        
+        end        
         if j ==1
             subj = 1:Cell_length(1);
         else
             subj = sum(Cell_length(1:j-1))+1:sum(Cell_length(1:j));
-        end
-        
+        end        
         if i == j
             submat = triu(square(subi,subj),1);
         else
             submat = square(subi,subj);
-        end
-        
+        end        
         NumPos(i,j) = sum(sum(submat == 2));
         NumNeg(i,j) = sum(sum(submat == 3));
+        
     end
 end
+
+function add_shading(Cell_length, stats_result, transp)
+% Based on the result of stats analysis, add shading over the TakGraph at
+% the stats significant area
+% Input:
+% stats_result - a matrix that contains the stats analysis result of each
+% cell of TakGraph
+% Now assume the flag of result is:
+% 1 - background
+% 2 - positive (red shading)
+% 3 - negative (blue shading)
+
+for i = 1:size(stats_result,1)
+    for j = 1:size(stats_result,2)
+        switch stats_result
+            case 1
+                continue
+            case 2
+                if j == 1
+                    shade_x = [0.5,Cell_length(1)+0.5,Cell_length(1)+0.5,0.5];
+                else
+                    shade_x = [sum(Cell_length(1:j-1))-0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j-1))-0.5];
+                end                
+                if i == 1
+                    shade_y = [0.5,0.5,Cell_length(1)+0.5,Cell_length(1)+0.5];
+                else
+                    shade_y = [sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i))+0.5,sum(Cell_length(1:i))+0.5];
+                end            
+                fill(shade_x,shade_y,'r','FaceAlpha',transp);
+            case 3
+                if j == 1
+                    shade_x = [0.5,Cell_length(1)+0.5,Cell_length(1)+0.5,0.5];
+                else
+                    shade_x = [sum(Cell_length(1:j-1))-0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j-1))-0.5];
+                end                
+                if i == 1
+                    shade_y = [0.5,0.5,Cell_length(1)+0.5,Cell_length(1)+0.5];
+                else
+                    shade_y = [sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i))+0.5,sum(Cell_length(1:i))+0.5];
+                end
+                fill(shade_x,shade_y,'b','FaceAlpha',transp);
+            otherwise 
+                warning('Unexpected value in the results, please check!')
+                continue
+        end          
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
