@@ -37,7 +37,11 @@ square = triu(square + square'); %get it all back on the upper triangle
 square_prune = triu(square_prune + square_prune');
 
 %% Counting size,number of positive points and number of negative points of each cell
-[CellSize, NumPos, NumNeg, Cell_length] = initial_count(square,sorted);
+[CellSize, NumPos, NumNeg] = initial_count(square,sorted);
+
+%% Stats analysis
+alpha = 0.01;
+stats_result = stats_analysis(CellSize,NumPos,NumNeg,alpha);
 
 %% Enlarge the dots, if enabled
 
@@ -46,16 +50,13 @@ if(isfield(a,'DotDilateMat'))
 end
 
 %% Plot the TakGraph
-image(square);colormap(a.pruneColor.map)
+image(square);colormap(a.pruneColor.map);axis off;
 
 %% Add the shading on TakGraph
 hold on;
-
 % Transparency of the shading block
 transp = 0.5;
-
-add_shading(Cell_length, stats_result, transp);
-
+add_shading(stats_result, transp, sorted);
 hold off;
 
 %% Add the network overlay
@@ -116,6 +117,9 @@ jumps=[jumps];
 starts=[1 ;find(jumps)];
 stops=[find(jumps) - 1; size(sorted,1)];
 
+starts = starts-0.5;
+stops = stops + 0.5;
+
 
 for iBox=1:size(starts)
     mc_draw_box(starts(iBox),starts(iBox),stops(iBox),stops(iBox));
@@ -123,7 +127,7 @@ end
 
 hold off
 
-function [CellSize, NumPos, NumNeg, Cell_length] = initial_count(square,sorted)
+function [CellSize, NumPos, NumNeg] = initial_count(square,sorted)
 % Based on the matrix that already sorted by network labels, count the
 % basic numbers that is useful in the next step.
 % Input:
@@ -141,13 +145,13 @@ function [CellSize, NumPos, NumNeg, Cell_length] = initial_count(square,sorted)
 % will be used in the shading function
 
 % Find out how many networks do we have
-Net_num = max(sorted) - min(sorted) +1;
+Net_label = unique(sorted);
+Net_num = size(Net_label,2);
 
 % Initialize result matrices
 CellSize = zeros(Net_num);
 NumPos = zeros(Net_num);
 NumNeg = zeros(Net_num);
-
 
 % Calculate cell sizes
 Cell_length = zeros(Net_num,1);
@@ -165,20 +169,18 @@ for i = 1:Net_num
     end
 end
 
+sorted_new = sorted';
+jumps=diff(sorted_new);
+jumps=[jumps];
+starts=[1 ;find(jumps)];
+stops=[find(jumps) - 1; size(sorted_new,1)];
+
 % Count positive and negative points
 for i = 1:Net_num
     for j = i:Net_num        
         submat = zeros(Cell_length(i),Cell_length(j));        
-        if i ==1
-            subi = 1:Cell_length(1);
-        else
-            subi = sum(Cell_length(1:i-1))+1:sum(Cell_length(1:i));
-        end        
-        if j ==1
-            subj = 1:Cell_length(1);
-        else
-            subj = sum(Cell_length(1:j-1))+1:sum(Cell_length(1:j));
-        end        
+        subi = starts(i):stops(i);
+        subj = starts(j):stops(j);
         if i == j
             submat = triu(square(subi,subj),1);
         else
@@ -190,45 +192,74 @@ for i = 1:Net_num
     end
 end
 
-function add_shading(Cell_length, stats_result, transp)
+
+function stats_result = stats_analysis(CellSize,NumPos,NumNeg,alpha)
+% Apply the stats analysis to each cell
+% Input:
+% CellSize - a matrix that contains the size of each cell
+% NumPos - a matrix that contains the number of positive points in each
+% cell
+% NumNeg - a matrix that contains the number of negative points in each
+% cell
+% alpha - 
+% Output:
+% stats_result - a matrix that contains flag for each cell, 1 indicates not
+% significant, 2 indicates positive significant, 3 indicates negative
+% significant
+
+% Initialization
+row = size(CellSize,1);
+column = size(CellSize,2);
+stats_result = ones(row,column); 
+
+% Simple rule for test
+for i = 1:row
+    for j = 1:column
+        if (NumPos(i,j)>=CellSize(i,j)*alpha) && (NumNeg(i,j)<CellSize(i,j)*alpha)
+            stats_result(i,j) = 2;
+        else if (NumNeg(i,j)>=CellSize(i,j)*alpha) && (NumPos(i,j)<CellSize(i,j)*alpha)
+            stats_result(i,j) = 3;
+            end
+        end
+    end
+end
+
+
+function add_shading(stats_result, transp, sorted)
 % Based on the result of stats analysis, add shading over the TakGraph at
 % the stats significant area
 % Input:
 % stats_result - a matrix that contains the stats analysis result of each
 % cell of TakGraph
+% transp - transparency of the shading blocks
+% sorted - the vector that contains the sorted network label, which will
+% help with finding the start and end point of each cell.
+% 
 % Now assume the flag of result is:
 % 1 - background
 % 2 - positive (red shading)
 % 3 - negative (blue shading)
 
+sorted_new = sorted';
+jumps=diff(sorted_new);
+jumps=[jumps];
+starts=[1 ;find(jumps)];
+stops=[find(jumps) - 1; size(sorted_new,1)];
+starts = starts - 0.5;
+stops = stops + 0.5;
+
 for i = 1:size(stats_result,1)
     for j = 1:size(stats_result,2)
-        switch stats_result
+        switch stats_result(i,j)
             case 1
                 continue
             case 2
-                if j == 1
-                    shade_x = [0.5,Cell_length(1)+0.5,Cell_length(1)+0.5,0.5];
-                else
-                    shade_x = [sum(Cell_length(1:j-1))-0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j-1))-0.5];
-                end                
-                if i == 1
-                    shade_y = [0.5,0.5,Cell_length(1)+0.5,Cell_length(1)+0.5];
-                else
-                    shade_y = [sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i))+0.5,sum(Cell_length(1:i))+0.5];
-                end            
+                shade_x = [starts(j),stops(j),stops(j),starts(j)];
+                shade_y = [starts(i),starts(i),stops(i),stops(i)];                          
                 fill(shade_x,shade_y,'r','FaceAlpha',transp);
             case 3
-                if j == 1
-                    shade_x = [0.5,Cell_length(1)+0.5,Cell_length(1)+0.5,0.5];
-                else
-                    shade_x = [sum(Cell_length(1:j-1))-0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j))+0.5,sum(Cell_length(1:j-1))-0.5];
-                end                
-                if i == 1
-                    shade_y = [0.5,0.5,Cell_length(1)+0.5,Cell_length(1)+0.5];
-                else
-                    shade_y = [sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i-1))-0.5,sum(Cell_length(1:i))+0.5,sum(Cell_length(1:i))+0.5];
-                end
+                shade_x = [starts(j),stops(j),stops(j),starts(j)];
+                shade_y = [starts(i),starts(i),stops(i),stops(i)];
                 fill(shade_x,shade_y,'b','FaceAlpha',transp);
             otherwise 
                 warning('Unexpected value in the results, please check!')
@@ -236,6 +267,9 @@ for i = 1:size(stats_result,1)
         end          
     end
 end
+
+
+
 
 
 
