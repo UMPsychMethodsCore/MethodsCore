@@ -40,8 +40,21 @@ square_prune = triu(square_prune + square_prune');
 [CellSize, NumPos, NumNeg] = initial_count(square,sorted);
 
 %% Stats analysis
-alpha = 0.01;
-stats_result = stats_analysis(CellSize,NumPos,NumNeg,alpha);
+% Ask the user to input the mode of chi square test
+reply = input('Which mode do you want to do for chi square test? 1/0, [1] \n 1 is use alpha to calculate expectation \n 0 is use size portion to calculate expectation \n Your choice: ');
+if reply == 0
+    chi_option = 0;
+else
+    chi_option = 1;
+end
+% the alpha that helps calculating expectation in option 1
+exp_alpha = .001;
+% the alpha used in chi square test
+chi_alpha = 0.05/66;
+% the alpha used in binomial text
+bi_alpha = 0.05;
+
+stats_result = stats_analysis(CellSize,NumPos,NumNeg,chi_option,exp_alpha,chi_alpha,bi_alpha);
 
 %% Enlarge the dots, if enabled
 
@@ -193,7 +206,7 @@ for i = 1:Net_num
 end
 
 
-function stats_result = stats_analysis(CellSize,NumPos,NumNeg,alpha)
+function stats_result = stats_analysis(CellSize,NumPos,NumNeg,chi_option,exp_alpha,chi_alpha,bi_alpha)
 % Apply the stats analysis to each cell
 % Input:
 % CellSize - a matrix that contains the size of each cell
@@ -211,18 +224,69 @@ function stats_result = stats_analysis(CellSize,NumPos,NumNeg,alpha)
 row = size(CellSize,1);
 column = size(CellSize,2);
 stats_result = ones(row,column); 
+e = zeros(row,column); % expectation
+o = zeros(row,column); % observed positive and negative points
+con = sum(sum(NumPos)) + sum(sum(NumNeg)); % the con...
+total = sum(sum(CellSize));% Total size
 
-% Simple rule for test
-for i = 1:row
-    for j = 1:column
-        if (NumPos(i,j)>=CellSize(i,j)*alpha) && (NumNeg(i,j)<CellSize(i,j)*alpha)
-            stats_result(i,j) = 2;
-        else if (NumNeg(i,j)>=CellSize(i,j)*alpha) && (NumPos(i,j)<CellSize(i,j)*alpha)
-            stats_result(i,j) = 3;
+% To mark if one cell passes the proportion test, if yes, flag is 1, if no, flag is 0.
+flag = zeros(row,column); 
+
+% Proportion test
+% To avoid df = 0, use observed points in this cell, rest of the  points as
+% the observed vector, use expected points in this cell and the expected 
+% rest of the points as the expected vector.
+switch chi_option
+    case 1
+        for i = 1:row
+            for j = i:column
+                e(i,j) = exp_alpha*CellSize(i,j);
+                o(i,j) = NumPos(i,j) + NumNeg(i,j);                
+                obs = [o(i,j) CellSize(i,j)-o(i,j)];  
+                ept = [e(i,j) (1-exp_alpha)*(CellSize(i,j))];
+                [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
+                if (h == 1) && (o(i,j)>e(i,j)) 
+                    flag(i,j) = 1;
+                end
             end
         end
+    case 0
+        for i = 1:row
+            for j = i:column
+                e(i,j) = con*CellSize(i,j)/total;
+                o(i,j) = NumPos(i,j) + NumNeg(i,j);
+                obs = [o(i,j) con-o(i,j)];   
+                ept = [e(i,j) con*(1-CellSize(i,j)/total)];
+                [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
+                if h == 1 && (o(i,j)>e(i,j)) 
+                    flag(i,j) = 1;
+                end
+            end
+        end
+    otherwise
+        warning('Unexpected alien coming! Check your input of chi_option!')
+end
+
+% Sign test
+for i = 1:row
+    for j = i:column
+        if flag(i,j) == 1
+            bi_pos = 1 - binocdf(NumPos(i,j),NumPos(i,j)+NumNeg(i,j),0.5);
+            bi_neg = 1 - binocdf(NumNeg(i,j),NumPos(i,j)+NumNeg(i,j),0.5);
+            if bi_pos < bi_alpha
+                stats_result(i,j) = 2;
+            else
+                if bi_neg < bi_alpha
+                    stats_result(i,j) = 3;
+                else
+                    stats_result(i,j) = 4;
+                end
+            end
+                        
+        end      
     end
 end
+
 
 
 function add_shading(stats_result, transp, sorted)
@@ -235,10 +299,11 @@ function add_shading(stats_result, transp, sorted)
 % sorted - the vector that contains the sorted network label, which will
 % help with finding the start and end point of each cell.
 % 
-% Now assume the flag of result is:
+% The flag of result is:
 % 1 - background
 % 2 - positive (red shading)
 % 3 - negative (blue shading)
+% 4 - neutral (yellow shading)
 
 sorted_new = sorted';
 jumps=diff(sorted_new);
@@ -249,18 +314,22 @@ starts = starts - 0.5;
 stops = stops + 0.5;
 
 for i = 1:size(stats_result,1)
-    for j = 1:size(stats_result,2)
+    for j = i:size(stats_result,2)
         switch stats_result(i,j)
             case 1
                 continue
-            case 2
+            case 2  
                 shade_x = [starts(j),stops(j),stops(j),starts(j)];
                 shade_y = [starts(i),starts(i),stops(i),stops(i)];                          
                 fill(shade_x,shade_y,'r','FaceAlpha',transp);
-            case 3
+            case 3 
                 shade_x = [starts(j),stops(j),stops(j),starts(j)];
                 shade_y = [starts(i),starts(i),stops(i),stops(i)];
                 fill(shade_x,shade_y,'b','FaceAlpha',transp);
+            case 4
+                shade_x = [starts(j),stops(j),stops(j),starts(j)];
+                shade_y = [starts(i),starts(i),stops(i),stops(i)];
+                fill(shade_x,shade_y,'y','FaceAlpha',transp);
             otherwise 
                 warning('Unexpected value in the results, please check!')
                 continue
