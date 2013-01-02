@@ -4,7 +4,7 @@
 
 # permitted arguments
 # 
-# AabDdFfghiMmnOopPRrSsTtUuVvwZ#
+# AabDdEeFfghiMmnOopPRrSsTtUuVvwZ#
 #
 #
 
@@ -106,6 +106,19 @@ do
 		    . ${thisDir}/auxiliary/setDebugFlag
 		    ;;
 
+              # case_erosion_settings
+	      #
+	      # set the amount to erode the WM and CSF segments.
+	        "E")
+		    . ${thisDir}/auxiliary/setErosion
+		    ;;
+              # case_file_extension
+	      #
+	      # set the file extension to use with findVols.sh
+	      # this is needed for smoothing of img/hdr
+	        "e")
+		    . ${thisDir}/auxiliary/setVolExtension
+		    ;;
               # case_fmri_tr 
 	      #
 	      # Set the TR
@@ -175,9 +188,17 @@ do
 		    . ${thisDir}/auxiliary/setSubjectsMasterDir
 		    ;;
 		
+	      # case_do_erosion_last
+              #
+              # a flag to tell vbm8HiRes to do erosion as last step
+              #
+                "L")
+                   . ${thisDir}/auxiliary/setErosionLast
+                   ;;
               # case_flirt_options 
 	      # 
-	      # find the flirt options
+	      # find the flirt options,
+              # also options for "vbm8HiRes erosion phase"
 	      #
 		"m")
 		    . ${thisDir}/auxiliary/setMCFlirtOptions

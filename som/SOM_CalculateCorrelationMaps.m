@@ -63,13 +63,32 @@ for iROI = 1 : parameters.rois.nroisRequested
   end
 end
 
+% 
+% Did they ask for power spectrum of each ROI?
+%
+
+% We make the assumption about only a single run! 
+
+if parameters.Output.power
+  [power.spectrum power.parameters] = SOM_PowerSpect(roiTC',parameters.TIME.run(1).TR);
+end
+
 %
 % Now save the matrix and parameters.
 %
 
 corrName = fullfile(parameters.Output.directory,[parameters.Output.name '_corr']);
 
-save(corrName,'rMatrix','pMatrix');
+%
+% Now recalculate the p-values based on fewer degrees of freedom.
+%
+
+if parameters.Output.power
+  save(corrName,'rMatrix','pMatrix','power');
+else
+  save(corrName,'rMatrix','pMatrix');
+end
+
 
 results = corrName;
 

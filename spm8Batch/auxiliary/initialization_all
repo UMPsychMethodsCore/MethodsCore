@@ -17,6 +17,7 @@ Gx=5
 Gy=5
 Gz=5
 nParam=0
+FINDVOLEXT=nii
 
 # User email to send mail to at job completion.
 USEREMAIL=
@@ -93,6 +94,9 @@ TGLOBAL=0.5
 # need to have SLICETIMEROPT="--odd ".
 # Also see the option "--ocustom" from slicetimer.
 SLICETIMEROPT=
+
+# Erosion Last Option
+EROSIONLASTOPT=
 
 # Set the flag that this is a batch command
 

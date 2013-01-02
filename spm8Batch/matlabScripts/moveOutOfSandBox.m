@@ -1,6 +1,16 @@
+% - - - - - - - - - - - - - - - - - - - - 
+%
+% Robert C Welsh
+% Ann Arbor
+%
+% Copyright 2011-2012
+%
+% No need to allow sourceExtension as in moveToSandBox as sandbox is disabled for img/hdr 
+% file use.
 %
 % function CSBACK = moveOutOfSandBox(sourceDir,sourceVolume,SandBoxPID,OutputName,CS);
 %
+% - - - - - - - - - - - - - - - - - - - - 
 
 function CSBACK = moveOutOfSandBox(sourceDir,sourceVolume,SandBoxPID,OutputName,CS);
 

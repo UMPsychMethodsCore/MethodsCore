@@ -15,3 +15,8 @@ helpComment="#    "
 
 echo "MATLAB_BASED_PROCESS=0   # Default to not a matlab process"                     >> ${FULLSCRIPTNAME}.sh
 echo                                                                                  >> ${FULLSCRIPTNAME}.sh
+
+# Get into the correct working directory
+
+echo "# Get into the right working directory"                                         >> ${FULLSCRIPTNAME}.sh
+echo "cd ${execDIR}"                                                                  >> ${FULLSCRIPTNAME}.sh

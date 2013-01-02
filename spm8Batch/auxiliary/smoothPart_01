@@ -12,6 +12,7 @@ echo "UMImgWildCard  = '${volumeWILD}';"                           >> ${FULLSCRI
 # Name of the functional volumes to find.
 
 echo "UMVolumeWild   = '${volumeWILD}';"                           >> ${FULLSCRIPTNAME}.m
+echo "UMVolumeExt    = '.*.${FINDVOLEXT}';"                        >> ${FULLSCRIPTNAME}.m
 echo "OutputName     = '${outputName}';"                           >> ${FULLSCRIPTNAME}.m
 
 echo "SandBoxDIR     = '${SANDBOX}/';"                             >> ${FULLSCRIPTNAME}.m

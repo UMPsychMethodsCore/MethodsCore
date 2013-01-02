@@ -1,8 +1,15 @@
-    echo "    -O OtherName         name of other file to process,"
-    echo "                         you can specify relative path or absolute path,"
-    echo "                         the path can also have generic with subject name"
-    echo "                         substitute wherever [S] is in filename/path."
-    echo "                         If relative path, then assume to look in the"
-    echo "                         anatomy [or coReg for warpHiRes] directory."
-    echo "                         default is none."
+
+    if [ "${thisCommand}" != "realignfMRI" ]
+    then
+       echo "    -O OtherName         coregOverlay/HiRes : name of other file to process,"
+       echo "                         you can specify relative path or absolute path,"
+       echo "                         the path can also have generic with subject name"
+       echo "                         substitute wherever [S] is in filename/path."
+       echo "                         If relative path, then assume to look in the"
+       echo "                         anatomy [or coReg for warpHiRes] directory."
+       echo "                         default is none."
+    else
+       echo "    -O refName           name to give realignRefVolume"
+       echo "                         default : ${otherName[0]}"
+    fi
     echo 

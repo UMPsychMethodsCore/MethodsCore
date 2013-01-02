@@ -131,6 +131,8 @@ else
   d3 = '';
 end
 
+% Option to use a reference image. This is the preferred method.
+
 if length(ReferenceImage) > 0 & exist(fullfile(d1,[d2 d3]))
   matlabbatch{1}.spm.util.defs.comp{2}.id.space{1} = [fullfile(d1,[d2 d3]),',1'];
   USINGREF=1;
@@ -203,7 +205,7 @@ end
 % If we are warping some images to write then let's do that.
 %
 
-fprintf('Using deformation field \n%s\n',matlabbatch{1}.spm.util.defs.comp{1}.def{1});
+fprintf('Using deformation field \n    %s\n',matlabbatch{1}.spm.util.defs.comp{1}.def{1});
 
 if TestFlag ~= 0
   fprintf('Would be warping %d images like %s\n',size(Images2Write,1),deblank(Images2Write(1,:)));

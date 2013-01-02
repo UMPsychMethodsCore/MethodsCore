@@ -467,7 +467,7 @@ for iRUN = 1:length(parameters.data.run)
       % Now band-pass filter
       
       if parameters.TIME.run(iRUN).BandFLAG > 0
-	[D0RUN(iRUN).D0 b] = SOM_Filter(D0RUN(iRUN).D0,...
+	[D0RUN(iRUN).D0 b filtParams] = SOM_Filter(D0RUN(iRUN).D0,...
 					parameters.TIME.run(iRUN).TR,...
 					parameters.TIME.run(iRUN).LowF,...
 					parameters.TIME.run(iRUN).HiF,...
@@ -475,9 +475,11 @@ for iRUN = 1:length(parameters.data.run)
 					parameters.TIME.run(iRUN).padding,...
 					parameters.TIME.run(iRUN).whichFilter);
 	parameters.TIME.run(iRUN).b = b(1,:);
+	parameters.TIME.run(iRUN).filtParams = filtParams;   % Number of degrees of freedom.
 	SOM_LOG('STATUS : Band Pass Filter Implemented.');
       else
 	parameters.TIME.run(iRUN).b = [];
+	parameters.TIME.run(iRUN).nDF = size(D0RUN(iRUN).D0,2);
 	SOM_LOG(sprintf('WARNING : No Band Pass Filter Speficied for this run : %d.',iRUN));
       end
       
@@ -516,6 +518,10 @@ SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPAC
 % 2011.11.18 - RCWelsh : Fixed nSPACE -> nSPACE(1) 
 
 % Edit the data if needed.
+%
+% 2012.10.10 - I'm not sure this is correct to do here as we have already done the filtering.
+% and an erroneous data point will spread out across many time points.
+%
 
 enTIME = [];
 

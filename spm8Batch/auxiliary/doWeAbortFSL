@@ -1,3 +1,7 @@
+#
+# Code added to shell script.
+#
+
 echo "            RETURNVALUE=\$?"                                                                    >> ${FULLSCRIPTNAME}.sh
 echo "            if [ \"\${RETURNVALUE}\" != \"0\" ]"                                                >> ${FULLSCRIPTNAME}.sh
 echo "            then"                                                                               >> ${FULLSCRIPTNAME}.sh

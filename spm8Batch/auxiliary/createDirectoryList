@@ -5,7 +5,7 @@ declare -i ii
 for (( is=1 ; is<=$nSubjects ; is++ ))
 do
   echo "       --> ${subjects[$is]}"   
-  theDIRS=`findVols.sh ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH} $volumeWILD $SUBDIR`
+  theDIRS=`findVols.sh "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}" "${volumeWILD}" "${SUBDIR}" "${FINDVOLEXT}"`
   theDirectories=(`echo $theDIRS | sed 's/\,/\ /g'`)
   if [ -z "$theDirectories" ]
       then

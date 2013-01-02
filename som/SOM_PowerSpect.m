@@ -12,6 +12,8 @@
 %
 %     sample      = sample period (TR in fmri language)
 %
+% This returns a simple modulus of the FFT of teh time-series.
+%
 % function [results, powerParams] = SOM_PowerSpect(theData,sample)
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,16 +48,28 @@ deltaF = nyquist/(floor(N/2)-1);
 freq   = (-floor(N/2):floor(N/2)-1)*deltaF;
 
 powerParams.deltaF = deltaF;
-powerParams.freq = freq;
+powerParams.freq   = freq;
 
 % Get the fft of the data.
 
-ffttheData = fftshift(fft(theData,[],2),2);
+ffttheData      = fftshift(fft(theData,[],2),2);
 
 powerParams.fft = ffttheData;
 
-results = ffttheData.*conj(ffttheData)/2/pi;
+results         = ffttheData.*conj(ffttheData)/2/pi;
+
+% If odd length, then we add to "freq" vector.
+
+if length(results) == length(powerParams.freq)+1
+  powerParams.freq = [powerParams.freq powerParams.freq(end)+deltaF];
+end
+
+% Now find the middle
+
+middleFreqI      = find(powerParams.freq==0);
+results          = results(middleFreqI:end);
+powerParams.freq = powerParams.freq(middleFreqI:end);
 
 %
-% return
+% Return
 %

@@ -44,6 +44,7 @@ filtParms.highFreq    = highFreq;
 filtParms.gentle      = gentle;
 filtParms.padding     = padding;
 filtParms.whichFilter = whichFilter;
+filtParms.ndf         = size(theData,2);  % Place hold for number of degrees of freedom.
 
 % make sure padding exists.
 
@@ -75,6 +76,13 @@ theDataMean = mean(theData,2);
 
 theDataPad  = repmat(theDataMean,1,padding);
 
+% Save one without padding so we can calculate the 
+% number of degrees of freedom.
+
+theDataNoPad = theData(1,:);
+
+% Now the padding.
+
 theData = [theDataPad theData theDataPad];
 
 % Determine if firpm is present and filtfilt if whichFilter == 0
@@ -83,17 +91,31 @@ theData = [theDataPad theData theDataPad];
 if whichFilter
   SOM_LOG('INFO : Using handmade fft filter method.');
   [results b] = SOM_Filter_FFT(theData,sample,lowFreq,highFreq,gentle);
-elseif exist('firpm.m') == 2 & exist('filtfilt.m') == 2 & whichFilter == 0
+  filtParms.whichFilter = 1;
+elseif exist('firpm.m') == 2 && exist('filtfilt.m') == 2 && whichFilter == 0
   SOM_LOG('INFO : Using Signal Processing ToolBox');
   [results b] = SOM_Filter_SIGTBX(theData,sample,lowFreq,highFreq,gentle);
+  filtParms.whichFilter = 0;
+  % 
+  % For this method I'm not sure how to calculate the number of degrees of
+  % freedom.
+  %
 else
   SOM_LOG('INFO : Using handmade fft filter method.');
   [results b] = SOM_Filter_FFT(theData,sample,lowFreq,highFreq,gentle);
+  filtParms.whichFilter = 1;
 end
 
 % Now trim out the padding;
 
 results = results(:,1+padding:end-padding);
+
+% Now calculate the number of degrees of freedom
+
+if filtParms.whichFilter
+    [dummy1 dummyb] = SOM_Filter_FFT(theDataNoPad,sample,lowFreq,highFreq,gentle);
+    filtParms.ndf = sum(dummyb);
+end
 
 return
 

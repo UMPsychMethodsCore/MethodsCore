@@ -18,6 +18,8 @@
 %               .directory    - full directory path to output
 %               .name         - name of output file (generic)
 %               .description  - comment to add to image files.
+%               .power        - write out the power spectrum of ROIs
+%                               THIS IS AN OPTIONAL FLAG.
 %
 %
 % OUTPUT
@@ -115,6 +117,19 @@ if isfield(Output,'description') == 0
     Output.description = 'Correlaton map';
     SOM_LOG('STATUS : Using generic file comment description.');
 end
+
+% What about power spectrum
+
+if isfield(Output,'power') == 0
+  Output.power = 0;
+else
+  if Output.power ~= 0 
+    Output.power = 1;
+    SOM_LOG('WARNING : You have enabled power spectrum saving of ROIs. Be aware that assumptions of a single run are made.');
+  end
+end
+
+%
 
 Output.OK = 1;
 

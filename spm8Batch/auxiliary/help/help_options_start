@@ -67,6 +67,12 @@
 	    "d") 
 	        . ${thisDir}/auxiliary/help/help_case_debug_flag
 	        ;;
+	    "E") 
+	        . ${thisDir}/auxiliary/help/help_case_setErosion
+	        ;;
+	    "e") 
+	        . ${thisDir}/auxiliary/help/help_case_setVolExtension
+	        ;;
 	    "F") 
 	        . ${thisDir}/auxiliary/help/help_case_fmri_tr
 	        ;;
@@ -91,6 +97,9 @@
 	    "i") 
 	        . ${thisDir}/auxiliary/help/help_case_set_run
 	        ;;
+            "L") 
+                . ${thisDir}/auxiliary/help/help_case_erosion_flag
+                ;;
 	    "M") 
 	        . ${thisDir}/auxiliary/help/help_case_subject_dir
 	        ;;
