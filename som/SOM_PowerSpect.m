@@ -67,8 +67,12 @@ end
 % Now find the middle
 
 middleFreqI      = find(powerParams.freq==0);
-results          = results(middleFreqI:end);
-powerParams.freq = powerParams.freq(middleFreqI:end);
+
+% Now just get the spectrum and frequency information.
+
+results            = results(:,middleFreqI:end);
+powerParams.freq   = powerParams.freq(middleFreqI:end);
+powerParams.midIDX = middleFreqI;
 
 %
 % Return
