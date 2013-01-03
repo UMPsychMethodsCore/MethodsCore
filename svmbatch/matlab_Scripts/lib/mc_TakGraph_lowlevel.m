@@ -12,6 +12,10 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                       a.DotDilateMat          -       Matrix of offsets to expand dots on the Takgraph by. This should be nOffset x 2.
 %                       a.pruneColor.values     -       1 x nFeat matrix of color values that will index into a.pruneColor.map
 %                       a.pruneColor.map        -       A colormap object that will be directly indexed by pruneColor.values. 
+%                       a.Shading.Mode          -       Indicate if you
+%                       want it to do shading with ...
+%                       a.chioption             -       0 or 1 to indicate
+%                       the mode of chi square test
 
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
@@ -33,25 +37,26 @@ square_prune = mc_unflatten_upper_triangle(a.prune);
 square = square(sortIDX,sortIDX);
 square_prune = square_prune(sortIDX,sortIDX);
 
-square = triu(square + square'); %get it all back on the upper triangle
+square = triu(square + square'); %get it all back on the upper triangle  ???????  square + tril(square',-1) ???
 square_prune = triu(square_prune + square_prune');
+
+% put upper/lower triangle matrix together (for future optional use)
+square_full = square + tril(square',-1);
 
 %% Counting size,number of positive points and number of negative points of each cell
 [CellSize, NumPos, NumNeg] = initial_count(square,sorted);
 
 %% Stats analysis
-% Ask the user to input the mode of chi square test
-reply = input('Which mode do you want to do for chi square test? 1/0, [1] \n 1 is use alpha to calculate expectation \n 0 is use size portion to calculate expectation \n Your choice: ');
-if reply == 0
-    chi_option = 0;
-else
-    chi_option = 1;
-end
+% The mode of chi square test,
+% 1 is to use alpha to calculate expectation
+% 0 is to use size portion to calculate expectation 
+% Predefined in the subfield of a
+chi_option = a.chioption;
 % the alpha that helps calculating expectation in option 1
 exp_alpha = .001;
 % the alpha used in chi square test
-chi_alpha = 0.05/66;
-% the alpha used in binomial text
+chi_alpha = 0.05/72;
+% the alpha used in binomial test for sign (predominantely negative vs positive)
 bi_alpha = 0.05;
 
 stats_result = stats_analysis(CellSize,NumPos,NumNeg,chi_option,exp_alpha,chi_alpha,bi_alpha);
@@ -228,6 +233,7 @@ e = zeros(row,column); % expectation
 o = zeros(row,column); % observed positive and negative points
 con = sum(sum(NumPos)) + sum(sum(NumNeg)); % the con...
 total = sum(sum(CellSize));% Total size
+con_alpha = con/total;
 
 % To mark if one cell passes the proportion test, if yes, flag is 1, if no, flag is 0.
 flag = zeros(row,column); 
@@ -244,8 +250,10 @@ switch chi_option
                 o(i,j) = NumPos(i,j) + NumNeg(i,j);                
                 obs = [o(i,j) CellSize(i,j)-o(i,j)];  
                 ept = [e(i,j) (1-exp_alpha)*(CellSize(i,j))];
-                [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
-                if (h == 1) && (o(i,j)>e(i,j)) 
+                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),exp_alpha);
+                h = (bi_val < chi_alpha) & (o(i,j) > e(i,j));
+%                 [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
+                if (h == 1) 
                     flag(i,j) = 1;
                 end
             end
@@ -253,12 +261,14 @@ switch chi_option
     case 0
         for i = 1:row
             for j = i:column
-                e(i,j) = con*CellSize(i,j)/total;
+                e(i,j) = con_alpha*CellSize(i,j);
                 o(i,j) = NumPos(i,j) + NumNeg(i,j);
                 obs = [o(i,j) con-o(i,j)];   
                 ept = [e(i,j) con*(1-CellSize(i,j)/total)];
-                [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
-                if h == 1 && (o(i,j)>e(i,j)) 
+                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),con_alpha);
+%                 [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
+                h = (bi_val < chi_alpha) & (o(i,j) > e(i,j));
+                if (h == 1) 
                     flag(i,j) = 1;
                 end
             end
@@ -315,7 +325,28 @@ stops = stops + 0.5;
 
 for i = 1:size(stats_result,1)
     for j = i:size(stats_result,2)
-        switch stats_result(i,j)
+        if (i == j)  % half shading on the diagonal cells
+            switch stats_result(i,j)
+            case 1
+                continue
+            case 2  
+                shade_x = [starts(j),stops(j),stops(j)];
+                shade_y = [starts(i),starts(i),stops(i)];                          
+                fill(shade_x,shade_y,'r','FaceAlpha',transp);
+            case 3 
+                shade_x = [starts(j),stops(j),stops(j)];
+                shade_y = [starts(i),starts(i),stops(i)]; 
+                fill(shade_x,shade_y,'b','FaceAlpha',transp);
+            case 4
+                shade_x = [starts(j),stops(j),stops(j)];
+                shade_y = [starts(i),starts(i),stops(i)]; 
+                fill(shade_x,shade_y,'y','FaceAlpha',transp);
+            otherwise 
+                warning('Unexpected value in the results, please check!')
+                continue
+            end
+        else
+            switch stats_result(i,j)
             case 1
                 continue
             case 2  
@@ -333,7 +364,9 @@ for i = 1:size(stats_result,1)
             otherwise 
                 warning('Unexpected value in the results, please check!')
                 continue
+            end
         end          
+        
     end
 end
 
