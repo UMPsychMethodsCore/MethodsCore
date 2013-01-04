@@ -32,9 +32,9 @@ m2v=inv(v2m);
 for i=1:size(mmlist,1)
     temp = m2v*[mmlist(i,:) 1]';
     ind(1:3) = temp(1:3)';
-    xind=ind(1);
-    yind=ind(2);
-    zind=ind(3);
+    xind=round(ind(1));
+    yind=round(ind(2));
+    zind=round(ind(3));
     
     labeled_voxels(i,4)=map(xind,yind,zind);
     labeled_voxels(i,4)=round(labeled_voxels(i,4));
