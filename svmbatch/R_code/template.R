@@ -14,6 +14,21 @@ masterpath = '/net/data4/Schiz_COBRE/MasterData_COBRE.csv'
 
 includefactor = 'Include'
 
+###########################################################################
+## I will assume that all of the columns of your masterdatafile are      ##
+## factors unless you tell me otherwise. I accomplish this by coercing   ##
+## your whole masterdatafile to be characters, and then my modeling      ##
+## routines will treat anything that is a character as a factor. This is ##
+## certainly appropriate for variables like Subject ID, Diagnosis,       ##
+## etc. However, some of your variables probably she be treated          ##
+## numerically. These are variables like age, scale measures,            ##
+## etc. Indicate the names (as they appear in your masterdatafile) of    ##
+## these numeric measures here, and I will make sure they get treated as ##
+## numeric covariates.                                                   ##
+###########################################################################
+
+numeric.columns = c('age','IQ')
+
 #####################################################################################
 ## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
 ## ported to R, so your capacity to flexibly specify path names is bit             ##
