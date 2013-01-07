@@ -5,7 +5,9 @@
 
 master = read.csv(masterpath,colClasses = 'character')
 
-master[,numeric.colums] = as.numeric(master[,numeric.columns]) # Coerce numeric columns to be numeric
+if ~(length(numeric.columns)==1 && numeric.columns==''){ # Only do it if you have some content
+  master[,numeric.colums] = as.numeric(master[,numeric.columns]) # Coerce numeric columns to be numeric
+}
 
 if( includefactor != '' ){
   master = master[master[,includefactor] == 1,] #Subset only to those subjects intended for this analysis

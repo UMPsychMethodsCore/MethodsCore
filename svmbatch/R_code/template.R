@@ -24,10 +24,11 @@ includefactor = 'Include'
 ## numerically. These are variables like age, scale measures,            ##
 ## etc. Indicate the names (as they appear in your masterdatafile) of    ##
 ## these numeric measures here, and I will make sure they get treated as ##
-## numeric covariates.                                                   ##
+## numeric covariates. If there are no such columns, put in a single     ##
+## empty string                                                          ##
 ###########################################################################
 
-numeric.columns = c('age','IQ')
+numeric.columns = c('AGE','VIQ','PIQ','F2IQ','F4IQ','meanSPACE','meanFD','TOTAL_RUNS','TOTAL_TP')
 
 #####################################################################################
 ## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
