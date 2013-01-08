@@ -35,7 +35,7 @@ powerParams.nyquist = nyquist;
 if size(theData,2) == 1
     if size(theData,1) > 1
         theData = theData';
-        fprintf('Transposing data for you, assuming the vector is time data.\n');
+        SOM_LOG('WARNING : Transposing data for you, assuming the vector is time data.');
     end
 end
 

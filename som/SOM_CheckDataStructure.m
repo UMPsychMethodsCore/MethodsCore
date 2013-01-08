@@ -118,7 +118,7 @@ for iRUN = 1:length(data.run)
   
   for iFILE = 2:size(data.run(iRUN).P,1)
     if exist(data.run(iRUN).P(iFILE,:),'file') == 0
-      SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(iFILE,:));
+      SOM_LOG(sprintf('FATAL ERROR : File %s does not exist',data.run(iRUN).P(iFILE,:)));
       return
     else
       thisHDR = spm_vol(data.run(iRUN).P(iFILE,:));     % fixed on 5/2/2012
