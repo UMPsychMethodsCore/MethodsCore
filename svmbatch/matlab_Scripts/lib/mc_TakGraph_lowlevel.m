@@ -68,7 +68,8 @@ if(isfield(a,'DotDilateMat'))
 end
 
 %% Plot the TakGraph
-image(square);colormap(a.pruneColor.map);axis off;
+image(square);colormap(a.pruneColor.map);
+axis off;
 
 %% Add the shading on TakGraph
 hold on;
