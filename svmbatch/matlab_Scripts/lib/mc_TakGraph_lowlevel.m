@@ -37,7 +37,7 @@ square_prune = mc_unflatten_upper_triangle(a.prune);
 square = square(sortIDX,sortIDX);
 square_prune = square_prune(sortIDX,sortIDX);
 
-square = triu(square + square'); %get it all back on the upper triangle  ???????  square + tril(square',-1) ???
+square = triu(square + square'); %get it all back on the upper triangle
 square_prune = triu(square_prune + square_prune');
 
 % put upper/lower triangle matrix together (for future optional use)
