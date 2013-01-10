@@ -32,7 +32,7 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                                                       If you turn on a.Shading.Mode you'll need to be careful to set a number of other
 %                                                       options below that control how the stats tests are performed,otherwise default
 %                                                       numbers will be used.                                                       
-%                       a.Shading.StatMode      -       0 or 1 to indicate how what the null hypothesis for each cell is
+%                       a.Shading.StatMode      -       0 or 1 to indicate how what the null hypothesis for each cell is, defaults to 0 if unset.
 %                                                       1 - use NullRate to be the null rate. 
 %                                                       This is appropriate when your features were selected in a mass univariate stream. You should
 %                                                       then set a.Shading.NullRate to the alpha that was used as the threshold in mass univariate stats.
@@ -363,14 +363,14 @@ end
 
 function a = shading_initialize(a)
 % Mode of binomial test of cell significance
-if ~isfield(a,'Shading.StatMode')
+if ~isfield(a.Shading,'StatMode')
     a.Shading.StatMode = 0;
 end
 
 switch a.Shading.StatMode
     case 1        
         % The NullRate in mode 1 (alpha mode)
-        if (~isfield(a,'Shading.NullRate'))
+        if (~isfield(a.Shading,'NullRate'))
             a.Shading.NullRate = .001;
         end
     case 0        
@@ -383,17 +383,17 @@ switch a.Shading.StatMode
 end
 
 % The alpha level used to threshold the cell-level test for more edges than chance.
-if (~isfield(a,'Shading.CellAlpha'))
-    p = size(unique(a.NetworkLabels));
-    a.Shading.CellAlpha = 0.05/(p(p+1)/2);
+if (~isfield(a.Shading,'CellAlpha'))
+    p = size(unique(a.NetworkLabels),2);
+    a.Shading.CellAlpha = 0.05/(p*(p+1)/2);
 end
 
 % The alpha level used for the binomial sign test.
-if (~isfield(a,'Shading.SignAlpha'))
+if (~isfield(a.Shading,'SignAlpha'))
     a.Shading.SignAlpha = 0.05;
 end
 
-if (~isfield(a,'Shading.Transparency'))
+if (~isfield(a.Shading,'Transparency'))
     a.Shading.Transparency = 0.5;
 end
 
