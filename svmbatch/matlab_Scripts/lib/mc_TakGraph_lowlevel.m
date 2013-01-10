@@ -12,10 +12,42 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                       a.DotDilateMat          -       Matrix of offsets to expand dots on the Takgraph by. This should be nOffset x 2.
 %                       a.pruneColor.values     -       1 x nFeat matrix of color values that will index into a.pruneColor.map
 %                       a.pruneColor.map        -       A colormap object that will be directly indexed by pruneColor.values. 
-%                       a.Shading.Mode          -       Indicate if you
-%                       want it to do shading with ...
-%                       a.chioption             -       0 or 1 to indicate
-%                       the mode of chi square test
+%                       a.Shading.Enable        -       0 - Disable Shading
+%                                                       1 - Enable Shading Mode. Details below
+%                                                       For each unique cell (intersection of two networks or network with itself), this function will identify whether there are more
+%                                                       edges "on" than would be expected by chance. The option a.Shading.StatMode lets you define what "chance" behavior is.
+%                                                       If test statistic will for the cell is below the threshold set by  a.Shading.CellAlpha it will be shaded.
+%                                                       For cells that pass this first test, it will then do a sign test to check
+%                                                       if, of the "on" edges, significantly more than half are positive, or if significantly more than half are negative.
+%                                                       This sign test will use a.Shading.SignAlpha as its threshold. If the positive direction passes the test, it will be shaded
+%                                                       red. If the negative direction passes the test, it will be shaded blue. If neither direction passes the test, it will be yellow.
+%                                                       It assumes that the following correspondence for values of a.pruneColor.values
+%                                                           1 - Edge is not turned on
+%                                                           2 - Edge is on average positive
+%                                                           3 - Edge is on average negative
+%                                                       This function can do stats analysis on cells of TakGraphs (namely
+%                                                       intersections of networks) and identify whether the number of edges contained within each cell is
+%                                                       greater than expected by chance. If you'd like to turn on this functionality, set a.Shading.Mode to
+%                                                       1. Set it to 0 to disable.
+%                                                       If you turn on a.Shading.Mode you'll need to be careful to set a number of other
+%                                                       options below that control how the stats tests are performed,otherwise default
+%                                                       numbers will be used.                                                       
+%                       a.Shading.StatMode      -       0 or 1 to indicate how what the null hypothesis for each cell is
+%                                                       1 - use NullRate to be the null rate. 
+%                                                       This is appropriate when your features were selected in a mass univariate stream. You should
+%                                                       then set a.Shading.NullRate to the alpha that was used as the threshold in mass univariate stats.
+%                                                       That way, it will test the null hypothesis that the number of implicated edges in a given network
+%                                                       intersection is less than or equal to the number expected by chance (e.g. alpha is .05, 
+%                                                       so the null is that <= 5% of the edges in each network intersection will have been identified).
+%                                                       
+%                                                       0 - use consensus size portion(total edge number / total cell size) to be the expected probability.
+%                                                       This is appropriate when analyzing a feature set arrived at by consensus. This will use 
+%                                                       size(consensus)/size(all edges) as the null rate. In those mode it is not necessary to set a.Shading.NullRate
+%                       a.Shading.NullRate      -       Only matters if a.Shading.StatMode is set to 1
+%                                                       The expected probability in mode 1. Defaults to 0.001 if not set.
+%                       a.Shading.CellAlpha     -       The alpha level used to threshold the cell-level test for more edges than chance. If you want to correct
+%                                                       for multiple comparisons, reflect it in this setting. Defaults to .05/# of unique cells if unset.        
+%                       a.Shading.SignAlpha     -       The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
 
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
@@ -46,20 +78,36 @@ square_full = square + tril(square',-1);
 %% Counting size,number of positive points and number of negative points of each cell
 [CellSize, NumPos, NumNeg] = initial_count(square,sorted);
 
-%% Stats analysis
-% The mode of chi square test,
-% 1 is to use alpha to calculate expectation
-% 0 is to use size portion to calculate expectation 
-% Predefined in the subfield of a
-chi_option = a.chioption;
-% the alpha that helps calculating expectation in option 1
-exp_alpha = .001;
-% the alpha used in chi square test
-chi_alpha = 0.05/72;
-% the alpha used in binomial test for sign (predominantely negative vs positive)
-bi_alpha = 0.05;
+%% Stats analysis setup
+if 
+% Mode of binomial test of cell significance
+if ~isfield(a,'Shading.StatMode')
+    a.Shading.StatMode = 0;
+end
 
-stats_result = stats_analysis(CellSize,NumPos,NumNeg,chi_option,exp_alpha,chi_alpha,bi_alpha);
+% The NullRate in mode 1 (alpha mode)
+if (~isfield(a,'Shading.NullRate'))
+    a.Shading.NullRate = .001;
+end
+
+% The NullRate in mode 0 (consensus ratio mode)
+con = sum(sum(NumPos)) + sum(sum(NumNeg)); % the consensus
+total = sum(sum(CellSize));% Total cell size of all the network intersections
+a.Shading.con_NullRate = con/total; 
+
+
+% The test probability which is used to be compared with binomial significance test result
+if (~isfield(a,'Shading.CellAlpha'))
+    p = size(CellSize,1);
+    a.Shading.CellAlpha = 0.05/(p^2/2+p);
+end
+
+% The test probability used in binomial test for sign (predominantely negative vs positive) test
+if (~isfiled(a,'Shading.SignAlpha'))
+    a.Shading.SignAlpha = 0.05;
+end
+
+stats_result = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 
 %% Enlarge the dots, if enabled
 
@@ -212,7 +260,7 @@ for i = 1:Net_num
 end
 
 
-function stats_result = stats_analysis(CellSize,NumPos,NumNeg,chi_option,exp_alpha,chi_alpha,bi_alpha)
+function stats_result = stats_analysis(CellSize,NumPos,NumNeg,stat)
 % Apply the stats analysis to each cell
 % Input:
 % CellSize - a matrix that contains the size of each cell
@@ -232,9 +280,6 @@ column = size(CellSize,2);
 stats_result = ones(row,column); 
 e = zeros(row,column); % expectation
 o = zeros(row,column); % observed positive and negative points
-con = sum(sum(NumPos)) + sum(sum(NumNeg)); % the con...
-total = sum(sum(CellSize));% Total size
-con_alpha = con/total;
 
 % To mark if one cell passes the proportion test, if yes, flag is 1, if no, flag is 0.
 flag = zeros(row,column); 
@@ -243,17 +288,14 @@ flag = zeros(row,column);
 % To avoid df = 0, use observed points in this cell, rest of the  points as
 % the observed vector, use expected points in this cell and the expected 
 % rest of the points as the expected vector.
-switch chi_option
+switch stat.StatMode
     case 1
         for i = 1:row
             for j = i:column
-                e(i,j) = exp_alpha*CellSize(i,j);
+                e(i,j) = stat.NullRate*CellSize(i,j);
                 o(i,j) = NumPos(i,j) + NumNeg(i,j);                
-                obs = [o(i,j) CellSize(i,j)-o(i,j)];  
-                ept = [e(i,j) (1-exp_alpha)*(CellSize(i,j))];
-                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),exp_alpha);
-                h = (bi_val < chi_alpha) & (o(i,j) > e(i,j));
-%                 [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
+                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
+                h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
                 if (h == 1) 
                     flag(i,j) = 1;
                 end
@@ -262,20 +304,17 @@ switch chi_option
     case 0
         for i = 1:row
             for j = i:column
-                e(i,j) = con_alpha*CellSize(i,j);
+                e(i,j) = stat.con_NullRate*CellSize(i,j);
                 o(i,j) = NumPos(i,j) + NumNeg(i,j);
-                obs = [o(i,j) con-o(i,j)];   
-                ept = [e(i,j) con*(1-CellSize(i,j)/total)];
-                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),con_alpha);
-%                 [h,p,stats]=chi2gof([1 2],'freq',obs,'expected',ept,'alpha',chi_alpha);
-                h = (bi_val < chi_alpha) & (o(i,j) > e(i,j));
+                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.con_NullRate);
+                h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
                 if (h == 1) 
                     flag(i,j) = 1;
                 end
             end
         end
     otherwise
-        warning('Unexpected alien coming! Check your input of chi_option!')
+        warning('Unexpected alien coming! Check your StatMode!')
 end
 
 % Sign test
@@ -284,10 +323,10 @@ for i = 1:row
         if flag(i,j) == 1
             bi_pos = 1 - binocdf(NumPos(i,j),NumPos(i,j)+NumNeg(i,j),0.5);
             bi_neg = 1 - binocdf(NumNeg(i,j),NumPos(i,j)+NumNeg(i,j),0.5);
-            if bi_pos < bi_alpha
+            if bi_pos < stat.SignAlpha
                 stats_result(i,j) = 2;
             else
-                if bi_neg < bi_alpha
+                if bi_neg < stat.SignAlpha
                     stats_result(i,j) = 3;
                 else
                     stats_result(i,j) = 4;
@@ -371,6 +410,8 @@ for i = 1:size(stats_result,1)
     end
 end
 
+
+function out = shading_initialize(in)
 
 
 
