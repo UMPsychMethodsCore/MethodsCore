@@ -48,12 +48,13 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                       a.Shading.CellAlpha     -       The alpha level used to threshold the cell-level test for more edges than chance. If you want to correct
 %                                                       for multiple comparisons, reflect it in this setting. Defaults to .05/# of unique cells if unset.        
 %                       a.Shading.SignAlpha     -       The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
+%                       a.Shading.Transparency  -       How transparent should shading colors be? Defaults to .5 if unset.
 
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
     a.pruneColor.values(~logical(a.prune)) = 1; % Set colors outside of prune to 1, so they will use first colormap color
 else % If no a.pruneColor passed, set it up as if the colormap goes white, black, and the values are 1s and 2s
-    a.pruneColor.values = zeros(size(a.prune))
+    a.pruneColor.values = zeros(size(a.prune));
     a.pruneColor.values(logical(a.prune)) = 2;
     a.pruneColor.values(~logical(a.prune)) = 1;
     a.pruneColor.map = [1 1 1; 0 0 0]; % Define a colormap where 1 = white, 2 = black
@@ -72,42 +73,14 @@ square_prune = square_prune(sortIDX,sortIDX);
 square = triu(square + square',1); %get it all back on the upper triangle
 square_prune = triu(square_prune + square_prune');
 
-% put upper/lower triangle matrix together (for future optional use)
-square_full = square + tril(square',-1);
-
 %% Counting size,number of positive points and number of negative points of each cell
 [CellSize, NumPos, NumNeg] = initial_count(square,sorted);
 
 %% Stats analysis setup
-if 
-% Mode of binomial test of cell significance
-if ~isfield(a,'Shading.StatMode')
-    a.Shading.StatMode = 0;
+if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
+    a = shading_initialize(a);
+    stats_result = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 end
-
-% The NullRate in mode 1 (alpha mode)
-if (~isfield(a,'Shading.NullRate'))
-    a.Shading.NullRate = .001;
-end
-
-% The NullRate in mode 0 (consensus ratio mode)
-con = sum(sum(NumPos)) + sum(sum(NumNeg)); % the consensus
-total = sum(sum(CellSize));% Total cell size of all the network intersections
-a.Shading.con_NullRate = con/total; 
-
-
-% The test probability which is used to be compared with binomial significance test result
-if (~isfield(a,'Shading.CellAlpha'))
-    p = size(CellSize,1);
-    a.Shading.CellAlpha = 0.05/(p^2/2+p);
-end
-
-% The test probability used in binomial test for sign (predominantely negative vs positive) test
-if (~isfiled(a,'Shading.SignAlpha'))
-    a.Shading.SignAlpha = 0.05;
-end
-
-stats_result = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 
 %% Enlarge the dots, if enabled
 
@@ -120,14 +93,17 @@ figure;image(square);colormap(a.pruneColor.map);
 axis off;
 
 %% Add the shading on TakGraph
-hold on;
-% Transparency of the shading block
-transp = 0.5;
-add_shading(stats_result, transp, sorted);
-hold off;
+if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
+    hold on;
+    % Transparency of the shading block
+    add_shading(stats_result, a.Shading.Transparency, sorted);
+    hold off;
+end
 
 %% Add the network overlay
 network_overlay(sorted);
+
+out = 1; %indicate success
 
 %% All Done with main body
 
@@ -149,9 +125,9 @@ function out=enlarge_dots(enlarge,logical,mat)
 
 out = enlarge;
 
-[hotx hoty] = find(logical);
+[hotx, hoty] = find(logical);
 
-[maxx maxy] = size(enlarge);
+[maxx, maxy] = size(enlarge);
 
 for ihot = 1:size(hotx,1) % Loop over values to enlarge
     curVal = enlarge(hotx(ihot),hoty(ihot)); % Grab the value of the current thing to expand
@@ -178,8 +154,6 @@ hold on
 sorted = sorted';
 
 jumps=diff(sorted);
-
-jumps=[jumps];
 
 starts=[1 ;find(jumps)];
 stops=[find(jumps) - 1; size(sorted,1)];
@@ -238,7 +212,6 @@ end
 
 sorted_new = sorted';
 jumps=diff(sorted_new);
-jumps=[jumps];
 starts=[1 ;find(jumps)];
 stops=[find(jumps) - 1; size(sorted_new,1)];
 
@@ -264,15 +237,12 @@ function stats_result = stats_analysis(CellSize,NumPos,NumNeg,stat)
 % Apply the stats analysis to each cell
 % Input:
 % CellSize - a matrix that contains the size of each cell
-% NumPos - a matrix that contains the number of positive points in each
-% cell
-% NumNeg - a matrix that contains the number of negative points in each
-% cell
-% alpha - 
+% NumPos - a matrix that contains the number of positive points in each cell
+% NumNeg - a matrix that contains the number of negative points in each cell
+% stat - a struct that contains stats initialization parameters 
 % Output:
 % stats_result - a matrix that contains flag for each cell, 1 indicates not
-% significant, 2 indicates positive significant, 3 indicates negative
-% significant
+% significant, 2 indicates positive significant, 3 indicates negative significant
 
 % Initialization
 row = size(CellSize,1);
@@ -284,37 +254,18 @@ o = zeros(row,column); % observed positive and negative points
 % To mark if one cell passes the proportion test, if yes, flag is 1, if no, flag is 0.
 flag = zeros(row,column); 
 
-% Proportion test
-% To avoid df = 0, use observed points in this cell, rest of the  points as
-% the observed vector, use expected points in this cell and the expected 
-% rest of the points as the expected vector.
-switch stat.StatMode
-    case 1
-        for i = 1:row
-            for j = i:column
-                e(i,j) = stat.NullRate*CellSize(i,j);
-                o(i,j) = NumPos(i,j) + NumNeg(i,j);                
-                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
-                h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
-                if (h == 1) 
-                    flag(i,j) = 1;
-                end
-            end
+% Cell level test
+
+for i = 1:row
+    for j = i:column
+        e(i,j) = stat.NullRate*CellSize(i,j);
+        o(i,j) = NumPos(i,j) + NumNeg(i,j);
+        bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
+        h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
+        if (h == 1)
+            flag(i,j) = 1;
         end
-    case 0
-        for i = 1:row
-            for j = i:column
-                e(i,j) = stat.con_NullRate*CellSize(i,j);
-                o(i,j) = NumPos(i,j) + NumNeg(i,j);
-                bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.con_NullRate);
-                h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
-                if (h == 1) 
-                    flag(i,j) = 1;
-                end
-            end
-        end
-    otherwise
-        warning('Unexpected alien coming! Check your StatMode!')
+    end
 end
 
 % Sign test
@@ -357,7 +308,6 @@ function add_shading(stats_result, transp, sorted)
 
 sorted_new = sorted';
 jumps=diff(sorted_new);
-jumps=[jumps];
 starts=[1 ;find(jumps)];
 stops=[find(jumps) - 1; size(sorted_new,1)];
 starts = starts - 0.5;
@@ -411,8 +361,41 @@ for i = 1:size(stats_result,1)
 end
 
 
-function out = shading_initialize(in)
+function a = shading_initialize(a)
+% Mode of binomial test of cell significance
+if ~isfield(a,'Shading.StatMode')
+    a.Shading.StatMode = 0;
+end
 
+switch a.Shading.StatMode
+    case 1        
+        % The NullRate in mode 1 (alpha mode)
+        if (~isfield(a,'Shading.NullRate'))
+            a.Shading.NullRate = .001;
+        end
+    case 0        
+        % The NullRate in mode 0 (consensus ratio mode) 
+        con = nnz(a.prune); % the consensus
+        total = numel(a.prune); % total number of edges
+        a.Shading.NullRate = con/total;
+    otherwise
+        warning('Unexpected alien coming! Check your StatMode!')
+end
+
+% The alpha level used to threshold the cell-level test for more edges than chance.
+if (~isfield(a,'Shading.CellAlpha'))
+    p = size(unique(a.NetworkLabels));
+    a.Shading.CellAlpha = 0.05/(p(p+1)/2);
+end
+
+% The alpha level used for the binomial sign test.
+if (~isfield(a,'Shading.SignAlpha'))
+    a.Shading.SignAlpha = 0.05;
+end
+
+if (~isfield(a,'Shading.Transparency'))
+    a.Shading.Transparency = 0.5;
+end
 
 
 
