@@ -1,12 +1,12 @@
 ## Load functions
-
+source('func.R')
 
 ## Load masterdatafile
 
 master = read.csv(masterpath,colClasses = 'character')
 
-if ~(length(numeric.columns)==1 && numeric.columns==''){ # Only do it if you have some content
-  master[,numeric.colums] = as.numeric(master[,numeric.columns]) # Coerce numeric columns to be numeric
+if (!(length(numeric.columns)==1 && numeric.columns=='')){ # Only do it if you have some content
+  master[,numeric.columns] = apply(master[,numeric.columns],c(1,2),as.numeric) # Coerce numeric columns to be numeric
 }
 
 if( includefactor != '' ){
@@ -19,6 +19,8 @@ nSub = nrow(master)
 
 library('R.matlab') #Make sure you are able to load matlab files
 library('Matrix')
+library(nlme)
+
 
 for (iSub in 1:nSub){
   SubjPath = master[iSub,connTemplate.SubjField]
@@ -32,11 +34,19 @@ for (iSub in 1:nSub){
   }
   superflatmat[iSub,] = flatten.upper.triangle(connectome)
   row.names(superflatmat)[iSub] = SubjPath # Label the row of the matrix with the subject
+  if(iSub %% 10 == 0){
+    print(iSub)
+  }
 }
+
 
 ## Convert the R's to z's
 superflatmat.orig = superflatmat
 superflatmat = fisherz(superflatmat.orig)
+
+## Save what you've loaded so far
+
+save(superflatmat.orig,superflatmat,file='superflat.RData')
 
 ## Do the modeling
 
