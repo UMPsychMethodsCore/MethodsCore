@@ -314,7 +314,7 @@ for i = 1:row
     end
 end
 
-effect_size = (o ./ CellSize) - (e ./ CellSize)
+effect_size = (o ./ CellSize) - (e ./ CellSize);
 
 
 
@@ -336,7 +336,7 @@ function add_shading(stats_result, transp, sorted)
 % transparency can now also be a matrix of transparencies to use
 
 if numel(transp)==1 % if only one transparency is given, replicate it for use everywhere
-    transp=repmat(transp,size(stats_result);
+    transp=repmat(transp,size(stats_result));
 end
 
 sorted_new = sorted';
@@ -440,10 +440,10 @@ if range(in.raw)~=0 && range(in.range)~=0
     in.raw = in.raw .* range(in.range); % scale it so that ranges match
     in.raw = in.raw + min(in.range); % translate so that left edges match
 end
-out = in.raw
+out = in.raw;
 
 function out = rescale2(in)
-% This will add a constant to a vector, and then grow it by a factor away from the center
+% This will add a constant to a vector, and then grow it by a factor away from the middle of the limits
 % It can also trim the result so that it stays in a reasonable range
 % Arguments
 % in.raw
@@ -452,14 +452,16 @@ function out = rescale2(in)
 % in.lowlimit
 % in.uplimit
 
+balance = mean([in.lowlimit in.uplimit]);
+
 oldmean = mean(in.raw); % grab the old mean
-in.raw = in.raw - oldmean; % center it about 0 before dilation
+in.raw = in.raw + in.constant; % add it in the scaling factor
+in.raw = in.raw - balance; % center it about balance before dilation
 in.raw = in.raw .* in.scale; % dilate it by scaling factor
-in.raw = in.raw + oldmean; % move it back to the old center
-in.raw = in.raw + in.constant % add it in the scaling factor
+in.raw = in.raw + balance; % move it back to the old center | balance
 in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
 in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
-out = in.raw
+out = in.raw;
 
 function out = rescale3(in)
 % This will recenter your data about a variable point and grow it by a scale factor away from center
@@ -484,6 +486,8 @@ function out = Effects2Transp(effect_size,ShadeRules)
 orig_size = size(effect_size);
 
 effect_vec = reshape(effect_size,1,numel(effect_size));
+effect_vec(isnan(effect_vec)) = 0 ; % change any of the NaN's to 0's which should not bias anything
+
 
 a.raw = effect_vec;
 
@@ -493,7 +497,7 @@ switch ShadeRules.Mode
     effect_vec = rescale1(a);
   case 2
     a.constant = ShadeRules.Constant;
-    a.Scale = ShadeRules.Scale;
+    a.scale = ShadeRules.Scale;
     a.lowlimit = 0;
     a.uplimit = 1;
     effect_vec = rescale2(a);
@@ -506,5 +510,5 @@ switch ShadeRules.Mode
 end
 
 
-transp = 1 - effect_vec; % take the complement since more transparent means less effect
+transp = effect_vec; % do not take complement, since FaceAlpha is already scaled so 1 = opaque
 out = reshape(transp,orig_size); % make it back into a matrix
