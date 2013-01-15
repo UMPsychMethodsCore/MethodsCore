@@ -408,31 +408,13 @@ if (~isfield(a.Shading,'Transparency'))
     a.Shading.Transparency = 0.5;
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function out = rescale(in)
+% Linearly rescale in.raw into range specified by in.range
+% NOTE - in.raw and in.range MUST BE ROW VECTORS
+% This will break if you give it something with no variance or something stupid
+if range(in.raw)~=0 && range(in.range)~=0
+    in.raw = in.raw - min(in.raw); % get it scaled into (0, max)
+    in.raw = in.raw ./ max(in.raw); % scale it to (0,1)
+    in.raw = in.raw .* range(in.range); % scale it so that ranges match
+    in.raw = in.raw + min(in.range); % translate so that left edges match
+end
