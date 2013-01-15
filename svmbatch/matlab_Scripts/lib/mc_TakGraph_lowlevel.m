@@ -49,6 +49,15 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                                                       for multiple comparisons, reflect it in this setting. Defaults to .05/# of unique cells if unset.        
 %                       a.Shading.SignAlpha     -       The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
 %                       a.Shading.Transparency  -       How transparent should shading colors be? Defaults to .5 if unset.
+%                       a.Shading.Trans         -       Use this set of fields if you want to rescale transparency relative to effect sizes
+%                       a.Shading.Trans.Scale   -       How do you want to rescale your cell-level effect sizes into transparency. Express this with 1 = opaque, 0 = clear.
+%                                                       1 - Provide a range. We will linearly rescale your data to this range
+%                                                       2 - Provide a scale factor and a constant. The constant will be added, then the data grown away from the mean by scale factor.
+%                                                       3 - Provide a scale factor and a center. Your data will be recentered to this and grown away from the center by scale factor
+%                       a.Shading.Trans.Range   -       A range for use with mode 1
+%                       a.Shading.Trans.Scale   -       Scale factor for use with modes 2 and 3
+%                       a.Shading.Trans.Constant-       Constant for use with mode 2
+%                       a.Shading.Trans.Center  -       Center for use with mode 3
 
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
@@ -408,7 +417,7 @@ if (~isfield(a.Shading,'Transparency'))
     a.Shading.Transparency = 0.5;
 end
 
-function out = rescale(in)
+function out = rescale1(in)
 % Linearly rescale in.raw into range specified by in.range
 % NOTE - in.raw and in.range MUST BE ROW VECTORS
 % This will break if you give it something with no variance or something stupid
@@ -418,3 +427,35 @@ if range(in.raw)~=0 && range(in.range)~=0
     in.raw = in.raw .* range(in.range); % scale it so that ranges match
     in.raw = in.raw + min(in.range); % translate so that left edges match
 end
+out = in.raw
+
+function out = rescale2(in)
+% This will add a constant to a vector, and then grow it by a factor away from the center
+% It can also trim the result so that it stays in a reasonable range
+% Arguments
+% in.raw
+% in.constant
+% in.scale
+% in.lowlimit
+% in.uplimit
+
+oldmean = mean(in.raw); % grab the old mean
+in.raw = in.raw - oldmean; % center it about 0 before dilation
+in.raw = in.raw .* in.scale; % dilate it by scaling factor
+in.raw = in.raw + oldmean; % move it back to the old center
+in.raw = in.raw + in.constant % add it in the scaling factor
+in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
+in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
+out = in.raw
+
+function out = rescale3(in)
+% This will recenter your data about a variable point and grow it by a scale factor away from center
+% ARGS
+% in.raw - your original vector
+% in.center - the new center
+% in.scale - the factor to grow by
+
+in.raw = in.raw - mean(in.raw); % center data about 0 b4 dilation
+in.raw = in.raw .* in.scale; % dilate it by scaling factor
+in.raw = in.raw + in.center; % move the data to the new center
+out = in.raw;
