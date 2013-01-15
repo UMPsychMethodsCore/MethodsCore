@@ -21,6 +21,22 @@ library('R.matlab') #Make sure you are able to load matlab files
 library('Matrix')
 library(nlme)
 
+## Make sure all the files actually exist
+name=c()
+exist=c()
+
+for (iSub in 1:nSub){
+  SubjPath = master[iSub,connTemplate.SubjField]
+  connPath = paste(connTemplate.prefix,SubjPath,connTemplate.suffix,sep='')
+  name[iSub]=SubjPath
+  exist[iSub] = file.exists(connPath)
+
+}
+
+filecheck=data.frame(name,exist)
+
+master = master[filecheck$exist,]
+nSub = nrow(master)
 
 for (iSub in 1:nSub){
   SubjPath = master[iSub,connTemplate.SubjField]
