@@ -105,7 +105,12 @@ axis off;
 if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     hold on;
     % Transparency of the shading block
-    add_shading(stats_result, a.Shading.Transparency, sorted);
+    if isfield(a.Shading,'Trans')
+        transparency = Effects2Transp(effect_size,a.Shading.Trans);
+    else
+        transparency = a.Shading.Transparency;
+    end
+    add_shading(stats_result, transparency, sorted);
     hold off;
 end
 
