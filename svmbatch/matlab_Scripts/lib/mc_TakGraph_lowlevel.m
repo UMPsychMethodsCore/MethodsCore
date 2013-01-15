@@ -253,7 +253,7 @@ for i = 1:Net_num
 end
 
 
-function stats_result = stats_analysis(CellSize,NumPos,NumNeg,stat)
+function [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,stat)
 % Apply the stats analysis to each cell
 % Input:
 % CellSize - a matrix that contains the size of each cell
@@ -263,6 +263,7 @@ function stats_result = stats_analysis(CellSize,NumPos,NumNeg,stat)
 % Output:
 % stats_result - a matrix that contains flag for each cell, 1 indicates not
 % significant, 2 indicates positive significant, 3 indicates negative significant
+% effect_size - quantifies effect size as observed proportion minus expected proportion
 
 % Initialization
 row = size(CellSize,1);
@@ -307,6 +308,8 @@ for i = 1:row
         end      
     end
 end
+
+effect_size = (o ./ CellSize) - (e ./ CellSize)
 
 
 
