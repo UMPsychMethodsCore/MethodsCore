@@ -161,9 +161,20 @@ stops=[find(jumps) - 1; size(sorted,1)];
 starts = starts-0.5;
 stops = stops + 0.5;
 
+% Draw the diagonal line
+n = size(starts,1);
+plot([starts(1) stops(n)],[starts(1) stops(n)],'Color',[0.5 0.5 0.5]);
 
-for iBox=1:size(starts)
-    mc_draw_box(starts(iBox),starts(iBox),stops(iBox),stops(iBox));
+% Manully set this from 0.5 to 1 just in order to keep the top line when
+% saving to tiff file
+starts(1) = 1;
+stops(n) = stops(n)-0.5;
+
+
+% Draw the Cell boudaries
+for iBox=1:size(starts)    
+    plot([starts(iBox) stops(n)],[starts(iBox) starts(iBox)],'Color',[0.5 0.5 0.5])
+    plot([stops(iBox) stops(iBox)],[starts(1) stops(iBox)],'Color',[0.5 0.5 0.5])
 end
 
 hold off

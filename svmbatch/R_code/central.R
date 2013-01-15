@@ -54,8 +54,6 @@ for (iSub in 1:nSub){
     print(iSub)
   }
 }
-
-
 ## Convert the R's to z's
 superflatmat.orig = superflatmat
 superflatmat = fisherz(superflatmat.orig)
@@ -71,23 +69,33 @@ save(superflatmat.orig,superflatmat,file='superflat.RData')
 nBeta = length(all.vars(model.formula))
 t.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
 p.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
-
+models = list()
 
 for (iFeat in 1:nFeat){
   mini = data.frame(R = superflatmat[,iFeat],master)
-  mini$AGE = as.numeric(mini$AGE)
-  mini$meanFD = as.numeric(mini$meanFD)
-  model.fit = lm(model.formula,mini)
-  if (iFeat == 1){
-    row.names(t.array) = model.fit$coefficients
-   }
-  t.array[,iFeat] = summary(model.fit)$coef[,'t value']
-  p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
-  if(iFeat %% 1000 == 0){
-    print(iFeat)
+
+  model.fit = model.call(mini,model.formula,model.fixed,model.random,model.approach)
+  if(model.approach=='lm'){
+    t.array[,iFeat] = summary(model.fit)$coef[,'t value']
+    p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
   }
-}
- 
+  if(model.approach=='lme'){
+    t.array[1,iFeat] = summary(model.fit)$tTable[2,'t-value']
+    p.array[1,iFeat] = summary(model.fit)$tTable[2,'p-value']
+  }
+  
+#  save(model.fit,file=paste('fitmodel_',iFeat,'.RData',sep=''))
+       ##  models[[iFeat]] = model.fit
+       ## if (iFeat == 1){
+       ##   row.names(t.array) = model.fit$coefficients
+       ##  }
+       ## t.array[,iFeat] = summary(model.fit)$coef[,'t value']
+       ## p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
+       if(iFeat %% 1000 == 0){
+         print(iFeat)
+       }
+     }
+  
 ## Write out the results
 
 writeMat(outputTemplate,tvals = t.array,pvals = p.array)
