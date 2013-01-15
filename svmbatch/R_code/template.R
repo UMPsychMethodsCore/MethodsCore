@@ -3,7 +3,7 @@
 ## Where is your master datafile located? ##
 ############################################
 
-masterpath = '/net/data4/Schiz_COBRE/MasterData_COBRE.csv' 
+masterpath = '/net/data4/Autism/Phenotypics/MasterData_Autism.csv'
 
 ###########################################################################
 ## Does your master datafile contain a "factor" column with 1's and 0's  ##
@@ -13,6 +13,22 @@ masterpath = '/net/data4/Schiz_COBRE/MasterData_COBRE.csv'
 ###########################################################################
 
 includefactor = 'Include'
+
+###########################################################################
+## I will assume that all of the columns of your masterdatafile are      ##
+## factors unless you tell me otherwise. I accomplish this by coercing   ##
+## your whole masterdatafile to be characters, and then my modeling      ##
+## routines will treat anything that is a character as a factor. This is ##
+## certainly appropriate for variables like Subject ID, Diagnosis,       ##
+## etc. However, some of your variables probably she be treated          ##
+## numerically. These are variables like age, scale measures,            ##
+## etc. Indicate the names (as they appear in your masterdatafile) of    ##
+## these numeric measures here, and I will make sure they get treated as ##
+## numeric covariates. If there are no such columns, put in a single     ##
+## empty string                                                          ##
+###########################################################################
+
+numeric.columns = c('AGE','VIQ','PIQ','meanSPACE','meanFD','TOTAL_RUNS','TOTAL_TP')
 
 #####################################################################################
 ## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
@@ -31,7 +47,7 @@ includefactor = 'Include'
 ## (e.g. '')                                                                       ##
 #####################################################################################
 
-connTemplate.prefix = '/net/data4/Schiz_COBRE/Subjects/FirstLevel_12s19vr_adjusted/'
+connTemplate.prefix = '/net/data4/Autism/FirstLevel_1080/SiteCatLinks/'
 
 connTemplate.SubjField = 'SUB_ID'
 
@@ -48,19 +64,40 @@ connTemplate.suffix = '/Grid/Grid_corr.mat'
 ## result in an error.                                                    ##
 ############################################################################
 
-outputTemplate = '/net/data4/Schiz_COBRE/UnivariateConnectomics/Results/Grid1080WMotion.mat'
+outputTemplate = '/net/data4/Autism/UnivariateConnectomics/Results/Grid1080WMotion.mat'
 
 
-##########################################################################
-## How do you want to model your data? You'll need to create a formula  ##
-## object in the way that R likes it. This means it will look something ##
-## like this: "R ~ dx + motion". The left hand term will always be R,   ##
-## this is hardcoded into the central script to be the Pearson R        ##
-## correlation for the current feature of interest. All of the terms    ##
-## on the right hand side need to be the same as column names in your   ##
-## master datafile.                                                     ##
-##########################################################################
+################################################################################
+## Model Options                                                              ##
+##                                                                            ##
+## First off, do you want to fit a standard linear model or will you be       ##
+## using a fancier multilevel modeling approach? Set model.approach to        ##
+## the appropriate value                                                      ##
+## 'lm'    -       standard linear modeling, done with call to lm             ##
+## 'mlm'   -       Multilevel modeling done with call to lmer                 ##
+##                                                                            ##
+##                                                                            ##
+## For lm mode, you'll need to create a formula object in the way that R      ##
+## likes it. This means it will look something like this: "R ~ dx +           ##
+## motion". The left hand term will always be R, this is hardcoded into       ##
+## the central script to be the Pearson R correlation for the current         ##
+## feature of interest. All of the terms on the right hand side need to       ##
+## be the same as column names in your master datafile.                       ##
+##                                                                            ##
+## For lme mode it's a bit more complicated. Better to look at the help       ##
+## for lme and fill in the fixed and random components based on the           ##
+## documentation there. In most cases, random will just be ~1|grouping factor ##
+################################################################################
+
+
+model.approach = 'lme'
+
+# Options for lm
 model.formula = R ~ TYPE + meanFD
+
+# Options for lme (we will only save results for the first fixed term!)
+model.fixed = R ~ TYPE + meanSPACE
+model.random = ~1|SITE_ID
 
 
 #############################
