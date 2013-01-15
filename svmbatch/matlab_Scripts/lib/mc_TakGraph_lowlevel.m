@@ -462,8 +462,12 @@ function out = rescale3(in)
 % in.raw - your original vector
 % in.center - the new center
 % in.scale - the factor to grow by
+% in.lowlimit
+% in.uplimit
 
 in.raw = in.raw - mean(in.raw); % center data about 0 b4 dilation
 in.raw = in.raw .* in.scale; % dilate it by scaling factor
 in.raw = in.raw + in.center; % move the data to the new center
+in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
+in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
 out = in.raw;
