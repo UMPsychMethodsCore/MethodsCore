@@ -471,3 +471,35 @@ in.raw = in.raw + in.center; % move the data to the new center
 in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
 in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
 out = in.raw;
+
+function out = Effects2Transp(effect_size,ShadeRules)
+% Give it two things. Your effect sizes and the a.Shading.Trans struct. It will translate
+% your effect sizes into transparency based on the options set in the struct
+
+orig_size = size(effect_size);
+
+effect_vec = reshape(effect_size,1,numel(effect_size));
+
+a.raw = effect_vec;
+
+switch ShadeRules.Mode
+  case 1
+    a.range = ShadeRules.Range;
+    effect_vec = rescale1(a);
+  case 2
+    a.constant = ShadeRules.Constant;
+    a.Scale = ShadeRules.Scale;
+    a.lowlimit = 0;
+    a.uplimit = 1;
+    effect_vec = rescale2(a);
+  case 3
+    a.center = ShadeRules.Center;
+    a.scale = ShadeRules.Scale;
+    a.lowlimit = 0;
+    a.uplimit = 0;
+    effect_vec = rescale3(a);
+end
+
+
+transp = 1 - effect_vec; % take the complement since more transparent means less effect
+out = reshape(transp,orig_size); % make it back into a matrix
