@@ -50,7 +50,7 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                       a.Shading.SignAlpha     -       The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
 %                       a.Shading.Transparency  -       How transparent should shading colors be? Defaults to .5 if unset.
 %                       a.Shading.Trans         -       Use this set of fields if you want to rescale transparency relative to effect sizes
-%                       a.Shading.Trans.Scale   -       How do you want to rescale your cell-level effect sizes into transparency. Express this with 1 = opaque, 0 = clear.
+%                       a.Shading.Trans.Mode    -       How do you want to rescale your cell-level effect sizes into transparency. Express this with 1 = opaque, 0 = clear.
 %                                                       1 - Provide a range. We will linearly rescale your data to this range
 %                                                       2 - Provide a scale factor and a constant. The constant will be added, then the data grown away from the mean by scale factor.
 %                                                       3 - Provide a scale factor and a center. Your data will be recentered to this and grown away from the center by scale factor
