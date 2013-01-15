@@ -88,7 +88,7 @@ square_prune = triu(square_prune + square_prune');
 %% Stats analysis setup
 if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     a = shading_initialize(a);
-    stats_result = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
+    [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 end
 
 %% Enlarge the dots, if enabled
