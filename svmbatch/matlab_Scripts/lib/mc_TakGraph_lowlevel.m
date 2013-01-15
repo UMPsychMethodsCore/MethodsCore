@@ -325,6 +325,11 @@ function add_shading(stats_result, transp, sorted)
 % 2 - positive (red shading)
 % 3 - negative (blue shading)
 % 4 - neutral (yellow shading)
+% transparency can now also be a matrix of transparencies to use
+
+if numel(transp)==1 % if only one transparency is given, replicate it for use everywhere
+    transp=repmat(transp,size(stats_result);
+end
 
 sorted_new = sorted';
 jumps=diff(sorted_new);
@@ -342,15 +347,15 @@ for i = 1:size(stats_result,1)
             case 2  
                 shade_x = [starts(j),stops(j),stops(j)];
                 shade_y = [starts(i),starts(i),stops(i)];                          
-                fill(shade_x,shade_y,'r','FaceAlpha',transp);
+                fill(shade_x,shade_y,'r','FaceAlpha',transp(i,j));
             case 3 
                 shade_x = [starts(j),stops(j),stops(j)];
                 shade_y = [starts(i),starts(i),stops(i)]; 
-                fill(shade_x,shade_y,'b','FaceAlpha',transp);
+                fill(shade_x,shade_y,'b','FaceAlpha',transp(i,j));
             case 4
                 shade_x = [starts(j),stops(j),stops(j)];
                 shade_y = [starts(i),starts(i),stops(i)]; 
-                fill(shade_x,shade_y,'y','FaceAlpha',transp);
+                fill(shade_x,shade_y,'y','FaceAlpha',transp(i,j));
             otherwise 
                 warning('Unexpected value in the results, please check!')
                 continue
@@ -362,15 +367,15 @@ for i = 1:size(stats_result,1)
             case 2  
                 shade_x = [starts(j),stops(j),stops(j),starts(j)];
                 shade_y = [starts(i),starts(i),stops(i),stops(i)];                          
-                fill(shade_x,shade_y,'r','FaceAlpha',transp);
+                fill(shade_x,shade_y,'r','FaceAlpha',transp(i,j));
             case 3 
                 shade_x = [starts(j),stops(j),stops(j),starts(j)];
                 shade_y = [starts(i),starts(i),stops(i),stops(i)];
-                fill(shade_x,shade_y,'b','FaceAlpha',transp);
+                fill(shade_x,shade_y,'b','FaceAlpha',transp(i,j));
             case 4
                 shade_x = [starts(j),stops(j),stops(j),starts(j)];
                 shade_y = [starts(i),starts(i),stops(i),stops(i)];
-                fill(shade_x,shade_y,'y','FaceAlpha',transp);
+                fill(shade_x,shade_y,'y','FaceAlpha',transp(i,j));
             otherwise 
                 warning('Unexpected value in the results, please check!')
                 continue
