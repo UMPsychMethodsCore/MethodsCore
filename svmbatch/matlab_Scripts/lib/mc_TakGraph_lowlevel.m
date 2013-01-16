@@ -290,6 +290,7 @@ for i = 1:row
         e(i,j) = stat.NullRate*CellSize(i,j);
         o(i,j) = NumPos(i,j) + NumNeg(i,j);
         bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
+        effect_size(i,j) = bi_val;
         h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
         if (h == 1)
             flag(i,j) = 1;
@@ -317,8 +318,9 @@ for i = 1:row
     end
 end
 
-effect_size = (o ./ CellSize) - (e ./ CellSize);
+effect_size(h==0) = 0; % zero out all the non significant ones
 
+effect_size = 1 - effect_size % take the complement since there are all p-values
 
 
 function add_shading(stats_result, transp, sorted)
