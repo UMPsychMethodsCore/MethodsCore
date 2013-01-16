@@ -513,3 +513,54 @@ end
 
 transp = effect_vec; % do not take complement, since FaceAlpha is already scaled so 1 = opaque
 out = reshape(transp,orig_size); % make it back into a matrix
+
+function out = add_shadebar(value,transp,startpt,xsize,ysize)
+% This function will add a series of labeled transparencies
+% to your graph to provide it a key.
+% INPUTS
+% value - row vector of effect sizes
+% transp - row vector of corresponding transparencies
+% startpt - 1x2 vector of X, Y to be top left corner of first square
+% xsize - how big each transparency square should be in x (left/right)
+% ysize - how big each transparency square should be in y (down/up)
+% Value labels will get written at the y start pt, mid way in X
+% NOTE - top left corner of graph is (1,1)
+
+
+curx = startpt(1);
+cury = startpt(2);
+
+for i = 1:numel(value)
+    % Setup the offsets
+    rx = curx;
+    bx = curx+xsize;
+    yx = curx+xsize*2;
+
+    % Draw the boxes
+    fill(...
+    [rx, rx+xsize, rx+xsize,rx],...
+    [cury, cury, cury+ysize, cury+ysize],...
+    'r', 'FaceAlpha',transp(i));
+
+    fill(...
+    [bx, bx+xsize, bx+xsize,bx],...
+    [cury, cury, cury+ysize, cury+ysize],...
+    'b', 'FaceAlpha',transp(i));
+
+    fill(...
+    [yx, yx+xsize, yx+xsize,yx],...
+    [cury, cury, cury+ysize, cury+ysize],...
+    'y', 'FaceAlpha',transp(i));
+
+    % Add the textlabel
+    curstring = num2str(value(i));
+
+    text(rx+20,cury+ysize/2,curstring);
+
+    cury = cury + ysize; % increment y left to right
+
+
+end
+
+out = 1;
+
