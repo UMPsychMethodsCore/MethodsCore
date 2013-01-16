@@ -564,3 +564,22 @@ end
 
 out = 1;
 
+function [values transp] = value_slice(in, ShadeRules)
+% Give this function all of the effect sizes, and it will come up with
+% 11 points that define the range and their corresponding transparency 
+% for use with shadebar subfunction
+
+effects = reshape(in,1,numel(in));
+effects(isnan(effects)) = 0;
+effects(effects<0)=0;
+
+ef_min = min(effects);
+ef_max = max(effects)
+ef_rg = range(effects)
+ef_step = ef_rg/10;
+
+ef = ef_min + ef_step * (0:10);
+
+values = ef;
+
+transp = Effects2Transp(values, ShadeRules);
