@@ -108,6 +108,8 @@ if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     % Transparency of the shading block
     if isfield(a.Shading,'Trans')
         transparency = Effects2Transp(effect_size,a.Shading.Trans);
+        [sm_values, sm_transp] = value_slice(effect_size, a.Shading.Trans);
+        thing = add_shadebar(sm_values,sm_transp,[20,300],90,70);
     else
         transparency = a.Shading.Transparency;
     end
