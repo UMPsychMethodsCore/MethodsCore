@@ -435,19 +435,30 @@ if (~isfield(a.Shading,'Transparency'))
     a.Shading.Transparency = 0.5;
 end
 
-function out = rescale1(in)
+function [out test_rescaled] = rescale1(in)
 % Linearly rescale in.raw into range specified by in.range
 % NOTE - in.raw and in.range MUST BE ROW VECTORS
+% in.test are some other points that you want transformed according to the rules of in.raw
 % This will break if you give it something with no variance or something stupid
 if range(in.raw)~=0 && range(in.range)~=0
     in.raw = in.raw - min(in.raw); % get it scaled into (0, max)
+
     in.raw = in.raw ./ max(in.raw); % scale it to (0,1)
+
     in.raw = in.raw .* range(in.range); % scale it so that ranges match
+
     in.raw = in.raw + min(in.range); % translate so that left edges match
-end
+
+    if isfield(in,'test') % rescale test points according to rules of the rest
+        in.test = in.test - min(in.raw);        
+        in.test = in.test ./ max(in.test);
+        in.test = in.test .* range(in.range);
+        in.test = in.test + min(in.range);
+        test_rescaled = in.test;
+    end
 out = in.raw;
 
-function out = rescale2(in)
+function [out test_rescaled] = rescale2(in)
 % This will add a constant to a vector, and then grow it by a factor away from the middle of the limits
 % It can also trim the result so that it stays in a reasonable range
 % Arguments
@@ -456,10 +467,10 @@ function out = rescale2(in)
 % in.scale
 % in.lowlimit
 % in.uplimit
+% in.test are some other points that you want transformed according to the rules of in.raw
 
 balance = mean([in.lowlimit in.uplimit]);
 
-oldmean = mean(in.raw); % grab the old mean
 in.raw = in.raw + in.constant; % add it in the scaling factor
 in.raw = in.raw - balance; % center it about balance before dilation
 in.raw = in.raw .* in.scale; % dilate it by scaling factor
@@ -467,6 +478,16 @@ in.raw = in.raw + balance; % move it back to the old center | balance
 in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
 in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
 out = in.raw;
+
+if isfield(in,'test') % rescale test points according to rules of the rest
+    in.test = in.test + in.constant;
+    in.test = in.test - balance;
+    in.test = in.test .* in.scale;
+    in.test = in.test + balance;
+    in.test(in.test>in.uplimit) = in.uplimit;
+    in.test(in.test<in.lowlimit) = in.lowlimit;
+    test_rescaled = in.test;
+end
 
 function out = rescale3(in)
 % This will recenter your data about a variable point and grow it by a scale factor away from center
@@ -476,6 +497,7 @@ function out = rescale3(in)
 % in.scale - the factor to grow by
 % in.lowlimit
 % in.uplimit
+% in.test are some other points that you want transformed according to the rules of in.raw
 
 in.raw = in.raw - mean(in.raw); % center data about 0 b4 dilation
 in.raw = in.raw .* in.scale; % dilate it by scaling factor
@@ -483,6 +505,14 @@ in.raw = in.raw + in.center; % move the data to the new center
 in.raw(in.raw>in.uplimit) = in.uplimit; % trim any of the large values
 in.raw(in.raw<in.lowlimit) = in.lowlimit; % trim small values
 out = in.raw;
+
+if isfield(in,'test') % rescale test points according to rules of the rest
+    in.test = in.test - mean(in.raw);
+    in.test = in.test .* in.scale
+    in.test = in.test + in.center
+    in.test(in.test>in.uplimit) = in.uplimit;
+    in.test(in.test<in.lowlimit) = in.lowlimit;
+end
 
 function out = Effects2Transp(effect_size,ShadeRules)
 % Give it two things. Your effect sizes and the a.Shading.Trans struct. It will translate
