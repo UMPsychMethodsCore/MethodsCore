@@ -1,4 +1,4 @@
-function [ out ] = mc_TakGraph_lowlevel ( a )
+function [ h out ] = mc_TakGraph_lowlevel ( a )
 %MC_TAKGRAPH_LOWLEVEL Low-level graphing function to make a TakGraph
 % If you're working from the "standard" SVM stream, you probably want to run
 % mc_TakGraph instead, which is a higher level function which will call this one.
@@ -58,7 +58,8 @@ function [ out ] = mc_TakGraph_lowlevel ( a )
 %                       a.Shading.Trans.Scale   -       Scale factor for use with modes 2 and 3
 %                       a.Shading.Trans.Constant-       Constant for use with mode 2
 %                       a.Shading.Trans.Center  -       Center for use with mode 3
-
+%       OUTPUTS
+%               h       -       Handle to the graphics object created by mc_takGraph_lowlevel
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
     a.pruneColor.values(~logical(a.prune)) = 1; % Set colors outside of prune to 1, so they will use first colormap color
@@ -98,7 +99,7 @@ if(isfield(a,'DotDilateMat'))
 end
 
 %% Plot the TakGraph
-figure;image(square);colormap(a.pruneColor.map);
+h = figure;image(square);colormap(a.pruneColor.map);
 axis off;
 
 %% Add the shading on TakGraph
