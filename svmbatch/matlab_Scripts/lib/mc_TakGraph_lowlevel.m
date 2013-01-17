@@ -107,9 +107,9 @@ if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     hold on;
     % Transparency of the shading block
     if isfield(a.Shading,'Trans')
-        transparency = Effects2Transp(effect_size,a.Shading.Trans);
-        [sm_values, sm_transp] = value_slice(effect_size, a.Shading.Trans);
-        thing = add_shadebar(sm_values,sm_transp,[20,300],90,70);
+        [sm_values] = value_slice(effect_size, a.Shading.Trans);
+        [transparency sm_transp] = Effects2Transp(effect_size,a.Shading.Trans,sm_values);
+        thing = add_shadebar(sm_values,sm_transp,[20,300],20,20);
     else
         transparency = a.Shading.Transparency;
     end
@@ -318,10 +318,15 @@ for i = 1:row
     end
 end
 
-effect_size(h==0) = 0; % zero out all the non significant ones
+effect_size(flag==0) = 1; % set to 1 (no sig) all results that did not pass
 
-effect_size = 1 - effect_size % take the complement since there are all p-values
+effect_size(flag==1 & effect_size==0) = eps;
 
+effect_size = log10(effect_size); % take the log so that these are somewhat usable
+
+effect_size(isinf(effect_size)) = min(effect_size(~isinf(effect_size))); % some will be -Inf, so let's set them to min
+
+effect_size = -1 * effect_size; % we want bigger numbers to be bigger effects
 
 function add_shading(stats_result, transp, sorted)
 % Based on the result of stats analysis, add shading over the TakGraph at
@@ -440,6 +445,10 @@ function [out test_rescaled] = rescale1(in)
 % NOTE - in.raw and in.range MUST BE ROW VECTORS
 % in.test are some other points that you want transformed according to the rules of in.raw
 % This will break if you give it something with no variance or something stupid
+
+orig = in.raw;
+origIDX = find(in.raw); % store how to index back into orig
+in.raw = in.raw(find(in.raw)); % get rid of all nonzero elements
 if range(in.raw)~=0 && range(in.range)~=0
     in.raw = in.raw - min(in.raw); % get it scaled into (0, max)
 
@@ -456,7 +465,9 @@ if range(in.raw)~=0 && range(in.range)~=0
         in.test = in.test + min(in.range);
         test_rescaled = in.test;
     end
-out = in.raw;
+out = zeros(size(orig));
+out(origIDX) = in.raw;
+end
 
 function [out test_rescaled] = rescale2(in)
 % This will add a constant to a vector, and then grow it by a factor away from the middle of the limits
@@ -489,7 +500,7 @@ if isfield(in,'test') % rescale test points according to rules of the rest
     test_rescaled = in.test;
 end
 
-function out = rescale3(in)
+function [out test_rescaled] = rescale3(in)
 % This will recenter your data about a variable point and grow it by a scale factor away from center
 % ARGS
 % in.raw - your original vector
@@ -514,9 +525,10 @@ if isfield(in,'test') % rescale test points according to rules of the rest
     in.test(in.test<in.lowlimit) = in.lowlimit;
 end
 
-function out = Effects2Transp(effect_size,ShadeRules)
+function [out test_transp] = Effects2Transp(effect_size,ShadeRules,testpoints)
 % Give it two things. Your effect sizes and the a.Shading.Trans struct. It will translate
 % your effect sizes into transparency based on the options set in the struct
+% You can also give it your testpoints, which it will translate into transparencies to make a shadebar
 
 orig_size = size(effect_size);
 
@@ -525,23 +537,23 @@ effect_vec(isnan(effect_vec)) = 0 ; % change any of the NaN's to 0's which shoul
 
 
 a.raw = effect_vec;
-
+a.test = testpoints;
 switch ShadeRules.Mode
   case 1
     a.range = ShadeRules.Range;
-    effect_vec = rescale1(a);
+    [effect_vec test_transp] = rescale1(a);
   case 2
     a.constant = ShadeRules.Constant;
     a.scale = ShadeRules.Scale;
     a.lowlimit = 0;
     a.uplimit = 1;
-    effect_vec = rescale2(a);
+    [effect_vec test_transp] = rescale2(a);
   case 3
     a.center = ShadeRules.Center;
     a.scale = ShadeRules.Scale;
     a.lowlimit = 0;
     a.uplimit = 0;
-    effect_vec = rescale3(a);
+    [effect_vec test_transp] = rescale3(a);
 end
 
 
@@ -587,9 +599,9 @@ for i = 1:numel(value)
     'y', 'FaceAlpha',transp(i));
 
     % Add the textlabel
-    curstring = num2str(value(i));
+    curstring = [ '10^{-' num2str(round(value(i))) '}'];
 
-    text(rx+20,cury+ysize/2,curstring);
+    text(yx+xsize+10,cury+4,curstring);
 
     cury = cury + ysize; % increment y left to right
 
@@ -598,22 +610,23 @@ end
 
 out = 1;
 
-function [values transp] = value_slice(in, ShadeRules)
+function [values] = value_slice(in, ShadeRules)
 % Give this function all of the effect sizes, and it will come up with
-% 11 points that define the range and their corresponding transparency 
+% 11 points that define the range. This can be used downstream
 % for use with shadebar subfunction
 
 effects = reshape(in,1,numel(in));
 effects(isnan(effects)) = 0;
 effects(effects<0)=0;
+effects = effects(find(effects));
 
 ef_min = min(effects);
-ef_max = max(effects)
-ef_rg = range(effects)
+ef_max = max(effects);
+ef_rg = range(effects);
 ef_step = ef_rg/10;
 
 ef = ef_min + ef_step * (0:10);
 
 values = ef;
 
-transp = Effects2Transp(values, ShadeRules);
+
