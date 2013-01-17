@@ -814,6 +814,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     % 
     % 
+    if (NumContrast > 0)
     if (Mode == 1 | Mode == 2)
         clear jobs
         jobs{1}.stats{1}.con.spmmat = {fullfile(SandboxOutputDir,'SPM.mat')};
@@ -833,7 +834,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             jobs{1}.stats{1}.con.consess{iContrast}.tcon.convec = ContrastContent{iContrast};
             jobs{1}.stats{1}.con.consess{iContrast}.tcon.sessrep='none';
         end
-
+        clear temp;
         if (strcmp(spmver,'SPM8')==1)
             temp{1} = jobs;
             matlabbatch = spm_jobman('spm5tospm8',temp)
@@ -841,6 +842,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         else
             spm_jobman('run_nogui',jobs);
         end  
+    end
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
