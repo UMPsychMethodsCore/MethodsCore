@@ -1,7 +1,9 @@
-## Load functions
+# Load functions
 source('func.R')
 
-## Load masterdatafile
+# Masterdatafile
+
+## Load it
 
 master = read.csv(masterpath,colClasses = 'character')
 
@@ -10,18 +12,16 @@ if (!(length(numeric.columns)==1 && numeric.columns=='')){ # Only do it if you h
 }
 
 if( includefactor != '' ){
+  master[,includefactor] = as.logical(master[,includefactor])
+  master[,includefactor] [is.na(master[,includefactor])] = FALSE
   master = master[master[,includefactor] == 1,] #Subset only to those subjects intended for this analysis
 }
 
 nSub = nrow(master)
 
-## Load connectomes
+## Potential Error Checking
 
-library('R.matlab') #Make sure you are able to load matlab files
-library('Matrix')
-library(nlme)
-
-## Make sure all the files actually exist
+### Make sure all the files actually exist
 name=c()
 exist=c()
 
@@ -34,6 +34,28 @@ for (iSub in 1:nSub){
 }
 
 filecheck=data.frame(name,exist)
+
+if(nrow(master) != sum(filecheck$exist)){
+  stop(sprintf('Your file asked me to analyze %f subjects, and I was able to load %f of them',nrow(master),sum(filecheck$exist)))
+}
+
+
+### Make sure all of the factors in your model are defined
+vars = switch(model.approach,lm = all.vars(model.formula)[-1], lme = c(all.vars(model.fixed)[-1],all.vars(model.random)))
+
+miniframe = master[,vars]
+
+if (sum(is.na(miniframe)) > 0){
+  stop('Not all of your included subjects have valid values for all of the terms in your model.')
+}
+
+# Load connectomes
+
+library('R.matlab') #Make sure you are able to load matlab files
+library('Matrix')
+library(nlme)
+
+
 
 master = master[filecheck$exist,]
 nSub = nrow(master)
