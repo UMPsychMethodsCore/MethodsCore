@@ -3,7 +3,7 @@
 ## Where is your master datafile located? ##
 ############################################
 
-masterpath = '/net/data4/Autism/Phenotypics/MasterData_Autism.csv'
+masterpath = '/net/data4/ADHD/Phenotypics/MasterData_ADHD_Cleansed.csv'
 
 ###########################################################################
 ## Does your master datafile contain a "factor" column with 1's and 0's  ##
@@ -12,7 +12,7 @@ masterpath = '/net/data4/Autism/Phenotypics/MasterData_Autism.csv'
 ## string as includefactor = ''                                          ##
 ###########################################################################
 
-includefactor = 'Include'
+includefactor = 'Include.Overall'
 
 ###########################################################################
 ## I will assume that all of the columns of your masterdatafile are      ##
@@ -28,7 +28,7 @@ includefactor = 'Include'
 ## empty string                                                          ##
 ###########################################################################
 
-numeric.columns = c('AGE','VIQ','PIQ','meanSPACE','meanFD','TOTAL_RUNS','TOTAL_TP')
+numeric.columns = c('AGE','F4IQ','meanSPACE','meanFD','TOTAL_RUNS','TOTAL_TP')
 
 #####################################################################################
 ## Unfortunately, all the friendliness of mc_GenPath has not yet been              ##
@@ -47,7 +47,7 @@ numeric.columns = c('AGE','VIQ','PIQ','meanSPACE','meanFD','TOTAL_RUNS','TOTAL_T
 ## (e.g. '')                                                                       ##
 #####################################################################################
 
-connTemplate.prefix = '/net/data4/Autism/FirstLevel_1080/SiteCatLinks/'
+connTemplate.prefix = '/net/data4/ADHD/FirstLevel_1080/SiteCatLinks/'
 
 connTemplate.SubjField = 'SUB_ID'
 
@@ -64,7 +64,7 @@ connTemplate.suffix = '/Grid/Grid_corr.mat'
 ## result in an error.                                                    ##
 ############################################################################
 
-outputTemplate = '/net/data4/Autism/UnivariateConnectomics/Results/Grid1080WMotion.mat'
+outputTemplate = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cleansed.mat'
 
 
 ################################################################################
@@ -93,10 +93,10 @@ outputTemplate = '/net/data4/Autism/UnivariateConnectomics/Results/Grid1080WMoti
 model.approach = 'lme'
 
 # Options for lm
-model.formula = R ~ TYPE + meanFD
+model.formula = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 
 # Options for lme (we will only save results for the first fixed term!)
-model.fixed = R ~ TYPE + meanSPACE
+model.fixed = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 model.random = ~1|SITE_ID
 
 
