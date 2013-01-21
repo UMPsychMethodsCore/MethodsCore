@@ -1,6 +1,10 @@
 # Load functions
 source('func.R')
 
+# Path Stuff
+
+parentpath = dirname(outputTemplate)
+
 # Masterdatafile
 
 ## Load it
@@ -41,7 +45,7 @@ if(nrow(master) != sum(filecheck$exist)){
 
 
 ### Make sure all of the factors in your model are defined
-vars = switch(model.approach,lm = all.vars(model.formula)[-1], lme = c(all.vars(model.fixed)[-1],all.vars(model.random)))
+vars = switch(model.approach,lm = all.vars(model.formula)[-1], lme = c(all.vars(model.random),all.vars(model.fixed)[-1]))
 
 miniframe = master[,vars]
 
@@ -51,15 +55,12 @@ if (sum(is.na(miniframe)) > 0){
 
 # Load connectomes
 
+## Source some useful libraries
 library('R.matlab') #Make sure you are able to load matlab files
 library('Matrix')
 library(nlme)
 
-
-
-master = master[filecheck$exist,]
-nSub = nrow(master)
-
+## Do the actual loading
 for (iSub in 1:nSub){
   SubjPath = master[iSub,connTemplate.SubjField]
   connPath = paste(connTemplate.prefix,SubjPath,connTemplate.suffix,sep='')
@@ -76,22 +77,26 @@ for (iSub in 1:nSub){
     print(iSub)
   }
 }
+
 ## Convert the R's to z's
 superflatmat.orig = superflatmat
 superflatmat = fisherz(superflatmat.orig)
 
 ## Save what you've loaded so far
 
-save(superflatmat.orig,superflatmat,file='superflat.RData')
+save(superflatmat.orig,superflatmat,file=file.path(parentpath,'superflat.RData'))
 
 ## Do the modeling
 
-
-
-nBeta = length(all.vars(model.formula))
+nBeta = length(vars)
 t.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
 p.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
-models = list()
+if (model.approach == 'lme'){
+  nGrp = length(unique(master[,vars[1]]))
+  int.array = matrix(nrow = nGrp, ncol = nFeat, rep(0,nGrp * nFeat))
+} else {
+  int.array = 0
+}
 
 for (iFeat in 1:nFeat){
   mini = data.frame(R = superflatmat[,iFeat],master)
@@ -102,22 +107,19 @@ for (iFeat in 1:nFeat){
     p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
   }
   if(model.approach=='lme'){
-    t.array[1,iFeat] = summary(model.fit)$tTable[2,'t-value']
-    p.array[1,iFeat] = summary(model.fit)$tTable[2,'p-value']
+    t.array[,iFeat] = summary(model.fit)$tTable[,'t-value']
+    p.array[,iFeat] = summary(model.fit)$tTable[,'p-value']
+    int.array[,iFeat] = coef(model.fit)[,1]
   }
-  
-#  save(model.fit,file=paste('fitmodel_',iFeat,'.RData',sep=''))
-       ##  models[[iFeat]] = model.fit
-       ## if (iFeat == 1){
-       ##   row.names(t.array) = model.fit$coefficients
-       ##  }
-       ## t.array[,iFeat] = summary(model.fit)$coef[,'t value']
-       ## p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
-       if(iFeat %% 1000 == 0){
-         print(iFeat)
-       }
-     }
+
+  if (iFeat == 1){
+    save(model.fit,file=file.path(parentpath,'FirstModel.RData'))
+  }
+  if(iFeat %% 1000 == 0){
+    print(iFeat)
+  }
+}
   
 ## Write out the results
 
-writeMat(outputTemplate,tvals = t.array,pvals = p.array)
+writeMat(outputTemplate,tvals = t.array,pvals = p.array,intercepts = int.array, terms = vars)
