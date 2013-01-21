@@ -58,7 +58,7 @@ massuni = function ( Y, X){
 
 model.call = function(data,formula,fixed,random,mode){
   # mode refers to standard lm calls versus fancier modeling approaches and may be either lm or lme for now
-out = switch(mode,
+  out = switch(mode,
   lm = lm(formula,data),
   lme = lme(fixed=model.fixed,random=random,data=data)
     )
