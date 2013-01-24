@@ -1,3 +1,5 @@
-In this folder, you'll find a PDF with a guide on how to use the Methods Core CheckSlice quality checking software.
+In this folder, you'll find a PDF with a guide on how to use the Methods Core CheckSlice quality checking software.  SPM8 is required to perform the quality checks.  "checkImages" require fsl.
 
 For assistance with path generation, see the help file in the Methods Core root repository.
+
+It is recommended to put "checkImages" in the enivronment path somewhere.
