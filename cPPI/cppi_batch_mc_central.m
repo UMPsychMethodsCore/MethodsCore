@@ -229,8 +229,8 @@ end
 if (RunMode(2))
     %partition SubjDir into parameters.cppi.NumProcesses equal parts
     NumSubj = size(SubjDir,1);
-    if (NumProcesses > 16)
-        NumProcesses = 16;
+    if (NumProcesses > 18)
+        NumProcesses = 18;
     end
     SubjPerChunk = floor(NumSubj / NumProcesses);
     SubjRemain = mod(NumSubj,NumProcesses);

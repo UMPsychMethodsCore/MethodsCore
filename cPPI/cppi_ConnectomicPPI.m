@@ -97,10 +97,29 @@ switch parameters.Output.type
                cppi_grid{1,iB} = betanames{iB};
            end
            
-           model = cppi_CreateModel(cppiregressors,roiTC,parameters);
-
-           [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI,roiTC);
-           
+           try
+               model = cppi_CreateModel(cppiregressors,roiTC,parameters);
+               [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI,roiTC);
+           catch err
+               model = parameters.cppi.sandbox;
+               
+               nummotion = size(parameters.data.run(1).MotionParameters,2);
+               domotion = parameters.cppi.domotion;
+               numrun = size(parameters.data.run,2);
+               numregressors = size(cppiregressors,2);
+               goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
+               index = 1;
+               for iB = 1:size(goodbeta,2)
+                   cppi_grid{2,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                   cppi_grid{3,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                   if (parameters.cppi.StandardizeBetas)
+                       cppi_grid{4,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                   end
+                   index = index + 1;
+               end
+               result = 1;
+               mc_Logger('log',err.message);
+           end
            if (result)
                [status result] = system(sprintf('rm -rf %s',model));
                if (status ~= 0)

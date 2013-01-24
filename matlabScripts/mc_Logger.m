@@ -72,7 +72,7 @@ function result = mc_Logger(cmd,cmdstring,loglevel)
             shellcommand = sprintf('sed -i ''%s,%s s/^/%%/'' %s',num2str(1),num2str(lines),scriptcopy);
             [status r] = system(shellcommand);
             if (status ~= 0)
-                mc_Error(r);
+                %mc_Error(r); %remove comment later
             end
             
             mcLog = scriptlog;
