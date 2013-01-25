@@ -47,9 +47,15 @@ OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
 LeverArm = 75;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% FD value criteria (typically between 2-5)
+%%% FD Lever arm (typically between 50-100mm) for FD calculation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FDcriteria = 2;
+FDLeverArm = 50;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% FD value criteria 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FDcriteria = 0.2;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects 
@@ -62,13 +68,16 @@ SubjDir = {
           };
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
 addpath(fullfile(mcRoot,'MotionSummary'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
+addpath(fullfile(mcRoot,'SPM/SPM8/spm8_with_R4667'))
    
+   
+
+
 MotionSummary_central
