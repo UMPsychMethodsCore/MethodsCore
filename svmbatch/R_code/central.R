@@ -3,7 +3,9 @@ source('func.R')
 
 # Path Stuff
 
-parentpath = dirname(outputTemplate)
+if(exists('outputTemplate')){outputPath = dirname(outputTemplate)}
+dir.create(outputPath, showWarnings=FALSE,recursive=TRUE)
+
 
 # Masterdatafile
 
@@ -84,7 +86,7 @@ superflatmat = fisherz(superflatmat.orig)
 
 ## Save what you've loaded so far
 
-save(superflatmat.orig,superflatmat,file=file.path(parentpath,'superflat.RData'))
+save(superflatmat.orig,superflatmat,file=file.path(outputPath,'superflat.RData'))
 
 ## Do the modeling
 
@@ -113,7 +115,7 @@ for (iFeat in 1:nFeat){
   }
 
   if (iFeat == 1){
-    save(model.fit,file=file.path(parentpath,'FirstModel.RData'))
+    save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
   }
   if(iFeat %% 1000 == 0){
     print(iFeat)
@@ -122,4 +124,4 @@ for (iFeat in 1:nFeat){
   
 ## Write out the results
 
-writeMat(outputTemplate,tvals = t.array,pvals = p.array,intercepts = int.array, terms = vars)
+writeMat(file.path(outputPath,'Results.mat'),tvals = t.array,pvals = p.array,intercepts = int.array, terms = vars)
