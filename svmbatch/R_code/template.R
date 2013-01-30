@@ -62,7 +62,7 @@ connTemplate.suffix = '/Grid/Grid_corr.mat'
 ## directory for you if it doesn't exist                                  ##
 ############################################################################
 
-outputTemplate = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cleansed.mat'
+outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cleansed.mat'
 
 
 ################################################################################
