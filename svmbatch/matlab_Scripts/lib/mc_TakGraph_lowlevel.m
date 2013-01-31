@@ -1,4 +1,4 @@
-function [ h out ] = mc_TakGraph_lowlevel ( a )
+function [ h out cellsize celltot cellpos cellneg cellsig ] = mc_TakGraph_lowlevel ( a )
 %MC_TAKGRAPH_LOWLEVEL Low-level graphing function to make a TakGraph
 % If you're working from the "standard" SVM stream, you probably want to run
 % mc_TakGraph instead, which is a higher level function which will call this one.
@@ -68,6 +68,18 @@ function [ h out ] = mc_TakGraph_lowlevel ( a )
 %                       a.Shading.Trans.Center  -       Center for use with mode 3
 %       OUTPUTS
 %               h       -       Handle to the graphics object created by mc_takGraph_lowlevel
+%               out     -       Exit status
+%               NOTE - Following outputs only possible depending on if/how you do stats
+%               cellsize-       nNet * nNet matrix, with counts of number of edges in each. Useful for downstream stats
+%               celltot -       nNet * nNet matrix; how many edges were "on" in each cell.
+%               cellpos -       nNet * nNet matrix; how many edges were "on" and "positive" in each cell
+%               cellneg -       nNet * nNet matrix; how many edges were "on" and "negative" in each cell
+%               cellsign-       nNet * nNet matrix; whether a given cell was selected as having more edges "on" than expected by chance. Coding is...
+%                                       1 - Not significant
+%                                       2 - Positive signicant
+%                                       3 - Negative significant
+%                                       4 - Undirectional Significant
+%               cellsig -       Log10 of p-value for cell
 %% Deal with coloration, if enabled
 if(isfield(a,'pruneColor'))
     a.pruneColor.values(~logical(a.prune)) = 1; % Set colors outside of prune to 1, so they will use first colormap color
@@ -93,12 +105,18 @@ square_prune = triu(square_prune + square_prune');
 
 %% Counting size,number of positive points and number of negative points of each cell
 [CellSize, NumPos, NumNeg] = initial_count(square,sorted);
-
+cellsize = CellSize; % store for output
+cellpos = NumPos; % store for output
+cellneg = NumNeg; % store for output
+celltot = NumPos + NumNeg; % store for output
 %% Stats analysis setup
 if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     a = shading_initialize(a);
     [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 end
+
+cellsign = stats_result; % store for output
+cellsig = effect_size;
 
 %% Enlarge the dots, if enabled
 
@@ -278,7 +296,7 @@ function [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,stat
 % stat - a struct that contains stats initialization parameters 
 % Output:
 % stats_result - a matrix that contains flag for each cell, 1 indicates not
-% significant, 2 indicates positive significant, 3 indicates negative significant
+% significant, 2 indicates positive significant, 3 indicates negative significant, 4 is sig but not directional
 % effect_size - quantifies effect size as observed proportion minus expected proportion
 
 % Initialization
