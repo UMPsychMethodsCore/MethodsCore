@@ -43,6 +43,14 @@ function [ h out ] = mc_TakGraph_lowlevel ( a )
 %                                                       0 - use consensus size portion(total edge number / total cell size) to be the expected probability.
 %                                                       This is appropriate when analyzing a feature set arrived at by consensus. This will use 
 %                                                       size(consensus)/size(all edges) as the null rate. In those mode it is not necessary to set a.Shading.NullRate
+%
+%                                                       2 - Rather than using a binomial test, threshold based on an empirical probability density function, most likely 
+%                                                       coming from permutation simulations. If you specify this, you will also need to supply a.Shading.ePDF. We still
+%                                                       still use a.Shading.CellAlpha as the criterion, but it will be calculated by finding the proportion of cell counts
+%                                                       in ePDF that are greater than or equal to the observed count.        
+%                       a.Shading.ePDF          -       A 3D array. First two dimensions will index networks (and together index cells), third dimension will index repetitions.
+%                                                       The value in each of the elements is the observed number of suprathreshold edges. Be careful that your CellAlpha matches
+%                                                       the conditions of your simulation.
 %                       a.Shading.NullRate      -       Only matters if a.Shading.StatMode is set to 1
 %                                                       The expected probability in mode 1. Defaults to 0.001 if not set.
 %                       a.Shading.CellAlpha     -       The alpha level used to threshold the cell-level test for more edges than chance. If you want to correct
@@ -287,14 +295,19 @@ flag = zeros(row,column);
 
 for i = 1:row
     for j = i:column
-        e(i,j) = stat.NullRate*CellSize(i,j);
-        o(i,j) = NumPos(i,j) + NumNeg(i,j);
-        bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
-        effect_size(i,j) = bi_val;
-        h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
-        if (h == 1)
-            flag(i,j) = 1;
-        end
+        if stat.StatMode~=2 % old functionality uses a binomial test
+            e(i,j) = stat.NullRate*CellSize(i,j);
+            o(i,j) = NumPos(i,j) + NumNeg(i,j);
+            bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
+            effect_size(i,j) = bi_val;
+            h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
+            if (h == 1)
+                flag(i,j) = 1;
+            end
+        elseif stat.StatMode==2 %The new empirical PDF approach
+            pval = (sum(o(i,j)<= squeeze(stat.ePDF(i,j,:)))/size(stat.ePDF,3);
+            h = pval < stat.CellAlpha;
+            effect_size(i,j) = pval;
     end
 end
 
