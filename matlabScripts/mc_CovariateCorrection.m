@@ -1,10 +1,11 @@
-function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X )
+function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X, raw)
 %MC_COVARIATECORRECTION Correction for a series of covariates using
 %multiple regression
 % 
 %   FORMAT [residuals] = mc_CovariateCorrection( Y, X)
 %       Y   -   nExamples x nFeatures matrix of observations
 %       X   -   nExamples x nPredictors design matrix
+%       raw -   If set to 1, it will not mean center and it will not add an intercept term    
 % 
 %   RESULTS
 %       corrected   -   nExample x nFeatures matrix of corrected
@@ -28,12 +29,19 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 % NOTE  -   This script will prepend a column of ones to your X matrix to
 % model an intercept, so you do not need to include it.
 
+if(~exist(raw,'var') 
+    raw=0
+end
 
 % Mean center all your covariates
-X = mc_SweepMean(X);
+if(raw~=1)
+    X = mc_SweepMean(X);
+end
 
 % Prepend a constant to the predictor matrix
-X = horzcat(ones(size(X,1),1),X);
+if(raw!=1)
+    X = horzcat(ones(size(X,1),1),X);
+end
 
 betas =   pinv(X)*Y;
 
