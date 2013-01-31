@@ -61,6 +61,7 @@ UMBatchPrep
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
   results = -70;
+  UMCheckFailure(results);
   return
 end
 
@@ -120,8 +121,8 @@ else
     if exist(ObjectMask) == 0
         fprintf('Object mask specified is missing\n');
         fprintf('  * * * A B O R T I N G * * *\n\n');
-        UMCheckFailure(results);
         results = -65;
+        UMCheckFailure(results);
         return
     end
 end

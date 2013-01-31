@@ -35,7 +35,7 @@ if results < 0
   fprintf('* * * * * FAILURE * * * *\n')
   errorresults = 1;
   UMBatchAbort;
-  return
+  exit(abs(results));
 end
 
 % no error
