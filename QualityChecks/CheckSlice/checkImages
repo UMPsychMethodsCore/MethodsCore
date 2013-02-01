@@ -1,0 +1,69 @@
+#!/bin/awk -f
+
+BEGIN {
+    if(ARGC != 2) {
+        printf("Usage: checkImages file\n");
+        printf("       file is a text file outputed from qc_mc_template.m\n");
+
+        exit 1;
+    }
+
+    imageLine = "Image:";
+    metricsBegin = "{";
+    metricsEnd = "}";
+    currentImage = "";
+    header = "SLICE WALL OF SHAME";
+    state = 0;
+}
+{
+    if(state == 0) {
+        if($0 == header)
+            state = 1;
+        else {
+            printf("Expected header at line %d\n",NR);
+            printf(" * * * A B O R T I N G * * *\n");
+            state = -1;
+            exit 1;
+        }
+    } else if(state == 1) {
+        if($0 == imageLine)
+            state = 2;
+        else {
+            printf("Expected %s at line %d\n",imageLine,NR);
+            printf(" * * * A B O R T I N G * * *\n");
+            state = -1;
+            exit 1;
+        }
+    } else if(state == 2) {
+        currentImage = $0;
+        cmd = sprintf("fslview %s",$0);
+        state = 3;
+        print $0;
+    } else if(state == 3) {
+        if($0 == metricsBegin)
+            state = 4;
+        else {
+            printf("Expected %s at line %d\n",metricsBegin,NR);
+            printf(" * * * A B O R T I N G * * *\n");
+            state = -1;
+            exit 1;
+        }
+    } else if(state == 4) {
+        if($0 == metricsEnd) {
+            state = 1;
+            system(cmd);
+        }
+        else
+            print $0;
+    } else {
+        printf("You should not be here!\n");
+        printf(" * * * A B O R T I N G * * *\n");
+        exit 1;
+    }
+}
+END {
+    if(state == -1)
+        printf("Something went terribly wrong.\n");
+
+    printf("All done!\n");
+}
