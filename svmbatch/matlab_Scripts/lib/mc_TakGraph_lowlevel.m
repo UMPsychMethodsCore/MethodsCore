@@ -319,13 +319,16 @@ for i = 1:row
             bi_val = 1 - binocdf(NumPos(i,j)+NumNeg(i,j),CellSize(i,j),stat.NullRate);
             effect_size(i,j) = bi_val;
             h = (bi_val < stat.CellAlpha) & (o(i,j) > e(i,j));
-            if (h == 1)
-                flag(i,j) = 1;
-            end
         elseif stat.StatMode==2 %The new empirical PDF approach
-            pval = (sum(o(i,j)<= squeeze(stat.ePDF(i,j,:)))/size(stat.ePDF,3);
+            o(i,j) = NumPos(i,j) + NumNeg(i,j);
+            pval = (sum(o(i,j)<= squeeze(stat.ePDF(i,j,:))))/size(stat.ePDF,3);
             h = pval < stat.CellAlpha;
             effect_size(i,j) = pval;
+            
+        end
+        if (h == 1)
+            flag(i,j) = 1;
+        end
     end
 end
 
@@ -452,6 +455,7 @@ switch a.Shading.StatMode
         con = nnz(a.prune); % the consensus
         total = numel(a.prune); % total number of edges
         a.Shading.NullRate = con/total;
+  case 2
     otherwise
         warning('Unexpected alien coming! Check your StatMode!')
 end
