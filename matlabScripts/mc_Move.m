@@ -1,11 +1,22 @@
 function result = mc_Move(OldFileTemplate,NewFileTemplate)
-    
+% A utility function to move files.  This function will resolve mc_GenPath
+% style template variables and create the target folder if necessary. It
+% attempts to use java in MATLAB for a faster move command, but if it fails
+% it will fall back to the slower movefile function.
+% FORMAT mc_Move(FileTemplate,TargetTemplate);
+% 
+% FileTemplate      A string with the full path for the file to move.  This 
+%                   can use mc_GenPath style templates or can be a simple
+%                   path.
+%
+% TargetTemplate    A string with the full path of the target file. This
+%                   can use mc_GenPath style templates or can be a simple
+%                   path.
+%    
 
     %take input file and target in Template form
     %evaluate in caller's scope and create target directory if necessary
     %then move file to target
-    
-    %actually need to evaluate these in caller
     
     FileName = evalin('caller',sprintf('mc_GenPath(struct(''Template'',''%s'',''mode'',''check''))',OldFileTemplate));
     TargetPath = evalin('caller',sprintf('mc_GenPath(struct(''Template'',''%s'',''mode'',''makeparentdir''))',NewFileTemplate));
