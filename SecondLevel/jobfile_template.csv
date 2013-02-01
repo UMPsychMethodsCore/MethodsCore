@@ -1,0 +1,7 @@
+Include,Type,OutputName,PathCol,ImCol,WithinNames,BetweenName,Col,BetweenName,Col,BetweenName,Col,CovName,Col,CovName,Col
+1,1,OneSampleT,1,1,,group,3,,,,,age,7,,
+1,2,TwoSampleT,1,1,,group,5,,,,,,,,
+1,3,PairedSamplesT,1 2,2,,group,4,,,,,stai,8 9,,
+1,4,MultipleRegression,1,2,,group,3,,,,,,,,
+1,5,FullFactorial,1,1,,group,5,genetics,6,,,,,,
+1,6,OUTPUT/FlexibleAnova,1 2,[1 2;3 4],Drug Load Emotion,group,5,,,,,,,,

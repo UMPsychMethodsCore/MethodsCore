@@ -6,15 +6,14 @@ mcRoot=`pwd`  #Since this is called from post-checkout hook, working directory w
 mkdir -p .local
 
 #Check if in detached head state
-headContent=`cat .git/HEAD`
-colonLoc=`expr index "$headContent" :`
+headContent=`grep ref: .git/HEAD`
 
 #Identify Current Version
-if [ $colonLoc -eq 0 ]
+if [ -z "$headContent" ]
 then
     cat .git/HEAD > .local/CurrentVersionSHA
 else
-    cat .git/`cat .git/HEAD | awk '{print $NF'}` > .local/CurrentVersionSHA
+    cat .git/`cat .git/HEAD | awk '{print $NF}'` > .local/CurrentVersionSHA
 fi
 
 #spm8Batch Localizations
