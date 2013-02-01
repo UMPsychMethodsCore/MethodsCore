@@ -29,8 +29,8 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 % NOTE  -   This script will prepend a column of ones to your X matrix to
 % model an intercept, so you do not need to include it.
 
-if(~exist(raw,'var') 
-    raw=0
+if(~exist('raw','var') )
+    raw=0;
 end
 
 % Mean center all your covariates
@@ -39,7 +39,7 @@ if(raw~=1)
 end
 
 % Prepend a constant to the predictor matrix
-if(raw!=1)
+if(raw~=1)
     X = horzcat(ones(size(X,1),1),X);
 end
 
