@@ -11,6 +11,22 @@
     echo 
     echo "     vbm8HiRes 050126zz"
     echo
+    echo " This command can be used with two different strategies:"
+    echo 
+    echo " 1) calculate normalization of a hi-resoluton image for further VBM processing."
+    echo 
+    echo "    In this case (the default mode), the code will look for the high resolution image"
+    echo "    in the 'anatomy/' directory." 
+    echo 
+    echo "       e.g. vbm8HiRes 050126zz"
+    echo 
+    echo " 2) calculation normalization of a coregistered hi-resolution image for warping of functionals."
+    echo 
+    echo "   In this case, you will need to use the '-a' flag to point to the anatomy."
+    echo "   Additionally, you will need to use the '-w' flag to indicate where to write the"
+    echo "   results." 
+    echo 
+    echo "      e.g. vbm8HiRes 050126zz -a func/coReg -w func/coReg/VBM8"
     echo
     echo " Current command default configuration is:"
     echo 

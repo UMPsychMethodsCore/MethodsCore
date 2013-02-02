@@ -4,8 +4,10 @@
 #
 
 echo 
-echo "An error was found in your data and/or parameter specification, se we can not proceed. Going to now"
+echo "An error was found in your data and/or parameter specification, so we can not proceed. Going to now"
 echo "gently remove any script files partially written."
+echo
+echo "Aborted command : ${thisCommand}, that was attempted at : ${theDate}"
 echo
 
 if [ ! -z ${FULLSCRIPTNAME} ]
@@ -29,8 +31,26 @@ echo
 echo "Clean up finished, now exiting."
 echo
 
-exit 1
+#
+# Write out an ABORT signal if the UMSTREAMABORTFILE is defined
+#
+
+if [ ! -z "${UMSTREAM_STATUS_FILE}" ] 
+then
+   echo "${thisCommand} aborted, attempted at : ${theDate}" >> ${UMSTREAM_STATUS_FILE}
+fi
+
+# 
+# Default to some error code if none is set.
+#
+
+if [ -z "${SPM8BATCH_ERROR_CODE}" ]
+then
+  SPM8BATCH_ERROR_CODE=1
+fi
+
+exit ${SPM8BATCH_ERROR_CODE}
 
 #
 # all done.
-# 
+#

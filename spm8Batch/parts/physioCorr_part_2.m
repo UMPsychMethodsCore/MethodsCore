@@ -6,7 +6,10 @@ for iSub = 1:length(UMBatchSubjs)
   %
   fprintf('Working on %s\n',UMBatchSubjs{iSub});
   % 
-  ALLOK = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMBatchSubjs{iSub},UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,UMTestFlag);
+  results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMBatchSubjs{iSub},UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,UMTestFlag);
+  if UMCheckFailure(results)
+    exit(abs(results))
+  end
 end
 
 %

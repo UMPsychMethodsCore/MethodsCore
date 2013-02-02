@@ -18,7 +18,7 @@
 #
 
 VERSION="2.1"
-VERSIONDATE="2011-07-30"
+VERSIONDATE="2012-12-30"
 
 # Find out where the current command lives and execute some common code.
 
@@ -32,7 +32,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="BADdfiMmnStUv#"
+allowedOptions="ABDdfiMmnOStUv#"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -54,6 +54,12 @@ allowedOptions="BADdfiMmnStUv#"
 stdVOL=$standardVolume
 let standardVolume--
 
+# Pull out the name to call the reference volume
+# Added RC Welsh - 2012-12-19
+
+let arrayElement=${iother}-1
+REFVOLNAME=${otherName[${arrayElement}]}
+
 #
 
 . ${thisDir}/auxiliary/superDebugStatus
@@ -73,6 +79,9 @@ let standardVolume--
 
 # Write out debug status
 . ${thisDir}/auxiliary/debugStatus
+
+# First we need to check to make sure that everything we are being asked to do can be accomplished
+. ${thisDir}/auxiliary/checkFuncDir
 
 # Ok, lets do the business.
  
@@ -116,21 +125,46 @@ echo "do"                                                                       
 . ${thisDir}/auxiliary/fslCommonCode_B
 
 echo "    cd ${fmriPATH}"                                                                    >> ${FULLSCRIPTNAME}.sh
-echo "    if [ ! -e \"realignRefVolume.nii\" ] "                                             >> ${FULLSCRIPTNAME}.sh
+echo "    if [ ! -e \"${REFVOLNAME}.nii\" ] "                                                >> ${FULLSCRIPTNAME}.sh
 echo "    then"                                                                              >> ${FULLSCRIPTNAME}.sh
+
+#if [ "${ALLRUNSFLAG}" == "0" ]
+#then
+#    echo "      REFRUN=`printf \"run_%02d/\" ${runNAMES[0]}`"                                >> ${FULLSCRIPTNAME}.sh
+#else
+#    echo "      REFRUN=\`ls | grep run_ | head -1\`"                                         >> ${FULLSCRIPTNAME}.sh
+#fi
+
 if [ "${ALLRUNSFLAG}" == "0" ]
 then
-    echo "      REFRUN=`printf \"run_%02d/\" ${runNAMES[0]}`"                                >> ${FULLSCRIPTNAME}.sh
+    echo "      REFRUN=\`${thisDir}/auxiliary/findFirstRunInList ${runNAMES[*]}\`"           >> ${FULLSCRIPTNAME}.sh
 else
-    echo "      REFRUN=\`ls | grep run_ | head -1\`"                                         >> ${FULLSCRIPTNAME}.sh
+    echo "      REFRUN=\`${thisDir}/auxiliary/findFirstRunInList\`"                          >> ${FULLSCRIPTNAME}.sh
 fi
-echo "      ${thisDir}/extractReferenceImage \${REFRUN} ${volumeWILD} ${standardVolume}"     >> ${FULLSCRIPTNAME}.sh
-echo "    else"                                                                              >> ${FULLSCRIPTNAME}.sh
-echo "      echo Using pre-existing reference volume."                                       >> ${FULLSCRIPTNAME}.sh
+
+# Need code in case REFRUN comes back as 'NONE'
+
+
+echo "      if [ \"\${REFRUN}\" == \"NONE\" ]"                                                                >> ${FULLSCRIPTNAME}.sh
+echo "      then"                                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "        echo \"Can not find a valid run in the list : ${runNAMES[*]}\" "                                >> ${FULLSCRIPTNAME}.sh
+echo "        echo \"Will have to skip realignment for this subject\" "                                       >> ${FULLSCRIPTNAME}.sh
+echo "      else"                                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "        ${thisDir}/extractReferenceImage \${REFRUN} ${volumeWILD} ${standardVolume} ${REFVOLNAME}"      >> ${FULLSCRIPTNAME}.sh
+
+#
+# put in error checking for exit code for extractReferenceImage
+#
+. ${thisDir}/auxiliary/doWeAbortFSL
+
+echo "        echo Creating reference image:${REFVOLNAME} run:\${REFRUN} time-point:${standardVolume}."      >> ${FULLSCRIPTNAME}.sh
+echo "      fi"                                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "    else"                                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "       echo Using pre-existing reference volume."                                                      >> ${FULLSCRIPTNAME}.sh
 echo "    fi"                                                                                >> ${FULLSCRIPTNAME}.sh
-echo "    if [ -e \"realignRefVolume.nii\" ] "                                               >> ${FULLSCRIPTNAME}.sh
+echo "    if [ -e \"${REFVOLNAME}.nii\" ] "                                                  >> ${FULLSCRIPTNAME}.sh
 echo "    then"                                                                              >> ${FULLSCRIPTNAME}.sh
-echo "       REFFILE=${UMBatchMaster}/${SUBJDIR}/\${SUBJECT}/${fmriPATH}/realignRefVolume"   >> ${FULLSCRIPTNAME}.sh
+echo "       REFFILE=${UMBatchMaster}/${SUBJDIR}/\${SUBJECT}/${fmriPATH}/${REFVOLNAME}"      >> ${FULLSCRIPTNAME}.sh
 
 if [ "${ALLRUNSFLAG}" == "1" ]
 then
@@ -144,52 +178,66 @@ else
   echo                                                                                       >> ${FULLSCRIPTNAME}.sh
 fi
 
-echo "       do"                                                                             >> ${FULLSCRIPTNAME}.sh
-echo "          case \${RUN:0:1} in "                                                        >> ${FULLSCRIPTNAME}.sh
-echo "            0*)"                                                                       >> ${FULLSCRIPTNAME}.sh
-echo "              RUN=\${RUN:1:1} "                                                        >> ${FULLSCRIPTNAME}.sh
-echo "          esac"                                                                        >> ${FULLSCRIPTNAME}.sh
-echo "          CURRUN=\`printf \"run_%02d/\" \${RUN} \`"                                    >> ${FULLSCRIPTNAME}.sh
-echo "          echo \"Realigning run \${CURRUN}\" "                                         >> ${FULLSCRIPTNAME}.sh
-echo "          echo \" reference volume is \${REFFILE} \" "                                 >> ${FULLSCRIPTNAME}.sh
-echo "          cd \${CURRUN}"                                                               >> ${FULLSCRIPTNAME}.sh
-echo "          nFiles=\`ls 2> /dev/null -1 $volumeWILD*.nii | wc | awk '{print \$1}'\`"     >> ${FULLSCRIPTNAME}.sh
-echo "          echo \"Going to realign \${nFiles} volumes.\""                               >> ${FULLSCRIPTNAME}.sh
-echo "          if [ \"\${testFLAG}\" == \"0\" ]"                                            >> ${FULLSCRIPTNAME}.sh
-echo "          then"                                                                        >> ${FULLSCRIPTNAME}.sh
-echo "             CURRUN4D=\`ls ${volumeWILD}*.nii 2> /dev/null\`  "                        >> ${FULLSCRIPTNAME}.sh
-echo "             if [ -e \"\${CURRUN4D}\" ] "                                              >> ${FULLSCRIPTNAME}.sh
-echo "             then"                                                                     >> ${FULLSCRIPTNAME}.sh
-echo "               CURRUN4D=\${CURRUN4D:0:\${#CURRUN4D}-4}"                                >> ${FULLSCRIPTNAME}.sh
-echo "               FSLOUTPUTTYPE=NIFTI"                                                    >> ${FULLSCRIPTNAME}.sh
-echo "               mcflirt -in \${CURRUN4D} -o r_mcflirt_\${CURRUN4D} -reffile \${REFFILE}.nii $mcOPT"    >> ${FULLSCRIPTNAME}.sh
-echo "               mv r_mcflirt_\${CURRUN4D}.par  mcflirt_realign_\${CURRUN4D}.dat"                       >> ${FULLSCRIPTNAME}.sh
-echo "               mv r_mcflirt_\${CURRUN4D}.nii  ${outputName}\${CURRUN4D}.nii"                          >> ${FULLSCRIPTNAME}.sh
-echo "               logTheUMProcess realignfMRI ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh
-echo "             else"                                                                     >> ${FULLSCRIPTNAME}.sh
-echo "                echo \"Can't find a 4D ${volumeWILD}*.nii for this run \${CURRUN}\" "  >> ${FULLSCRIPTNAME}.sh
-echo "             fi"                                                                       >> ${FULLSCRIPTNAME}.sh
-echo "          else"                                                                        >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"Test mode.\"  "                                                    >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"fslmerge -t tmp.hdr refVOL.hdr \`ls ${volumeWILD}*.hdr\`\" "       >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"mcflirt -in tmp.hdr -o rtmp.hdr -refvol 0 $mcOPT\" "               >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"mkdir -p ../r${subPATH}\" "                                        >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"mv rtmp* ../r${subPATH}\" "                                        >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"cd ../r${subPATH}\" "                                              >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"fslsplit rtmp.hdr\" "                                              >> ${FULLSCRIPTNAME}.sh
-echo "             echo \"rm rtmp.*\" "                                                      >> ${FULLSCRIPTNAME}.sh
-echo "          fi"                                                                          >> ${FULLSCRIPTNAME}.sh
-echo "          cd ../"                                                                      >> ${FULLSCRIPTNAME}.sh
-echo "       done"                                                                           >> ${FULLSCRIPTNAME}.sh
-echo "   else"                                                                               >> ${FULLSCRIPTNAME}.sh
-echo "       echo \" Reference run does not exist for subject.\" "                           >> ${FULLSCRIPTNAME}.sh
-echo "   fi"                                                                                 >> ${FULLSCRIPTNAME}.sh
-echo "done"                                                                                  >> ${FULLSCRIPTNAME}.sh
-echo "echo"                                                                                  >> ${FULLSCRIPTNAME}.sh
-echo "echo \" All done\""                                                                    >> ${FULLSCRIPTNAME}.sh
-echo "echo"                                                                                  >> ${FULLSCRIPTNAME}.sh
+echo "       do"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "          case \${RUN:0:1} in "                                                          >> ${FULLSCRIPTNAME}.sh
+echo "            0*)"                                                                         >> ${FULLSCRIPTNAME}.sh
+echo "              RUN=\${RUN:1:1} "                                                          >> ${FULLSCRIPTNAME}.sh
+echo "          esac"                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "          CURRUN=\`printf \"run_%02d/\" \${RUN} \`"                                      >> ${FULLSCRIPTNAME}.sh
+echo "          echo"                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "          echo \"Realigning run \${CURRUN}\" "                                           >> ${FULLSCRIPTNAME}.sh
+echo "          echo \" reference volume is \${REFFILE} \" "                                   >> ${FULLSCRIPTNAME}.sh
+#
+# We skip if the run is not present.
+#
+echo "          if [ -d "\${CURRUN}" ]"                                                        >> ${FULLSCRIPTNAME}.sh
+echo "          then"                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "            cd \${CURRUN}"                                                               >> ${FULLSCRIPTNAME}.sh
+echo "            nFiles=\`ls 2> /dev/null -1 $volumeWILD*.nii | wc | awk '{print \$1}'\`"     >> ${FULLSCRIPTNAME}.sh
+echo "            echo \"Going to realign \${nFiles} volumes.\""                               >> ${FULLSCRIPTNAME}.sh
+echo "            if [ \"\${testFLAG}\" == \"0\" ]"                                            >> ${FULLSCRIPTNAME}.sh
+echo "            then"                                                                        >> ${FULLSCRIPTNAME}.sh
+echo "              CURRUN4D=\`ls ${volumeWILD}*.nii 2> /dev/null\`  "                         >> ${FULLSCRIPTNAME}.sh
+echo "              if [ -e \"\${CURRUN4D}\" ] "                                               >> ${FULLSCRIPTNAME}.sh
+echo "              then"                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "                CURRUN4D=\${CURRUN4D:0:\${#CURRUN4D}-4}"                                 >> ${FULLSCRIPTNAME}.sh
+echo "                FSLOUTPUTTYPE=NIFTI"                                                     >> ${FULLSCRIPTNAME}.sh
+echo "                mcflirt -in \${CURRUN4D} -o r_mcflirt_\${CURRUN4D} -reffile \${REFFILE}.nii $mcOPT"    >> ${FULLSCRIPTNAME}.sh
 
-echo                                                                                         >> ${FULLSCRIPTNAME}.sh
+#
+# put in error checking for exit code of mcflirt
+#
+. ${thisDir}/auxiliary/doWeAbortFSL
+
+echo "                mv r_mcflirt_\${CURRUN4D}.par  mcflirt_realign_\${CURRUN4D}.dat"                       >> ${FULLSCRIPTNAME}.sh
+echo "                mv r_mcflirt_\${CURRUN4D}.nii  ${outputName}\${CURRUN4D}.nii"                          >> ${FULLSCRIPTNAME}.sh
+echo "                logTheUMProcess realignfMRI ${FULLSCRIPTNAME} \"\${CURRUN4D} realigned to \${REFFILE}\" ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh
+echo "              else"                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "                 echo \"Can't find a 4D ${volumeWILD}*.nii for this run \${CURRUN}\" "   >> ${FULLSCRIPTNAME}.sh
+echo "              fi"                                                                        >> ${FULLSCRIPTNAME}.sh
+echo "            else"                                                                        >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"Test mode.\"  "                                                     >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"fslmerge -t tmp.hdr refVOL.hdr \`ls ${volumeWILD}*.hdr\`\" "        >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"mcflirt -in tmp.hdr -o rtmp.hdr -refvol 0 $mcOPT\" "                >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"mkdir -p ../r${subPATH}\" "                                         >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"mv rtmp* ../r${subPATH}\" "                                         >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"cd ../r${subPATH}\" "                                               >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"fslsplit rtmp.hdr\" "                                               >> ${FULLSCRIPTNAME}.sh
+echo "              echo \"rm rtmp.*\" "                                                       >> ${FULLSCRIPTNAME}.sh
+echo "            fi"                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "            cd ../"                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "          else"                                                                          >> ${FULLSCRIPTNAME}.sh
+echo "            echo \" Skipping run \${CURRUN}, not present\" "                             >> ${FULLSCRIPTNAME}.sh
+echo "          fi"                                                                            >> ${FULLSCRIPTNAME}.sh
+echo "       done"                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "   else"                                                                                 >> ${FULLSCRIPTNAME}.sh
+echo "       echo \" Reference run does not exist for subject.\" "                             >> ${FULLSCRIPTNAME}.sh
+echo "   fi"                                                                                   >> ${FULLSCRIPTNAME}.sh
+echo "done"                                                                                    >> ${FULLSCRIPTNAME}.sh
+echo "echo"                                                                                    >> ${FULLSCRIPTNAME}.sh
+echo "echo \" All done\""                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "echo"                                                                                    >> ${FULLSCRIPTNAME}.sh
+echo                                                                                           >> ${FULLSCRIPTNAME}.sh
 echo
 
 echo "Finished building, launching...."

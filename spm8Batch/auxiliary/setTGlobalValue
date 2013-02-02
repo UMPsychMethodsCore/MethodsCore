@@ -1,6 +1,11 @@
-#
-# Set the value of TGLOBAL
-#
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  #
+		  # Set the value of TGLOBAL
+		  #
 		  shift
 		  let argn++
 		  if (( $argn >= $args ))
@@ -18,3 +23,7 @@
 		      TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
 		      isnumber $TGLOBAL
 		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

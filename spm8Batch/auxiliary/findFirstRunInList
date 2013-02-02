@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#
+# Copyright Robert C Welsh
+# Dec, 2012
+# Ann Arbor, MI
+# 
+
+# Based on the list of runs that is listed, find the first that is present, 
+# this allows us to have a missing run, but no barf.
+
+# If no run numbers are sent, then look for the first run.
+# report "NONE" if nothing is found.
+
+# Mainly this is a functionality to add for Heitzeg lab in particular
+
+# get the runs and sort them into descending order
+
+THERUNS=`echo $* | tr " " "\n" | sort -gur | awk '{printf "%d ",$1}' && echo `
+
+#echo ${THERUNS}
+
+FIRSTRUN=NONE
+
+# Did any parameters to passed?
+
+if [ ! -z "$1" ]
+then
+    for RUN in `echo ${THERUNS}`
+    do
+	THERUN=`echo $RUN  | awk '{printf "run_%02d ",$1}'`
+	if [ -d ${THERUN} ]
+	then
+	    FIRSTRUN=${THERUN}
+	fi
+    done
+else
+    #
+    # No, so we just take the first one we find.
+    # Look for all directories and then only those that have "run_" in their name.
+    # 
+    FIRSTRUN=`ls -l | grep drw | awk '{print $NF}' | grep run_ | sort -u`
+fi
+
+echo $FIRSTRUN
+
+#
+# all done
+#
