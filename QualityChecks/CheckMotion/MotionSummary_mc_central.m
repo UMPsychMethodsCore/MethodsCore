@@ -1,14 +1,14 @@
-display ('-----')
+fprintf(1,'-----\n')
 OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
                                     'suffix','.csv',...
                                     'mode','makeparentdir') );
-                                
-display('I am going to compute summary motion summary statistics');
-display(sprintf('The size of the lever arm I will use is %d',LeverArm));
-display(sprintf('The output will be stored here: %s', OutputPathFile));
-display('These are the subjects:')
-display(SubjDir)
-display ('-----')
+                  
+fprintf(1, 'Computing motion summary statistics\n');
+fprintf(1, 'Size of level arm: %f\n', LeverArm);
+fprintf(1, 'Output file: %s\n', OUtputPathFile);
+fprintf(1, 'Subjects:\n');
+display(SubjDir);
+fprintf(1, '-----\n');
 
 clear CombinedOutput
 clear MotionPath
@@ -31,7 +31,6 @@ for iSubject = 1:size(SubjDir,1)
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
     end
-
 end
 
 %%%%%%% Save results to CSV file

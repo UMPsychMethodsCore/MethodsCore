@@ -64,6 +64,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'MotionSummary'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
-MotionSummary_central
+MotionSummary_mc_central
