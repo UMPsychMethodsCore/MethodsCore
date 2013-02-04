@@ -5,14 +5,11 @@ function Results = qc_slice_mc_central(Opt)
 %       Exp  -  Experiment top dir
 %       List.
 %           Subjects {Subjects,IncludedRuns}
-%           Runs     - list of run name folders
-%       Postpend.
-%           Exp      - what goes after Exp
-%           Subjects - what goes after .List.Subjects{:,1}
-%           Runs     - what goes after Runs
-%       FileExp      - Regexp for file names
-%       OutlierText  - full path to output text file
-%       Thresh       - z-score threshold value
+%           Runs      - list of run name folders
+%       ImageTemplate - path template to image locations
+%       FileExp       - prefix of scan images to use
+%       OutlierText   - full path to output text file
+%       Thresh        - z-score threshold value
 %
 Results = -1;
 
