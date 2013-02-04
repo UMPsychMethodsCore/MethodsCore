@@ -49,27 +49,7 @@ FilePrefix = 'swra';
 
 
 
-   SubjDir = {
-
-% '5001/Tx2',50012,[1 2];
-% '5002/Tx2',50022,[1 2];
-% '5003/Tx1',50031,[1 2];
-% '5004/Tx1',50041,[1 2];
-% '5005/Tx1',50051,[1 2];
-% %%%%%%%'5008/Tx1',50081,[1 2];
-% '5010/Tx1',50101,[1 2];
-% '5011/Tx1',50111,[1 2];
-% '5012/Tx1',50121,[1 2];
-% %%%%%%%%%%%'5013/Tx2',50132,[1 2];
-% '5014/Tx2',50142,[1 2];
-% '5015/Tx2',50152,[1 2];
-% '5016/Tx1',50161,[1 2];
-% '5017/Tx1',50171,[1 2];
-% '5018/Tx2',50182,[1 2];
-% '5019/Tx1',50191,[1 2];
-% '5020/Tx2',50202,[1 2];
-% '5021/Tx1',50211,[1 2];
-% '5023/Tx2',50232,[1 2];
+SubjDir = {
 '5024/Tx1',50241,[1 2];
 '5025/Tx2',50252,[1 2];
 '5026/Tx2',50262,[1 2];
@@ -85,7 +65,7 @@ FilePrefix = 'swra';
 '5040/Tx1',50291,[1 2];
 '5041/Tx2',50311,[1 2];
 '5042/Tx2',50321,[1 2];   
-   };
+};
 
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
@@ -96,6 +76,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
-CheckWarp_central
+CheckWarp_mc_central

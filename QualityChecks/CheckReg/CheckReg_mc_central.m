@@ -8,9 +8,10 @@ end
 global defaults;
 global UFp;
 
-display('*****************************************************************');
-display('Starting Check Coregistration to examine registration of Overlay, HiRes, and first five functional.');
-display('*****************************************************************');
+fprintf(1,'****************************************************************\n');
+fprintf(1,'Starting Check Coregistration to examine registration of Overlay, HiRes, and first five functional.\n');
+fprintf(1,'****************************************************************\n');
+
 
 for iSubject = 1:size(SubjDir,1)
 

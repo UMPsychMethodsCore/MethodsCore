@@ -65,5 +65,6 @@ END {
     if(state == -1)
         printf("Something went terribly wrong.\n");
 
-    printf("All done!\n");
+    if(state == 4)
+        printf("All done!\n");
 }
