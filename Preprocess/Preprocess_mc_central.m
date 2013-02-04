@@ -20,22 +20,22 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 newbasefile = basefile;
 
-if (alreadydone(1))
+if (AlreadyDone(1))
 	newbasefile = [stp newbasefile];
 end
-if (alreadydone(2))
+if (AlreadyDone(2))
 	newbasefile = [rep newbasefile];
 end
-if (alreadydone(3))
+if (AlreadyDone(3))
     newbasefile = [cop newbasefile];
 end
-if (alreadydone(4))
+if (AlreadyDone(4))
     newbasefile = [chp newbasefile];
 end
-if (alreadydone(5))
+if (AlreadyDone(5))
 	newbasefile = [nop newbasefile];
 end
-if (alreadydone(6))
+if (AlreadyDone(6))
 	newbasefile = [smp newbasefile];
 end
 
@@ -74,22 +74,29 @@ end
 	
 Pa = [stp];
 Pra = [rep stp];
-Pora = [cop rep stp];
-Phora = [chp cop rep stp];
-Pwhora = [nop chp cop rep stp];	
-Pswhora = [smp nop chp cop rep stp];
+Pwra = [nop rep stp];	
+Pswra = [smp nop rep stp];
 
-spm('defaults','fmri');
-global defaults
-warning off all
+
 
 spmver = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
 	spm_jobman('initcfg');
 	spm_get_defaults('cmdline',true);
+    if (exist('spmdefaults','var'))
+        mc_SetSPMDefaults(spmdefaults);
+    end
 end
 
+spm('defaults','fmri');
+global defaults
+global vbm8
+warning off all
+
 RunNamesTotal = RunDir;
+if (~exist('NumScan','var'))
+    NumScan = [];
+end
 NumScanTotal = NumScan;
 	
 Processing(1) = 1;
@@ -102,6 +109,7 @@ if (Processing(1) == 1)
 	%suffix = ',1';
 	suffix = '';
 
+    st = defaults.slicetiming;
 	st.scans = {};
 	st.tr = TR;
 	st.nslices = NumSlices;
@@ -123,135 +131,63 @@ if (Processing(1) == 1)
 	coreg.estimate.ref = {};
 	coreg.estimate.source = {};
 	coreg.estimate.other = {''};
+    %%
 
 	if (strcmp(spmver,'SPM8'))
 		vbm.estwrite.data = {};
-		vbm.estwrite.opts.tpm = {[spmpath '/toolbox/Seg/TPM.nii']};
-		vbm.estwrite.opts.ngaus = [2 2 2 3 4 2];
-		vbm.estwrite.opts.biasreg = 0.0001;
-		vbm.estwrite.opts.biasfwhm = 60;
-		vbm.estwrite.opts.affreg = 'mni';
-		vbm.estwrite.opts.warpreg = 4;
-		vbm.estwrite.opts.samp = 3;
-		vbm.estwrite.extopts.dartelwarp = 1;
-		vbm.estwrite.extopts.sanlm = 1;
-		vbm.estwrite.extopts.mrf = 0.1500;
-		vbm.estwrite.extopts.cleanup = 1;
-		vbm.estwrite.extopts.print = 1;
-		vbm.estwrite.extopts.GM.native = 0;
-		vbm.estwrite.extopts.GM.warped = 0;
-		vbm.estwrite.extopts.GM.modulated = 2;
-		vbm.estwrite.extopts.GM.dartel = 0;
-		vbm.estwrite.extopts.WM.native = 0;
-		vbm.estwrite.extopts.WM.warped = 0;
-		vbm.estwrite.extopts.WM.modulated = 2;
-		vbm.estwrite.extopts.WM.dartel = 0;
-		vbm.estwrite.extopts.CSF.native = 0;
-		vbm.estwrite.extopts.CSF.warped = 0;
-		vbm.estwrite.extopts.CSF.modulated = 2;
-		vbm.estwrite.extopts.CSF.dartel = 0;
-		vbm.estwrite.extopts.bias.native = 0;
-		vbm.estwrite.extopts.bias.warped = 1;
-		vbm.estwrite.extopts.bias.affine = 0;
-		vbm.estwrite.extopts.label.native = 0;
-		vbm.estwrite.extopts.label.warped = 0;
-		vbm.estwrite.extopts.label.dartel = 0;
-		vbm.estwrite.extopts.jacobian.warped = 0;
-		vbm.estwrite.extopts.warps = [1 1];
+        vbm.estwrite.opts = vbm8.opts;
+        
+        vbm.estwrite.extopts = vbm8.extopts;
+        
+        %darteltpm
+        %finalmask
+        %gcut
+        %kmeans
+        %bias_fwhm
+        %mask
 
-		vbm.estwrite.output.GM.native = 0;
-		vbm.estwrite.output.GM.warped = 0;
-		vbm.estwrite.output.GM.modulated = 2;
-		vbm.estwrite.output.GM.dartel = 0;
-		vbm.estwrite.output.WM.native = 0;
-		vbm.estwrite.output.WM.warped = 0;
-		vbm.estwrite.output.WM.modulated = 2;
-		vbm.estwrite.output.WM.dartel = 0;
-		vbm.estwrite.output.CSF.native = 0;
-		vbm.estwrite.output.CSF.warped = 0;
-		vbm.estwrite.output.CSF.modulated = 2;
-		vbm.estwrite.output.CSF.dartel = 0;
-		vbm.estwrite.output.bias.native = 0;
-		vbm.estwrite.output.bias.warped = 1;
-		vbm.estwrite.output.bias.affine = 0;
-		vbm.estwrite.output.label.native = 0;
+        vbm.estwrite.output = rmfield(vbm8.output,'surf');
+        vbm.estwrite.output.bias.native = 1;
+        vbm.estwrite.output.bias.warped = 1;
+        vbm.estwrite.output.GM.native = 1;
+        vbm.estwrite.output.GM.mod = 2;
+        vbm.estwrite.output.WM.native = 1;
+        vbm.estwrite.output.WM.mod = 2;
+        vbm.estwrite.output.CSF.native = 1;
+		vbm.estwrite.output.CSF.mod = 2;
+        vbm.estwrite.output.label.native = 1;
 		vbm.estwrite.output.label.warped = 1;
-		vbm.estwrite.output.label.affine = 0;
-		vbm.estwrite.output.jacobian.warped = 0;
 		vbm.estwrite.output.warps = [1 1];
-		%vbmtools.tools.defs.field = {};
-		%vbmtools.tools.defs.fnames = {};
-		%vbmtools.tools.defs.interp = 5;
-		%vbmtools.tools.defs.modulate = 0;
 		
+        %%
 		util.defs.comp{1}.def = {};
 		util.defs.comp{2}.idbbvox.vox = VoxelSize;
-		util.defs.comp{2}.idbbvox.bb = [-78 -112 -50;78 76 85];
+		util.defs.comp{2}.idbbvox.bb = defaults.normalise.write.bb;
 		util.defs.ofname = '';
 		util.defs.fnames = {};
 		util.defs.savedir.savesrc = 1;
 		util.defs.interp = 1;
-	else 
-		vbm.estwrite.data = {};
-		vbm.estwrite.opts.tpm = {[spmpath '/tpm/grey.nii'];[spmpath '/tpm/white.nii'];[spmpath '/tpm/csf.nii']};
-		vbm.estwrite.opts.ngaus = [2 2 2 4];
-		vbm.estwrite.opts.regtype = 'mni';
-		vbm.estwrite.opts.warpreg = 1;
-		vbm.estwrite.opts.warpco = 25;
-		vbm.estwrite.opts.biasreg = 0.0001;
-		vbm.estwrite.opts.biasfwhm = 70;
-		vbm.estwrite.opts.samp = 3;
-		vbm.estwrite.opts.msk = {};
-		vbm.estwrite.opts.usecom = 0;
-		vbm.estwrite.output.GM.native = 0;
-		vbm.estwrite.output.GM.warped = 0;
-		vbm.estwrite.output.GM.modulated = 2;
-		vbm.estwrite.output.WM.native = 0;
-		vbm.estwrite.output.WM.warped = 0;
-		vbm.estwrite.output.WM.modulated = 2;
-		vbm.estwrite.output.CSF.native = 0;
-		vbm.estwrite.output.CSF.warped = 0;
-		vbm.estwrite.output.CSF.modulated = 2;
-		vbm.estwrite.output.BIAS.native = 0;
-		vbm.estwrite.output.BIAS.warped = 1;
-		vbm.estwrite.output.BIAS.descalp = 0;
-		vbm.estwrite.output.extopts.usepriors = 1;
-		vbm.estwrite.output.extopts.mrf = 1;
-		vbm.estwrite.output.extopts.cleanup = 1;
-		vbm.estwrite.output.extopts.vox = [1 1 1];
-		vbm.estwrite.output.extopts.bb = [-78 -112 -50;78 76 85];
-		vbm.estwrite.output.extopts.writeaffine = 0;
-		vbm.estwrite.output.extopts.print = 1;
-	end
+    else
+        mc_Error('You are using an unsupported version of SPM.  This script is compatible with SPM8');
+    end
 
 	if (strcmp(NormMethod,'seg'))
+        normalise.write = defaults.normalise.write;
 		normalise.write.subj.matname = {};
 		normalise.write.subj.resample = {};
-		normalise.write.roptions.preserve = 0;
-		normalise.write.roptions.bb = [-78 -112 -50;78 76 85];
 		normalise.write.roptions.vox = VoxelSize;
-		normalise.write.roptions.interp = 1;
-		normalise.write.roptions.wrap = [0 0 0];
 		normalise.write.roptions.prefix = nop;
-	else
-		normalise.estwrite.subj.source = {}; %
+    else
+        normalise.estwrite.eoptions = defaults.normalise.estimate;
+        normalise.estwrite.roptions = defaults.normalise.write;
+		normalise.estwrite.subj.source = {}; 
 		normalise.estwrite.subj.wtsrc = {};
-		normalise.estwrite.subj.resample = {}; %
+		normalise.estwrite.subj.resample = {}; 
 		normalise.estwrite.eoptions.template = {[WarpTemplate suffix]};
-		normalise.estwrite.eoptions.weight = {};
-		normalise.estwrite.eoptions.smosrc = 8;
-		normalise.estwrite.eoptions.smoref = 0;
-		normalise.estwrite.eoptions.regtype = 'mni';
-		normalise.estwrite.eoptions.cutoff = 25;
-		normalise.estwrite.eoptions.nits = 16;
-		normalise.estwrite.eoptions.reg = 1;
-		normalise.estwrite.roptions.preserve = 0;
-		normalise.estwrite.roptions.bb = [-78 -112 -50;78 76 85];
 		normalise.estwrite.roptions.vox = VoxelSize;
-		normalise.estwrite.roptions.interp = 1;
-		normalise.estwrite.roptions.wrap = [0 0 0];
 		normalise.estwrite.roptions.prefix = nop;
     end
+    
 
     smooth = defaults.smooth;
 	smooth.data = {};
@@ -271,8 +207,6 @@ if (Processing(1) == 1)
 	%%%    normalise.estwrite.eoptions.weight = '';
     %%%end
     
-	clear jobs
-	
 	for x = 1:size(SubjDir,1)
 	    clear job
         Subject=SubjDir{x,1};
@@ -287,76 +221,88 @@ if (Processing(1) == 1)
 		clear RunDir;
 		for iRun=1:NumRun
 		    RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
-		    NumScan=horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
+            if (~isempty(NumScanTotal))
+                NumScan=horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
+            end
 		end
 
-		NumRun= size(NumScan,2); % number of runs
-		ImageNumRun=size(RunDir,1); %number of image folders
+		NumRun= size(RunList,2); % number of runs
+    
+        %%%Check if NumScan exists and is filled in.  If not, we need to build
+        %%%NumScan based on number of frames in .nii file (or number of analyze
+        %%%images)
+        nsflag = 0;
+        if (isempty(NumScan))
+            nsflag = 1;
+        end
+        for iRun = 1:NumRun
+            frames = [1];
+            Run = RunDir{iRun};
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
+            ImageDir = mc_GenPath(ImageDirCheck);
+            tmpP = [];
+            if (strcmp(imagetype,'nii'))
+                %%%load NIFTI image and check frames
+                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],[1:10000]);
+            else
+                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+            end
 
+            if (nsflag)
+                NumScan(iRun) = size(tmpP,1);
+            end
+
+            if (size(tmpP,1) ~= NumScan(iRun))
+                if (size(tmpP,1) < NumScan(iRun))
+                    mc_Error(sprintf('Number of TRs requested (%d) for run %s of subject %s is greater than the number of TRs in the file.',NumScan(iRun),RunDir{iRun},Subject));
+                end
+                mc_Logger('log',sprintf('Number of TRs requested (%d) for run %s of subject %s does not match total number of frames in the file. Only %d TRs will be analyzed.',NumScan(iRun),RunDir{iRun},Subject,NumScan(iRun)),2);
+                mcWarnings = mcWarnings + 1;
+            end
+        end
+        
 	    nj = 0;
 	    switch (NormMethod) 
 		case 'func'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st = st;
-			    job{2}.spm.spatial.realign = realign;
-			    job{3}.spm.spatial.normalise = normalise;
-			    job{4}.spm.spatial.smooth = smooth;    
-		    else
-			    job{1}.temporal{1}.st = st;
-			    job{2}.spatial{1}.realign{1} = realign;
-			    job{3}.spatial{1}.normalise{1} = normalise;
-			    job{4}.spatial{1}.smooth = smooth;
-		    end
+            job{1}.spm.temporal.st = st;
+            job{2}.spm.spatial.realign = realign;
+            job{3}.spm.spatial.normalise = normalise;
+            job{4}.spm.spatial.smooth = smooth;    
+            
 		    nj = 4;
 		case 'anat'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st = st;
-			    job{2}.spm.spatial.realign = realign;
-			    job{3}.spm.spatial.coreg = coreg;
-			    job{4}.spm.spatial.coreg = coreg;
-			    job{5}.spm.spatial.normalise = normalise;
-			    job{6}.spm.spatial.smooth = smooth;    
-		    else
-			    job{1}.temporal{1}.st = st;
-			    job{2}.spatial{1}.realign{1} = realign;
-			    job{3}.spatial{1}.coreg{1} = coreg;
-			    job{4}.spatial{1}.coreg{1} = coreg;
-			    job{5}.spatial{1}.normalise{1} = normalise;
-			    job{6}.spatial{1}.smooth = smooth;
-		    end
+            job{1}.spm.temporal.st = st;
+            job{2}.spm.spatial.realign = realign;
+            job{3}.spm.spatial.coreg = coreg;
+            job{4}.spm.spatial.coreg = coreg;
+            job{5}.spm.spatial.normalise = normalise;
+            job{6}.spm.spatial.smooth = smooth;    
+
 		    nj = 6;
 		case 'seg'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st = st;
-			    job{2}.spm.spatial.realign = realign;
-			    job{3}.spm.spatial.coreg = coreg;
-			    job{4}.spm.spatial.coreg = coreg;
-			    job{5}.spm.tools.vbm8 = vbm;
-		    	    %job{6}.spm.tools.vbm8 = vbmtools;
-		    	    job{6}.spm.util = util;
-			    job{7}.spm.spatial.smooth = smooth;     
-		    else
-			    job{1}.temporal{1}.st = st;
-			    job{2}.spatial{1}.realign{1} = realign;
-			    job{3}.spatial{1}.coreg{1} = coreg;
-			    job{4}.spatial{1}.coreg{1} = coreg;
-			    job{5}.tools{1}.vbm{1} = vbm;
-			    job{6}.spatial{1}.normalise{1} = normalise;
-			    job{7}.spatial{1}.smooth = smooth;
-		    end
+            job{1}.spm.temporal.st = st;
+            job{2}.spm.spatial.realign = realign;
+            job{3}.spm.spatial.coreg = coreg;
+            job{4}.spm.spatial.coreg = coreg;
+            job{5}.spm.tools.vbm8 = vbm;
+            job{6}.spm.util = util;
+            job{7}.spm.spatial.smooth = smooth; 
+            
 		    nj = 7;
 	    end
 
-	    offset = (x-1)*nj;
+	    %offset = (x-1)*nj;
 
-	    %subjdir = fullfile(Exp,ImageLevel1,SubjDir{x,1});
 	    clear scancell
 	    ascan = {};
 	    rscan = {};
 	    wscan = {};
 	    sscan = {};
 	    scancell = {};
-
+        imagecell = {};
+        wimagecell = {};
+        w2imagecell = {};
+        
         for r = 1:size(RunDir,1)
 	    	frames = [1];
             if strcmp(imagetype,'nii')
@@ -370,7 +316,8 @@ if (Processing(1) == 1)
                                    'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
             scan{r} = spm_select('ExtList',ImageDir,['^' newbasefile '.*' imagetype],frames);
-            %subjpath = fullfile(subjdir,ImageLevel2,RunDir{r},ImageLevel3);
+            imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\..*']);
+            
             subjpath = ImageDir;
             
             for s = 1:size(scan{r},1)
@@ -380,7 +327,27 @@ if (Processing(1) == 1)
                 wscan{end+1} = strtrim([subjpath Pra scan{r}(s,:) suffix]);
                 sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
             end
+            for s = 1:size(imagefile{r},1)
+                wimagefile{r}(s,:) = fullfile(subjpath,['w' Pra imagefile{r}(s,:)]);
+                w2imagefile{r}(s,:) = fullfile(subjpath,[Pwra imagefile{r}(s,:)]);
+                [p f e] = fileparts(imagefile{r}(s,:));
+                wmatfile{r}(s,:) = fullfile(subjpath,['w' Pra f '.mat']);
+                w2matfile{r}(s,:) = fullfile(subjpath,[Pwra f '.mat']);
+                %imagecell{end+1} = strtrim([subjpath imagefile{r}(s,:)]);
+                %wimagecell{end+1} = strtrim([subjpath 'w' Pra imagefile{r}(s,:)]);
+                %w2imagecell{end+1} = strtrim([subjpath Pwra imagefile{r}(s,:)]);
+            end
         end
+        
+%         temp = cell2mat(scan');
+%         temp2 = mat2cell(temp,ones(1,size(temp,1)),size(temp,2));
+%         [p f e] = cellfun(@fileparts,temp2,'UniformOutput',false);
+%         rf = strrep(f,basefile,[Pa basefile]);
+%         wf = strrep(f,basefile,[Pra basefile]);
+%         sf = strrep(f,basefile,[Pwra basefile]);
+%         rtemp = strtrim(fullfile(p,mat2cell([cell2mat(rf) cell2mat(e)],ones(1,size(rf,1)),size(rf{1},2)+size(e{1},2))));
+%         wtemp = strtrim(fullfile(p,mat2cell([cell2mat(wf) cell2mat(e)],ones(1,size(wf,1)),size(wf{1},2)+size(e{1},2))));
+%         stemp = strtrim(fullfile(p,mat2cell([cell2mat(sf) cell2mat(e)],ones(1,size(sf,1)),size(sf{1},2)+size(e{1},2))));
         
 	    for r = 1:size(RunDir,1)
             ascan{r} = ascan{r}';
@@ -390,289 +357,193 @@ if (Processing(1) == 1)
 	    wscan = wscan';
 	    sscan = sscan';
 
+        if (docoregoverlay)
+            %copy overlay file to new location
+           [p f e] = fileparts(OverlayTemplate);
+           NewOverlayTemplate = fullfile(AnatTemplate,[CoregOverlayPrefix f e]);
+           mc_Copy(OverlayTemplate,NewOverlayTemplate);
+        end
+        if (docoreghires)
+            %copy hires file to new location
+           [p f e] = fileparts(HiResTemplate);
+           NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
+           mc_Copy(HiResTemplate,NewHiResTemplate);
+        end
+        OverlayTemplate = NewOverlayTemplate;
+        HiResTemplate = NewHiResTemplate;
+        
         Run = RunDir{1};
 	    switch (NormMethod)
 		case 'func'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st.scans = ascan;
-			    job{2}.spm.spatial.realign.estwrite.data = rscan;
-			    [a b c d] = fileparts(rscan{1}{1});
-			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-			    job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
-			    job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
-			    job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
-			    job{4}.spm.spatial.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1} = [];
-			    end
-			    if (~dorealign)
-				job{2} = [];
-			    end
-			    if (~donormalize)
-				job{3} = [];
-			    end
-			    if (~dosmooth)
-				job{4} = [];
-			    end
-			    job(cellfun(@isempty,job)) = [];
-			    jobs{x} = job;
-		    else
-			    job{1}.temporal{1}.st.scans = ascan;
-			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
-			    [a b c d] = fileparts(rscan{1}{1});
-			    normsource = ['mean' b c];
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-			    job{3}.spatial{1}.normalise{1}.estwrite.subj.source = {fullfile(ImageDir,normsource)};
-			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
-			    job{3}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
-			    job{4}.spatial{1}.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1}.temporal = [];
-			    end
-			    if (~dorealign)
-				job{2}.spatial = [];
-			    end
-			    if (~donormalize)
-				job{3}.spatial = [];
-			    end
-			    if (~dosmooth)
-				job{4}.spatial = [];
-			    end
-			    for j = 1:nj
-				jobs{offset+j} = job{j};
-			    end
-		    end    		
+            job{1}.spm.temporal.st.scans = ascan;
+            job{2}.spm.spatial.realign.estwrite.data = rscan;
+            [a b c d] = fileparts(rscan{1}{1});
+            normsource = ['mean' b c];
+            ImageDirCheck = struct('Template',ImageTemplate,...
+                                   'mode','check');
+            ImageDir=mc_GenPath(ImageDirCheck);
+            job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
+            job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
+            job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
+            job{4}.spm.spatial.smooth.data = sscan;
+            if (~doslicetiming)
+            job{1} = [];
+            end
+            if (~dorealign)
+            job{2} = [];
+            end
+            if (~donormalize)
+            job{3} = [];
+            end
+            if (~dosmooth)
+            job{4} = [];
+            end
+            job(cellfun(@isempty,job)) = [];
+            %jobs{x} = job;
+  		
 		case 'anat'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st.scans = ascan;
-			    job{2}.spm.spatial.realign.estwrite.data = rscan;
+            job{1}.spm.temporal.st.scans = ascan;
+            job{2}.spm.spatial.realign.estwrite.data = rscan;
 
-			    [a b c d] = fileparts(rscan{1}{1});
-			    if (strcmp(b(1),'r') & alreadydone(2))
-			    	b = b(2:end);
-			    end
-			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
-			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
-			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
-			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
-			    job{4}.spm.spatial.coreg.estimate.source = {HiresDir};
+            [a b c d] = fileparts(rscan{1}{1});
+            if (strcmp(b(1),'r') & AlreadyDone(2))
+                b = b(2:end);
+            end
+            normsource = ['mean' b c];
 
-			    job{5}.spm.spatial.normalise.estwrite.subj.source = {HiresDir};
-			    job{5}.spm.spatial.normalise.estwrite.subj.resample = wscan;
-			    job{5}.spm.spatial.normalise.estwrite.subj.resample{end+1} = HiresDir;
-			    
-			    job{6}.spm.spatial.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1} = [];
-			    end
-			    if (~dorealign)
-				job{2} = [];
-			    end
-			    if (~docoreg)
-				job{3} = [];
-				job{4} = [];
-			    end
-			    if (~donormalize)
-				job{5} = [];
-			    end
-			    if (~dosmooth)
-				job{6} = [];
-			    end
-			    job(cellfun(@isempty,job)) = [];
-			    jobs{x} = job;
-		    else
-			    job{1}.temporal{1}.st.scans = ascan;
-			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
+            ImageDirCheck = struct('Template',ImageTemplate,...
+                                   'mode','check');
+            ImageDir=mc_GenPath(ImageDirCheck);
 
-			    [a b c d] = fileparts(rscan{1}{1});
-			    if (strcmp(b(1),'r') & alreadydone(2))
-			    	b = b(2:end);
-			    end
-			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
-			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
-			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
-			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
-			    job{4}.spatial{1}.coreg{1}.estimate.source = {HiresDir};
+            OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                     'mode','check');
+            OverlayDir=mc_GenPath(OverlayDirCheck);
 
-			    job{5}.spatial{1}.normalise{1}.estwrite.subj.source = {HiresDir};
-			    job{5}.spatial{1}.normalise{1}.estwrite.subj.resample = wscan;
-			    job{5}.spatial{1}.normalise{1}.estwrite.subj.resample{end+1} = HiresDir;
-			    
-			    job{6}.spatial{1}.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1}.temporal = [];
-			    end
-			    if (~dorealign)
-				job{2}.spatial = [];
-			    end
-			    if (~docoreg)
-				job{3}.spatial = [];
-				job{4}.spatial = [];
-			    end
-			    if (~donormalize)
-				job{5}.spatial = [];
-			    end
-			    if (~dosmooth)
-				job{6}.spatial = [];
-			    end
-			    for j = 1:nj
-				jobs{offset+j} = job{j};
-			    end
-		    end
+            HiResDirCheck = struct('Template',HiResTemplate,...
+                                   'mode','check');
+            HiResDir=mc_GenPath(HiResDirCheck);
+
+            job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+            job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
+            job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
+            job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+
+            job{5}.spm.spatial.normalise.estwrite.subj.source = {HiResDir};
+            job{5}.spm.spatial.normalise.estwrite.subj.resample = wscan;
+            job{5}.spm.spatial.normalise.estwrite.subj.resample{end+1} = HiResDir;
+
+            job{6}.spm.spatial.smooth.data = sscan;
+            if (~doslicetiming)
+            job{1} = [];
+            end
+            if (~dorealign)
+            job{2} = [];
+            end
+            if (~docoregoverlay)
+            job{3} = [];
+            end
+            if(~docoreghires)
+            job{4} = [];
+            end
+            if (~donormalize)
+            job{5} = [];
+            end
+            if (~dosmooth)
+            job{6} = [];
+            end
+            job(cellfun(@isempty,job)) = [];
+            %jobs{x} = job;
+
 		case 'seg'
-		    if (strcmp(spmver,'SPM8'))
-			    job{1}.spm.temporal.st.scans = ascan;
-			    job{2}.spm.spatial.realign.estwrite.data = rscan;
+            job{1}.spm.temporal.st.scans = ascan;
+            job{2}.spm.spatial.realign.estwrite.data = rscan;
 
-			    [a b c d] = fileparts(rscan{1}{1});
-			    if (strcmp(b(1),'r') & alreadydone(2))
-			    	b = b(2:end);
-			    end
-			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-			    ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
-			    job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
-			    job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
-			    job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
-			    job{4}.spm.spatial.coreg.estimate.source = {HiresDir};
+            [a b c] = fileparts(rscan{1}{1});
+            if (strcmp(b(1),'r') & AlreadyDone(2))
+                b = b(2:end);
+            end
+            normsource = ['mean' b c];
 
-			    job{5}.spm.tools.vbm8.estwrite.data = {HiresDir};
-            		    
-            		    %job{6}.spm.tools.vbm8.tools.defs.field = {fullfile(subjdir,anatdir,['y_r' hires '.nii'])};
-            		    %job{6}.spm.tools.vbm8.tools.defs.fnames = wscan;
-		    	    
-		    	    %job{6}.spm.util.defs.comp{1}.def = {fullfile(subjdir,anatdir,['y_r' hires '.' imagetype])};
-                    
-                    [HiResPath HiResName]=fileparts(HiresDir);
-                    
-		    	    job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
-		    	    job{6}.spm.util.defs.fnames = wscan;
-		    	    	    	    
-		    	    %job{6}.spm.spatial.normalise.write.subj.matname = {fullfile(subjdir,anatdir,[hires '_seg8.mat'])};
-		            %job{6}.spm.spatial.normalise.write.subj.resample = wscan;
-			    %job{6}.spm.spatial.normalise.write.subj.matname = {fullfile(subjdir,anatdir,[hires '_seg_sn.mat'])};
-			    %job{6}.spm.spatial.normalise.write.subj.resample = wscan;
-			    
-			    job{7}.spm.spatial.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1} = [];
-			    end
-			    if (~dorealign)
-				job{2} = [];
-			    end
-			    if (~docoreg)
-				job{3} = [];
-				job{4} = [];
-			    end
-			    if (~donormalize)
-				job{5} = [];
-                		job{6} = [];
-			    end
-			    if (~dosmooth)
-				job{7} = [];
-			    end
-			    job(cellfun(@isempty,job)) = [];
-			    jobs{x} = job;
-		    else
-			    job{1}.temporal{1}.st.scans = ascan;
-			    job{2}.spatial{1}.realign{1}.estwrite.data = rscan;
+            ImageDirCheck = struct('Template',ImageTemplate,...
+                                   'mode','check');
+            ImageDir=mc_GenPath(ImageDirCheck);
 
-			    [a b c d] = fileparts(rscan{1}{1});
-			    if (strcmp(b(1),'r') & alreadydone(2))
-			    	b = b(2:end);
-			    end
-			    normsource = ['mean' b c];
-                
-                ImageDirCheck = struct('Template',ImageTemplate,...
-                                       'mode','check');
-                ImageDir=mc_GenPath(ImageDirCheck);
-                
-                OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                         'mode','check');
-                OverlayDir=mc_GenPath(OverlayDirCheck);
-                
-                HiresDirCheck = struct('Template',HiresTemplate,...
-                                       'mode','check');
-                HiresDir=mc_GenPath(HiresDirCheck);
-                
-			    job{3}.spatial{1}.coreg{1}.estimate.ref = {fullfile(ImageDir,normsource)};
-			    job{3}.spatial{1}.coreg{1}.estimate.source = {OverlayDir};
-			    job{4}.spatial{1}.coreg{1}.estimate.ref = {OverlayDir};
-			    job{4}.spatial{1}.coreg{1}.estimate.source = {HiresDir};
+            OverlayDirCheck = struct('Template',OverlayTemplate,...
+                                     'mode','check');
+            OverlayDir=mc_GenPath(OverlayDirCheck);
 
-			    job{5}.tools{1}.vbm{1}.estwrite.data = {HiresDir};
-                [HiResPath HiResName]=fileparts(HiresDir);
-			    job{6}.spatial{1}.normalise{1}.write.subj.matname = {fullfile(HiResPath,[HiResName '_seg_sn.mat'])}; %Mike needs to check this
-			    job{6}.spatial{1}.normalise{1}.write.subj.resample = wscan;
-			    
-			    job{7}.spatial{1}.smooth.data = sscan;
-			    if (~doslicetiming)
-				job{1}.temporal = [];
-			    end
-			    if (~dorealign)
-				job{2}.spatial = [];
-			    end
-			    if (~docoreg)
-				job{3}.spatial = [];
-				job{4}.spatial = [];
-			    end
-			    if (~donormalize)
-				job{5}.tools = [];
-				job{6}.spatial = [];
-			    end
-			    if (~dosmooth)
-				job{7}.spatial = [];
-			    end
-			    for j = 1:nj
-				jobs{offset+j} = job{j};
-			    end
-		    end
-	     end
+            HiResDirCheck = struct('Template',HiResTemplate,...
+                                   'mode','check');
+            HiResDir=mc_GenPath(HiResDirCheck);
 
+            job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+            job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
+            job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
+            job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
 
+            job{5}.spm.tools.vbm8.estwrite.data = {HiResDir};
+
+            [HiResPath HiResName]=fileparts(HiResDir);
+
+            job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
+            job{6}.spm.util.defs.fnames = wscan;
+
+            job{7}.spm.spatial.smooth.data = sscan;
+            if (~doslicetiming)
+            job{1} = [];
+            end
+            if (~dorealign)
+            job{2} = [];
+            end
+            if (~docoregoverlay)
+            job{3} = [];
+            end
+            if (~docoreghires)
+            job{4} = [];
+            end
+            if (~donormalize)
+            job{5} = [];
+                    job{6} = [];
+            end
+            if (~dosmooth)
+            job{7} = [];
+            end
+            job(cellfun(@isempty,job)) = [];
+            %jobs{x} = job;
+
+        end
+
+        job2{1} = job{end};
+        job{end} = [];
+        job(cellfun(@isempty,job)) = [];
+        %spm_jobman('run',job);
+        if (strcmp(NormMethod,'seg'))
+            %rename normalized images
+%             for iS = 1:size(imagecell,2)
+%                 [p f e] = fileparts(wimagecell{iS});
+%                 wimagecell{end+1} = fullfile(p,[f '.mat']);
+%                 [p f e] = fileparts(w2imagecell{iS});
+%                 w2imagecell{end+1} = fullfile(p,[f '.mat']);
+%             end
+% can use matlabbatch jobs to move files, but it would need
+% to be done on a per-run basis because the job only allows a
+% single destination folder.
+            for iRun = 1:size(wimagefile,2)
+                temp = vertcat(wimagefile{iRun},wmatfile{iRun});
+                temp2 = mat2cell(temp,ones(1,size(temp,1)),size(temp,2));
+                cfg_basicio.file_move.files = temp2;
+                [p f e] = fileparts(temp2{1});
+                cfg_basicio.file_move.action.moveren.moveto = {p};
+                cfg_basicio.file_move.action.moveren.patrep.pattern = '^w';
+                cfg_basicio.file_move.action.moveren.patrep.repl = nop;
+                cfg_basicio.file_move.action.moveren.unique = 0;
+                job{end+1}.cfg_basicio = cfg_basicio;
+            end
+%             result = cellfun(@mc_Move,wimagecell,w2imagecell);
+        end
+        job{end+1} = job2{1};
+        spm_jobman('run',job);
+        %spm_jobman('run',job2);
 	end
 
-	spm_jobman('run',jobs);
 end

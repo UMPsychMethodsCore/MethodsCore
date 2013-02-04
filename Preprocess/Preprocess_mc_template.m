@@ -43,11 +43,6 @@ basefile = 'run';
 imagetype = 'nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The TR your data was collected at
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TR = 2;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find the images to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
@@ -66,20 +61,13 @@ SubjDir = {
 };
 
 
-
-
-
-
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% PREPROCESSING OPTIONS
+%%% General Preprocessing Options
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, normalization, and smoothing
+%%% Prefixes for slicetiming, realignment, coregistration, normalization, 
+%%% and smoothing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SliceTimePrefix = 'a';
 RealignPrefix = 'r';
@@ -91,7 +79,9 @@ SmoothPrefix = 's6_';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing steps that you want to run
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
-%%% NOTE: For func based normalization, coregoverlay and coreghires
+%%% NOTE: For func based normalization, coregoverlay and coreghires can be
+%%% performed, but will have no impact on the normalization since it is
+%%% directly normalizing a the functional images to a functional template
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 StepsToDo = [1 1 1 1 1 1];
 
@@ -100,6 +90,56 @@ StepsToDo = [1 1 1 1 1 1];
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 AlreadyDone = [0 0 0 0 0 0];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Slicetime Correction Options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The TR your data was collected at
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+TR = 2;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The number of slices in your functional images
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NumSlices = 29; 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The order of your slice collection
+%%% Enter a vector of slice numbers as they were collected.  MATLAB
+%%% expressions can also be entered for most standard collections.
+%%% EXAMPLE: Sequential ascending acquisition would be: [1:1:NumSlices]
+%%%          Sequential descending would be [NumSlices:-1:1]
+%%%          Interleaved ascending starting on 1 would be [1:2:NumSlices
+%%%          2:2:NumSlices]
+%%%          Interleaved ascending starting on 2 would be [2:2:NumSlices
+%%%          1:2:NumSlices]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SliceOrder = [1:1:NumSlices];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The reference slice to use for slice timing
+%%% If left as [], it will default to the middle slice (i.e.
+%%% floor(NumSlices/2))
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RefSlice = [];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Realignment options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The reference image (in the first run) to use for realignment.
+%%% If left as [], it will default to the first image.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RefImage = [];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Coregistration and Normalization Options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Paths to your anatomical images
@@ -124,7 +164,6 @@ HiResTemplate =    '[Exp]/Subjects/[Subject]/anatomy/t1spgr.nii';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 AnatTemplate = '[Exp]/Subjects/[Subject]/func/coReg/';
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The normalization method
 %%%      func = normalization of functional images to functional template
@@ -142,34 +181,14 @@ NormMethod = 'seg';
 WarpTemplate = '/zubdata/apps/SPMs/spm8zero/templates/T1.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The number of slices in your functional images
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumSlices = 29; 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The order of your slice collection
-%%% Enter a vector of slice numbers as they were collected.  MATLAB
-%%% expressions can also be entered for most standard collections.
-%%% EXAMPLE: Sequential ascending acquisition would be: [1:1:num_slices]
-%%%          Sequential descending would be [num_slices:-1:1]
-%%%          Interleaved ascending starting on 1 would be [1:2:num_slices
-%%%          2:2:num_slices]
-%%%          Interleaved ascending starting on 2 would be [2:2:num_slices
-%%%          1:2:num_slices]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SliceOrder = [1:1:num_slices];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The reference slice to use for slice timing
-%%% If left as [], it will default to the middle slice (i.e.
-%%% floor(num_slices/2))
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RefSlice = [];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The voxel size to reslice your images to after normalization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 VoxelSize = [3 3 3];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Smothing Options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The size of the kernel to smooth your data with.
@@ -212,17 +231,17 @@ NumScan = [];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The main default that impacts first level analysis is the implicit 
-%%% masking threshold. The default is 0.8 which means that voxels that have
-%%% a value of less than 80% of the grand mean will be masked out of the
-%%% analysis.  This default value can be problematic in some susceptibility
-%%% prone areas like OFC.  A more liberal value like 0.5 can help to keep
-%%% these regions in the analysis.  If you set this value very low, you'll
-%%% want to use an explicit mask to exclude non-brain regions from
-%%% analysis.
+%%% There are many defaults that affect preprocessing contained in the
+%%% defaults.realign, defaults.coreg, and defaults.normalise structures of
+%%% the global defaults object.  For example to change the 'Source Image
+%%% Smoothing' option during normalization, you could enter the following
+%%% below:
+%%% 'normalise.estimate.smosrc'     6;
+%%% There are too many possible defaults to discuss here.  Any changes
+%%% you'd like to make will require research into the relevant default
+%%% options in SPM.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 spmdefaults = {
-    'mask.thresh'   0.8;
 };
 
 
