@@ -1,4 +1,4 @@
-function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X, raw)
+function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X, raw, tvalcalc)
 %MC_COVARIATECORRECTION Correction for a series of covariates using
 %multiple regression
 % 
@@ -6,6 +6,7 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 %       Y   -   nExamples x nFeatures matrix of observations
 %       X   -   nExamples x nPredictors design matrix
 %       raw -   If set to 1, it will not mean center and it will not add an intercept term    
+%       tvalcalc - which p value and t value you are intersted in    
 % 
 %   RESULTS
 %       corrected   -   nExample x nFeatures matrix of corrected
@@ -53,7 +54,12 @@ corrected = intercepts + residuals;
 
 C = pinv(X'*X);
 
-for iC = 1 : size(X,2)
+Cloop = 1:size(X,2);
+if exist('tvalcalc','var')
+    Cloop = tvalcalc;
+end
+
+for iC = Cloop
     tvals(iC,:) = betas (iC,:) ./ sqrt(C(iC,iC) * sum(residuals.^2,1)/(size(Y,1) - (size(betas,1))));
 end
 
