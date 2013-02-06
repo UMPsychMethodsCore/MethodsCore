@@ -339,6 +339,14 @@ if (Processing(1) == 1)
             end
         end
         
+        if (exist('RefImage','var') & ~isempty(RefImage))
+            refimage = rscan{1}{RefImage};
+        else
+            refimage = rscan{1}{1};
+        end
+        
+        rscan{1} = {refimage rscan{1}{:}};
+        
 %         temp = cell2mat(scan');
 %         temp2 = mat2cell(temp,ones(1,size(temp,1)),size(temp,2));
 %         [p f e] = cellfun(@fileparts,temp2,'UniformOutput',false);
@@ -377,10 +385,9 @@ if (Processing(1) == 1)
 		case 'func'
             job{1}.spm.temporal.st.scans = ascan;
             job{2}.spm.spatial.realign.estwrite.data = rscan;
-            [a b c d] = fileparts(rscan{1}{1});
-            normsource = ['mean' b c];
-            ImageDirCheck = struct('Template',ImageTemplate,...
-                                   'mode','check');
+            [p f e] = fileparts(rscan{1}{1});
+            normsource = ['mean' f e];
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
             job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
             job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
@@ -405,22 +412,19 @@ if (Processing(1) == 1)
             job{1}.spm.temporal.st.scans = ascan;
             job{2}.spm.spatial.realign.estwrite.data = rscan;
 
-            [a b c d] = fileparts(rscan{1}{1});
-            if (strcmp(b(1),'r') & AlreadyDone(2))
-                b = b(2:end);
+            [p f e] = fileparts(rscan{1}{1});
+            if (strcmp(f(1),'r') & AlreadyDone(2))
+                f = f(2:end);
             end
-            normsource = ['mean' b c];
+            normsource = ['mean' f e];
 
-            ImageDirCheck = struct('Template',ImageTemplate,...
-                                   'mode','check');
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                     'mode','check');
+            OverlayDirCheck = struct('Template',OverlayTemplate,'mode','check');
             OverlayDir=mc_GenPath(OverlayDirCheck);
 
-            HiResDirCheck = struct('Template',HiResTemplate,...
-                                   'mode','check');
+            HiResDirCheck = struct('Template',HiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
@@ -458,22 +462,19 @@ if (Processing(1) == 1)
             job{1}.spm.temporal.st.scans = ascan;
             job{2}.spm.spatial.realign.estwrite.data = rscan;
 
-            [a b c] = fileparts(rscan{1}{1});
-            if (strcmp(b(1),'r') & AlreadyDone(2))
-                b = b(2:end);
+            [p f e] = fileparts(rscan{1}{1});
+            if (strcmp(f(1),'r') & AlreadyDone(2))
+                f = f(2:end);
             end
-            normsource = ['mean' b c];
+            normsource = ['mean' f e];
 
-            ImageDirCheck = struct('Template',ImageTemplate,...
-                                   'mode','check');
+            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',OverlayTemplate,...
-                                     'mode','check');
+            OverlayDirCheck = struct('Template',OverlayTemplate,'mode','check');
             OverlayDir=mc_GenPath(OverlayDirCheck);
 
-            HiResDirCheck = struct('Template',HiResTemplate,...
-                                   'mode','check');
+            HiResDirCheck = struct('Template',HiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
@@ -485,7 +486,7 @@ if (Processing(1) == 1)
 
             [HiResPath HiResName]=fileparts(HiResDir);
 
-            job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; %%%Mike needs to check this
+            job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; 
             job{6}.spm.util.defs.fnames = wscan;
 
             job{7}.spm.spatial.smooth.data = sscan;
@@ -544,6 +545,9 @@ if (Processing(1) == 1)
         job{end+1} = job2{1};
         spm_jobman('run',job);
         %spm_jobman('run',job2);
+        
+        %need to strip off the 1st line of the first run's realignment
+        %parameters because of refimage being included.
 	end
 
 end

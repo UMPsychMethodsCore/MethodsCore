@@ -79,9 +79,9 @@ SmoothPrefix = 's6_';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing steps that you want to run
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
-%%% NOTE: For func based normalization, coregoverlay and coreghires can be
-%%% performed, but will have no impact on the normalization since it is
-%%% directly normalizing a the functional images to a functional template
+%%% NOTE: Currently, CoregOverlay and CoregHiRes will not be performed 
+%%% during 'func' normalization even if they're set to 1 here.  This may 
+%%% be changed in a future update.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 StepsToDo = [1 1 1 1 1 1];
 
