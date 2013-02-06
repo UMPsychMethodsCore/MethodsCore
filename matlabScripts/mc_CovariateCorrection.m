@@ -2,10 +2,14 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 %MC_COVARIATECORRECTION Correction for a series of covariates using
 %multiple regression
 % 
-%   FORMAT [residuals] = mc_CovariateCorrection( Y, X)
+%   FORMAT [residuals] = mc_CovariateCorrection( Y, X, raw, tvalcalc)
 %       Y   -   nExamples x nFeatures matrix of observations
 %       X   -   nExamples x nPredictors design matrix
-%       raw -   If set to 1, it will not mean center and it will not add an intercept term    
+%       raw -   Use this to disable some of the automatic features of mc_CovariateCorrection
+%                       0 - Automatically mean center X column-wise and then add intercept
+%                       1 - Automatically mean center X, do not add intercept
+%                       2 - Automatically add intercept, do not mean center
+%                       3 - Do not add intercept or mean center    
 %       tvalcalc - which p value and t value you are intersted in    
 % 
 %   RESULTS
@@ -35,12 +39,12 @@ if(~exist('raw','var') )
 end
 
 % Mean center all your covariates
-if(raw~=1)
+if(raw==0 | raw ==1)
     X = mc_SweepMean(X);
 end
 
 % Prepend a constant to the predictor matrix
-if(raw~=1)
+if(raw==0 | raw==2)
     X = horzcat(ones(size(X,1),1),X);
 end
 
