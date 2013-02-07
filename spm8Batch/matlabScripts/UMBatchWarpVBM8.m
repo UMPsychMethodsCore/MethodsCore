@@ -219,6 +219,10 @@ else
   
   [Images2WriteUnique Images2WriteCount] = uniqueNII(Images2Write);
   
+  % If the prefix is "w" then we just need to report the images that
+  % vbm8 has already generated. - RCWelsh 2012-07-27
+  tmpNewImages2WriteUnique = [];
+  
   for iNII = 1:size(Images2WriteUnique,1)
     [d1 d2 d3 d4] = spm_fileparts(strtrim(Images2WriteUnique(iNII,:)));
     newFile = fullfile(d1,['w' d2 d3]);
@@ -229,6 +233,9 @@ else
       fprintf('\n\n* * * * * * * * * * * * \n\n');
       return
     end
+    % If the prefix is "w" then we just need to report the images that
+    % vbm8 has already generated. - RCWelsh 2012-07-27
+    tmpNewImages2WriteUnique = strvcat(tmpNewImages2WriteUnique, newFile);
   end
   
   % Everything up to this point is okay
@@ -253,6 +260,10 @@ else
           end
           newImages2WriteUnique = strvcat(newImages2WriteUnique, newFile);
       end
+  else
+    % If the prefix is "w" then we just need to report the images that
+    % vbm8 has already generated. - RCWelsh 2012-07-27
+    newImages2WriteUnique = tmpNewImages2WriteUnique;
   end
   
   ImageDirectory = fileparts(Images2Write(1,:));
