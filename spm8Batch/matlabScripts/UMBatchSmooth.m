@@ -54,6 +54,8 @@ UMBatchPrep
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
+  results = -70;
+  UMCheckFailure(results);
   return
 end
 
@@ -74,6 +76,8 @@ tic;
 if isempty(Images2Smooth) 
     fprintf('You must specify some images to smooth.\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -65;
+    UMCheckFailure(results);
     return
 end
 
@@ -93,6 +97,8 @@ end
 if errorFlag ~= 0
   fprintf('One of the images does not exist.\n');
   fprintf('  * * * A B O R T I N G * * *\n\n');
+  results = -65;
+  UMCheckFailure(results);
   return
 end
 
@@ -101,12 +107,16 @@ end
 if isempty(sKernel)
     fprintf('You have not specified a smoothing kernel.\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -64;
+    UMCheckFailure(results);
     return
 end
 
 if length(sKernel) ~= 1 & length(sKernel) ~= 3
     fprintf('You have specified a weird # of smoothing sizes: %d\n',length(sKernel));
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -64;
+    UMCheckFailure(results);
     return
 end
 
@@ -135,10 +145,6 @@ matlabbatch{1}.spm.spatial.smooth.prefix = OutputName;
 
 spm_jobman('run_nogui',matlabbatch);
 
-% All finished
-
-results = toc;
-
 % Log the smoothing to the local target directory.
 
 SmoothingDirectory = fileparts(Images2Smooth(1,:));
@@ -149,7 +155,12 @@ if size(Images2Smooth,1) > 1
   UMBatchLogProcess(SmoothingDirectory,sprintf('UMBatchSmooth : through image          : %s',Images2Smooth(end,:)));
 end
 
+% All finished
+
+results = toc;
 fprintf('Smoothing done in %f seconds.\n\n\n',results);
+
+return
 
 %
 % All done

@@ -1,8 +1,22 @@
+#
+# Check the status of MATLAB if we were calling matlab
+#
+
+JOBSTATUS="SUCCESS"
+
+if [ "${MATLAB_BASED_PROCESS}" == "1" ]
+then
+    if [ "${MATLAB_RETURN_CODE}" != "0" ]
+    then
+	JOBSTATUS="MATLAB_FAILED:${MATLAB_RETURN_CODE}"
+    fi
+fi
+
 # Automatic emailer.
 
 if [ "${USEREMAIL}" != "NOMAIL" ]
 then
-  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh ${USEREMAIL}
+  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh ${JOBSTATUS} ${USEREMAIL}
 fi
 
 echo                                                                                   >> ${FULLSCRIPTNAME}.sh

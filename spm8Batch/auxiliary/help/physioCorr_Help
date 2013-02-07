@@ -9,7 +9,7 @@
     echo 
     echo "  To slice-time correct fmri volumes in runs 1,2,4 you would:"
     echo 
-    echo "     physioCorr -v prun -f func/MSIT -r 1 -r 2 -r 4 060402rw"
+    echo "     physioCorr -v prun -f func/MSIT -# 1 -# 2 -# 4 060402rw"
     echo 
     echo "  To realign fmri volumes in inclusive range of 1-10, do:"
     echo

@@ -149,7 +149,8 @@ do
 	echo 
 	echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
 	echo
-	exit 1
+	SPM8BATCH_ERORR_CODE=65
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
     #
     # Find the first run to coregister to. It can be either nii or nii_gz
