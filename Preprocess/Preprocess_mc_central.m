@@ -311,9 +311,7 @@ if (Processing(1) == 1)
             
             Run=RunDir{r};
             iRun=num2str(r);
-            ImageDirCheck = struct('Template',ImageTemplate,...
-                                   'type',1,...
-                                   'mode','check');
+            ImageDirCheck = struct('Template',ImageTemplate,'type',1,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
             scan{r} = spm_select('ExtList',ImageDir,['^' newbasefile '.*' imagetype],frames);
             imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\..*']);
@@ -365,20 +363,20 @@ if (Processing(1) == 1)
 	    wscan = wscan';
 	    sscan = sscan';
 
-        if (docoregoverlay)
+        if (docoregoverlay && ~strcmp(NormMethod,'func'))
             %copy overlay file to new location
            [p f e] = fileparts(OverlayTemplate);
            NewOverlayTemplate = fullfile(AnatTemplate,[CoregOverlayPrefix f e]);
            mc_Copy(OverlayTemplate,NewOverlayTemplate);
+            OverlayTemplate = NewOverlayTemplate;
         end
-        if (docoreghires)
+        if (docoreghires && ~strcmp(NormMethod,'func'))
             %copy hires file to new location
            [p f e] = fileparts(HiResTemplate);
            NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
            mc_Copy(HiResTemplate,NewHiResTemplate);
+            HiResTemplate = NewHiResTemplate;
         end
-        OverlayTemplate = NewOverlayTemplate;
-        HiResTemplate = NewHiResTemplate;
         
         Run = RunDir{1};
 	    switch (NormMethod)
@@ -548,6 +546,10 @@ if (Processing(1) == 1)
         
         %need to strip off the 1st line of the first run's realignment
         %parameters because of refimage being included.
+        [p f e] = fileparts(rscan{1}{1});
+        r1rd = load(fullfile(ImageDir,['rp_' f '.txt']));
+        r1rd = r1rd(2:end,:);
+        save(fullfile(ImageDir,['rp_' f '.txt']),'r1rd','-ascii');
 	end
 
 end

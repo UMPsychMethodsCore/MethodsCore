@@ -73,8 +73,8 @@ SliceTimePrefix = 'a';
 RealignPrefix = 'r';
 CoregOverlayPrefix = '';
 CoregHiResPrefix = '';
-NormalizePrefix = 'w2_';
-SmoothPrefix = 's6_';
+NormalizePrefix = 'w3';
+SmoothPrefix = 's8';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing steps that you want to run
