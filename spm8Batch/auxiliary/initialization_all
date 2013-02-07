@@ -92,6 +92,10 @@ SLICETIMEROPT=
 
 BATCHCOMMAND=1
 
+# Is this command to run in the background
+
+BACKGROUNDJOBFLAG=1
+
 #
 # Now the process specific initialization
 #
