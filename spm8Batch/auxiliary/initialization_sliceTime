@@ -9,6 +9,8 @@ FSL_COMMENT_B="Slice time correcting subject"
 
 outputName=a
 
+mcOPT=""
+
 #
 # all done
 #
