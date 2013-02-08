@@ -362,7 +362,8 @@ if (Processing(1) == 1)
 
 	    wscan = wscan';
 	    sscan = sscan';
-
+        NewOverlayTemplate = '';
+        NewHiResTemplate = '';
         if (docoregoverlay && ~strcmp(NormMethod,'func'))
             %copy overlay file to new location
            [p f e] = fileparts(OverlayTemplate);
