@@ -1,4 +1,4 @@
-function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_CovariateCorrection( Y, X, raw, tvalcalc)
+function [ corrected, residuals, betas, intercepts, tvals, pvals, predicted ] = mc_CovariateCorrection( Y, X, raw, tvalcalc)
 %MC_COVARIATECORRECTION Correction for a series of covariates using
 %multiple regression
 % 
@@ -24,6 +24,7 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 %                       from regression
 %       tvals       -   T values corresponding to each beta
 %       pvals       -   P Values corresponding to each beta    
+%       predicted   -   Predicted values based on model    
 % 
 % 
 % This program will assume the same design matrix for all of your features,
@@ -72,6 +73,7 @@ end
 
 pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
 
+predicted = X * betas;
 
 end
 
