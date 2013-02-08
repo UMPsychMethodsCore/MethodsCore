@@ -30,6 +30,9 @@
 %             {default: 'pdep'}
 %   report  - ['yes' or 'no'] If 'yes', a brief summary of FDR results are
 %             output to the MATLAB command line {default: 'no'}
+%   CalcP   - [1 or 0]. Defaults to 0. If set to 1, it will actually calculate
+%             adjusted p values. By default this is turned off since it's really
+%             slow for a large number of p values.
 %
 %
 % Outputs:
@@ -43,6 +46,7 @@
 %   adj_p   - All adjusted p-values less than or equal to q are significant
 %             (i.e., their null hypotheses are rejected). Note, adjusted 
 %             p-values can be greater than 1.
+%             NOTE - See CalcP input to enable this
 %
 %
 % References:
@@ -83,7 +87,7 @@
 %
 % 5/7/2010-Added FDR adjusted p-values
 
-function [h crit_p adj_p]=fdr_bh(pvals,q,method,report)
+function [h crit_p adj_p]=fdr_bh(pvals,q,method,report,CalcP)
 
 if nargin<1,
     error('You need to provide a vector or matrix of p-values.');
@@ -124,9 +128,11 @@ if strcmpi(method,'pdep'),
     wtd_p=m*p_sorted./[1:m];
     %compute adjusted p-values
     adj_p = zeros(size(wtd_p));
-    % for a=1:m,
-    %    adj_p(a)=min(wtd_p(a:end)); 
-    % end
+    if exist('CalcP','var') && CalcP==1;
+        for a=1:m,
+            adj_p(a)=min(wtd_p(a:end)); 
+        end
+    end
 elseif strcmpi(method,'dep')
     %BH procedure for any dependency structure
     denom=m*sum(1./[1:m]);
