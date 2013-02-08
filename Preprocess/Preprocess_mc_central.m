@@ -368,14 +368,12 @@ if (Processing(1) == 1)
            [p f e] = fileparts(OverlayTemplate);
            NewOverlayTemplate = fullfile(AnatTemplate,[CoregOverlayPrefix f e]);
            mc_Copy(OverlayTemplate,NewOverlayTemplate);
-            OverlayTemplate = NewOverlayTemplate;
         end
         if (docoreghires && ~strcmp(NormMethod,'func'))
             %copy hires file to new location
            [p f e] = fileparts(HiResTemplate);
            NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
            mc_Copy(HiResTemplate,NewHiResTemplate);
-            HiResTemplate = NewHiResTemplate;
         end
         
         Run = RunDir{1};
@@ -419,10 +417,10 @@ if (Processing(1) == 1)
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',OverlayTemplate,'mode','check');
+            OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
             OverlayDir=mc_GenPath(OverlayDirCheck);
 
-            HiResDirCheck = struct('Template',HiResTemplate,'mode','check');
+            HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
@@ -469,10 +467,10 @@ if (Processing(1) == 1)
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',OverlayTemplate,'mode','check');
+            OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
             OverlayDir=mc_GenPath(OverlayDirCheck);
 
-            HiResDirCheck = struct('Template',HiResTemplate,'mode','check');
+            HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
