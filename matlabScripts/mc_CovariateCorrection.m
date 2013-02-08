@@ -8,6 +8,7 @@ function [ corrected, residuals, betas, intercepts, tvals, pvals ] = mc_Covariat
 %       raw -   Use this to disable some of the automatic features of mc_CovariateCorrection
 %                       0 - Automatically mean center X column-wise and then add intercept
 %                       1 - Automatically mean center X, do not add intercept
+%                               NOTE - This will mean center columns 2:end, and leave alone column 1 assuming it is intercept    
 %                       2 - Automatically add intercept, do not mean center
 %                       3 - Do not add intercept or mean center    
 %       tvalcalc - which p value and t value you are intersted in    
@@ -39,8 +40,10 @@ if(~exist('raw','var') )
 end
 
 % Mean center all your covariates
-if(raw==0 | raw ==1)
-    X = mc_SweepMean(X);
+if(raw==0) % if in full helper mode
+    X = mc_SweepMean(X); % mean center the whole design matrix
+elseif (raw==1) % 
+    X(:,2:end) = mc_SweepMean(X(:,2:end)); % mean center, but leave first column (intercept)
 end
 
 % Prepend a constant to the predictor matrix
