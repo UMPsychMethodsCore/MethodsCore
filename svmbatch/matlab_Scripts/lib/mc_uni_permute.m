@@ -39,7 +39,7 @@ nuisance.pred = nuisance.design  * nuisance.beta; % calculate your predicted val
 %% do the permutation part
 if any(diff(design(:,permcol))) % if permcol is not a constant, permute it
     newseq = randsample(size(design,1),size(design,1));
-    rand_data = nuisance.pred + nuisance.res(newseq);
+    rand_data = nuisance.pred + nuisance.res(newseq,:);
 else % if permcol is a constant, swap its sign around. Bummer if it's zero
     swap = sign(rand(size(design,1),1) - .5);
     swap = repmat(swap,1,size(nuisance.res,2));
