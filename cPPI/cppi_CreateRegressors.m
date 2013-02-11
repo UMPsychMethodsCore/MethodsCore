@@ -48,7 +48,7 @@ for iRun = 1:size(SPM.Sess,2)
 
     u = length(Sess.U);
     %%%%%%%%%%%%%%%%%%%REMOVE THIS LATER
-    u = 2; %hardcoded to only use 2 conditions for MAS MSIT
+    %u = 2; %hardcoded to only use 2 conditions for MAS MSIT
     for i = 1:u
         for j = 1:length(Sess.U(i).name)
             U.w = [U.w 1];
