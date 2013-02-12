@@ -13,9 +13,13 @@ dir.create(outputPath, showWarnings=FALSE,recursive=TRUE)
 
 master = read.csv(masterpath,colClasses = 'character')
 
+### Coerce some columns back to numeric
+
 if (!(length(numeric.columns)==1 && numeric.columns=='')){ # Only do it if you have some content
   master[,numeric.columns] = apply(master[,numeric.columns],c(1,2),as.numeric) # Coerce numeric columns to be numeric
 }
+
+### Subset to only subjects intended for analysis
 
 if( includefactor != '' ){
   master[,includefactor] = as.logical(master[,includefactor])
