@@ -70,7 +70,7 @@ FisherZ = 1
 ## directory for you if it doesn't exist                                  ##
 ############################################################################
 
-outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cleansed.mat'
+outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/'
 
 
 ################################################################################
@@ -101,24 +101,22 @@ outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cle
 ################################################################################
 
 
-model.approach = 'lme'
+model.approach = 'lm'
 
 # Options for lm
 model.formula = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 
 # Options for lme (we will only save results for the first fixed term!)
-model.fixed = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
-model.random = ~1|SITE_ID
+model.fixed = R ~ Dx + Motion + Motion2 + Gender + Age + Handedness
+model.random = ~1|Site
 
-############################################################################
-## Should we use multiple processing cores wherever possible?  If so, set ##
-## multicore.use to 1, and set multicore.cores to the number of cores we  ##
-## should use. Please check with other users on your system before        ##
-## gobbling up all of the processing power.                               ##
-############################################################################
-multicore.use = 0 # at present this doesn't matter
 
-multicore.cores = 8
+###################################################################################################################
+## Should we use multiple processing cores wherever possible?  If so, set                                        ##
+## multicore.cores to something other than 1. If you don't want to use multiple cores, set multicore.cores to 1. ##
+###################################################################################################################
+
+multicore.cores = 1
 
 
 ############################################
