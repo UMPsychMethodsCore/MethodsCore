@@ -975,7 +975,7 @@ elseif get(handles.EdgCC_radiobutton,'Value')==1
         case 3
             EC.edg.CM=hot;
         case 4
-            EC.edg.CM=cool;
+            EC.edg.CM=cooler;
         case 5
             EC.edg.CM=spring;
         case 6
