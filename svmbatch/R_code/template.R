@@ -72,7 +72,7 @@ outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cle
 ## using a fancier multilevel modeling approach? Set model.approach to        ##
 ## the appropriate value                                                      ##
 ## 'lm'    -       standard linear modeling, done with call to lm             ##
-## 'mlm'   -       Multilevel modeling done with call to lmer                 ##
+## 'lme'   -       Multilevel modeling done with call to lmer                 ##
 ##                                                                            ##
 ##                                                                            ##
 ## For lm mode, you'll need to create a formula object in the way that R      ##
