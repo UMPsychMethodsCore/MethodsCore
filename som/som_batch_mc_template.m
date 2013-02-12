@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS/';
+Exp = '/net/data4/ADHD/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -22,13 +22,14 @@ Exp = '/net/data4/MAS/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+ImageTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_01/';
+	'run_01';
+    'run_02';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,71 +37,8 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'5001/Tx1',50011,[1];
-'5002/Tx1',50021,[1];
-'5003/Tx1',50031,[1];
-'5004/Tx1',50041,[1];
-'5005/Tx1',50051,[1];
-'5010/Tx1',50101,[1];
-'5012/Tx1',50121,[1];
-'5014/Tx1',50141,[1];
-'5015/Tx1',50151,[1];
-'5016/Tx1',50161,[1];
-'5017/Tx1',50171,[1];
-'5018/Tx1',50181,[1];
-'5019/Tx1',50191,[1];
-'5020/Tx1',50201,[1];
-'5021/Tx1',50211,[1];
-'5023/Tx1',50231,[1];
-'5024/Tx1',50241,[1];
-'5025/Tx1',50251,[1];
-'5026/Tx1',50261,[1];
-'5028/Tx1',50281,[1];
-'5029/Tx1',50291,[1];
-'5031/Tx1',50311,[1];
-'5032/Tx1',50321,[1];
-'5034/Tx1',50341,[1];
-'5035/Tx1',50351,[1];
-'5036/Tx1',50361,[1];
-'5037/Tx1',50371,[1];
-'5038/Tx1',50381,[1];
-'5039/Tx1',50391,[1];
-'5040/Tx1',50401,[1];
-'5041/Tx1',50411,[1];
-'5042/Tx1',50421,[1];
-
-'5001/Tx2',50012,[1];
-'5002/Tx2',50022,[1];
-'5003/Tx2',50032,[1];
-'5004/Tx2',50042,[1];
-'5005/Tx2',50052,[1];
-'5010/Tx2',50102,[1];
-'5012/Tx2',50122,[1];
-'5014/Tx2',50142,[1];
-'5015/Tx2',50152,[1];
-'5016/Tx2',50162,[1];
-'5017/Tx2',50172,[1];
-'5018/Tx2',50182,[1];
-'5019/Tx2',50192,[1];
-'5020/Tx2',50202,[1];
-'5021/Tx2',50212,[1];
-'5023/Tx2',50232,[1];
-'5024/Tx2',50242,[1];
-'5025/Tx2',50252,[1];
-'5026/Tx2',50262,[1];
-'5028/Tx2',50282,[1];
-'5029/Tx2',50292,[1];
-'5031/Tx2',50312,[1];
-'5032/Tx2',50322,[1];
-'5034/Tx2',50342,[1];
-'5035/Tx2',50352,[1];
-'5036/Tx2',50362,[1];
-'5037/Tx2',50372,[1];
-'5038/Tx2',50382,[1];
-'5039/Tx2',50392,[1];
-'5040/Tx2',50402,[1];
-'5041/Tx2',50412,[1];
-'5042/Tx2',50422,[1];
+'9907452',9907452,[1 2];
+'9750701',9750701,[2];
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,7 +65,7 @@ alreadydone = [1 1 1 1];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'restrun';
+basefile = 'rest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -138,7 +76,7 @@ imagetype = 'nii';
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [180]; 
+NumScan = [176 176]; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,27 +104,35 @@ Mode = 'full';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
-WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/wm_mask.nii';
-CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/csf_mask.nii';
+GreyMatterTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/rgrey.img';
+WhiteMatterTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/wm_mask.nii';
+CSFTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/csf_mask.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName = 'Striatum';
+OutputTemplate = '[Exp]/FirstLevel/NYU/[Subject]/[OutputName]/';
+OutputName = 'censortest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leaving this blank ('') will use a subject-specific mask
 %%% NOTE: Subject-specific masks are not recommended for grid usage below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+BrainMaskTemplate = '[Exp]/Subjects/NYU/ROIS/rs_rEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arestrun_*';
+RealignmentParametersTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/[Run]/mcflirt*.dat';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path Template for file containing timepoints to censor from the data
+%%% This file should either be a simple text file containing a column of
+%%% 1s and 0s, or a saved MATLAB .mat file with a cv variable containing a
+%%% column of 1s and 0s
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CensorTemplate = '[Exp]/MotionSummary/NYU/CensorVector_[Subject]_[Run].mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
@@ -244,8 +190,11 @@ Fraction = 1;
 %%%                       use as ROIs
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
+%%%         gridplus    - make a grid based on provided spacing and masked
+%%%                       by provided mask, as above.  Additionally, add
+%%%                       the extra ROI points specified in ROIGridCenters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'directory';
+ROIInput = 'grid';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI coordinates you need to provide a list of centers in 
@@ -294,14 +243,28 @@ ROIImages = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing = 12;
 ROIGridSize = {19};
-ROIGridMaskTemplate = '[Exp]/ROIS/ravg_gm_mask_and_EPI_mask.img';
-%ROIGridMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+ROIGridMaskTemplate = '[Exp]/Subjects/NYU/ROIS/rs_rEPI_MASK_NOEYES.img';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
+%%% that you would like to include in addition to the regular grid.  They
+%%% will be added to the end of the list of ROIs and will use ROIGridSize
+%%% for sizing.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ROIGridCenters = [
+    10 10 10;
+    -10 10 10;
+    -22 0 -22;
+    22 0 -22;
+    
+];
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output
 %%%         images - output R and Z images of correlation with each seed
 %%%         maps   - output R and P matrix of correlations between seeds
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIOutput = 'images';
+ROIOutput = 'maps';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -309,7 +272,7 @@ ROIOutput = 'images';
 %%% 1 - save ROI time courses to same location as R and P matrices
 %%% 0 - do not save ROI time courses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-saveroiTC = 0;
+saveroiTC = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -317,13 +280,13 @@ saveroiTC = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCore');
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCoreDev');
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'som'));
-addpath(fullfile(mcRoot,'spm8'));
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
 som_batch_mc_central

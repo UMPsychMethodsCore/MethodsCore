@@ -519,9 +519,9 @@ SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPAC
 
 enTIME = [];
 
-for iRUN = length(parameters.data.run)
+for iRUN = 1:length(parameters.data.run)
   if isfield(parameters.data.run(iRUN),'censorVector')
-    D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN.D0),parameters.data.run(iRUN).censorVector);
+    D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
     if D0RUN(iRUN).D0 == -1
       SOM_LOG('FATAL : SOM_editTimeSeries failed.');
       exit
@@ -535,6 +535,7 @@ end
 % Now calculate the new length, that is if we need to.
 
 if length(enTIME) > 0
+  cenTIME = [0 cumsum(enTIME)];
   SOM_LOG(sprintf('STATUS : Edited data to : %d space by total  %d time-points',nSPACE(1),cenTIME(end)));
 else
   enTIME=nTIME;
