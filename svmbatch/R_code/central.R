@@ -64,7 +64,8 @@ if (sum(is.na(miniframe)) > 0){
 ## Source some useful libraries
 library('R.matlab') #Make sure you are able to load matlab files
 library('Matrix')
-library(nlme)
+library('nlme')
+library('multicore')
 
 ## Do the actual loading
 for (iSub in 1:nSub){
