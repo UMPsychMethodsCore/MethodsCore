@@ -95,35 +95,37 @@ if(FisherZ==1){
 
 ## Do the modeling
 
-nBeta = length(vars)
-t.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
-p.array = matrix(nrow = nBeta, ncol = nFeat, rep(0,nBeta * nFeat))
-if (model.approach == 'lme'){
-  nGrp = length(unique(master[,vars[1]]))
-  int.array = matrix(nrow = nGrp, ncol = nFeat, rep(0,nGrp * nFeat))
-} else {
+### LM Approach
+if (model.approach == 'lm'){
+  #### Build a simple lm model, and save the results for later inspection
+  mini = data.frame(R = superflatmat[,1],master)
+  model.fit = lm(model.formula,mini)
+  save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
+
+  #### Fit the big model
+  design = model.matrix(model.formula,mini) # create a design matrix
+  results = massuni(superflatmat, design) # do the mass univariate modeling
+  t.array = results$tvals # grab the t values
+  p.array = results$pvals # grab the p values
   int.array = 0
 }
 
-for (iFeat in 1:nFeat){
-  mini = data.frame(R = superflatmat[,iFeat],master)
+if (model.approach == 'lme'){
+  nGrp = length(unique(master[,vars[1]]))
+  int.array = matrix(nrow = nGrp, ncol = nFeat, rep(0,nGrp * nFeat))
 
-  model.fit = model.call(mini,model.formula,model.fixed,model.random,model.approach)
-  if(model.approach=='lm'){
-    t.array[,iFeat] = summary(model.fit)$coef[,'t value']
-    p.array[,iFeat] = summary(model.fit)$coef[,'Pr(>|t|)']
-  }
-  if(model.approach=='lme'){
+  for (iFeat in 1:nFeat){
+    mini = data.frame(R = superflatmat[,iFeat],master)
+    model.fit = lme(fixed = model.fixed, random = model.random, data = mini)
     t.array[,iFeat] = summary(model.fit)$tTable[,'t-value']
     p.array[,iFeat] = summary(model.fit)$tTable[,'p-value']
     int.array[,iFeat] = coef(model.fit)[,1]
-  }
-
-  if (iFeat == 1){
-    save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
-  }
-  if(iFeat %% 1000 == 0){
-    print(iFeat)
+    if (iFeat == 1){
+      save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
+    }
+    if(iFeat %% 1000 == 0){
+      print(iFeat)
+    }
   }
 }
   
