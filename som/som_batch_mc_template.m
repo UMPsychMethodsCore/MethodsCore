@@ -280,7 +280,7 @@ saveroiTC = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCoreDev');
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
