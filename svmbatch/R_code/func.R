@@ -33,9 +33,9 @@ fisherz = function(r){
 massuni = function ( Y, X){
   # This function will do mass univariate linear modeling, in the same mode as mc_CovariateCorrection.
   # See the help there for more details.
+  # It is analagous to running mc_CovariateCorrection in fully raw mode (3)
   Y = as.matrix(Y)
   X = as.matrix(X)
-  X = cbind(rep(1,dim(x)[1]),x)  # add an intercept term
 
   betas = pseudoinverse(X) %*% Y
 
