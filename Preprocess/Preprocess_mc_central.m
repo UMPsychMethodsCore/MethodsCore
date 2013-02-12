@@ -53,26 +53,26 @@ chp = CoregHiResPrefix;
 nop = NormalizePrefix;
 smp = SmoothPrefix;
 
-if (~exist('doslicetiming') | ~doslicetiming)
+if (~exist('doslicetiming','var') || ~doslicetiming)
 	stp = '';
 end
-if (~exist('dorealign') | ~dorealign)
+if (~exist('dorealign','var') || ~dorealign)
 	rep = '';
 end
-if (~exist('docoregoverlay') | ~docoregoverlay)
+if (~exist('docoregoverlay','var') || ~docoregoverlay)
     cop = '';
 end
-if (~exist('docoreghires') | ~docoreghires)
+if (~exist('docoreghires','var') || ~docoreghires)
     chp = '';
 end
-if (~exist('donormalize') | ~donormalize)
+if (~exist('donormalize','var') || ~donormalize)
 	nop = '';
 end
-if (~exist('dosmooth') | ~dosmooth)
+if (~exist('dosmooth','var') || ~dosmooth)
 	smp = '';
 end
 	
-Pa = [stp];
+Pa = stp;
 Pra = [rep stp];
 Pwra = [nop rep stp];	
 Pswra = [smp nop rep stp];
@@ -115,7 +115,7 @@ if (Processing(1) == 1)
 	st.nslices = NumSlices;
 	st.ta = (TR-(TR/NumSlices));
 	st.so = SliceOrder;
-    if (~exist('RefSlice','var') | isempty(RefSlice))
+    if (~exist('RefSlice','var') || isempty(RefSlice))
         st.refslice = floor(NumSlices/2);
     else
         st.refslice = RefSlice;
@@ -131,21 +131,12 @@ if (Processing(1) == 1)
 	coreg.estimate.ref = {};
 	coreg.estimate.source = {};
 	coreg.estimate.other = {''};
-    %%
 
-	if (strcmp(spmver,'SPM8'))
-		vbm.estwrite.data = {};
+
+    if (strcmp(spmver,'SPM8'))
+        vbm.estwrite.data = {};
         vbm.estwrite.opts = vbm8.opts;
-        
         vbm.estwrite.extopts = vbm8.extopts;
-        
-        %darteltpm
-        %finalmask
-        %gcut
-        %kmeans
-        %bias_fwhm
-        %mask
-
         vbm.estwrite.output = rmfield(vbm8.output,'surf');
         vbm.estwrite.output.bias.native = 1;
         vbm.estwrite.output.bias.warped = 1;
@@ -154,38 +145,37 @@ if (Processing(1) == 1)
         vbm.estwrite.output.WM.native = 1;
         vbm.estwrite.output.WM.mod = 2;
         vbm.estwrite.output.CSF.native = 1;
-		vbm.estwrite.output.CSF.mod = 2;
+        vbm.estwrite.output.CSF.mod = 2;
         vbm.estwrite.output.label.native = 1;
-		vbm.estwrite.output.label.warped = 1;
-		vbm.estwrite.output.warps = [1 1];
-		
-        %%
-		util.defs.comp{1}.def = {};
-		util.defs.comp{2}.idbbvox.vox = VoxelSize;
-		util.defs.comp{2}.idbbvox.bb = defaults.normalise.write.bb;
-		util.defs.ofname = '';
-		util.defs.fnames = {};
-		util.defs.savedir.savesrc = 1;
-		util.defs.interp = 1;
+        vbm.estwrite.output.label.warped = 1;
+        vbm.estwrite.output.warps = [1 1];
+
+        util.defs.comp{1}.def = {};
+        util.defs.comp{2}.idbbvox.vox = VoxelSize;
+        util.defs.comp{2}.idbbvox.bb = defaults.normalise.write.bb;
+        util.defs.ofname = '';
+        util.defs.fnames = {};
+        util.defs.savedir.savesrc = 1;
+        util.defs.interp = 1;
     else
         mc_Error('You are using an unsupported version of SPM.  This script is compatible with SPM8');
     end
-
-	if (strcmp(NormMethod,'seg'))
+    
+    if (strcmp(NormMethod,'seg'))
         normalise.write = defaults.normalise.write;
-		normalise.write.subj.matname = {};
-		normalise.write.subj.resample = {};
-		normalise.write.roptions.vox = VoxelSize;
-		normalise.write.roptions.prefix = nop;
+        normalise.write.subj.matname = {};
+        normalise.write.subj.resample = {};
+        normalise.write.roptions.vox = VoxelSize;
+        normalise.write.roptions.prefix = nop;
     else
         normalise.estwrite.eoptions = defaults.normalise.estimate;
         normalise.estwrite.roptions = defaults.normalise.write;
-		normalise.estwrite.subj.source = {}; 
-		normalise.estwrite.subj.wtsrc = {};
-		normalise.estwrite.subj.resample = {}; 
-		normalise.estwrite.eoptions.template = {[WarpTemplate suffix]};
-		normalise.estwrite.roptions.vox = VoxelSize;
-		normalise.estwrite.roptions.prefix = nop;
+        normalise.estwrite.subj.source = {};
+        normalise.estwrite.subj.wtsrc = {};
+        normalise.estwrite.subj.resample = {};
+        normalise.estwrite.eoptions.template = {[WarpTemplate suffix]};
+        normalise.estwrite.roptions.vox = VoxelSize;
+        normalise.estwrite.roptions.prefix = nop;
     end
     
 
@@ -236,7 +226,7 @@ if (Processing(1) == 1)
             nsflag = 1;
         end
         for iRun = 1:NumRun
-            frames = [1];
+            frames = 1;
             Run = RunDir{iRun};
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir = mc_GenPath(ImageDirCheck);
@@ -289,9 +279,7 @@ if (Processing(1) == 1)
             job{7}.spm.spatial.smooth = smooth; 
             
 		    nj = 7;
-	    end
-
-	    %offset = (x-1)*nj;
+        end
 
 	    clear scancell
 	    ascan = {};
@@ -304,9 +292,9 @@ if (Processing(1) == 1)
         w2imagecell = {};
         
         for r = 1:size(RunDir,1)
-	    	frames = [1];
+	    	frames = 1;
             if strcmp(imagetype,'nii')
-	    		frames = [1:NumScan(r)];
+	    		frames = 1:NumScan(r);
             end
             
             Run=RunDir{r};
@@ -337,7 +325,7 @@ if (Processing(1) == 1)
             end
         end
         
-        if (exist('RefImage','var') & ~isempty(RefImage))
+        if (exist('RefImage','var') && ~isempty(RefImage))
             refimage = rscan{1}{RefImage};
         else
             refimage = rscan{1}{1};
@@ -418,17 +406,25 @@ if (Processing(1) == 1)
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
-            OverlayDir=mc_GenPath(OverlayDirCheck);
+            if (docoregoverlay)
+                OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+            end
 
             HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
             job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
-            job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
-            job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
-
+            
+            if (docoreghires && docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            elseif (docoreghires && ~docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            end
+            
             job{5}.spm.spatial.normalise.estwrite.subj.source = {HiResDir};
             job{5}.spm.spatial.normalise.estwrite.subj.resample = wscan;
             job{5}.spm.spatial.normalise.estwrite.subj.resample{end+1} = HiResDir;
@@ -468,16 +464,25 @@ if (Processing(1) == 1)
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
 
-            OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
-            OverlayDir=mc_GenPath(OverlayDirCheck);
-
+            OverlayDir = '';
+            if (docoregoverlay)
+                OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+            end
+            
             HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
             job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
             job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
-            job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
-            job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            
+            if (docoreghires && docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            elseif (docoreghires && ~docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            end           
 
             job{5}.spm.tools.vbm8.estwrite.data = {HiResDir};
 
