@@ -110,9 +110,18 @@ model.formula = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 model.fixed = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 model.random = ~1|SITE_ID
 
+############################################
+## Where is your methods core repository? ##
+############################################
+
+mcPath = '~/users/kesslerd/repos/MethodsCore'
+
 
 #############################
-## Call the Central Script ##
+## Do not edit below here  ##
 #############################
+
+rpath = file.path(mcPath,'svmbatch','R_code')
+setwd(rpath)
 
 source('central.R')
