@@ -1,7 +1,8 @@
 display ('-----')
 OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
-                                    'suffix','.csv',...
-                                    'mode','makeparentdir') );
+    'suffix','.csv',...
+    'mode','makeparentdir') );
+
                                 
 display('I am going to compute summary motion summary statistics');
 display(sprintf('The size of the lever arm I will use is %d',LeverArm));
@@ -13,7 +14,8 @@ display ('-----')
 clear CombinedOutput
 clear MotionPath
 for iSubject = 1:size(SubjDir,1)
-    Subject = SubjDir{iSubject,1};    
+    Subject = SubjDir{iSubject,1}; 
+    
     for jRun = 1:size(SubjDir{iSubject,3},2)
         RunNum = SubjDir{iSubject,3}(jRun);
         Run    = RunDir{RunNum};
@@ -30,9 +32,43 @@ for iSubject = 1:size(SubjDir,1)
         end
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
+        
+        OutputCensorVectorFile = mc_GenPath(struct('Template',OutputCensorVector,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        cv = Output.censorvector;
+        save(OutputCensorVectorFile,'cv');
+        
     end
 
 end
+
+%%%%% For the datasets that have different sessions %%%%%%
+% for iSubject = 1:size(SubjDir,1)
+%     Subject = SubjDir{iSubject,1};
+%     
+%     for jSession = 1:size(SessionDir,1)
+%         SessionNum = SubjDir{iSubject,2}(jSession);
+%         Session    = SessionDir{SessionNum};
+%         for kRun = 1:size(SubjDir{iSubject,3},2)
+%             RunNum = SubjDir{iSubject,3}(kRun);
+%             Run    = RunDir{RunNum};
+%             
+%             MotionPathCheck  = struct('Template',MotionPathTemplate,'mode','check');
+%             MotionPath       = mc_GenPath(MotionPathCheck);
+%             MotionParameters = load(MotionPath);
+%             
+%             [pathstr,name,ext] = fileparts(MotionPath);
+%             if any(strcmp(ext,{'.par','.dat'}))
+%                 Output = euclideanDisplacement(MotionParameters,LeverArm,FDLeverArm,FDcriteria);
+%             else
+%                 Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm,FDLeverArm,FDcriteria);
+%             end
+%             if ~isstruct(Output) && Output == -1; return; end;
+%             CombinedOutput{iSubject,jSession,kRun} = Output;
+%         end
+%     end
+% end
 
 %%%%%%% Save results to CSV file
 theFID = fopen(OutputPathFile,'w');
@@ -41,7 +77,38 @@ if theFID < 0
     return;
 end
 
-%%%%%%%%%% Output Values for each Run of each Subject%%%%%%%%%%%%%%%%
+%%%%%%%%% Output Values for each Run of each Session of each Subject%%%%%%%%%%%%%%%%
+% fprintf(theFID,'Subject,Session,Run,maxSpace,meanSpace,maxAngle,meanAngle,meanFD,nonzeroFD\n'); %header
+% for iSubject = 1:size(SubjDir,1)
+%     Subject = SubjDir{iSubject,1};
+%     for jSession = 1:size(SessionDir,1)
+%         SessionNum = SubjDir{iSubject,2}(jSession);
+%         Session    = SessionDir{SessionNum};
+%         for kRun = 1:size(SubjDir{iSubject,3},2)
+%             RunNum = SubjDir{iSubject,3}(kRun);
+%             
+%             %%%%% Select appropriate output based on h user has set
+%             index=strfind(MotionPathTemplate,'Run');
+%             if size(index)>0
+%                 RunString=RunDir{kRun};
+%             else
+%                 RunString=num2str(kRun);
+%             end
+%             %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             
+%             fprintf(theFID,'%s,%s,%s,',Subject,Session,RunString);
+%             fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jSession,kRun}.maxSpace);
+%             fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jSession,kRun}.meanSpace);
+%             fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jSession,kRun}.maxAngle);
+%             fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jSession,kRun}.meanAngle);
+%             fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jSession,kRun}.meanFD);
+%             fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jSession,kRun}.nonzeroFD);
+%         end
+%     end
+% end
+
+
+% %%%%%%%%% Output Values for each Run of each Subject%%%%%%%%%%%%%%%%
 % fprintf(theFID,'Subject,Run,maxSpace,meanSpace,maxAngle,meanAngle,meanFD,nonzeroFD\n'); %header
 % for iSubject = 1:size(SubjDir,1)
 %     Subject = SubjDir{iSubject,1};
@@ -67,7 +134,7 @@ end
 %     end
 % end
 
-%%%%%%%%%%%%%%%%% Output averaged values along runs for each Subject %%%%%
+%%%%%%%%%%%%%%%% Output averaged values along runs for each Subject %%%%%
 fprintf(theFID,'Subject,maxSpace,meanSpace,maxAngle,meanAngle,meanFD,nonzeroFD\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
@@ -83,11 +150,15 @@ for iSubject = 1:size(SubjDir,1)
 %         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
         temp = [CombinedOutput{iSubject,:}];
+        
+        % Average over runs
         FinalOutput.maxSpace = mean([temp(:).maxSpace]);
         FinalOutput.meanSpace = mean([temp(:).meanSpace]);
         FinalOutput.maxAngle = mean([temp(:).maxAngle]);
-        FinalOutput.meanAngle = mean([temp(:).meanAngle]);
+        FinalOutput.meanAngle = mean([temp(:).meanAngle]);         
         FinalOutput.meanFD = mean([temp(:).meanFD]);
+        
+        % the total excluded points over runs 
         FinalOutput.nonzeroFD = sum([temp(:).nonzeroFD]);
         
         fprintf(theFID,'%s,%s,',Subject);

@@ -102,8 +102,11 @@ results.meanAngle = mean(displacementAngle);
 results.sumAngle  = sum(displacementAngle);
 
 % Now calculate for FD values
-[FD,FDjudge]=mc_FD_calculation(motionParameters,FDcriteria,FDLeverArm);
-results.meanFD = mean(FD);
-results.nonzeroFD = nnz(FDjudge);
+[FD,FDjudge] = mc_FD_calculation(motionParameters,FDcriteria,FDLeverArm);
+results.meanFD       = mean(FD);
+results.censorvector = FDjudge;
+results.nonzeroFD    = nnz(FDjudge);
+
+
 
 return

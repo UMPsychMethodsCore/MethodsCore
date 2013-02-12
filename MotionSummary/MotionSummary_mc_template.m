@@ -64,7 +64,8 @@ FDcriteria = 0.2;
 
 
 SubjDir = {
-    'Subject1',1,[1 2 3];
+    '5001/Tx1/',1,[1 2 3];
+     '5002/Tx1/',1,[1 2 3];
           };
 
 %DEVSTART

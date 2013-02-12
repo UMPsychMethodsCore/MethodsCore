@@ -152,7 +152,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
             case 'grid'
-                ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
                 ROIGridMaskHdr = spm_vol(ROIGridMask);
                 ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);

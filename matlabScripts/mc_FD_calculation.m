@@ -73,6 +73,36 @@ FDMotion = abs(FDMotion);
 % Sum up the difference along the second dimension.
 FD = sum(FDMotion,2);
 
+% Add a zero in the front to represent the first frame
+FD_cv = [0;FD];
+
 % Compare to the Criteria
-FDjudge = (FD>FDcriteria);
+FDjudgeInt = double(FD_cv>FDcriteria);
+
+% Augement the censor vector FDjudge by remove 1 frame before and 2 frames
+% after the problematic frame
+n = length(FDjudgeInt);
+FDjudge = zeros(n,1);
+for i = 2:(n-2)  % the first frame will always have the FD = 0
+    if FDjudgeInt(i)==1
+        FDjudge(i-1) = 1;
+        FDjudge(i)   = 1;
+        FDjudge(i+1) = 1;
+        FDjudge(i+2) = 1;
+    end
+end
+
+if FDjudgeInt(n-1)==1
+    FDjudge(i-1) = 1;
+    FDjudge(i)   = 1;
+    FDjudge(i+1) = 1;
+end
+
+if FDjudgeInt(n)==1
+    FDjudge(i-1) = 1;
+    FDjudge(i)   = 1;
+end
+    
+
+
 
