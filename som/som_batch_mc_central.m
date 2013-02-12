@@ -102,6 +102,25 @@ if (RunMode(1) | sum(RunMode) == 0)
 
             parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
             parameters.data.run(iRun).nTIME = NumScan(iRun);
+            
+            %%%added code to handle censorVectors
+            if (exist('CensorTemplate','var') && ~isempty(CensorTemplate))
+                CensorFile = mc_GenPath(struct('Template',CensorTemplate,'mode','check'));
+                [p f e] = fileparts(CensorFile);
+                if (strcmp(e,'.mat'))
+                    %read variable and use cv element
+                    tempcv = load(CensorFile);
+                    cv = tempcv.cv;
+                else %assume text file
+                    cv = load(CensorFile);
+                end
+                if (size(cv,1) ~= NumScan(iRun))
+                    mc_Error('Your censor vector is %g elements, but you have %g scans in run %g',size(cv,1),NumScan(iRun),iRun);
+                end
+                parameters.data.run(iRun).censorVector = ~cv;
+            end
+            %%%
+            
             parameters.data.MaskFLAG = MaskBrain;
 
             parameters.TIME.run(iRun).TR = TR;
@@ -160,6 +179,25 @@ if (RunMode(1) | sum(RunMode) == 0)
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
                 inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
                 grid_coord = grid_coord_cand(inOutIDX,:);
+                parameters.rois.mni.coordinates = grid_coord;
+                if (iscell(ROIGridSize))
+                    parameters.rois.mni.size = ROIGridSize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROIGridSize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                end
+            case 'gridplus'
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr = spm_vol(ROIGridMask);
+                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord = grid_coord_cand(inOutIDX,:);
+                
+                grid_coord = [grid_coord; ROIGridCenters];
+                
                 parameters.rois.mni.coordinates = grid_coord;
                 if (iscell(ROIGridSize))
                     parameters.rois.mni.size = ROIGridSize{1};
