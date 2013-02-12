@@ -54,3 +54,15 @@ massuni = function ( Y, X){
   results = list ( corrected = corrected , residuals = residuals, betas = betas, intercepts = intercepts, tvals = tvals, pvals = pvals)
   return(results)
 }
+
+lmeMCfit = function(ind, model.fixed,model.random,data,master,output){
+  mini = data.frame(R = data[,ind],master)
+  model.fit = lme(fixed = model.fixed, random = model.random, data = mini)
+  out$t = summary(model.fit)$tTable[,'t-value']
+  out$p = summary(model.fit)$tTable[,'p-value']
+  out$int = coef(model.fit)[,1]
+  if(ind %% 1000 == 0){
+      print(ind)
+  switch(output,simple=return(out),full=return(model.fit))
+}
+

@@ -110,6 +110,17 @@ model.formula = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 model.fixed = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
 model.random = ~1|SITE_ID
 
+############################################################################
+## Should we use multiple processing cores wherever possible?  If so, set ##
+## multicore.use to 1, and set multicore.cores to the number of cores we  ##
+## should use. Please check with other users on your system before        ##
+## gobbling up all of the processing power.                               ##
+############################################################################
+multicore.use = 0 # at present this doesn't matter
+
+multicore.cores = 8
+
+
 ############################################
 ## Where is your methods core repository? ##
 ############################################

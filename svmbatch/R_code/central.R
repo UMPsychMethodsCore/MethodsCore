@@ -111,23 +111,25 @@ if (model.approach == 'lm'){
   int.array = 0
 }
 
+### LME Approach
 if (model.approach == 'lme'){
-  nGrp = length(unique(master[,vars[1]]))
-  int.array = matrix(nrow = nGrp, ncol = nFeat, rep(0,nGrp * nFeat))
+#### Fit the first model, save it for reference
+  model.fit = lmeMCfit(1,model.fixed,model.random,superflatmat,master,'full')
+  
+#### Fit all the models with multicore if possible
+  models = mclapply(1:nFeat,lmeMCfit,model.fixed,model.random,superflatmat,master,'out',mc.cores=multicore.cores)
 
-  for (iFeat in 1:nFeat){
-    mini = data.frame(R = superflatmat[,iFeat],master)
-    model.fit = lme(fixed = model.fixed, random = model.random, data = mini)
-    t.array[,iFeat] = summary(model.fit)$tTable[,'t-value']
-    p.array[,iFeat] = summary(model.fit)$tTable[,'p-value']
-    int.array[,iFeat] = coef(model.fit)[,1]
-    if (iFeat == 1){
-      save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
-    }
-    if(iFeat %% 1000 == 0){
-      print(iFeat)
-    }
-  }
+#### Now get that stuff out of the list (thank you SO)
+  arrays <- sapply(c('t','p','int'),function(E){
+    do.call(cbind,
+            lapply(models,function(x) {
+              x[[E]]
+            }))
+  },simplify=FALSE)
+
+  t.array = arrays$t
+  p.array = arrays$p
+  int.array = arrays$int
 }
   
 ## Write out the results
