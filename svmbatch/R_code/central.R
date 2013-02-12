@@ -80,13 +80,14 @@ for (iSub in 1:nSub){
   }
 }
 
-## Convert the R's to z's
-superflatmat.orig = superflatmat
-superflatmat = fisherz(superflatmat.orig)
-
 ## Save what you've loaded so far
 
-save(superflatmat.orig,superflatmat,file=file.path(outputPath,'superflat.RData'))
+save(superflatmat,superflatmat,file=file.path(outputPath,'superflat.RData'))
+
+## Convert the R's to z's
+if(FisherZ==1){
+  superflatmat = fisherz(superflatmat)
+}
 
 ## Do the modeling
 

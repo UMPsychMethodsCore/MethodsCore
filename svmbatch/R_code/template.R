@@ -53,7 +53,15 @@ connTemplate.SubjField = 'SUB_ID'
 
 connTemplate.suffix = '/Grid/Grid_corr.mat'
 
+#######################################################################################
+## If you're modeling data that came from SOM, it's most likely encoded              ##
+## as Pearson R's.  It'd be better if it were z-transformed using                    ##
+## Fisher's Z. If that's the case, set the following option to 1.                    ##
+## However, if you have cPPI data or some other sort of data that                    ##
+## doesn't need to be transformed, set it to 0 and it will model the features as is. ##
+#######################################################################################
 
+FisherZ = 1
 
 
 ############################################################################
