@@ -93,6 +93,11 @@ outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Grid1080WMotion_Cle
 ## For lme mode it's a bit more complicated. Better to look at the help       ##
 ## for lme and fill in the fixed and random components based on the           ##
 ## documentation there. In most cases, random will just be ~1|grouping factor ##
+##                                                                            ##
+## IMPORTANT NOTE - If you're only interested in the intercept term (e.g. you ##
+## are using the GLM to do a one sample or paired t-test of some form) you    ##
+## need to be really careful. The interpretation of the intercept when        ##
+## covariates and factors are present is really tricky.                       ##
 ################################################################################
 
 
