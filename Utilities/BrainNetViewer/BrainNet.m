@@ -1823,7 +1823,7 @@ else
         case 3
             EC.vol.CMt=hot(1000);
         case 4
-            EC.vol.CMt=cool(1000);
+            EC.vol.CMt=cooler(1000);
         case 5
             EC.vol.CMt=spring(1000);
         case 6
@@ -1860,6 +1860,7 @@ else
             EC.vol.CMt = [zeros(1,1000); linspace(1,0,1000); ones(1,1000)]';
         case 22 % Added by Mingrui Xia, 20120113, Xjviewer negative colorbar.
             EC.vol.CMt = [zeros(1,1000); linspace(0,1,1000); ones(1,1000)]';
+        
     end
     switch EC.vol.display
         case 1 %%% Edited by Mingrui Xia, 111025, change algorithm for color mapping.
