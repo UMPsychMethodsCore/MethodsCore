@@ -456,7 +456,7 @@ if (Processing(1) == 1)
             job{2}.spm.spatial.realign.estwrite.data = rscan;
 
             [p f e] = fileparts(rscan{1}{1});
-            if (strcmp(f(1),'r') & AlreadyDone(2))
+            if (strcmp(f(1),'r') && AlreadyDone(2))
                 f = f(2:end);
             end
             normsource = ['mean' f e];
@@ -493,23 +493,23 @@ if (Processing(1) == 1)
 
             job{7}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
-            job{1} = [];
+                job{1} = [];
             end
             if (~dorealign)
-            job{2} = [];
+                job{2} = [];
             end
             if (~docoregoverlay)
-            job{3} = [];
+                job{3} = [];
             end
             if (~docoreghires)
-            job{4} = [];
+                job{4} = [];
             end
             if (~donormalize)
-            job{5} = [];
+                job{5} = [];
                     job{6} = [];
             end
             if (~dosmooth)
-            job{7} = [];
+                job{7} = [];
             end
             job(cellfun(@isempty,job)) = [];
             %jobs{x} = job;
