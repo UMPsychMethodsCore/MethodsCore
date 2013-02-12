@@ -42,7 +42,6 @@ massuni = function ( Y, X){
   residuals = Y - X %*% betas
 
   intercepts = X[,1,drop=F] %*% betas[1,,drop=F]
-
   corrected = intercepts + residuals
   
   C = solve(aperm(X) %*% X)
