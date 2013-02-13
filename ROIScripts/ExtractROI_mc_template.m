@@ -8,6 +8,11 @@
 Exp='/net/data4/OXT/';  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogTemplate = '[Exp]/Logs';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Output file for analysis (leave off the .csv)
 %%%
 %%%  Variables you can use in your template are:
@@ -60,4 +65,4 @@ addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
     
     
-ExtractROI_central
+ExtractROI_mc_central
