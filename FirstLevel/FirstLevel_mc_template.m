@@ -126,8 +126,11 @@ ConditionName = {
 %%% If you are including any Parametric regressors in your model
 %%% syntax: 'Parameter Name', column number in MasterData file that contains
 %%% the parameter value. If using multiple condition columns above, you must
-%%% provide a third entry that indicates with which condition column the parametric
-%%% regressor is associated.
+%%% provide a third entry that indicates with which condition column the 
+%%% parametric regressor is associated.
+%%% NOTE: If you want to include parametric regressors for a condition, the 
+%%% values of your regressor MUST change over trials.  SPM can not include
+%%% a constant parametric regressor and it will cause problems with contrasts.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ParList = { ...
 };
