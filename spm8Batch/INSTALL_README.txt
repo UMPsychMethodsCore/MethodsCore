@@ -1,6 +1,6 @@
 # # # # # # # # # # # # # # # # # #
 #
-# This is the spm8Batch processing system written by Robert C. Welsh, Ann Arbor MI
+# This is a modified version of the spm8Batch processing system written by Robert C. Welsh, Ann Arbor MI
 #
 # Copyright 2002-2012
 #
@@ -29,29 +29,21 @@
 #
 # INSTALLATION INSTRUCTIONS:
 #
-# Move the spm8Batch tar distribution file to the directory where you wish the code to 
-# reside. Then untar using
-# 
-# tar -xvf [tarfile]
 #
-# Next you will need to adjust your PATH environmental variable to include 
+# You will need to adjust your PATH environmental variable to include
 # the spm8Batch distribution
 #
-# For bash you can add this to your .bashrc or .bash_profile
+# You can do this on the fly by running "source spm8Setup" while in this directory.
+# You can also edit your .bashrc, .bash_profile, or /etc/bashrc startup scripts to source this automatically
+# for all or just some users.
 #
-#     export PATH=[spm8Batch_distribution_location]:${PATH}
-#
-# On tcsh you can add this to your .cshrc file.
-#
-#     setenv PATH [spm8Batch_distribution_location]:${PATH}
 # 
-# Next you need to implement the localization changes in spm8Batch_Global that are
-# described below. Remember the native language of the spm8Batch system is bash. An
+# Remember the native language of the spm8Batch system is bash. An
 # excellent site for BASH help is:
 # 
 #     http://tldp.org/LDP/abs/html/
 #
-# You will need to have spm8 distribution
+# You will need to have spm8 distribution (Included in this distribution)
 # 
 # You will need to have fsl, at least 4.1.7, it's known to work with 4.1.7 and 4.1.8
 #
@@ -73,7 +65,7 @@
 # -----------------------------------------------------------------
 # -----------------------------------------------------------------
 #
-# LOCALIZATION
+# LOCALIZATION (No longer needs to be edited. This section retained for developer documentation)
 #
 # The only file that has to be modified for local distrubution is the scripts "spm8Batch_Global"
 # 
