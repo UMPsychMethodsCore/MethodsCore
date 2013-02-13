@@ -160,7 +160,7 @@ for ijob = 1 : size(ExtractionJobs,1)
 
     if mismatch==1
 
-        SPMAsMat=cell2mat(SPMData.SPM.xY.P);
+        SPMAsMat = strvcat(strrep(SPMData.SPM.xY.P,',',''));
         CombinedData{iCol}=SPMAsMat(:,1:end-2);
         Header{iCol}='Subject from SPM';
         iCol=iCol+1;
