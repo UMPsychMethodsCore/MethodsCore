@@ -14,6 +14,25 @@ if (~result)
     %error with setting up logging
     mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
 end
+global mcLog
+
+%%%set up variables for sandboxing
+if (UseSandbox)
+    username = getenv('USER');
+    pid = num2str(feature('GetPID'));
+    if (exist('SandboxDir','var') & ~isempty(SandboxDir))
+        hostname = SandboxDir;
+    else
+        [ans hostname] = system('hostname -s');
+        hostname = [filesep hostname(1:end-1) filesep 'sandbox'];
+    end
+    [fd fn fe] = fileparts(mcLog);
+    Sandbox = fullfile(hostname,[username '_' pid '_' fn]);
+    mc_Logger('log',sprintf('Using sandbox %s',Sandbox),3);
+else
+    Sandbox = '';
+    mc_Logger('log','Not using sandbox',3);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
@@ -173,7 +192,8 @@ if (Processing(1) == 1)
         normalise.estwrite.subj.source = {};
         normalise.estwrite.subj.wtsrc = {};
         normalise.estwrite.subj.resample = {};
-        normalise.estwrite.eoptions.template = {[WarpTemplate suffix]};
+        WarpImage = mc_GenPath(WarpTemplate);
+        normalise.estwrite.eoptions.template = {[WarpImage suffix]};
         normalise.estwrite.roptions.vox = VoxelSize;
         normalise.estwrite.roptions.prefix = nop;
     end
@@ -198,6 +218,8 @@ if (Processing(1) == 1)
     %%%end
     
 	for x = 1:size(SubjDir,1)
+        SandboxFiles = {};
+        
 	    clear job
         Subject=SubjDir{x,1};
 		RunList=SubjDir{x,3};
@@ -304,7 +326,13 @@ if (Processing(1) == 1)
             scan{r} = spm_select('ExtList',ImageDir,['^' newbasefile '.*' imagetype],frames);
             imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\..*']);
             
-            subjpath = ImageDir;
+            %%%%%%%%% Copy Images to Sandbox directory if necessary
+            if (UseSandbox)
+                SandboxFiles{end+1,1} = ImageDir;
+                SandboxFiles{end,2} = fullfile(Sandbox,ImageDir);
+            end
+        
+            subjpath = fullfile(Sandbox,ImageDir);
             
             for s = 1:size(scan{r},1)
                 scancell{end+1} = strtrim([subjpath scan{r}(s,:) suffix]);
@@ -354,15 +382,33 @@ if (Processing(1) == 1)
         NewHiResTemplate = '';
         if (docoregoverlay && ~strcmp(NormMethod,'func'))
             %copy overlay file to new location
-           [p f e] = fileparts(OverlayTemplate);
-           NewOverlayTemplate = fullfile(AnatTemplate,[CoregOverlayPrefix f e]);
-           mc_Copy(OverlayTemplate,NewOverlayTemplate);
+            [p f e] = fileparts(OverlayTemplate);
+            NewOverlayTemplate = fullfile(AnatTemplate,[CoregOverlayPrefix f e]);
+            mc_Copy(OverlayTemplate,NewOverlayTemplate);
+            if (UseSandbox)
+                NewOverlayTemplate = fullfile(Sandbox,NewOverlayTemplate);
+            end
         end
         if (docoreghires && ~strcmp(NormMethod,'func'))
             %copy hires file to new location
-           [p f e] = fileparts(HiResTemplate);
-           NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
-           mc_Copy(HiResTemplate,NewHiResTemplate);
+            [p f e] = fileparts(HiResTemplate);
+            NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
+            mc_Copy(HiResTemplate,NewHiResTemplate);
+            if (UseSandbox)
+                NewHiResTemplate = fullfile(Sandbox,NewHiResTemplate);
+            end
+        end
+        
+        if ((docoregoverlay || docoreghires) && ~strcmp(NormMethod,'func'))
+            SandboxFiles{end+1,1} = AnatTemplate;
+            SandboxFiles{end,2} = fullfile(Sandbox,AnatTemplate);
+        end
+                
+        if (UseSandbox)
+            for iS = 1:size(SandboxFiles,1)
+                %copy 1st element to 2nd
+                mc_Copy(SandboxFiles{iS,1},SandboxFiles{iS,2});
+            end
         end
         
         Run = RunDir{1};
@@ -371,12 +417,11 @@ if (Processing(1) == 1)
             job{1}.spm.temporal.st.scans = ascan;
             job{2}.spm.spatial.realign.estwrite.data = rscan;
             [p f e] = fileparts(rscan{1}{1});
-            normsource = ['mean' f e];
-            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
-            ImageDir=mc_GenPath(ImageDirCheck);
-            job{3}.spm.spatial.normalise.estwrite.subj.source = {fullfile(ImageDir,normsource)};
+            normsource = fullfile(p,['mean' f e]);
+            
+            job{3}.spm.spatial.normalise.estwrite.subj.source = {normsource};
             job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
-            job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = fullfile(ImageDir,normsource);
+            job{3}.spm.spatial.normalise.estwrite.subj.resample{end+1} = normsource;
             job{4}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
             job{1} = [];
@@ -401,10 +446,7 @@ if (Processing(1) == 1)
             if (strcmp(f(1),'r') & AlreadyDone(2))
                 f = f(2:end);
             end
-            normsource = ['mean' f e];
-
-            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
-            ImageDir=mc_GenPath(ImageDirCheck);
+            normsource = fullfile(p,['mean' f e]);
 
             if (docoregoverlay)
                 OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
@@ -414,14 +456,14 @@ if (Processing(1) == 1)
             HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
-            job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+            job{3}.spm.spatial.coreg.estimate.ref = {normsource};
             job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
             
             if (docoreghires && docoregoverlay)
                 job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
                 job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
             elseif (docoreghires && ~docoregoverlay)
-                job{4}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+                job{4}.spm.spatial.coreg.estimate.ref = {normsource};
                 job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
             end
             
@@ -459,10 +501,7 @@ if (Processing(1) == 1)
             if (strcmp(f(1),'r') && AlreadyDone(2))
                 f = f(2:end);
             end
-            normsource = ['mean' f e];
-
-            ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
-            ImageDir=mc_GenPath(ImageDirCheck);
+            normsource = fullfile(p,['mean' f e]);
 
             OverlayDir = '';
             if (docoregoverlay)
@@ -473,14 +512,14 @@ if (Processing(1) == 1)
             HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
             HiResDir=mc_GenPath(HiResDirCheck);
 
-            job{3}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+            job{3}.spm.spatial.coreg.estimate.ref = {normsource};
             job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
             
             if (docoreghires && docoregoverlay)
                 job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
                 job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
             elseif (docoreghires && ~docoregoverlay)
-                job{4}.spm.spatial.coreg.estimate.ref = {fullfile(ImageDir,normsource)};
+                job{4}.spm.spatial.coreg.estimate.ref = {normsource};
                 job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
             end           
 
@@ -544,6 +583,8 @@ if (Processing(1) == 1)
             end
 %             result = cellfun(@mc_Move,wimagecell,w2imagecell);
         end
+
+        
         job{end+1} = job2{1};
         spm_jobman('run',job);
         %spm_jobman('run',job2);
@@ -551,9 +592,16 @@ if (Processing(1) == 1)
         %need to strip off the 1st line of the first run's realignment
         %parameters because of refimage being included.
         [p f e] = fileparts(rscan{1}{1});
-        r1rd = load(fullfile(ImageDir,['rp_' f '.txt']));
+        r1rd = load(fullfile(Sandbox,ImageDir,['rp_' f '.txt']));
         r1rd = r1rd(2:end,:);
-        save(fullfile(ImageDir,['rp_' f '.txt']),'r1rd','-ascii');
+        save(fullfile(Sandbox,ImageDir,['rp_' f '.txt']),'r1rd','-ascii');
+        
+        if (UseSandbox)
+            for iS = 1:size(SandboxFiles,1)
+                %copy 2nd element to 1st
+                mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
+            end
+        end
 	end
 
 end
