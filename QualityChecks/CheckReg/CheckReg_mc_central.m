@@ -15,7 +15,7 @@ fprintf(1,'****************************************************************\n');
 
 for iSubject = 1:size(SubjDir,1)
 
-    Subject=SubjDir{iSubject};
+    Subject=SubjDir{iSubject, 1};
     fprintf('\n\n\nPerforming check registration for subject: %s\n\n\n', Subject);
 
     Run=RunDir{1};
@@ -51,7 +51,11 @@ for iSubject = 1:size(SubjDir,1)
 
     spm_jobman('run',CheckRegJob.jobs);
 
-    pause = input('Press [Return] to continue:\n');
+    % pause = input('Press [Return] to continue:\n');
+    fprintf('Press [Return] to continue:\n');
+    pause;
 
 end % Loop over subjects
+close all
+fprintf('All done!\n');
 
