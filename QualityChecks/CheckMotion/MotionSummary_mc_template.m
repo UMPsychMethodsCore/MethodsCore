@@ -38,8 +38,9 @@ MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
-
+OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
+OutputCensorVector = '[Exp]/MotionSummary/[Censorname]/CensorVector_[Subject]';
+Censorname = 'MAS_vector';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
