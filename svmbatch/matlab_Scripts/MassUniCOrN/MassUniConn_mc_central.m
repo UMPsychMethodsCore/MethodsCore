@@ -35,6 +35,7 @@ ParamPathCheck = struct('Template',ParamTemplate,'mode','check');
 ParamPath = mc_GenPath(ParamPathCheck);
 param = load(ParamPath);
 
+
 roiMNI = param.parameters.rois.mni.coordinates;
 nets = mc_NearestNetworkNode(roiMNI,5);
 sq_blanks = zeros(size(roiMNI,1));
@@ -79,6 +80,8 @@ a.Shading.StatMode = statmode;
 a.Shading.ePDF = squeeze(perms(:,:,1,1,:));
 
 celltot =   %%% Need refactorize mc_Takgraph_Lowlevel first;     % Count Edges Per Cell
+cellpos =  %%% count of positive
+cellnet =  %%% count of negative
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Permutations
@@ -92,6 +95,7 @@ celltot =   %%% Need refactorize mc_Takgraph_Lowlevel first;     % Count Edges P
 % for perms.mean
 % First two dimensions will index nework structure
 % Third dimension will index repetitions of permutation test
+nNet   = 14;
 
 perms = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, permutation, cppi needs 5th dimension
 pos = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, count how many positive
@@ -107,17 +111,90 @@ for i=1:nRep
     fprintf(1,'%g\n',i)
 end
 
+save('AutismPermutations_5.mat','-v7.3');  %%%%  Need edit later
+load('~/AutismPermutations_5.mat');   %%%%% Need edit later
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Calc Cell-Level Statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Subset? and Unroll (matrix --> vector, only use diagonal and upper
+% triangle)
+b = a;
+
+netmask = ones(size(b.NetworkLabels));
+netmask(b.NetworkLabels==0) = 0;
+netmask(b.NetworkLabels == 13) = 0;
+
+netmask = logical(netmask);
+
+b.NetworkLabels = b.NetworkLabels(netmask);
+
+temp1 = mc_unflatten_upper_triangle(b.prune);
+temp1 = temp1(netmask,netmask);
+temp1 = mc_flatten_upper_triangle(temp1);
+b.prune = temp1;
+
+temp2 = mc_unflatten_upper_triangle(b.pruneColor.values);
+temp2 = temp2(netmask,netmask);
+temp2 = mc_flatten_upper_triangle(temp2);
+b.pruneColor.values = temp2;
+
+celltot = 
+cellpos = 
+cellneg = 
+
+
+%%% FDR (get the p-Values)
+
+% let's work directly with celltot
+
+permstot = perms;
+
+for i = 1:size(celltot,1)
+    for j = i:size(celltot,2)
+        epval.full(i,j) = sum(celltot(i,j) <= squeeze(permstot(i,j,1,1,:)))/size(permstot,5);
+    end
+end
+
+NetIncludeMat = NetInclude + 1; % shift 1 from network label to matrix label
+epval.mini.sq = epval.full(NetIncludeMat,NetIncludeMat);  % only network 1 - 7 (remember network starts from 0)
+
+ctr = 1;
+for i=1:size(epval.mini.sq,1)
+    for j = i:size(epval.mini.sq,2)
+        epval.mini.flat(ctr) = epval.mini.sq(i,j);
+        ctr = ctr+1;
+    end
+end
+
+[h, critp, adjp] = fdr_bh(epval.mini.flat,thresh(3),FDRmode,[],CalcP);
+
+ctr = 1;
+for i=1:size(epval.mini.sq,1)
+    for j = i:size(epval.mini.sq,2)
+        epval.mini.rebuild(i,j) = h(ctr);
+        epval.mini.adjp(i,j) = adjp(ctr);
+        ctr = ctr+1;
+    end
+end
+
+epval.mini.rebuild
+epval.mini.adjp        %%% do we want to save them in a file??
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Call TakGraph_lowlevel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Network Contingency Analyses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 
 
 
