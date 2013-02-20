@@ -155,20 +155,26 @@ if (Processing(1) == 1)
     if (strcmp(spmver,'SPM8'))
         vbm.estwrite.data = {};
         vbm.estwrite.opts = vbm8.opts;
-        vbm.estwrite.extopts = vbm8.extopts;
+        %vbm.estwrite.extopts = vbm8.extopts;
         vbm.estwrite.output = rmfield(vbm8.output,'surf');
         vbm.estwrite.output.bias.native = 1;
         vbm.estwrite.output.bias.warped = 1;
         vbm.estwrite.output.GM.native = 1;
-        vbm.estwrite.output.GM.mod = 2;
+        vbm.estwrite.output.GM.modulated = 2;
         vbm.estwrite.output.WM.native = 1;
-        vbm.estwrite.output.WM.mod = 2;
+        vbm.estwrite.output.WM.modulated = 2;
         vbm.estwrite.output.CSF.native = 1;
-        vbm.estwrite.output.CSF.mod = 2;
+        vbm.estwrite.output.CSF.modulated = 2;
         vbm.estwrite.output.label.native = 1;
         vbm.estwrite.output.label.warped = 1;
         vbm.estwrite.output.warps = [1 1];
 
+        vbm.estwrite.extopts.dartelwarp.normhigh.darteltpm = vbm8.extopts.darteltpm;
+        vbm.estwrite.extopts.sanlm = vbm8.extopts.sanlm;
+        vbm.estwrite.extopts.mrf = vbm8.extopts.mrf;
+        vbm.estwrite.extopts.cleanup = vbm8.extopts.cleanup;
+        vbm.estwrite.extopts.print = vbm8.extopts.print;
+        
         util.defs.comp{1}.def = {};
         util.defs.comp{2}.idbbvox.vox = VoxelSize;
         util.defs.comp{2}.idbbvox.bb = defaults.normalise.write.bb;
@@ -218,11 +224,14 @@ if (Processing(1) == 1)
     %%%end
     
 	for x = 1:size(SubjDir,1)
+        
         SandboxFiles = {};
         
 	    clear job
         Subject=SubjDir{x,1};
 		RunList=SubjDir{x,3};
+
+        mc_Logger('log',sprintf('Working on subject %s',Subject),3);
 
 		NumRun = size(RunList,2);
 
@@ -240,6 +249,10 @@ if (Processing(1) == 1)
 
 		NumRun= size(RunList,2); % number of runs
     
+        if (NumRun < TotalNumRun)
+            mc_Logger('log',sprintf('Only analyzing %d runs out of %d total.',NumRun,TotalNumRun),3);
+        end
+        
         %%%Check if NumScan exists and is filled in.  If not, we need to build
         %%%NumScan based on number of frames in .nii file (or number of analyze
         %%%images)
@@ -298,9 +311,10 @@ if (Processing(1) == 1)
             job{4}.spm.spatial.coreg = coreg;
             job{5}.spm.tools.vbm8 = vbm;
             job{6}.spm.util = util;
-            job{7}.spm.spatial.smooth = smooth; 
+            job{7}.spm.util = util;
+            job{8}.spm.spatial.smooth = smooth; 
             
-		    nj = 7;
+		    nj = 8;
         end
 
 	    clear scancell
@@ -405,6 +419,7 @@ if (Processing(1) == 1)
         end
                 
         if (UseSandbox)
+            mc_Logger('log','Copying files to sandbox',3);
             for iS = 1:size(SandboxFiles,1)
                 %copy 1st element to 2nd
                 mc_Copy(SandboxFiles{iS,1},SandboxFiles{iS,2});
@@ -529,8 +544,17 @@ if (Processing(1) == 1)
 
             job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; 
             job{6}.spm.util.defs.fnames = wscan;
+            
+            job{7}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])};
+            
+            V = spm_vol(HiResDir);
+            vox = spm_imatrix(V.mat);
+            vox = vox(7:9);
+            vox = abs(vox);
+            job{7}.spm.util.defs.comp{2}.idbbvox.vox = vox;
+            job{7}.spm.util.defs.fnames = HiResDir;
 
-            job{7}.spm.spatial.smooth.data = sscan;
+            job{8}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
                 job{1} = [];
             end
@@ -545,18 +569,21 @@ if (Processing(1) == 1)
             end
             if (~donormalize)
                 job{5} = [];
-                    job{6} = [];
+                job{6} = [];
+                job{7} = [];
             end
             if (~dosmooth)
-                job{7} = [];
+                job{8} = [];
             end
             job(cellfun(@isempty,job)) = [];
             %jobs{x} = job;
 
         end
 
-        job2{1} = job{end};
-        job{end} = [];
+        if (dosmooth)
+            job2{1} = job{end};
+            job{end} = [];
+        end
         job(cellfun(@isempty,job)) = [];
         %spm_jobman('run',job);
         if (strcmp(NormMethod,'seg'))
@@ -584,8 +611,10 @@ if (Processing(1) == 1)
 %             result = cellfun(@mc_Move,wimagecell,w2imagecell);
         end
 
-        
-        job{end+1} = job2{1};
+        if (dosmooth)
+            job{end+1} = job2{1};
+        end
+        mc_Logger('log','Running preprocessing job',3);
         spm_jobman('run',job);
         %spm_jobman('run',job2);
         
@@ -597,11 +626,13 @@ if (Processing(1) == 1)
         save(fullfile(Sandbox,ImageDir,['rp_' f '.txt']),'r1rd','-ascii');
         
         if (UseSandbox)
+            mc_Logger('log','Copying files from sandbox to original location',3);
             for iS = 1:size(SandboxFiles,1)
                 %copy 2nd element to 1st
                 mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
             end
         end
+        mc_Logger('log',sprintf('Done with subject %s',Subject),3);
 	end
 
 end
