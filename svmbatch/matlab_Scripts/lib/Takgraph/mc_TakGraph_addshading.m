@@ -12,7 +12,6 @@ function mc_TakGraph_addshading( a )
 %                       a.shading.transparency  -       Transparency of the shading blocks
 %
 
-
 hold on;
 
 stats_result = a.stats.cellsign;
@@ -81,7 +80,5 @@ end
 
 
 hold off;
-
-
 end
 
