@@ -60,6 +60,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
+addpath(fullfile(mcRoot,'ROIScripts'));
 addpath(fullfile(mcRoot,'Utilities','marsbar','marsbar-0.43'));
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
