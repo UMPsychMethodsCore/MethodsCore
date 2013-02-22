@@ -148,13 +148,13 @@ statmode = 2;
 %
 % Networks Selection
 %                      
-%                   Network_1  ---   Define network for contingency analyis
-%                   Network_2  ---   Define network
-%                   Enter
+%                   net1, net2  ---   Define networks for contingency analyis
+%                      netName  ---   Assign a network name
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Network_1=[]; %enter network [range: 0-13]
-Network_2=[];
+net1=[2]; %enter network [range: 0-13]
+net2=[2];
+netName= 'defFront';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Add path 
