@@ -196,6 +196,25 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.YROI = XYZ(2,:);
                     parameters.rois.mni.size.ZROI = XYZ(2,:);
                 end
+            case 'gridplus'
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr = spm_vol(ROIGridMask);
+                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord = grid_coord_cand(inOutIDX,:);
+                
+                grid_coord = [grid_coord; ROIGridCenters];
+                
+                parameters.rois.mni.coordinates = grid_coord;
+                if (iscell(ROIGridSize))
+                    parameters.rois.mni.size = ROIGridSize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROIGridSize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                end
         end
 
         parameters.Output.correlation = ROIOutput;
