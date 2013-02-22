@@ -60,9 +60,9 @@ a = mc_Network_mediator(a);
 
 a = mc_Network_Cellcount(a);
 
-a = mc_Network_Cellstats(a);
-
 a = mc_Network_CellLevelstats(a);
+
+a = mc_Network_SignTest(a);
 
 if isfield(a,'DotDilateMat')
     a = mc_TakGraph_enlarge(a);
