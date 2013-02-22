@@ -51,7 +51,7 @@ function [ a ] = mc_Network_Cellstats( a )
 
 
 % Default settings
-if ~isfiled(a,'stats') || ~isfield(a.stats,'StatMode')
+if ~isfield(a,'stats') || ~isfield(a.stats,'StatMode')
     a.stats.StatMode = 2;
 end
 
@@ -60,10 +60,12 @@ switch a.stats.StatMode
         con = nnz(a.prune); % the consensus (only "on" edges)
         total = numel(a.prune); % total number of edges ("on" and "off")
         a.stats.NullRate = con/total; % The NullRate in mode 0 (consensus ratio mode)
+        NullRate  = a.stats.NullRate;
     case 1
         if (~isfield(a.stats,'NullRate'))
             a.stats.NullRate = .001; % The NullRate in mode 1 (alpha mode)
         end
+        NullRate  = a.stats.NullRate;
     case 2
     otherwise
         warning('Unexpected alien coming! Check your StatMode!')
@@ -82,7 +84,6 @@ end
 CellSize  = a.cellcount.cellsize;
 StatMode  = a.stats.StatMode;
 ePDF      = a.stats.ePDF;
-NullRate  = a.stats.NullRate;
 CellAlpha = a.stats.CellAlpha;
 SignAlpha = a.stats.SignAlpha;
 NumPos    = a.cellcount.cellpos;
@@ -133,7 +134,7 @@ for i = 1:row
             if bi_pos < SignAlpha
                 stats_result(i,j) = 2;
             else
-                if bi_neg < stat.SignAlpha
+                if bi_neg < SignAlpha
                     stats_result(i,j) = 3;
                 else
                     stats_result(i,j) = 4;
@@ -156,7 +157,7 @@ effect_size = -1 * effect_size; % we want bigger numbers to be bigger effects
 
 % Save the results to subfileds of a.stats
 a.stats.cellsign = stats_result;
-a.stats.cellsig  = effict_size;
+a.stats.cellsig  = effect_size;
 
 
 end

@@ -17,10 +17,9 @@ function [ a ] = mc_TakGraph_shadingtrans( a )
 %                       a.shading.trans1.scale   -      Scale factor for use with scaled shading modes 2 and 3
 %                       a.shading.trans1.constant-      Constant for use with scaled shading mode 2
 %                       a.shading.trans1.center  -      Center for use with scaled shading mode 3
-%                       a.shading.trans1.startpt -      1x2 vector of X, Y to be top left corner of first square of scaled transparency shade bar 
-%                       a.shading.trans1.xsize   -      In scaled shading, how big each transparency square should be in x (left/right)
-%                       a.shading.trans1.ysize   -      In scaled shading, how big each transparency square should be in y (down/up)
-
+%                       a.shading.trans1.startpt -      1x2 vector of X, Y to be top left corner of first square of scaled transparency shade bar, defaults to [20,300]. 
+%                       a.shading.trans1.xsize   -      In scaled shading, how big each transparency square should be in x (left/right), defaults to 20.
+%                       a.shading.trans1.ysize   -      In scaled shading, how big each transparency square should be in y (down/up), defaults to 20.
 %                      
 %       OUTPUTS
 %                       a.shading.transparency  -       Transparency of the shading blocks. 
@@ -45,11 +44,20 @@ switch a.shading.transmode
     case 1
         
         % Default
-        if (~isfield(a.shading,'trans1')
+        if (~isfield(a.shading,'trans1'))
             error('Nothing defined about the scaled transparency: You gotta do something to eat the food!')
         end
-        if (~isfiled(a.shading.trans1,'mode')
+        if (~isfield(a.shading.trans1,'mode'))
             a.shading.trans1.mode = 1; 
+        end
+        if (~isfield(a.shading.trans1,'startpt'))
+            a.shading.trans1.startpt = [20,300];
+        end
+        if (~isfield(a.shading.trans1,'xsize'))
+            a.shading.trans1.xsize = 20;
+        end
+        if (~isfield(a.shading.trans1,'ysize'))
+            a.shading.trans1.ysize = 20;
         end
         
         % Variable Initialization

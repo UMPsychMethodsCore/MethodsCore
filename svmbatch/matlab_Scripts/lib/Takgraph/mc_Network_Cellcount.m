@@ -25,8 +25,8 @@ sorted = a.mediator.sorted;
 
 
 % Make sure square doesn't have any element with value other than 1, 2 or 3
-if (sum(sum(square==1))+sum(sum(square==2))+sum(sum(square==3))<numel(square))
-    error('Unexpected elements in square: we only want 1, 2 and 3')
+if (sum(sum(square==0))+sum(sum(square==1))+sum(sum(square==2))+sum(sum(square==3))<numel(square))
+    error('Unexpected elements in square: we only want 0, 1, 2 and 3')
 end
 
 % Find out how many networks do we have

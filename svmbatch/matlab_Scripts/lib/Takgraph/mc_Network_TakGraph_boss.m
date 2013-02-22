@@ -62,6 +62,8 @@ a = mc_Network_Cellcount(a);
 
 a = mc_Network_Cellstats(a);
 
+a = mc_Network_CellLevelstats(a);
+
 if isfield(a,'DotDilateMat')
     a = mc_TakGraph_enlarge(a);
 end
