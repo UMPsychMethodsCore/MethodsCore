@@ -1,4 +1,4 @@
-function [ h out cellsize celltot cellpos cellneg cellsign cellsig ] = mc_TakGraph_lowlevel ( a )
+function [ h, out, cellsize, celltot, cellpos, cellneg, cellsign, cellsig ] = mc_TakGraph_lowlevel ( a )
 %MC_TAKGRAPH_LOWLEVEL Low-level graphing function to make a TakGraph
 % If you're working from the "standard" SVM stream, you probably want to run
 % mc_TakGraph instead, which is a higher level function which will call this one.
