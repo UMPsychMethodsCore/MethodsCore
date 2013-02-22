@@ -1,4 +1,4 @@
-function [out] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
+function [tot pos] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
 %
 %Per the model in FSL's RANDOMISE function and described in Freedman & Lane (1983).
 %
@@ -20,7 +20,7 @@ function [out] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
 %               data    -       nExample * nFeature Matrix
 %               netmask -       Cell array holding masks to apply to data. You choose dimensionality, what you get
 %                               back will match the dimensions you put in
-%               thresh  -       row matrix of alpha thresholds to apply. Will index last dimension of out
+%               thresh  -       row matrix of alpha thresholds to apply. Will index last dimension of output variables
 %               permcol -       Which column of design matrix to permute in each simulation. If this column
 %                               looks like a constant, we will randomly multiply each entry by +1 or -1
 %               design  -       Design matrix. This will be used AS IS so do any mean centering, intercept adding, beforehand
@@ -29,6 +29,13 @@ function [out] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
 %               funchand-       Pass a function handle that will control how the results are aggregated.
 %                               Give it any arguments you may need. By default it will do counting using
 %                               thresh and iterating over netmask
+%
+%       OUTPUTS
+%               tot     -       Array. Counts how many edges were subthreshold for a given netmask. Dimensionality is as follows
+%                                       nD      -       Dimensions of netmask
+%                                       Thresh  -       Indexes values of thresh
+%               pos     -       Identical structure to tot, but counts how many subthreshold edges were positive
+
 nuisance.design = design;
 nuisance.design(:,permcol) = []; %nuisance only version of design
 
@@ -46,17 +53,21 @@ else % if permcol is a constant, swap its sign around. Bummer if it's zero
     rand_data = nuisance.pred + swap .* nuisance.res;
 end
     
-[~, ~, ~, ~, ~, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
+[~, ~, ~, ~, t, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
 
+t = t(permcol,:);
 p = p(permcol,:);
 
 %% figure out the threshold stuff
 
-out = zeros([size(netmask),numel(thresh)]);
+tot = zeros([size(netmask),numel(thresh)]);
+pos = zeros([size(netmask),numel(thresh)]);
 
 for i = 1:numel(thresh)
     supra = p<thresh(i);
+    cpos = supra & t>0;
     for x = 1:numel(netmask)
-        out(x + (i-1)*numel(netmask)) = sum(supra(netmask{x})); %do assignment, jumping over the first dimensions for thresh
+        tot(x + (i-1)*numel(netmask)) = sum(supra(netmask{x})); %do assignment, jumping over the first dimensions for thresh
+        pos(x + (i-1)*numel(netmask)) = sum(cpos(netmask{x})); %do assignment, jumping over the first dimensions for thresh
     end
 end
