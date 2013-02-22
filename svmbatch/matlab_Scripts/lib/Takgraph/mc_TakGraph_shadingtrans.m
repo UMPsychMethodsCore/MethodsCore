@@ -13,13 +13,13 @@ function [ a ] = mc_TakGraph_shadingtrans( a )
 %                                                       1 - Provide a range. We will linearly rescale your data to this range
 %                                                       2 - Provide a scale factor and a constant. The constant will be added, then the data grown away from the mean by scale factor.
 %                                                       3 - Provide a scale factor and a center. Your data will be recentered to this and grown away from the center by scale factor
-%                       a.shading.trans1.range   -       A range for use with mode 1
-%                       a.shading.trans1.scale   -       Scale factor for use with modes 2 and 3
-%                       a.shading.trans1.constant-       Constant for use with mode 2
-%                       a.shading.trans1.center  -       Center for use with mode 3
-%                       a.shading.trans1.startpt -
-%                       a.shading.trans1.xsize   -
-%                       a.shading.trans1.ysize   -
+%                       a.shading.trans1.range   -      A range for use with scaled shading mode 1
+%                       a.shading.trans1.scale   -      Scale factor for use with scaled shading modes 2 and 3
+%                       a.shading.trans1.constant-      Constant for use with scaled shading mode 2
+%                       a.shading.trans1.center  -      Center for use with scaled shading mode 3
+%                       a.shading.trans1.startpt -      1x2 vector of X, Y to be top left corner of first square of scaled transparency shade bar 
+%                       a.shading.trans1.xsize   -      In scaled shading, how big each transparency square should be in x (left/right)
+%                       a.shading.trans1.ysize   -      In scaled shading, how big each transparency square should be in y (down/up)
 
 %                      
 %       OUTPUTS
