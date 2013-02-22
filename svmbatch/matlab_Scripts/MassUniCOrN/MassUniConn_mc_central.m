@@ -75,13 +75,16 @@ a.pruneColor.map = [1 1 1; % make 1 white
                     1 0 0; % make 2 red
                     0 0 1; % make 3 blue
                     ];
-a.Shading.Enable = enable;
-a.Shading.StatMode = statmode;
-a.Shading.ePDF = squeeze(perms(:,:,1,1,:));
+a.shading.enable = enable;
+a.shading.statMode = statmode;
 
-celltot =   %%% Need refactorize mc_Takgraph_Lowlevel first;     % Count Edges Per Cell
-cellpos =  %%% count of positive
-cellnet =  %%% count of negative
+
+a = mc_Network_mediator(a);
+a = mc_Network_Cellcount(a);
+
+celltot = a.cellcount.celltot;     % Count Edges Per Cell
+cellpos = a.cellcount.cellpos; %%% count of positive
+cellneg = a.cellcount.cellneg; %%% count of negative
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%% Permutations %%%%%
@@ -114,55 +117,76 @@ end
 
 save(permSave,'perms','pos','-v7.3');  %%%%  Backup, save perms and pos (you can get neg from the two), instead of everything
 
+a.shading.ePDF = squeeze(perms(:,:,1,1,:));
+a.perms = perms;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Calc Cell-Level Statistics %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+a.NetworkInclude = NetInclude;
+
+a = mc_Network_CellLevelstats(a);
+
+a = mc_Network_SignTest(a);
+
 % work directly with celltot
 
-permstot = perms;
-
-for i = 1:size(celltot,1)
-    for j = i:size(celltot,2)
-        epval.full(i,j) = sum(celltot(i,j) <= squeeze(permstot(i,j,1,1,:)))/size(permstot,5);
-    end
-end
-
-% Subset (Select the networks we want) 
-NetIncludeMat = NetInclude + 1; % shift 1 from network label to matrix label
-epval.mini.sq = epval.full(NetIncludeMat,NetIncludeMat);  % only network 1 - 7 (remember network starts from 0)
-
-% Unroll(matrix -> vector, only use diagonal and upper triangle)
-ctr = 1;
-for i=1:size(epval.mini.sq,1)
-    for j = i:size(epval.mini.sq,2)
-        epval.mini.flat(ctr) = epval.mini.sq(i,j);
-        ctr = ctr+1;
-    end
-end
-
-% FDR (get the adjusted p-Values)
-[h, critp, adjp] = fdr_bh(epval.mini.flat,thresh(3),FDRmode,[],CalcP);
-
-% Reroll (vector -> matrix)
-ctr = 1;
-for i=1:size(epval.mini.sq,1)
-    for j = i:size(epval.mini.sq,2)
-        epval.mini.rebuild(i,j) = h(ctr);
-        epval.mini.adjp(i,j) = adjp(ctr);
-        ctr = ctr+1;
-    end
-end
-
-epval.mini.rebuild
-epval.mini.adjp        %%% do we want to save them in a file??
+% permstot = perms;
+% 
+% for i = 1:size(celltot,1)
+%     for j = i:size(celltot,2)
+%         epval.full(i,j) = sum(celltot(i,j) <= squeeze(permstot(i,j,1,1,:)))/size(permstot,5);
+%     end
+% end
+% 
+% % Subset (Select the networks we want) 
+% NetIncludeMat = NetInclude + 1; % shift 1 from network label to matrix label
+% epval.mini.sq = epval.full(NetIncludeMat,NetIncludeMat);  % only network 1 - 7 (remember network starts from 0)
+% 
+% % Unroll(matrix -> vector, only use diagonal and upper triangle)
+% ctr = 1;
+% for i=1:size(epval.mini.sq,1)
+%     for j = i:size(epval.mini.sq,2)
+%         epval.mini.flat(ctr) = epval.mini.sq(i,j);
+%         ctr = ctr+1;
+%     end
+% end
+% 
+% % FDR (get the adjusted p-Values)
+% [h, critp, adjp] = fdr_bh(epval.mini.flat,thresh(3),FDRmode,[],CalcP);
+% 
+% % Reroll (vector -> matrix)
+% ctr = 1;
+% for i=1:size(epval.mini.sq,1)
+%     for j = i:size(epval.mini.sq,2)
+%         epval.mini.rebuild(i,j) = h(ctr);
+%         epval.mini.adjp(i,j) = adjp(ctr);
+%         ctr = ctr+1;
+%     end
+% end
+% 
+% epval.mini.rebuild
+% epval.mini.adjp        %%% do we want to save them in a file??
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Call TakGraph_lowlevel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if isfield(a,'DotDilateMat')
+    a = mc_TakGraph_enlarge(a);
+end
+
+[h,a] = mc_TakGraph_plot(a);
+
+if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
+    
+    a = mc_TakGraph_shadingtrans(a);
+    
+    mc_TakGraph_addshading(a);
+    
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
