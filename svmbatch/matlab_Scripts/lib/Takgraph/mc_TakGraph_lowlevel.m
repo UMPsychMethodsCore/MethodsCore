@@ -131,7 +131,7 @@ axis off;
 %% Add the shading on TakGraph
 if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     hold on;
-    % Transparency of the shading block
+    % Transparency of the shading block ( if  you want to use scaled shading)
     if isfield(a.Shading,'Trans')
         [sm_values] = value_slice(effect_size, a.Shading.Trans);
         [transparency, sm_transp] = Effects2Transp(effect_size,a.Shading.Trans,sm_values);
