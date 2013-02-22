@@ -144,6 +144,17 @@ CalcP = 1;
 enable = 1;
 statmode = 2;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Networks Selection
+%                      
+%                   Network_1  ---   Define network for contingency analyis
+%                   Network_2  ---   Define network
+%                   Enter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Network_1=[]; %enter network [range: 0-13]
+Network_2=[];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Add path 
@@ -155,5 +166,5 @@ addpath(fullfile(mcRoot,'svmbatch'))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
-mc_graphtheory_central
+MassUniConn_mc_central
 
