@@ -1,4 +1,4 @@
-function [ h out cellsize celltot cellpos cellneg cellsign cellsig ] = mc_TakGraph_lowlevel ( a )
+function [ h, out, cellsize, celltot, cellpos, cellneg, cellsign, cellsig ] = mc_TakGraph_lowlevel ( a )
 %MC_TAKGRAPH_LOWLEVEL Low-level graphing function to make a TakGraph
 % If you're working from the "standard" SVM stream, you probably want to run
 % mc_TakGraph instead, which is a higher level function which will call this one.
@@ -112,7 +112,7 @@ celltot = NumPos + NumNeg; % store for output
 %% Stats analysis setup
 if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     a = shading_initialize(a);
-    [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
+    [stats_result, effect_size] = stats_analysis(CellSize,NumPos,NumNeg,a.Shading);
 end
 
 cellsign = stats_result; % store for output
@@ -134,7 +134,7 @@ if isfield(a,'Shading') && isfield(a.Shading,'Enable') && a.Shading.Enable==1
     % Transparency of the shading block
     if isfield(a.Shading,'Trans')
         [sm_values] = value_slice(effect_size, a.Shading.Trans);
-        [transparency sm_transp] = Effects2Transp(effect_size,a.Shading.Trans,sm_values);
+        [transparency, sm_transp] = Effects2Transp(effect_size,a.Shading.Trans,sm_values);
         thing = add_shadebar(sm_values,sm_transp,[20,300],20,20);
     else
         transparency = a.Shading.Transparency;
@@ -287,7 +287,7 @@ for i = 1:Net_num
 end
 
 
-function [stats_result effect_size] = stats_analysis(CellSize,NumPos,NumNeg,stat)
+function [stats_result, effect_size] = stats_analysis(CellSize,NumPos,NumNeg,stat)
 % Apply the stats analysis to each cell
 % Input:
 % CellSize - a matrix that contains the size of each cell
