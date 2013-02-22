@@ -8,9 +8,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Load the design matrix data
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Load the design matrix data %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DesMtrxPathCheck  = struct('Template',DesMtrxTemplate,'mode','check');
 DesMtrxPath  = mc_GenPath(DesMtrxPath);
@@ -18,18 +18,18 @@ s  = load(DesMtrxPath);
 s.subs(:,2) = num2cell(1); % add a second column
 s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates of the first column
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
-%%%%% Load subjects data
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
+%%%%% Load subjects data %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
 CorrPath = mc_GenPath(CorrPathCheck);
 data = mc_load_connectomes_unpaired(s.subs,CorrPath);  % input: subject list
 data = mc_connectome_clean(data);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Network
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+%%%%% Network %%%%%
+%%%%%%%%%%%%%%%%%%%
 
 ParamPathCheck = struct('Template',ParamTemplate,'mode','check');
 ParamPath = mc_GenPath(ParamPathCheck);
@@ -52,9 +52,9 @@ for iNet = 0:max(nets)
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Fit the real model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Fit the real model %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,1,2); % 2: tell the code which column we care about 
 
@@ -83,9 +83,9 @@ celltot =   %%% Need refactorize mc_Takgraph_Lowlevel first;     % Count Edges P
 cellpos =  %%% count of positive
 cellnet =  %%% count of negative
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Permutations
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Permutations %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
 
 % for perms.count
 %First two dimensions will index the network structure. 
@@ -95,7 +95,8 @@ cellnet =  %%% count of negative
 % for perms.mean
 % First two dimensions will index nework structure
 % Third dimension will index repetitions of permutation test
-nNet   = 14;
+
+nNet   =  numel(unique(nets));  % Number of unique networks
 
 perms = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, permutation, cppi needs 5th dimension
 pos = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, count how many positive
@@ -107,47 +108,18 @@ mc_uni_permute(data,netmask,thresh,permcol,s.design);  % do a permutation
 toc
 
 for i=1:nRep
-    [perms(:,:,:,:,i) pos(:,:,:,:,i) neg(:,:,:,:,i)] = mc_uni_permute(data,netmask,thresh,permcol,s.design,1);
+    [perms(:,:,:,:,i) pos(:,:,:,:,i) ~] = mc_uni_permute(data,netmask,thresh,permcol,s.design,1);
     fprintf(1,'%g\n',i)
 end
 
-save('AutismPermutations_5.mat','-v7.3');  %%%%  Need edit later
-load('~/AutismPermutations_5.mat');   %%%%% Need edit later
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Calc Cell-Level Statistics
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Subset? and Unroll (matrix --> vector, only use diagonal and upper
-% triangle)
-b = a;
-
-netmask = ones(size(b.NetworkLabels));
-netmask(b.NetworkLabels==0) = 0;
-netmask(b.NetworkLabels == 13) = 0;
-
-netmask = logical(netmask);
-
-b.NetworkLabels = b.NetworkLabels(netmask);
-
-temp1 = mc_unflatten_upper_triangle(b.prune);
-temp1 = temp1(netmask,netmask);
-temp1 = mc_flatten_upper_triangle(temp1);
-b.prune = temp1;
-
-temp2 = mc_unflatten_upper_triangle(b.pruneColor.values);
-temp2 = temp2(netmask,netmask);
-temp2 = mc_flatten_upper_triangle(temp2);
-b.pruneColor.values = temp2;
-
-celltot = 
-cellpos = 
-cellneg = 
+save(permSave,'perms','pos','-v7.3');  %%%%  Backup, save perms and pos (you can get neg from the two), instead of everything
 
 
-%%% FDR (get the p-Values)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Calc Cell-Level Statistics %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% let's work directly with celltot
+% work directly with celltot
 
 permstot = perms;
 
@@ -157,9 +129,11 @@ for i = 1:size(celltot,1)
     end
 end
 
+% Subset (Select the networks we want) 
 NetIncludeMat = NetInclude + 1; % shift 1 from network label to matrix label
 epval.mini.sq = epval.full(NetIncludeMat,NetIncludeMat);  % only network 1 - 7 (remember network starts from 0)
 
+% Unroll(matrix -> vector, only use diagonal and upper triangle)
 ctr = 1;
 for i=1:size(epval.mini.sq,1)
     for j = i:size(epval.mini.sq,2)
@@ -168,8 +142,10 @@ for i=1:size(epval.mini.sq,1)
     end
 end
 
+% FDR (get the adjusted p-Values)
 [h, critp, adjp] = fdr_bh(epval.mini.flat,thresh(3),FDRmode,[],CalcP);
 
+% Reroll (vector -> matrix)
 ctr = 1;
 for i=1:size(epval.mini.sq,1)
     for j = i:size(epval.mini.sq,2)

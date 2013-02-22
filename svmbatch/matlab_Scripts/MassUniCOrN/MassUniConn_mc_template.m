@@ -90,7 +90,7 @@ SampleSubject = '0051459';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nRep    = 10000;
 permcol = 2;
-permSave = 'AutismPermutations_5.mat';  %%% appropriate location?
+permSave = 'AutismPermutations_5.mat';  
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,7 +127,7 @@ thresh = [.001, .01, .05];
 nRep   = 10000;
 FDRmode = 'pdep';
 NetInclude = [1,2,3,4,5,6,7];
-CalcP = 1
+CalcP = 1;
 
 
 
@@ -151,6 +151,8 @@ statmode = 2;
 mcRoot = '~/users/yfang/MethodsCore';
 
 addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
+addpath(fullfile(mcRoot,'svmbatch'))
+addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
 mc_graphtheory_central
