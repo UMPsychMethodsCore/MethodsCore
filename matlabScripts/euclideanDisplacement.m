@@ -38,7 +38,7 @@
 % - - - - - - - - - - - - - - - - - - - - -
 
 
-function results = euclideanDisplacement(motionParameters,leverArm,FDLeverArm,FDcriteria)
+function results = euclideanDisplacement(motionParameters,leverArm)
 
 % default return
 
@@ -47,11 +47,6 @@ results = -1;
 if exist('leverArm') == 0
    fprintf('Assuming "leverArm=50mm"\n');
    leverArm = 50;
-end
-
-if exist('FDLeverArm') == 0
-   fprintf('Assuming "FDleverArm=50mm"\n');
-   FDLeverArm = 50;
 end
 
 if length(size(motionParameters)) ~= 2
@@ -100,13 +95,5 @@ displacementAngle = sqrt(sum(folcrum.*folcrum,2));
 results.maxAngle  = max(displacementAngle);
 results.meanAngle = mean(displacementAngle);
 results.sumAngle  = sum(displacementAngle);
-
-% Now calculate for FD values
-[FD,FDjudge] = mc_FD_calculation(motionParameters,FDcriteria,FDLeverArm);
-results.meanFD       = mean(FD);
-results.censorvector = FDjudge;
-results.nonzeroFD    = nnz(FDjudge);
-
-
 
 return
