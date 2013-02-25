@@ -8,8 +8,6 @@ function mc_TakGraph_addshading( a )
 %                                                               2 - Positive signicant
 %                                                               3 - Negative significant
 %                                                               4 - Undirectional Significant 
-%                       a.stats.rebuild      -         A binary matrix of the same size as the a.stat.adjp. If the (i,j) element of a.stats.rebuild is 1, then the test that produced the 
-%                                                      p-value of the (i,j)th cell is significant (i.e., the null hypothesis of the test is rejected).
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels, which will help with finding the start and end point of each cell.
 %                       a.shading.transparency  -       Transparency of the shading blocks
 %
