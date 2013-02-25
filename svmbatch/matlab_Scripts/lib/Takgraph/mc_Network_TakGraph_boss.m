@@ -79,7 +79,5 @@ if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
 end
 
 
-
-
 end
 
