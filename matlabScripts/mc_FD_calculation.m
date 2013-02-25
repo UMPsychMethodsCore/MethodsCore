@@ -1,4 +1,4 @@
-function [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria,FDLeverArm)
+function [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, ScansBefore, ScansAfter)
 % MC_FD_CALCULATION    calculating the FD from the motion record for
 %   each timepoint, of x,y,z,pitch,roll and yaw. 
 %   The calculation is based on 
@@ -22,7 +22,12 @@ function [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria,FDLeverA
 %                                            of FD result
 % 
 %       FDLeverArm                         - The mean distance from the cerebral cortex to the center of the head, used to convert
-%                                            rotational displacements from radians/degrees to millimeters
+%                                            rotational displacements from
+%                                            radians/degrees to millimeters
+%       
+%       ScansBefore                        - Number of scans to censor before scans exceeding the FDcriteria
+%
+%       ScansAfter                         - Number of scans to censor after scans exceeding the FDCriteria
 % 
 %   OUTPUT
 % 
@@ -74,35 +79,34 @@ FDMotion = abs(FDMotion);
 FD = sum(FDMotion,2);
 
 % Add a zero in the front to represent the first frame
-FD_cv = [0;FD];
+FD = [0;FD];
+FDjudge = [];
 
 % Compare to the Criteria
-FDjudgeInt = double(FD_cv>FDcriteria);
+badScans = find(FD > FDcriteria);
+cellBadScans = num2cell(badScans);
+numScans = length(FD);
 
-% Augement the censor vector FDjudge by remove 1 frame before and 2 frames
-% after the problematic frame
-n = length(FDjudgeInt);
-FDjudge = zeros(n,1);
-for i = 2:(n-2)  % the first frame will always have the FD = 0
-    if FDjudgeInt(i)==1
-        FDjudge(i-1) = 1;
-        FDjudge(i)   = 1;
-        FDjudge(i+1) = 1;
-        FDjudge(i+2) = 1;
+if ~isempty(badScans)
+    if ScansBefore > 0
+        for i = 1:size(badScans, 1)
+            tmpBeforeScans = badScans(i) - [ScansBefore:-1:1];
+            tmpBeforeScans(tmpBeforeScans <= 0) = [];
+            cellBadScans{i} = [tmpBeforeScans cellBadScans{i}];
+        end
     end
-end
-
-if FDjudgeInt(n-1)==1
-    FDjudge(i-1) = 1;
-    FDjudge(i)   = 1;
-    FDjudge(i+1) = 1;
-end
-
-if FDjudgeInt(n)==1
-    FDjudge(i-1) = 1;
-    FDjudge(i)   = 1;
-end
     
-
-
-
+    if ScansAfter > 0
+        for i = 1:size(badScans, 1)
+            tmpAfterScans = badScans(i) - [1:1:ScansAfter];
+            tmpAfterScans(tmpAfterScans > numScans) = [];
+            cellBadScans{i} = [cellBadScans{i} tmpAfterScans];
+        end
+    end
+    
+    allBadScans = unique([cellBadScans{:}]);
+    FDjudge = zeros(numScans, length(allBadScans));
+    ind = sub2ind(size(FDjudge), allBadScans, 1:length(allBadScans));
+    FDjudge(ind) = 1;
+end        
+        
