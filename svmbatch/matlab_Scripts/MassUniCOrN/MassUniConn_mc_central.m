@@ -76,7 +76,7 @@ a.pruneColor.map = [1 1 1; % make 1 white
                     0 0 1; % make 3 blue
                     ];
 a.shading.enable = enable;
-a.shading.statMode = statmode;
+
 
 
 a = mc_Network_mediator(a);
@@ -111,13 +111,12 @@ mc_uni_permute(data,netmask,thresh,permcol,s.design);  % do a permutation
 toc
 
 for i=1:nRep
-    [perms(:,:,:,:,i) pos(:,:,:,:,i) ~] = mc_uni_permute(data,netmask,thresh,permcol,s.design,1);
+    [perms(:,:,:,:,i), pos(:,:,:,:,i), ~] = mc_uni_permute(data,netmask,thresh,permcol,s.design,1);
     fprintf(1,'%g\n',i)
 end
 
 save(permSave,'perms','pos','-v7.3');  %%%%  Backup, save perms and pos (you can get neg from the two), instead of everything
 
-a.shading.ePDF = squeeze(perms(:,:,1,1,:));
 a.perms = perms;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -126,48 +125,17 @@ a.perms = perms;
 
 a.NetworkInclude = NetInclude;
 
+a.stats.FDRrate  = FDRrate;
+
+a.stats.FDRmode  = FDRmode;
+
+a.stats.CalcP    = CalcP;
+
 a = mc_Network_CellLevelstats(a);
 
+a.stats.SignAlpha = SignAlpha;
+
 a = mc_Network_SignTest(a);
-
-% work directly with celltot
-
-% permstot = perms;
-% 
-% for i = 1:size(celltot,1)
-%     for j = i:size(celltot,2)
-%         epval.full(i,j) = sum(celltot(i,j) <= squeeze(permstot(i,j,1,1,:)))/size(permstot,5);
-%     end
-% end
-% 
-% % Subset (Select the networks we want) 
-% NetIncludeMat = NetInclude + 1; % shift 1 from network label to matrix label
-% epval.mini.sq = epval.full(NetIncludeMat,NetIncludeMat);  % only network 1 - 7 (remember network starts from 0)
-% 
-% % Unroll(matrix -> vector, only use diagonal and upper triangle)
-% ctr = 1;
-% for i=1:size(epval.mini.sq,1)
-%     for j = i:size(epval.mini.sq,2)
-%         epval.mini.flat(ctr) = epval.mini.sq(i,j);
-%         ctr = ctr+1;
-%     end
-% end
-% 
-% % FDR (get the adjusted p-Values)
-% [h, critp, adjp] = fdr_bh(epval.mini.flat,thresh(3),FDRmode,[],CalcP);
-% 
-% % Reroll (vector -> matrix)
-% ctr = 1;
-% for i=1:size(epval.mini.sq,1)
-%     for j = i:size(epval.mini.sq,2)
-%         epval.mini.rebuild(i,j) = h(ctr);
-%         epval.mini.adjp(i,j) = adjp(ctr);
-%         ctr = ctr+1;
-%     end
-% end
-% 
-% epval.mini.rebuild
-% epval.mini.adjp        %%% do we want to save them in a file??
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,6 +149,10 @@ end
 [h,a] = mc_TakGraph_plot(a);
 
 if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
+    
+    a.shading.transmode = transmode;
+    
+    a.shading.trans0    = SingleTrans;
     
     a = mc_TakGraph_shadingtrans(a);
     

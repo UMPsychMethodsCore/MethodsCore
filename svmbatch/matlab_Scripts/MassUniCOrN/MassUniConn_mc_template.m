@@ -53,7 +53,7 @@ Exp2 = '/net/data4/Autism';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DesMtrxTemplate = '[Exp1]/[DesMtrxName].mat';
-DesMtrxName = 'FixedFX_5';
+DesMtrxName     = 'FixedFX_5';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -73,12 +73,6 @@ CorrTemplate = '[Exp2]/FirstLevel/MotionScrubbedLinks/[Subject]/censortest_corr.
 ParamTemplate = '[Exp2]/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubject]/Grid/Grid_parameters.mat';
 SampleSubject = '0051459';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% The path of MasterData file
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,45 +82,44 @@ SampleSubject = '0051459';
 %                   nRep  ---   Number of Repitition
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nRep    = 10000;
-permcol = 2;
+nRep     = 10000;
+permcol  = 2;
 permSave = 'AutismPermutations_5.mat';  
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Stats Settings
-%               thresh:   1   ---
-%                         2   ---
-%                         3   ---  FDR thresh (The desired false discovery
-%                        rate). Default 0.05.
+% 
+%               NetInclude: The networks we want to include (The whole network set is from 0 to 13)
+% 
+%               thresh:     1   ---
+%                           2   ---
+%                           3   ---  
 %
-%               nRep:     number of repitition
+%               nRep:       Number of permutation repitition
 %
-%               FDRmode:  'pdep'  --- the original Bejnamini & Hochberg
-%             FDR procedure is used, which is guaranteed to be accurate if
-%             the individual tests are independent or positively dependent
-%             (e.g., Gaussian variables that are positively correlated or
-%             independent).
-%                        'dep'   --- the FDR procedure
-%             described in Benjamini & Yekutieli (2001) that is guaranteed
-%             to be accurate for any test dependency structure (e.g.,
-%             Gaussian variables with any covariance matrix) is used. 'dep'
-%             is always appropriate to use but is less powerful than 'pdep.
-%                         Default 'pdep'.
+%               FDRmode:    'pdep'  --- The original Bejnamini & Hochberg FDR procedure is used, which is guaranteed to be accurate if
+%                                       the individual tests are independent or positively dependent (e.g., Gaussian variables that 
+%                                       are positively correlated or independent).
+%                           'dep'   --- The FDR procedure described in Benjamini & Yekutieli (2001) that is guaranteed to be accurate for 
+%                                       any test dependency structure (e.g., Gaussian variables with any covariance matrix) is used. 'dep'
+%                                       is always appropriate to use but is less powerful than 'pdep. 
+%                            Defaults to 'pdep'.
+% 
+%               FDRrate:     FDR thresh (The desired false discovery rate). Default 0.05.
 %
-%              NetInclude: The networks we want to include (The whole
-%              network set is from 0 to 13)
-%
-%              CalcP:      [1 or 0]. Defaults to 0. If set to 1, it will actually calculate
-%             adjusted p values. 
+%               SignAlpha:   The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
+% 
+%               CalcP:       [1 or 0]. Defaults to 0. If set to 1, it will actually calculate adjusted p values. 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 thresh = [.001, .01, .05];
-nRep   = 10000;
-FDRmode = 'pdep';
 NetInclude = [1,2,3,4,5,6,7];
+FDRmode = 'pdep';
+FDRrate = 0.05;
+SignAlpha = 0.05;
 CalcP = 1;
 
 
@@ -137,12 +130,12 @@ CalcP = 1;
 % 
 %              enable     1    ---     turn on shading
 %                         0    ---     turn off shading
-%              statmode   1    ---
-%                         2    ---
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 enable = 1;
-statmode = 2;
+transmode = 0;
+SingleTrans = 0.5;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
