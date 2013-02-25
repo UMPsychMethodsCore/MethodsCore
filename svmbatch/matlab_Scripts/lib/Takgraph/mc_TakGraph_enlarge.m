@@ -16,7 +16,11 @@ function [ a ] = mc_TakGraph_enlarge( a )
 %                                                       The dots which is represented by values of this square matrix will be enlarged.
 %                       a.mediator.square_prune -       Transform a.prune from a 1 x nFeat matrix to a sorted upper triangular matrix.  
 %                                                       This is a logical that indicates which points need to be enlarged     
-
+%       OUTPUT
+%               a.mediator
+%                       a.mediator.square       -       Updated matrix representing enlarged dots.
+%
+%
 
 
 enlarge = a.mediator.square;
