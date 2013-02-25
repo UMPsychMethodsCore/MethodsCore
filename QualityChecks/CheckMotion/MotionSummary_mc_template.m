@@ -47,22 +47,34 @@ OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
 LeverArm = 75;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% FD Lever arm (typically between 50-100mm) for FD calculation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FDLeverArm = 50;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% FD value criteria 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FDcriteria = 0.2;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects 
 %%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 SubjDir = {
-    'Subject1',1,[1 2 3];
+    '5001/Tx1/',1,[1 2 3];
+     '5002/Tx1/',1,[1 2 3];
           };
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
 addpath(fullfile(mcRoot,'MotionSummary'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
