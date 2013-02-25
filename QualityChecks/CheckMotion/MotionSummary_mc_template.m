@@ -39,8 +39,6 @@ MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
-OutputCensorVector = '[Exp]/MotionSummary/[Censorname]/CensorVector_[Subject]';
-Censorname = 'MAS_vector';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
@@ -53,29 +51,35 @@ LeverArm = 75;
 FDLeverArm = 50;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% FD value criteria 
+%%% FDcritera is a threshold values.  A censor vector is created for all
+%%% scans that exceed the FDcriteria.  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FDcriteria = 0.2;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Other scans to exclude.
+%%% ScansBefore is the number of scans before a censored scan to create
+%%% sensor vectors as well.  ScansAfter is the number of scans after a
+%%% censored scan to create sensor vectors as well.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ScansBefore = 2;
+ScansAfter = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects 
 %%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 SubjDir = {
-    '5001/Tx1/',1,[1 2 3];
-     '5002/Tx1/',1,[1 2 3];
-          };
+'5001/Tx1/',1,[1 2 3];
+'5002/Tx1/',1,[1 2 3];
+};
 
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
-
-addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
+addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'MotionSummary'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
