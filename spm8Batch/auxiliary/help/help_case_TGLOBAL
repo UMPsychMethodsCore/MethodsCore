@@ -1,3 +1,8 @@
-    echo "    -G TGLOBAL           change the TGLOBAL parameters for fsl/slicetimer, "
-    echo "                         default is 0.50"
+    echo "    -G TGLOBAL           set the TGLOBAL parameters for fsl/slicetimer"
+    echo "                         "
+    echo "                         setting this parameter will CHANGE the behavior"
+    echo "                         of slicetimer. A set value results in a global"
+    echo "                         shift of all time-series by that amount, and NO"
+    echo "                         slice-by-slice differential correction to be made to"
+    echo "                         account for the slice acquisition delay slice-by-slice."
     echo 

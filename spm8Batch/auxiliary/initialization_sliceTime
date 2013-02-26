@@ -12,6 +12,7 @@ FSL_COMMAND=slicetimer
 outputName=a
 
 mcOPT=""
+TGLOBALSET=0
 
 #
 # all done

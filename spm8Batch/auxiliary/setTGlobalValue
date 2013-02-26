@@ -21,7 +21,7 @@
 			. ${thisDir}/auxiliary/exit_w_removal
 		      fi
 		      TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
-		      isnumber $TGLOBAL
+		      TGLOBALSET=1
 		  fi
 		  # 
 		  # Change back to success
