@@ -485,14 +485,14 @@ function [models columns] = parse_scans(options)
             model(n-1).reg(x).name = joblist{n}{col};
             model(n-1).reg(x).column = str2num(joblist{n}{col+1});
             
-            if strcmp(joblist{1}{col+2},'iCFI')
+            if size(joblist{n},1) >= col+2 && strcmp(joblist{1}{col+2},'iCFI')
                 model(n-1).reg(x).iCFI = str2num(joblist{n}{col+2});
             else
                 model(n-1).reg(x).iCFI = 1;
                 offset = offset - 1;
             end
             
-            if strcmp(joblist{1}{col+3},'iCC')
+            if size(joblist{n},1) >= col+3 && strcmp(joblist{1}{col+3},'iCC')
                 model(n-1).reg(x).iCC = str2num(joblist{n}{col+3});
             else
                 model(n-1).reg(x).iCC = 1;
