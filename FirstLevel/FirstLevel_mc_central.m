@@ -32,6 +32,38 @@ else
     mc_Logger('log','Not using sandbox',3);
 end
 
+% Patch proposed by Robert Welsh to allow for a subset of subjects to be pulled.
+% Place something like: 
+%
+%    SubjectDirBatch = [1:6]
+%
+% In the calling script.
+
+FATALERROR=0;
+
+if exist('SubjectDirBatch')
+	if max(SubjectDirBatch) > size(SubjDir,1) || min(SubjectDirBatch) < 1
+		fprintf('\nError - the batch of subjects you are requesting will not exist\n\n');
+		FATALERROR=1;
+	else
+		SubjDirTmp = {};
+		nSubjectBatch = 0;
+		for iSubjectBatch = 1:length(SubjectDirBatch)
+			nSubjectBatch = nSubjectBatch + 1;
+			for iSubjectBatchCol = 1:3
+				SubjDirTmp{nSubjectBatch,iSubjectBatchCol} = SubjDir{SubjectDirBatch(iSubjectBatch),iSubjectBatchCol};
+			end    
+		end
+		SubjDir = SubjDirTmp;
+	end
+end
+
+if FATALERROR
+	mc_Error('There was an error with your SubjectDirBatch variable.');
+end
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General Code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -649,9 +681,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     SPM.xM.VM = [];
-    if (~isempty(explicitmask))
-        SPM.xM.VM = spm_vol(explicitmask);
-    end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Configure design matrix %%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -659,6 +689,11 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         SPM = spm_fmri_spm_ui(SPM);
     end
 
+    if (exist('explicitmask','var') && ~isempty(explicitmask))
+        SPM.xM.VM = spm_vol(explicitmask);
+        SPM.xM.xs.Masking = [SPM.xM.xs.Masking '+explicit mask'];
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Estimation %%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -814,6 +849,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
     % 
     % 
+    if (NumContrast > 0)
     if (Mode == 1 | Mode == 2)
         clear jobs
         jobs{1}.stats{1}.con.spmmat = {fullfile(SandboxOutputDir,'SPM.mat')};
@@ -833,7 +869,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             jobs{1}.stats{1}.con.consess{iContrast}.tcon.convec = ContrastContent{iContrast};
             jobs{1}.stats{1}.con.consess{iContrast}.tcon.sessrep='none';
         end
-
+        clear temp;
         if (strcmp(spmver,'SPM8')==1)
             temp{1} = jobs;
             matlabbatch = spm_jobman('spm5tospm8',temp)
@@ -841,6 +877,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         else
             spm_jobman('run_nogui',jobs);
         end  
+    end
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
