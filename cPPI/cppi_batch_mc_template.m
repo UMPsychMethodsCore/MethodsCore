@@ -146,6 +146,13 @@ RealignmentParametersTemplate = '[Exp]/DataLinks/ERT/[Subject]/[Run]/rp_arun*';
 UseSandbox = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% If you want to only use a subset of the conditions in your model, you
+%%% can set this variable to that number of conditions.  To look at all
+%%% conditions this should be either empty or set to 0.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MaxConditions = [];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The script will split the number of ROIs into this many seperate bins
 %%% and run them simultaneously to speed up processing time.  Be careful
 %%% with setting this too high as it could cause the computer running the
