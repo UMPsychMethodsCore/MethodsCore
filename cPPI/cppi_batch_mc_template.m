@@ -6,7 +6,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/dysthymia/sandbox/cppi';
+Exp = '/home/slab/mnt/psyche/net/data4/GO2010/';
+
+LogTemplate = '/home/slab/users/mangstad/ERT/Logs/cPPI/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -22,14 +24,14 @@ Exp = '/dysthymia/sandbox/cppi';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+ImageTemplate = '[Exp]/DataLinks/ERT/[Subject]/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_01/';
-    'run_02/';
+	'ERT01/';
+    'ERT02/';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,8 +39,58 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'5001/Tx1',50011,[1 2];
-%'5001TEST/Tx1',50011,[1];
+%%%'022',1,[1 2],0; %>3mm in both runs
+%'024',2,[1 2],0;
+%'046',3,[1 2],0;
+%'066',4,[1 2],0;
+%'074',5,[1 2],0;
+%%%'076',6,[2],0; %>3mm in run 1
+%'081',7,[1 2],0;
+%'084',8,[1 2],0;
+%'095',9,[1 2],0;
+%'103',10,[1 2],0;
+%'107',11,[1 2],0;
+%'110',12,[1 2],0; 
+%'111',13,[1 2],0;
+%'124',14,[1 2],0; 
+%'133',15,[1 2],0;
+%'137',16,[1 2],0;
+%'138',17,[1 2],0; 
+%'142',18,[1 2],0;
+%'143',19,[1 2],0;
+%'148',20,[1 2],0;
+%'153',21,[1 2],0;
+%'157',22,[1 2],0;
+%'158',23,[1 2],0; 
+%'160',24,[1 2],0;
+%'162',25,[1 2],0;
+%'167',26,[1 2],0;
+%%%'173',27,[2],0; %>3mm in run 1, large artifact/mvt
+%'174',28,[1 2],0;
+%'176',29,[1 2],0; 
+%'191',30,[1 2],0;
+%'200',31,[1 2],0;
+%'202',32,[1 2],0;
+%'203',33,[1 2],0; 
+%'206',34,[1 2],0;
+%'207',35,[1 2],0;
+%'218',36,[1 2],0;
+%'219',37,[1 2],0;
+%'221',38,[1 2],0;
+%'227',39,[1 2],0;
+%'229',40,[1 2],0;
+%'233',41,[1 2],0;
+%'235',42,[1 2],0;
+%'237',43,[1 2],0; 
+%'245',44,[1 2],0;
+%'251',45,[1 2],0; 
+%'256',46,[1 2],0;
+%'268',47,[1 2],0; 
+%'269',48,[1 2],0; 
+%'293',49,[1 2],0;
+%'331',50,[1 2],0;
+%'332',51,[1 2],0;
+%'344',52,[1 2],0;  
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,7 +117,7 @@ alreadydone = [1 1 1 1];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'restrun';
+basefile = 'segrun';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -76,7 +128,7 @@ imagetype = 'nii';
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [180 180]; 
+NumScan = [150 150]; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,7 +139,7 @@ NumScan = [180 180];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Original First Level Model location
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SPMTemplate = '[Exp]/FirstLevel/[Subject]/OrigModel';
+SPMTemplate = '[Exp]/PROJECTS/ERT/FirstLevel/[Subject]/ERT/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Include Realignment Parameters in your PPI model
@@ -110,7 +162,7 @@ UseSandbox = 1;
 %%% starting your script.  In general you should not set this higher than
 %%% 4.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumProcesses = 1;
+NumProcesses = 17;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Mode to run som_batch_mc_central in
@@ -131,27 +183,27 @@ Mode = 'full';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Paths to your anatomical images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/rgrey.img';
-WhiteMatterTemplate = '[Exp]/Subjects/[Subject]/anatomy/wm_mask.nii';
-CSFTemplate = '[Exp]/Subjects/[Subject]/anatomy/csf_mask.nii';
+GreyMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
+WhiteMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
+CSFTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName = 'Grid_test';
+OutputTemplate = '[Exp]/PROJECTS/ERT/FirstLevel/[Subject]/[OutputName]/';
+OutputName = 'ERT_cPPI_norm_amyg';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leaving this blank ('') will use a subject-specific mask
 %%% NOTE: Subject-specific masks are not recommended for grid usage below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+BrainMaskTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arestrun_*';
+RealignmentParametersTemplate = '[Exp]/DataLinks/ERT/[Subject]/[Run]/rp_arun*';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
@@ -206,8 +258,12 @@ Fraction = 1;
 %%%         files       - provide a list of ROI files
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
+%%%         gridplus    - make a grid based on provided spacing and masked
+%%%                       by provided mask.  Additionally, add several ROIs
+%%%                       based on a list of coordinates presented in
+%%%                       ROIGridCenters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'coordinates';
+ROIInput = 'gridplus';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI coordinates you need to provide a list of centers in 
@@ -217,35 +273,19 @@ ROIInput = 'coordinates';
 %%% need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROICenters = [
-    18 -1 1; %VSi right
-    -18 -1 1; %VSi left
-    10 10 10;
-    10 10 -10;
-    10 -10 10;
-    10 -10 -10;
-%     -10 10 10;
-%     -10 10 -10;
-%     -10 -10 10;
-%     -10 -10 -10;
-%     5 5 5;
-%     5 5 -5;
-%     5 -5 5;
-%     5 -5 -5;
-%     -5 5 5;
-%     -5 5 -5;
-%     -5 -5 5;
-%     -5 -5 -5;
+    -22 0 -22; %left amyg Phan et al reappraisal
+    22 0 -22; %right amyg Phan et al reappraisal
+    -10 14 -14; %left nucleus acumbens (Ref?)
+    10 14 -14; %right nucleus acumbens (Ref?)
     ];
-ROISize = {1};
+ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
 %%% cell array list of ROI images.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROITemplate = '[Exp]/ROIS';
+ROITemplate = '[Exp]/matlabScripts/ERT/ROIs/CC200/';
 ROIImages = {
-    'image1.nii';
-    'image2.nii';
     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -257,13 +297,20 @@ ROIImages = {
 %%% point.  If you'd prefer to use the predefined 1,7,19, or 27 voxel sizes
 %%% you will need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIGridSpacing = 36;
+ROIGridSpacing = 12;
 ROIGridSize = {19};
-ROIGridMaskTemplate = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+ROIGridMaskTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
 
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The following option is only used if using 'gridplus' mode which adds
+%%% additional hand-specified ROIs onto the calculated grid.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ROIGridCenters = [
+    -22 0 -22; %left amyg Phan et al reappraisal
+    22 0 -22; %right amyg Phan et al reappraisal
+    -10 14 -14; %left nucleus acumbens (Ref?)
+    10 14 -14; %right nucleus acumbens (Ref?)
+    ];
 
 
 
@@ -289,7 +336,7 @@ ROIOutput = 'maps';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCore');
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'../');
 %DEVSTOP
 
 %[DEVmcRootAssign]
@@ -297,6 +344,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'../../MethodsCore');
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'cPPI'));
 addpath(fullfile(mcRoot,'som'));
-addpath(fullfile(mcRoot,'spm8'));
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
 cppi_batch_mc_central
