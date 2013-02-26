@@ -46,7 +46,11 @@ for iRun = 1:size(SPM.Sess,2)
     U.u = [];
     U.w = [];
 
-    u = length(Sess.U);
+    if (parameters.cppi.MaxConditions == 0)
+        u = length(Sess.U);
+    else
+        u = parameters.cppi.MaxConditions;
+    end
     %%%%%%%%%%%%%%%%%%%REMOVE THIS LATER
     %u = 2; %hardcoded to only use 2 conditions for MAS MSIT
     for i = 1:u

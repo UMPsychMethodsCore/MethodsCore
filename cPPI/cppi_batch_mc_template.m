@@ -1,3 +1,7 @@
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~   Basic   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% GENERAL OPTIONS
 %%%	These options are shared among many of our scripts
@@ -8,6 +12,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/home/slab/mnt/psyche/net/data4/GO2010/';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LogTemplate = '/home/slab/users/mangstad/ERT/Logs/cPPI/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,25 +106,9 @@ SubjDir = {
 TR = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, normalization, and smoothing
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-stp = 'a';
-rep = 'r';
-nop = 'w';
-smp = 's';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Preprocessing that has already been completed on images
-%%% [slicetime realign normalize smooth]
-%%% If you are only running First Level (i.e. Preprocessing is already done)
-%%% setting these will add the appropriate prefix to the basefile
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alreadydone = [1 1 1 1];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'segrun';
+basefile = 'swrasegrun';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -130,21 +121,22 @@ imagetype = 'nii';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NumScan = [150 150]; 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CONNECTONOMIC PPI OPTIONS
-%%%	These options are only used for cPPI
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Original First Level Model location
+%%% Original First Level Model location template
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPMTemplate = '[Exp]/PROJECTS/ERT/FirstLevel/[Subject]/ERT/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Include Realignment Parameters in your PPI model
+%%% NOTE: generally this is only done if you included realignment 
+%%% parameters in your original first level model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IncludeMotion = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path Template for realignment parameters file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RealignmentParametersTemplate = '[Exp]/DataLinks/ERT/[Subject]/[Run]/rp_arun*';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Analyze data on a local drive on the machine you run the script on
@@ -160,32 +152,9 @@ UseSandbox = 1;
 %%% script to become unresponsive or crash.  Please use the linux command
 %%% top to investigate other processes running on the computer before
 %%% starting your script.  In general you should not set this higher than
-%%% 4.
+%%% half of the available cores on a system.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumProcesses = 17;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Mode to run som_batch_mc_central in
-%%%        'test'       = test script but do not save parameters or run any
-%%%                       SOM code
-%%%        'parameters' = run script and save parameters for each subject
-%%%                       but do not run any SOM code
-%%%        'cppi'        = run SOM code on previously saved parameters
-%%%        'full'       = generate parameters and immediately run SOM code
-%%%
-%%%        NOTE: If you choose mode 'cppi' then most variables except
-%%%        SubjDir and OutputTemplate/OutputName will be ignored as they
-%%%        will be loaded from the already existing parameter file for each
-%%%        subject.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mode = 'full';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Paths to your anatomical images
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
-WhiteMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
-CSFTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
+NumProcesses = 12;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
@@ -201,61 +170,11 @@ OutputName = 'ERT_cPPI_norm_amyg';
 BrainMaskTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path Template for realignment parameters file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/DataLinks/ERT/[Subject]/[Run]/rp_arun*';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MaskGrey = 0;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Value threshold to use for each mask.  If left as [] use default 0.75
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyThreshold = [];
-WhiteThreshold = [];
-CSFThreshold = [];
-EPIThreshold = [];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% the order to perform the regressions etc
-%%%         D = detrend
-%%%         G = global
-%%%         W = white matter
-%%%         C = csf
-%%%         M = motion
-%%%         B = bandpass
-%%% 
-%%%         Suggested order is "DCWM"
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegressOrder = '';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Use this many principle components for regression
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PrincipalComponents = 5;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Bandpass Filter Settings
-%%%        LowFrequency - low frequency cutoff
-%%%        HighFrequency - high frequency cutoff
-%%%        Gentle - 0 = no rolling, 1 = rolling
-%%%        Padding - number of timepoints to pad on beginning/end
-%%%        BandpassFilter - 0 = Matlab filter, 1 = SOM_Filter_FFT
-%%%        Fraction - fraction of variance for principle components
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LowFrequency = 0.01;
-HighFrequency = 0.1;
-Gentle = 1;
-Padding = 10;
-BandpassFilter = 1;
-Fraction = 1;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Type of input
+%%% Method of ROI Selection
 %%%         coordinates - provide the center of each seed and a radius
 %%%         files       - provide a list of ROI files
+%%%         directory   - provide a directory with ROI images. The analysis
+%%%                       will use all images in that directory.
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
 %%%         gridplus    - make a grid based on provided spacing and masked
@@ -318,10 +237,79 @@ ROIGridCenters = [
 
 
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Paths to your anatomical images
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+GreyMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
+WhiteMatterTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
+CSFTemplate = '[Exp]/matlabScripts/ERT/ROIs/rrEPI_MASK_NOEYES.img';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MaskGrey = 0;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Value threshold to use for each mask.  If left as [] use default 0.75
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+GreyThreshold = [];
+WhiteThreshold = [];
+CSFThreshold = [];
+EPIThreshold = [];
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% the order to perform the regressions etc
+%%%         D = detrend
+%%%         G = global
+%%%         W = white matter
+%%%         C = csf
+%%%         M = motion
+%%%         B = bandpass
+%%% 
+%%%         Suggested order is "DCWM"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegressOrder = '';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Use this many principle components for regression
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+PrincipalComponents = 5;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Bandpass Filter Settings
+%%%        LowFrequency - low frequency cutoff
+%%%        HighFrequency - high frequency cutoff
+%%%        Gentle - 0 = no rolling, 1 = rolling
+%%%        Padding - number of timepoints to pad on beginning/end
+%%%        BandpassFilter - 0 = Matlab filter, 1 = SOM_Filter_FFT
+%%%        Fraction - fraction of variance for principle components
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LowFrequency = 0.01;
+HighFrequency = 0.1;
+Gentle = 1;
+Padding = 10;
+BandpassFilter = 1;
+Fraction = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Mode to run som_batch_mc_central in
+%%%        'test'       = test script but do not save parameters or run any
+%%%                       SOM code
+%%%        'parameters' = run script and save parameters for each subject
+%%%                       but do not run any SOM code
+%%%        'cppi'        = run SOM code on previously saved parameters
+%%%        'full'       = generate parameters and immediately run SOM code
+%%%
+%%%        NOTE: If you choose mode 'cppi' then most variables except
+%%%        SubjDir and OutputTemplate/OutputName will be ignored as they
+%%%        will be loaded from the already existing parameter file for each
+%%%        subject.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Mode = 'full';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output

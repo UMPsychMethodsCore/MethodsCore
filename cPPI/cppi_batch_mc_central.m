@@ -22,19 +22,6 @@ if (~exist('Mode','var'))
     Mode = 'full';
 end
 
-if (alreadydone(1))
-    basefile = [stp basefile];
-end
-if (alreadydone(2))
-    basefile = [rep basefile];
-end
-if (alreadydone(3))
-    basefile = [nop basefile];
-end
-if (alreadydone(4))
-    basefile = [smp basefile];
-end
-
 
 RunMode = [0 0];
 if (strcmpi(Mode,'full'))
@@ -225,10 +212,14 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.cppi.SPM = mc_GenPath(fullfile(SPMTemplate,'SPM.mat'));
         parameters.cppi.UseSandbox = UseSandbox;
         parameters.cppi.NumScan = NumScan;
-        if (~exist('StandardizeBetas','var') | isempty(StandardizeBetas))
+        if (~exist('StandardizeBetas','var') || isempty(StandardizeBetas))
             StandardizeBetas = 1;
         end
         parameters.cppi.StandardizeBetas = StandardizeBetas;
+        if (~exist('MaxConditions','var') || isempty(MaxConditions))
+            MaxConditions = 0;
+        end
+        parameters.cppi.MaxConditions = MaxConditions;
         
         if (UseSandbox)
             [status hostname] = system('hostname -s');
