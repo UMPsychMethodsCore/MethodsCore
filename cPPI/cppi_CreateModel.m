@@ -37,7 +37,7 @@ for iRun = 1:size(parameters.data.run,2)
     SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + (parameters.cppi.domotion * size(parameters.data.run(iRun).MotionParameters,2)));
     offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
 end
-SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_0.*',[1:size(roiTC,1)]);
+SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_[0-9].*',[1:size(roiTC,1)]);
 SPM.nscan = [parameters.data.run(:).nTIME];
 SPM.xBF.name       	= 'hrf';
 SPM.xBF.length     	= 32;   
