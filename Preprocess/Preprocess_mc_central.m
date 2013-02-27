@@ -39,6 +39,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 newbasefile = basefile;
 
+stp = SliceTimePrefix;
+rep = RealignPrefix;
+cop = CoregOverlayPrefix;
+chp = CoregHiResPrefix;
+nop = NormalizePrefix;
+smp = SmoothPrefix;
+
 if (AlreadyDone(1))
 	newbasefile = [stp newbasefile];
 end
@@ -64,13 +71,6 @@ docoregoverlay = StepsToDo(3);
 docoreghires = StepsToDo(4);
 donormalize = StepsToDo(5);
 dosmooth = StepsToDo(6);
-
-stp = SliceTimePrefix;
-rep = RealignPrefix;
-cop = CoregOverlayPrefix;
-chp = CoregHiResPrefix;
-nop = NormalizePrefix;
-smp = SmoothPrefix;
 
 if (~exist('doslicetiming','var') || ~doslicetiming)
 	stp = '';
