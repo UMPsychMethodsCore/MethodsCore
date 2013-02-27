@@ -621,6 +621,8 @@ if (Processing(1) == 1)
         %need to strip off the 1st line of the first run's realignment
         %parameters because of refimage being included.
         [p f e] = fileparts(rscan{1}{1});
+        ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
+        ImageDir = mc_GenPath(ImageDirCheck);
         r1rd = load(fullfile(Sandbox,ImageDir,['rp_' f '.txt']));
         r1rd = r1rd(2:end,:);
         save(fullfile(Sandbox,ImageDir,['rp_' f '.txt']),'r1rd','-ascii');
