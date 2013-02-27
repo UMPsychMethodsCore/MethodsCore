@@ -17,8 +17,12 @@ for iSubject = 1:size(SubjDir,1)
     Subject=SubjDir{iSubject};
 
     fprintf('\n\n\nPerforming check registration for subject: %s\n\n\n', Subject);
-
-    Run=RunDir{1};
+    
+    for jRun = 1:length(SubjDir{iSubject,3})
+    
+    Run=RunDir{jRun};
+    
+    fprintf('\n\n\nPerforming check registration for run: %s\n\n\n', Run);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     ImagePathCheck = struct('Template',ImageTemplate,...
@@ -45,7 +49,8 @@ for iSubject = 1:size(SubjDir,1)
 
     spm_jobman('run',CheckRegJob.jobs);
 
-    pause = input('Press [Return] to continue:\n');        
+    pause = input('Press [Return] to continue:\n');  
+    end
  
 end % Loop over subjects
    
