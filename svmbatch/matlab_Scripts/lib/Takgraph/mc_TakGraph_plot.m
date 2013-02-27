@@ -1,4 +1,4 @@
-function [ h,a ] = mc_TakGraph_plot( a )
+function [ a ] = mc_TakGraph_plot( a )
 % MC_TAKGRAPH_PLOT 
 % This function will draw the basic structure of TakGraph:
 %     The "on" edges, boundaries of cells, diagonal line. No Shading yet.
@@ -6,21 +6,25 @@ function [ h,a ] = mc_TakGraph_plot( a )
 % If enlarged dots are desired, need to run mc_TakGraph_enlarge first to update the a.mediator.square
 %
 %       INPUTS
-%                       a.pruneColor.map        -       A colormap object that will be directly indexed by pruneColor.values. 
+%                       a.colormap        -       A colormap object that will be directly indexed by pruneColor.values. 
+%                                                 Defaults to 1 - white, 2 - red, 3 - blue        
 %               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
 %
 %       OUTPUTS
-%               h       -       Handle to the graphics object
+%               a.h       -       Handle to the graphics object
 
 % Variable initialization
 square = a.mediator.square;
-map    = a.pruneColor.map;
+if ~isfield(a,'colormap')
+    a.colormap=[1 1 1; 1 0 0; 0 0 1];
+end
+map    = a.colormap;
 sorted = a.mediator.sorted;
 
 % Plot the edges
-h = figure;
+a.h = figure;
 image(square);
 colormap(map);
 axis off;
