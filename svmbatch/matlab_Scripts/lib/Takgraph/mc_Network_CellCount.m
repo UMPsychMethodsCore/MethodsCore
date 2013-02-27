@@ -1,4 +1,4 @@
-function [ a ] = mc_Network_Cellcount( a )
+function [ a ] = mc_Network_CellCount( a )
 % MC_NETWORK_CELLCOUNT 
 %
 % Based on the matrix that already sorted by network labels, count the

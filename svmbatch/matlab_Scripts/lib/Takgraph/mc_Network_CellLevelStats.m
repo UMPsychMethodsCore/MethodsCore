@@ -1,4 +1,4 @@
-function [ a ] = mc_Network_CellLevelstats( a )
+function [ a ] = mc_Network_CellLevelStats( a )
 % MC_NETWORK_CellLevelstats 
 % This function does cell level statistics on selected networks based on permutation results
 % INPUT
