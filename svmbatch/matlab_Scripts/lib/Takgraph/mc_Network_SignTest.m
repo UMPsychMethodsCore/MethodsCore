@@ -8,6 +8,7 @@ function [ a ] = mc_Network_SignTest( a )
 %                       a.cellcount.cellneg     -       A nNet x nNet matrix that counts how many edges were "negative" in each cell.
 %                       a.stats.rebuild         -       A binary matrix of the same size as the a.stat.adjp. If the (i,j) element of a.stats.rebuild is 1, then the test that produced the 
 %                                                       p-value of the (i,j)th cell is significant (i.e., the null hypothesis of the test is rejected).
+%                       a.stats.SignAlpha       -       The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
 %                             
 %       OUTPUTS(New subfields of a.stats)
 % 
