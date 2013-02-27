@@ -1,4 +1,4 @@
-function [ a ] = mc_Network_mediator( a )
+function [ a ] = mc_Network_FeatRestruct( a )
 % mc_Network_FeatRestruct - restructure your vector of features into a square matrix, 
 % and permute the square matrix to follow network structure
 % 
