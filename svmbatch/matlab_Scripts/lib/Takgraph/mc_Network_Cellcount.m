@@ -6,7 +6,7 @@ function [ a ] = mc_Network_Cellcount( a )
 % 
 % Input:
 % 
-%               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
+%               a.mediator                      -       See output of mc_network_FeatRestruct
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
 % 
