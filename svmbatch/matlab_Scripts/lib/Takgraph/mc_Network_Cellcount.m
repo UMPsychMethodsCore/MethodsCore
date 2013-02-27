@@ -25,7 +25,7 @@ sorted = a.mediator.sorted;
 
 
 % Make sure square doesn't have any element with value other than 1, 2 or 3
-if (sum(sum(square==1))+sum(sum(square==2))+sum(sum(square==3))<numel(square))
+if numel(setdiff(mc_flatten_upper_triangle(square),[1 2 3]))>0;
     error('Unexpected elements in square: we only want  1, 2 and 3')
 end
 
