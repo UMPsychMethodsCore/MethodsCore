@@ -8,36 +8,40 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Load the design matrix data %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Initialize
+DKinit
 
+%% Design Matrix
+%%% R System Call
+
+%%% Load Design Matrix
 DesMtrxPathCheck  = struct('Template',DesMtrxTemplate,'mode','check');
 DesMtrxPath  = mc_GenPath(DesMtrxPath);
 s  = load(DesMtrxPath);
+
+%%% Clean up Design Matrix
 s.subs(:,2) = num2cell(1); % add a second column
 s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates of the first column
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
-%%%%% Load subjects data %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%% Load Connectomes
 CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
 CorrPath = mc_GenPath(CorrPathCheck);
+% need to add switch here for paired vs unpaired
 data = mc_load_connectomes_unpaired(s.subs,CorrPath);  % input: subject list
 data = mc_connectome_clean(data);
-
-%%%%%%%%%%%%%%%%%%%
-%%%%% Network %%%%%
-%%%%%%%%%%%%%%%%%%%
-
+% if paired, need to calculate deltas
+%% Figure out Network Structure
+%%% Load parameter File
 ParamPathCheck = struct('Template',ParamTemplate,'mode','check');
 ParamPath = mc_GenPath(ParamPathCheck);
 param = load(ParamPath);
 
-
+%%% Look up ROI Networks
 roiMNI = param.parameters.rois.mni.coordinates;
 nets = mc_NearestNetworkNode(roiMNI,5);
+
+%%% Build Netmask
+% need to generalize this to support cPPI and resting
 sq_blanks = zeros(size(roiMNI,1));
 
 for iNet = 0:max(nets)
@@ -51,19 +55,21 @@ for iNet = 0:max(nets)
     end    
 end
 
+%% Fit Real Model
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Fit the real model %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%% Do the GLM
 [~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,1,2); % 2: tell the code which column we care about 
 
 ts = sign(t(2,:)); % figure out the sign
 
+%%% Figure out the subthreshold edges and their sign
+% will want to be able to loop over threshold probably? we rarely use that, so maybe we don't need to support?
+% will want to allow swap of positive to negative values depending on coding here? or should we fix up at design matrix level?
 ts(ts==+1) = 3; % map the positive values to 3 (flip the direction since autism is 1)
 ts(ts==-1) = 2; % map the negative values to 2 (flip direction)
 ts(ts==+0) = 1;
 
+%%% Construct Option for CellCount Function
 a.pruneColor.values = ts;
 a.prune = p(2,:) < thresh(1);
 a.NetworkLabels = nets;
@@ -78,7 +84,7 @@ a.pruneColor.map = [1 1 1; % make 1 white
 a.shading.enable = enable;
 
 
-
+%%% Count Cells
 a = mc_Network_mediator(a);
 a = mc_Network_Cellcount(a);
 
@@ -86,9 +92,7 @@ celltot = a.cellcount.celltot;     % Count Edges Per Cell
 cellpos = a.cellcount.cellpos; %%% count of positive
 cellneg = a.cellcount.cellneg; %%% count of negative
 
-%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Permutations %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%
+%% Permutations
 
 % for perms.count
 %First two dimensions will index the network structure. 
@@ -118,7 +122,7 @@ end
 save(permSave,'perms','pos','-v7.3');  %%%%  Backup, save perms and pos (you can get neg from the two), instead of everything
 
 a.perms = perms;
-
+%% Cell-Level Statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Calc Cell-Level Statistics %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -137,7 +141,7 @@ a.stats.SignAlpha = SignAlpha;
 
 a = mc_Network_SignTest(a);
 
-
+%% Generate TakGraph
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Call TakGraph_lowlevel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,7 +164,7 @@ if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
     
 end
 
-
+%% Network Contingency Visualizations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Network Contingency Analyses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
