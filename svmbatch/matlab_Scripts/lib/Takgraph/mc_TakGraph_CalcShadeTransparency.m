@@ -1,4 +1,4 @@
-function [ a ] = mc_TakGraph_shadingtrans( a )
+function [ a ] = mc_TakGraph_CalcShadeTransparency( a )
 % MC_TAKGRAPH_SHADINGTRANS 
 % This function decides whether to use single transparency for all the cell
 % shading or scaled transparency for cell based on their log10 p-values
