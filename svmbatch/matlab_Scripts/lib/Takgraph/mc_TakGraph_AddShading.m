@@ -24,9 +24,11 @@ else
     shademask = a.stats.FDR.hypo == 1;
 end
 
-if numel(size(a.shading.color)) < 3;
+if numel(size(a.shading.color)) < 3; % if only one color, replicate it
     shadecolor(1,1,:) = a.shading.color;
     shadecolor = repmat(shadecolor,[size(shademask), 1]);
+else
+    shadecolor = a.shading.color; % if it's an arrray, use it as is
 end
 
 % figure out transparency setting
