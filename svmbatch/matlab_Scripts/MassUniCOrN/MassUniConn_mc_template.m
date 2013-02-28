@@ -93,13 +93,18 @@ SampleSubject = '0051459';
 %
 % Permutation Settings
 %                      
-%                   nRep  ---   Number of Repitition
+%       nRep            -       Number of permutations to perform.
+%       permcol         -       Which column of your design matrix should we permute?
+%       permSave        -       Where should we save the permutation results?
+%       permDone        -       If you have previously run this script and have permutations,
+%                               set this to 1, and it will load up your previous result based
+%                               value in permSave
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nRep     = 10000;
 permcol  = 2;
 permSave = 'AutismPermutations_5.mat';  
-
+permsDone = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
