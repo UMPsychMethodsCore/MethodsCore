@@ -11,11 +11,9 @@ function [ a ] = mc_TakGraph_enlarge( a )
 %               a.DotDilateMat                  -       Your dilation matrix. Your original square matrix mat will be a nOffset*2 matrix of offsets that you wish to expand
 %                                                       For example, to enlarge the dots by adding dots above, below, and to either side, use:
 %                                                       a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1];
-%               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
-%                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
-%                                                       The dots which is represented by values of this square matrix will be enlarged.
-%                       a.mediator.square_prune -       Transform a.prune from a 1 x nFeat matrix to a sorted upper triangular matrix.  
-%                                                       This is a logical that indicates which points need to be enlarged     
+%               a.mediator                      -       See mc_Network_FeatRestruct for details
+%                       a.mediator.square       -       
+%                                                       
 %       OUTPUT
 %               a.mediator
 %                       a.mediator.square       -       Updated matrix representing enlarged dots.
@@ -24,11 +22,10 @@ function [ a ] = mc_TakGraph_enlarge( a )
 
 
 enlarge = a.mediator.square;
-logical = a.mediator.square_prune;
 mat     = a.DotDilateMat;
 
 out = enlarge;
-[hotx, hoty] = find(logical);
+[hotx, hoty] = find(enlarge~=1); % ID all non 1 (non sigifnicant) points
 [maxx, maxy] = size(enlarge);
 
 for ihot = 1:size(hotx,1) % Loop over values to enlarge
@@ -47,9 +44,7 @@ for ihot = 1:size(hotx,1) % Loop over values to enlarge
     end
 end
 
-
 a.mediator.square = out;
-
 
 end
 

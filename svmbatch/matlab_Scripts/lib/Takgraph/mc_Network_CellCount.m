@@ -1,4 +1,4 @@
-function [ a ] = mc_Network_Cellcount( a )
+function [ a ] = mc_Network_CellCount( a )
 % MC_NETWORK_CELLCOUNT 
 %
 % Based on the matrix that already sorted by network labels, count the
@@ -6,7 +6,7 @@ function [ a ] = mc_Network_Cellcount( a )
 % 
 % Input:
 % 
-%               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
+%               a.mediator                      -       See output of mc_network_FeatRestruct
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
 % 
@@ -25,8 +25,8 @@ sorted = a.mediator.sorted;
 
 
 % Make sure square doesn't have any element with value other than 1, 2 or 3
-if (sum(sum(square==0))+sum(sum(square==1))+sum(sum(square==2))+sum(sum(square==3))<numel(square))
-    error('Unexpected elements in square: we only want 0, 1, 2 and 3')
+if numel(setdiff(mc_flatten_upper_triangle(square),[1 2 3]))>0;
+    error('Unexpected elements in square: we only want  1, 2 and 3')
 end
 
 % Find out how many networks do we have
