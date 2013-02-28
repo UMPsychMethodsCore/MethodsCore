@@ -64,6 +64,8 @@ ts = sign(t(2,:)); % figure out the sign
 
 %%% Figure out the subthreshold edges and their sign
 % will want to be able to loop over threshold probably? we rarely use that, so maybe we don't need to support?
+prune = p(2,:) < thresh(1);
+
 % will want to allow swap of positive to negative values depending on coding here? or should we fix up at design matrix level?
 ts(ts==+1) = 3; % map the positive values to 3 (flip the direction since autism is 1)
 ts(ts==-1) = 2; % map the negative values to 2 (flip direction)
@@ -71,7 +73,7 @@ ts(ts==+0) = 1;
 
 %%% Construct Option for CellCount Function
 a.pruneColor.values = ts;
-a.prune = p(2,:) < thresh(1);
+a.prune = prune;
 a.NetworkLabels = nets;
 a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
                    -1 1; 1 1; -1 -1; 1 -1; %fill out square
