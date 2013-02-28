@@ -110,13 +110,13 @@ permsDone = 0;
 %
 % Stats Settings
 % 
-%               NetInclude: The networks we want to include (The whole network set is from 0 to 13)
+%               NetInclude: The networks we want to include (The whole network set is typically from 0 to 13)
 % 
 %               thresh:     1   ---
 %                           2   ---
 %                           3   ---  
 %
-%               nRep:       Number of permutation repitition
+%               nRep:       Number of permutation repetition
 %
 %               FDRmode:    'pdep'  --- The original Bejnamini & Hochberg FDR procedure is used, which is guaranteed to be accurate if
 %                                       the individual tests are independent or positively dependent (e.g., Gaussian variables that 
