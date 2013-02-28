@@ -1,4 +1,4 @@
-function [ a ] =  mc_TakGraph_addshading( a )
+function [ a ] =  mc_TakGraph_AddShading( a )
 %MC_TAKGRAPH_ADDSHADING 
 % Based on the result of stats analysis, add shading over the TakGraph at
 % the stats significant area
