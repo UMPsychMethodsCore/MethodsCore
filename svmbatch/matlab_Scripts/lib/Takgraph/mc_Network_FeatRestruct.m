@@ -12,9 +12,6 @@ function [ a ] = mc_Network_FeatRestruct( a )
 %                                                               3 - Edge Significant & Negative    
 %                       a.NetworkLabels         -       1 x nROI matrix of network labels. This will be used as is (no network expansion)
 %
-%               OPTIONAL
-%                       a.pruneColor.map        -       A colormap object that will be directly indexed by a.values. Not
-%                                                       required for this function, but useful downstream.
 %              
 %       OUTPUTS(New subfields of a)
 % 

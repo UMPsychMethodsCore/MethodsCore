@@ -1,5 +1,5 @@
 function [ a ] = mc_TakGraph_CalcShadeColor ( a )
-% MC_TAKGRAPH_CalcShadeTransparency
+% MC_TAKGRAPH_CalcShadeColor
 %
 %       INPUTS
 %               a.cellcount.celltot     -       nNet x nNet matrix of how many edges in each cell were sig (pos or neg)
