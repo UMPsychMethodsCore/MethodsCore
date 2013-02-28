@@ -11,8 +11,8 @@ function [ a ] =  mc_TakGraph_AddShading( a )
 %                       a.shading.transparency  -       nNet x nNet matrix of opacity values for shading. 0 is transparent, 1 opaque.
 %                                                       Alternatively, provide a scalar, and all cells will have identical shading.
 %                                                       Defaults to .3    
-%                       a.shading.shademask     -       Allows you to override behavior of a.stats.FDR.hypo. nNet x nNet logical
-%                                                       matrix of which cells to shade    
+%                       a.shading.shademask     -       Allows you to override behavior of FDR correction result(a.stats.FDR.hypo). 
+%                                                       nNet x nNet logical matrix of which cells to shade.
 
 
 set(0,'currentfigure',a.h)
