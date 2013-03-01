@@ -60,6 +60,13 @@ RunDir= {
 Exp1 = '~/users/kesslerd/repos/scratch_analysis_scripts/Autism/';
 Exp2 = '/net/data4/Autism';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Specify a folder to hold your output. If it does not not already exist, %
+% it will be created for you.                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+outputPath = '/net/data4/...'
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up your design matrix. You will need to provide a path to a cleansed        %
 % Master Data file. It must have a column named 'Subject' for the parsing to      %

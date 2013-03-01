@@ -11,6 +11,10 @@
 %% Initialize
 DKinit
 
+%% Create the output path
+
+mkdir(outputPath);
+
 %% Design Matrix
 %%% R System Call
 cd(outputPath)
