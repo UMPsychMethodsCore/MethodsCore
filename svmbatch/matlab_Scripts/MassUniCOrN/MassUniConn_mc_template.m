@@ -60,6 +60,22 @@ RunDir= {
 Exp1 = '~/users/kesslerd/repos/scratch_analysis_scripts/Autism/';
 Exp2 = '/net/data4/Autism';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set up your design matrix. You will need to provide a path to a cleansed        %
+% Master Data file. It must have a column named 'Subject' for the parsing to      %
+% work properly. This will happen in R automatically, then switch back to MATLAB  %
+%                                                                                 %
+% des.csvpath     -       A full path to your cleansed MasterData File (MDF)      %
+% des.IncludeCol  -       String naming col of logicals in MDF for subsetting     %
+% des.model       -       A formula expression indicating how to build the design %
+%                         matrix. See R or examples for details. Intercept is     %
+%                         automatically included in most cases                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+des.csvpath = '/net/data4/SomeStudy/MDF.csv';
+des.IncludeCol = 'Include.Overall';
+des.model = '~ Disease + Motion' ; 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % The path of design matrix

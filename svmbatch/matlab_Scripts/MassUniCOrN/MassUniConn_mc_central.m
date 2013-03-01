@@ -13,15 +13,16 @@ DKinit
 
 %% Design Matrix
 %%% R System Call
+cd(outputPath)
+Rcmd = ['Rscript --vanilla --args ' des.csvpath ' ' des.IncludeCol ' ' des.model ' < MDF_Parser.R'];
+system(Rcmd);
 
 %%% Load Design Matrix
-DesMtrxPathCheck  = struct('Template',DesMtrxTemplate,'mode','check');
-DesMtrxPath  = mc_GenPath(DesMtrxPath);
-s  = load(DesMtrxPath);
+s = load('FixedFX.mat');
 
 %%% Clean up Design Matrix
 s.subs(:,2) = num2cell(1); % add a second column
-s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates of the first column
+s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates except for first column
 
 %% Load Connectomes
 CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
