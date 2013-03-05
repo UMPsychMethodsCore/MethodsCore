@@ -8,65 +8,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The list of subjects to process
-%%% The format is 'subjectfolder',
-%%%
-%%% For unpaired SVM, next is an example label, should be +1 or -1
-%%%
-%%% For paired SVM, next is a mapping of conditions to runs. Include a
-%%% 0 if a given condition is not present. E.g. [3 1 0] would indicate that
-%%% condition one is present in Run 3, condition two is present in run 1,
-%%% and condition three is missing. 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjDir = {
-
-'081119mk',[2 1 3];
-'090602pr',[1 2 3];
-'090612sb',[2 3 1];
-'090701op',[3 2 1];
-'090814ad',[2 1 3];
-'090908lm',[0 2 1];
-'091109ed',[2 1 3];
-'100317bc',[1 2 3];
-'100408tg',[2 1 3];
-'100414ss',[2 3 1];
-'100504kc',[3 1 2];
-'100505ma',[3 2 1];
-'100506kh',[3 2 1];
-
-       };
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Do you have multiple runs (or something run-like to iterave over?) If
-%%%% so, specify it here.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-RunDir= {
-    'rest_1'
-    'rest_2'
-    'rest_3'
-} ;
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Main Path
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Exp1 = '~/users/kesslerd/repos/scratch_analysis_scripts/Autism/';
-Exp2 = '/net/data4/Autism';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Specify a folder to hold your output. If it does not not already exist, %
-% it will be created for you.                                             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-outputPath = '/net/data4/...'
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up your design matrix. You will need to provide a path to a cleansed        %
 % Master Data file. It must have a column named 'Subject' for the parsing to      %
@@ -83,23 +24,36 @@ des.csvpath = '/net/data4/SomeStudy/MDF.csv';
 des.IncludeCol = 'Include.Overall';
 des.model = '~ Disease + Motion' ; 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% The path of design matrix
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Does your data follow a paired structure? If so, set paired to 1, and also        %
+% be sure to set RunDir. This will get plugged in for '[Run]' in your templates.    %
+% You'll also need to set a contrast that will be used to do the delta calculation. %
+% This contrast will be the weights of the runs specified in RunDir.                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DesMtrxTemplate = '[Exp1]/[DesMtrxName].mat';
-DesMtrxName     = 'FixedFX_5';
+paired = 0;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% The path of correlation file
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RunDir= {
+    'rest_1'
+    'rest_2'
+    'rest_3'
+} ;
+
+pairedContrast = [1 -1 0]; 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Provide a path to the .mat files that hold your connectivity or cPPI matrices %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 CorrTemplate = '[Exp2]/FirstLevel/MotionScrubbedLinks/[Subject]/censortest_corr.mat';
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Specify a folder to hold your output. If it does not not already exist, %
+% it will be created for you.                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+outputPath = '/net/data4/...'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
