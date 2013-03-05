@@ -3,8 +3,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 Exp = '/net/data4/MAS/';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The list of subjects 
+%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SubjDir = {
+'5001/Tx1/',1,[1 2 3];
+'5002/Tx1/',1,[1 2 3];
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List all your run directories
@@ -16,7 +24,7 @@ RunDir = {
   'run_04/';
   'run_05/';
   'run_06/';
-         };
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path where the motion correction parameter files are located
@@ -32,7 +40,6 @@ RunDir = {
 % MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
 % MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,22 +72,13 @@ FDcriteria = 0.2;
 ScansBefore = 2;
 ScansAfter = 1;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The list of subjects 
-%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjDir = {
-'5001/Tx1/',1,[1 2 3];
-'5002/Tx1/',1,[1 2 3];
-};
-
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'MotionSummary'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckMotion'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
 MotionSummary_mc_central
