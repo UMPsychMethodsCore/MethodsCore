@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                      %
-%                   MassUnivariate Connectomme Analysis                % 
+%                   MassUnivariate Connectomic Analysis                % 
 %                           Template Script                            %
 %                                                                      %
 %                                                                      %
