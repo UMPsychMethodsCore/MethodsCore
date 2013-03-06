@@ -12,7 +12,7 @@
 %
 %  Call as :
 %
-%  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown)
+   %  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMQualityCheck)
 %
 %  To Make this work you need to provide the following input:
 %
@@ -28,7 +28,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag);
+function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag,UMQualityCheck);
 
 global defaults
 
@@ -346,10 +346,14 @@ for iRUN = 1:nRUNS
   % We need to check errors
   %
   try
-    results = rmReg_nii(NIFTIRUNFILE.name, [UMOutName NIFTIRUNFILE.name], PhysioMat);
-    if UMCheckFailure(results)
-      return
-    end
+      if ~exist('UMQualityCheck','var') || UMQualityCheck==0
+          results = rmReg_nii(NIFTIRUNFILE.name, [UMOutName NIFTIRUNFILE.name], PhysioMat);
+          if UMCheckFailure(results)
+              return
+          end
+      else
+          results = 1; % if we are not actually doing physioCorrection, indicate success
+      end
   catch
     fprint('Failure to do removal by regression.\n');
     fprintf('ABORTING\n\n');
@@ -360,6 +364,9 @@ for iRUN = 1:nRUNS
   % Now log it.
   PhysioCorrectionDirectory=fileparts(NIFTIRUNFILE.name);
   UMBatchLogProcess(PhysioCorrectionDirectory,sprintf('UMBatchPhysioCorr : Corrected file : %s',NIFTIRUNFILE.name))
+  else
+  results = 0; % if you've made it this far, and didn't make pruns, you're good
+  end
 end
 
 % All finished

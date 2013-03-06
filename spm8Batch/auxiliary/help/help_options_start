@@ -124,6 +124,9 @@
 	    "p") 
 	        . ${thisDir}/auxiliary/help/help_case_physioname
 	        ;;
+            "q")
+                . ${thisDir}/auxiliary/help/help_case_qualitycheck
+                ;;
 	    "R") 
 	        . ${thisDir}/auxiliary/help/help_case_reslice_2
 	        ;;
