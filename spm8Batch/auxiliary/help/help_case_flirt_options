@@ -1,7 +1,11 @@
-    echo "    -m \"fsl options\"     Give options to mcflirt or slicetimer."
+    echo "    -m \"[fsl options]\"   Give options to mcflirt or slicetimer or fslmaths."
+    echo	 
     echo "                         Be sure to specify inside of quotes."
+    echo
     echo "                         do \"mcflirt --help\" for help."
     echo "                         do \"slicetimer --help\" for help."
-    echo "                         default for mcflirt is \"-cost normcorr -stats -plots\""
-    echo "                         default for slicetimer is \"\""
+    echo "                         do \"fslmaths --help\" for help."
+    echo "                         default for realignfMRI is \"-cost normcorr -stats -plots\""
+    echo "                         default for sliceTime is \"\""
+    echo "                         default for erodeMask is \"-s 5 -sub 0.333\""
     echo 

@@ -1,5 +1,5 @@
 #
-# Copyright Robert C. Welsh, Ann Arbor MI 2005-2011
+# Copyright Robert C. Welsh, Ann Arbor MI 2005-2012
 # 
 # No warranty or guarantee made. USE AT OWN RISK.
 #
@@ -20,7 +20,9 @@
 #  MAILRECPT
 #
 
-COPYRIGHT="Copyright Robert C. Welsh, 2005-2011, Version"
+# Added some proper error returns when failing due to error.
+
+COPYRIGHT="Copyright Robert C. Welsh, 2005-2012, Version"
 
 if [ -z "${SPM8BATCHGLOBAL_CALLED}" ]
 then
@@ -55,6 +57,10 @@ then
     SPM8B3=${SPM8B2}/matlabScripts
     
     AUXPATH=${SPM8B2}/spm8_patch
+
+# The directory for the matlab code to do spiral reconstruction
+
+    RECONMLIB=/Users/rcwelsh/matlabScripts/WELLES/mfiles
     
 #
 # If the sandbox is populated then we copy files to local disk for processing
@@ -116,7 +122,9 @@ then
 	    echo
 	    echo " Currently disabled during switch to new version."
 	    echo
-	    exit 0
+            # return the error code of EX_NOPERM
+	    SPM8BATCH_ERROR_CODE=77
+	    . ${thisDir}/auxiliary/exit_w_removal
 	else
 	    echo
 	    echo " AUTHORIZED USER."
@@ -142,7 +150,9 @@ then
 		echo "     ${CRITICALCOMPONENT}"
 		echo
 		echo " does not exist."
-		exit 0
+		# error EX_CONFIG
+	        SPM8BATCH_ERROR_CODE=78
+	        . ${thisDir}/auxiliary/exit_w_removal
 	    fi
 	fi
     done
@@ -158,7 +168,9 @@ then
 	echo
 	echo "       $MATLAB"
 	echo
-	exit 0
+	# EX_CONFIG error
+	SPM8BATCH_ERROR_CODE=78
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
     
 # Now fix on whether we are on 64bit machine or 32bit machine

@@ -17,6 +17,7 @@ Gx=5
 Gy=5
 Gz=5
 nParam=0
+FINDVOLEXT=nii
 
 # User email to send mail to at job completion.
 USEREMAIL=
@@ -56,6 +57,9 @@ resliceFLAG=0
 # Default voxel size
 voxelSize=0
 
+# Default to not only calculate bias field corrected image in VBM8
+BIASFIELDFLAG=1
+
 # standard volume for mcflirt
 standardVolume=10
 
@@ -65,6 +69,9 @@ FSLOUTPUTTYPE=NIFTI
 # Runs to process.
 nRUN=0
 runNAMES=
+
+# A flag to let us know if the user has called "-w"
+setOutputNameCalledFLAG=0
 
 # MCFLIRT defaults:
 
@@ -82,11 +89,16 @@ TR=2
 
 # which slice to align time to?
 TGLOBAL=0.5
+# We default to tglobal not being set, only if it's set do we use the value.
+TGLOBALSET=0
 
 # you will need to make this different if you have interleaved, that is you'll
 # need to have SLICETIMEROPT="--odd ".
 # Also see the option "--ocustom" from slicetimer.
 SLICETIMEROPT=
+
+# Erosion Last Option
+EROSIONLASTOPT=
 
 # Set the flag that this is a batch command
 
@@ -99,6 +111,9 @@ BACKGROUNDJOBFLAG=1
 # Are you running this command in qualitycheck mode?
 
 QUALITYCHECKFLAG=0
+# Flags needed to reconstruction
+
+reconRunNumber=1
 
 #
 # Now the process specific initialization

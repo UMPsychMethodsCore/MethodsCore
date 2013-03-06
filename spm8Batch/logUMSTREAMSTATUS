@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# logTheUMProcess
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+#
+# # # # # # # # # # # # # # # # # #
+
+# Take the inputs and write out a log file
+
+if [ $# -ne 3 ]
+then
+    exit 0
+fi
+
+THEMESSAGE=$1
+THEPROCESS=$2
+THELOGFILE=$3
+
+THEDATE=`date`
+
+touch $THELOGFILE
+
+echo "$THEPROCESS $THEMESSAGE at $THEDATE " >> $THELOGFILE
+
+#
+# all done.
+#
