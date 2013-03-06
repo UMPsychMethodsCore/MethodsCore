@@ -18,7 +18,7 @@ function checkedFiles = qc_CheckSliceOpt(Opt)
 %
 nsubjects = size(Opt.List.Subjects,1);
 tempRuns = numel([Opt.List.Subjects{:,2}]);
-checkedFiles = cell(size(Opt.List.Subjects,1)*tempRuns,3);
+checkedFiles = cell(tempRuns,3);
 index = 1;
 
 if Opt.Thresh < 0

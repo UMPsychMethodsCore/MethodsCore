@@ -27,7 +27,8 @@
 %                     using "leverArm"
 %        .meanAngle = mean of the above.
 %        .sumAngle  = sum of the above.
-% 
+%        .meanFD = mean of all of the framewise displacements
+%        .nonzeroFD = number of time points whose FD is above certain criteria   
 %
 %  If results == -1 then you have an error in your input!!!
 %

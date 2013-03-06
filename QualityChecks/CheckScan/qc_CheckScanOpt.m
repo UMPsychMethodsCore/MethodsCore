@@ -17,8 +17,8 @@ function checkedFiles = qc_CheckScanOpt(Opt)
 %   checkedFiles{:,3} - run names
 %
 nsubjects = size(Opt.List.Subjects,1);
-tempRuns = numel(size([Opt.List.Subjects]));
-checkedFiles = cell(size(Opt.List.Subjects,1)*tempRuns,3);
+tempRuns = numel([Opt.List.Subjects{:,2}]);
+checkedFiles = cell(tempRuns,3);
 index = 1;
 
 fid = fopen(Opt.OutlierText,'w');

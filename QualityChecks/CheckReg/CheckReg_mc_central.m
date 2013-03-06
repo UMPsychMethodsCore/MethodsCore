@@ -43,8 +43,6 @@ for iSubject = 1:size(SubjDir,1)
             [ImagePath ImagePathName ',1'];
             [ImagePath ImagePathName ',2'];
             [ImagePath ImagePathName ',3'];
-            [ImagePath ImagePathName ',4'];
-            [ImagePath ImagePathName ',5'];
         };
 
     CheckRegJob.jobs{1}.util{1}.checkreg.data=data;

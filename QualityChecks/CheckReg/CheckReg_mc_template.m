@@ -1,10 +1,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 Exp = '/net/data4/MAS/';  
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The list of subjects 
+%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SubjDir = {
+'5032/Tx1',50321,[1 2];
+'5034/Tx2',50232,[1 2];
+'5035/Tx2',50241,[1 2];
+'5036/Tx2',50252,[1 2];
+'5037/Tx2',50262,[1 2];
+'5038/Tx2',50281,[1 2];
+'5040/Tx1',50291,[1 2];
+'5041/Tx2',50311,[1 2];
+'5042/Tx2',50321,[1 2];   
+}; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List the run directories that you want to process
@@ -16,9 +29,7 @@ RunDir = {
 'run_04/'
 'run_05/'
 'run_06/'
-};
-     
-     
+};  
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% OverlayTemplate: Path to overlay template
@@ -52,28 +63,8 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 %% The program will display the first five scans in the .nii file with this
 %% file prefix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       
 FilePrefix = 'ra';
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-SubjDir = {
-'5032/Tx1',50321,[1 2];
-'5034/Tx2',50232,[1 2];
-'5035/Tx2',50241,[1 2];
-'5036/Tx2',50252,[1 2];
-'5037/Tx2',50262,[1 2];
-'5038/Tx2',50281,[1 2];
-'5040/Tx1',50291,[1 2];
-'5041/Tx2',50311,[1 2];
-'5042/Tx2',50321,[1 2];   
-};
-   
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 %DEVSTOP
@@ -83,6 +74,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
-addpath(fullfile(mcRoot,'SPM8','spm8_with_4667'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 CheckReg_mc_central

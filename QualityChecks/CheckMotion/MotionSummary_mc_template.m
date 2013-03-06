@@ -3,8 +3,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 Exp = '/net/data4/MAS/';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The list of subjects 
+%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SubjDir = {
+'5001/Tx1/',1,[1 2 3];
+'5002/Tx1/',1,[1 2 3];
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List all your run directories
@@ -16,7 +24,7 @@ RunDir = {
   'run_04/';
   'run_05/';
   'run_06/';
-         };
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path where the motion correction parameter files are located
@@ -32,14 +40,12 @@ RunDir = {
 % MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
 % MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Name and path for your output file (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
-
+OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
@@ -47,23 +53,32 @@ OutputPathTemplate = '[Exp]/Output/Motion/RestingState_c';
 LeverArm = 75;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The list of subjects 
-%%% col 1 = subject id as string, col 2 = subject id as number, col 3 = runs
+%%% FD Lever arm (typically between 50-100mm) for FD calculation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FDLeverArm = 50;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% FDcritera is a threshold values.  A censor vector is created for all
+%%% scans that exceed the FDcriteria.  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FDcriteria = 0.2;
 
-SubjDir = {
-    'Subject1',1,[1 2 3];
-          };
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Other scans to exclude.
+%%% ScansBefore is the number of scans before a censored scan to create
+%%% sensor vectors as well.  ScansAfter is the number of scans after a
+%%% censored scan to create sensor vectors as well.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ScansBefore = 2;
+ScansAfter = 1;
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
-
 addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'MotionSummary'))
+addpath(fullfile(mcRoot,'QualityChecks','CheckMotion'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
    
 MotionSummary_mc_central
