@@ -351,6 +351,8 @@ for iRUN = 1:nRUNS
           if UMCheckFailure(results)
               return
           end
+      else
+          results = 1; % if we are not actually doing physioCorrection, indicate success
       end
   catch
     fprint('Failure to do removal by regression.\n');
