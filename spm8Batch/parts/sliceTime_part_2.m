@@ -6,7 +6,7 @@
 % forward.
 
 %
-% Loop over the subjects and smooth each one.
+% Loop over the subjects and slice time correct each subject and each run independently 
 %
 
 curDIR = pwd;
@@ -18,7 +18,7 @@ for iSub = 1:length(UMBatchSubjs)
   for iRun = 1:length(UMImgDIRS{iSub})
     cd(UMImgDIRS{iSub}{iRun});
     %
-    % Find out if they are using a sandbox for the smoothing.
+    % Find out if they are using a sandbox for the slice timing.
     %
     [CS SandBoxPID Images2Write] = moveToSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID,UMVolumeExt);
     %P = spm_select('ExtFPList',UMImgDIRS{iSub}{iRun},['^' UMVolumeWild '.*.nii'],inf);

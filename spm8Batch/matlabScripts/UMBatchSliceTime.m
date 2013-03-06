@@ -121,6 +121,7 @@ end
 % of double quotes on the bash command line
 
 if isnumeric(fMRI.SliceOrder) == 0
+  fMRI.SliceOrder=strtrim(fMRI.SliceOrder);
   switch lower(fMRI.SliceOrder(1))
    case 'a'
     fMRI.SliceOrder = 1:matlabbatch{1}.spm.temporal.st.nslices;
@@ -142,6 +143,7 @@ if isfield(fMRI,'RefSlice') == 0
 end
 
 if isnumeric(fMRI.RefSlice) == 0
+  fMRI.RefSlice = strtrim(fMRI.RefSlice);
   switch lower(fMRI.RefSlice(1))
    case 'l'   % The last.
     fMRI.RefSlice = matlabbatch{1}.spm.temporal.st.nslices;
@@ -203,7 +205,7 @@ else
   fMRI.order = 'custom';
 end
 
-UMBatchLogProcess(sliceTimeDirectory,sprintf('UMBatchSliceTime : Using TR=%2.2f, TE=%2.2f, Ref=%d, Order:%s',fMRI.TR,fMRI.TA,fMRI.RefSlice,fMRI.order));
+UMBatchLogProcess(sliceTimeDirectory,sprintf('UMBatchSliceTime : Using TR=%2.2f, TA=%2.2f, Ref=%d, Order:%s',fMRI.TR,fMRI.TA,fMRI.RefSlice,fMRI.order));
 
 results = toc;
 

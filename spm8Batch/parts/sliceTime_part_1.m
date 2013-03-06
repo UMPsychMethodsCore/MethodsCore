@@ -34,7 +34,7 @@
 
 % Make sure the UM Batch system is installed.
 
-if exist('UMBatchPrep') ~= 2 | exist('UMBatchCoReg') ~= 2
+if exist('UMBatchPrep') ~= 2 | exist('UMBatchSliceTime') ~= 2
     fprintf('You need to have the UM Batch system\n');
     resuts = -69;
     UMCheckFailure(results);

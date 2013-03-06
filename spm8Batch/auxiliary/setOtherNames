@@ -9,12 +9,15 @@
                   then
                     if (( $argn >= $args ))
 		        then
-		        echo "Missing parameter for other image name, aborting"
+		        echo "Missing parameter for slice time acquisition order, aborting"
 	                . ${thisDir}/auxiliary/exit_w_removal
 		    else
 		        sliceOrder=$1
                     fi
                   else
+                    #
+                    # Not sliceTime8 so must be a spatial operation command.
+                    #
                     if (( $argn >= $args ))
 		        then
 		        echo "Missing parameter for other image name, aborting"
