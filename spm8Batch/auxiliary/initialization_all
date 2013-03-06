@@ -89,6 +89,8 @@ TR=2
 
 # which slice to align time to?
 TGLOBAL=0.5
+# We default to tglobal not being set, only if it's set do we use the value.
+TGLOBALSET=0
 
 # you will need to make this different if you have interleaved, that is you'll
 # need to have SLICETIMEROPT="--odd ".

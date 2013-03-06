@@ -6,7 +6,7 @@
 % forward.
 
 %
-% Loop over the subjects and smooth each one.
+% Loop over the subjects and slice time correct each subject and each run independently 
 %
 
 curDIR = pwd;
@@ -18,12 +18,12 @@ for iSub = 1:length(UMBatchSubjs)
   for iRun = 1:length(UMImgDIRS{iSub})
     cd(UMImgDIRS{iSub}{iRun});
     %
-    % Find out if they are using a sandbox for the smoothing.
+    % Find out if they are using a sandbox for the slice timing.
     %
     [CS SandBoxPID Images2Write] = moveToSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID,UMVolumeExt);
     %P = spm_select('ExtFPList',UMImgDIRS{iSub}{iRun},['^' UMVolumeWild '.*.nii'],inf);
-    fprintf('Smoothing %d "%s" images in %s with %2.1f %2.1f %2.1f\n',size(Images2Write,1),UMVolumeWild,UMImgDIRS{iSub}{iRun},UMKernel(1),UMKernel(2),UMKernel(3));
-    results = UMBatchSmooth(Images2Write,UMKernel,OutputName,UMTestFlag);
+    fprintf('Slice time correcting %d "%s" images in %s \n',size(Images2Write,1),UMVolumeWild,UMImgDIRS{iSub}{iRun});
+    results = UMBatchSliceTime(Images2Write,UMfMRI,UMTestFlag);
     if UMCheckFailure(results)
       exit(abs(results))
     end
@@ -34,7 +34,7 @@ for iSub = 1:length(UMBatchSubjs)
   end
 end
 
-fprintf('\nAll done with smoothing images.\n');
+fprintf('\nAll done with slicetime correcting images.\n');
 
 cd(curDIR);
 

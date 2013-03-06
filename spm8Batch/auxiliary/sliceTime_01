@@ -6,9 +6,10 @@ cat ${thisDir}/parts/smooth_part_1.m                               > ${FULLSCRIP
 
 . ${thisDir}/auxiliary/buildMatlabScripts_02
 
-echo "UMKernel       = [${Gx} ${Gy} ${Gz}];"                       >> ${FULLSCRIPTNAME}.m
-
-# echo "UMImgWildCard  = '${volumeWILD}';"                           >> ${FULLSCRIPTNAME}.m
+echo "UMfMRI.TR         = ${TR};"                                  >> ${FULLSCRIPTNAME}.m
+echo "UMfMRI.Prefix     = '${outputName}';"                        >> ${FULLSCRIPTNAME}.m
+echo "UMfMRI.RefSlice   = ${referenceSlice};"                      >> ${FULLSCRIPTNAME}.m
+echo "UMfMRI.SliceOrder = ${sliceOrder};"                          >> ${FULLSCRIPTNAME}.m
 
 # Name of the functional volumes to find.
 

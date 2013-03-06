@@ -113,6 +113,10 @@ echo "    Number of runs to realign                 : ${nRUN}"
 . ${thisDir}/auxiliary/fslCommonScript
 
 echo                                                                                         >> ${FULLSCRIPTNAME}.sh
+echo                                                                                         >> ${FULLSCRIPTNAME}.sh
+echo "# Need to have this available for findFirstRunInList"                                  >> ${FULLSCRIPTNAME}.sh
+echo "export volumeWILD"                                                                     >> ${FULLSCRIPTNAME}.sh
+echo                                                                                         >> ${FULLSCRIPTNAME}.sh
 echo "testFLAG=${testFLAG}"                                                                  >> ${FULLSCRIPTNAME}.sh
 echo -n "for SUBJECT in"                                                                     >> ${FULLSCRIPTNAME}.sh
 for (( is=1 ; is<=$nSubjects ; is++ ))
@@ -127,13 +131,6 @@ echo "do"                                                                       
 echo "    cd ${fmriPATH}"                                                                    >> ${FULLSCRIPTNAME}.sh
 echo "    if [ ! -e \"${REFVOLNAME}.nii\" ] "                                                >> ${FULLSCRIPTNAME}.sh
 echo "    then"                                                                              >> ${FULLSCRIPTNAME}.sh
-
-#if [ "${ALLRUNSFLAG}" == "0" ]
-#then
-#    echo "      REFRUN=`printf \"run_%02d/\" ${runNAMES[0]}`"                                >> ${FULLSCRIPTNAME}.sh
-#else
-#    echo "      REFRUN=\`ls | grep run_ | head -1\`"                                         >> ${FULLSCRIPTNAME}.sh
-#fi
 
 if [ "${ALLRUNSFLAG}" == "0" ]
 then

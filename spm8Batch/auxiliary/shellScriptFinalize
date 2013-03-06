@@ -2,21 +2,26 @@
 # Check the status of MATLAB if we were calling matlab
 #
 
-JOBSTATUS="SUCCESS"
+echo "JOBSTATUS=\"SUCCESS\""                                 >> ${FULLSCRIPTNAME}.sh
+echo                                                         >> ${FULLSCRIPTNAME}.sh
+echo "if [ \"\${MATLAB_BASED_PROCESS}\" == \"1\" ]"          >> ${FULLSCRIPTNAME}.sh
+echo "then"                                                  >> ${FULLSCRIPTNAME}.sh
+echo "    if [ \"\${MATLAB_RETURN_CODE}\" != \"0\" ] "       >> ${FULLSCRIPTNAME}.sh
+echo "    then"                                              >> ${FULLSCRIPTNAME}.sh
+echo "	JOBSTATUS=\"MATLAB_FAILED:\${MATLAB_RETURN_CODE}\""  >> ${FULLSCRIPTNAME}.sh
+echo "    fi"                                                >> ${FULLSCRIPTNAME}.sh
+echo "fi"                                                    >> ${FULLSCRIPTNAME}.sh
 
-if [ "${MATLAB_BASED_PROCESS}" == "1" ]
-then
-    if [ "${MATLAB_RETURN_CODE}" != "0" ]
-    then
-	JOBSTATUS="MATLAB_FAILED:${MATLAB_RETURN_CODE}"
-    fi
-fi
+echo "if [ ! -z \"${UMSTREAM_STATUS_FILE}\" ] "              >> ${FULLSCRIPTNAME}.sh
+echo "then"                                                  >> ${FULLSCRIPTNAME}.sh
+echo "   echo \"${thisCommand} \${JOBSTATUS}, attempted at : ${theDate}\" >> \${UMSTREAM_STATUS_FILE}" >> ${FULLSCRIPTNAME}.sh
+echo "fi"                                                    >> ${FULLSCRIPTNAME}.sh
 
 # Automatic emailer.
 
 if [ "${USEREMAIL}" != "NOMAIL" ]
 then
-  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh ${JOBSTATUS} ${USEREMAIL}
+  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh "\${JOBSTATUS}" ${USEREMAIL}
 fi
 
 echo                                                                                   >> ${FULLSCRIPTNAME}.sh
