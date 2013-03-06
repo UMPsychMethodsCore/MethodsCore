@@ -133,7 +133,7 @@ switch parameters.Output.type
         %now save cppi grid results
         GridFilename = [parameters.Output.name '_cppi_grid'];
         GridPath = mc_GenPath(fullfile(parameters.Output.directory,GridFilename));
-        save(GridPath,'cppi_grid');      
+        save(GridPath,'cppi_grid','-v7.3');      
     otherwise
         %
         % Error case
