@@ -35,7 +35,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="ABDdFfGiMmntUv#"
+allowedOptions="ABDdFfGiMmntUv#!"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -53,6 +53,12 @@ allowedOptions="ABDdFfGiMmntUv#"
 . ${thisDir}/auxiliary/parse_arguments
 
 #
+
+if [ "${RUNSLICETIMEFSL}" == 0 ]
+then
+    . ${thisDir}/auxiliary/help/help_sliceTime_Caution
+    exit
+fi
 
 . ${thisDir}/auxiliary/superDebugStatus
 

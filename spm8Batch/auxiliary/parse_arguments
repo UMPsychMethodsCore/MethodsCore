@@ -372,7 +372,12 @@ do
 			let nRUN++
 		    fi
 		    ;;
-
+             # 
+             # Override needed to get sliceTime (the FSL based one to run)
+             #
+                "!")
+                    RUNSLICETIMEFSL=1
+                    ;;
              # case_0 for vbm8Check
              #
 		"0")
