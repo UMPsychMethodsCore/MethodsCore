@@ -45,7 +45,7 @@ if exist(SandBoxPID) == 7
     tic;
     % This can only handle one file at a time, and WILL break with multiple - RCWelsh 2012-04-07
     if length(FILESTOMOVE) > 1
-      fprintf('Move than one nifti file in source directory %s, sandbox method can only handle a single.\n',sourceDir);
+      fprintf('More than one nifti file in source directory %s, sandbox method can only handle a single.\n',sourceDir);
       fprintf('Turning off sandbox\n');
       CS=0
       SandBoxPID='';

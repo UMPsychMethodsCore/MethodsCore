@@ -1,20 +1,18 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
 % Copyright Robert C. Welsh
-% Ann Arbor, Michigan 2005
+% Ann Arbor, Michigan 2013
 % 
 % This is to be used with the UMBatch System for SPM8.
 %
-% This is to SMOOTH IMAGES.
+% This is to Slice Time Correct Images
 %
 % You must point to the batch processing code
 %
-% e.g.
+%  spm8
+%  spm2Batch
 %
-%  addpath /net/dysthymia/spm8
-%  addpath /net/dysthymia/spm8Batch
 %
-% 
 % You need to fill the following variables:
 %
 %   UMBatchMaster  =   point to the directory of the experiment.
@@ -22,20 +20,21 @@
 %   UMBatchSubjs   =   list of subjects within experiment. Space
 %                      pad if need be.
 %
-%   UMKernel       =   smoothing kernel, either a scalar or a
-%                      3-vector (e.g. 5 or [5 6 6])
+%   UMfMRI         =   structure with slice timing parameters
+%                      see UMBatchSliceTime.m
+%
 %
 %   UMImgDIRS      =   directory to which to find images.
 %                      (full path name)
 %
-%   UMVolumeWild   =   wild card name for images
+%   UMVolmeWild    =   wild card name for images
 %                      (e.g. "ravol_*.img')
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % Make sure the UM Batch system is installed.
 
-if exist('UMBatchPrep') ~= 2 | exist('UMBatchCoReg') ~= 2
+if exist('UMBatchPrep') ~= 2 | exist('UMBatchSliceTime') ~= 2
     fprintf('You need to have the UM Batch system\n');
     resuts = -69;
     UMCheckFailure(results);

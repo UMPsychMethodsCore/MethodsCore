@@ -1,7 +1,14 @@
     echo "${helpComment} Sub-directory             : ${subPATH}"
     echo "${helpComment} Volume Wildcard           : ${volumeWILD}"
     echo "${helpComment} fMRI TR                   : ${TR}"
-    echo "${helpComment} TGLOBAL                   : ${TGLOBAL}"
+    echo "${helpComment} TGLOBALSET                : ${TGLOBALSET}"
+    if [ "${TGLOBALSET}" == "1" ] 
+    then
+       echo "${helpComment}    slicetimer running in global shift mode"
+       echo "${helpComment}    TGLOBAL                : ${TGLOBAL}"
+    else
+       echo "${helpComment}    slicetimer running in aquisition time correciton mode"
+    fi
     echo "${helpComment} FSLOUTPUTTYPE             : ${FSLOUTPUTTYPE}"
     echo "${helpComment} Number of runs to realign : ${nRUN}"
 
