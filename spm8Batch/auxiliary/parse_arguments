@@ -137,7 +137,8 @@ do
 		
               # case_set_TGLOBAL
               #
-              # Set the TGLOBAL value for slice time
+              # Set the TGLOBAL value for slice time for FSL
+	      # Or set the reference slice for SPM8
               #
 		"G")
                     . ${thisDir}/auxiliary/setTGlobalValue

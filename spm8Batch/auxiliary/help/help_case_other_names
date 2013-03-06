@@ -1,6 +1,26 @@
 
-    if [ "${thisCommand}" != "realignfMRI" ]
-    then
+case "${thisCommand}" in
+    "realignfMRI")
+	echo "    -O refName           name to give realignRefVolume"
+	echo "                         default : ${otherName[0]}"
+	echo " "
+	;;
+    "sliceTime8")
+        echo "    -O slice order       slice acquisition order"
+	echo "                         this can be an array which must be speficifed "
+	echo "                         with double set of quotes e.g. \"'[1:40]'\" "
+	echo " "
+	echo "                         can be ascending, descending, or a file name (custom)"
+	echo "                         that also needs the double set of quotes:"
+	echo "                            e.g."
+	echo "                                  \"'ascending'\""
+	echo "                                  \"'descending'\""
+	echo "                                  \"'/net/data4/MyExpt/mysliceorder.txt'\""
+	echo " "
+	echo "                         DEFAULT : \"'ascending'\""
+	echo " "
+	;;
+    *)
        echo "    -O OtherName         coregOverlay/HiRes : name of other file to process,"
        echo "                         you can specify relative path or absolute path,"
        echo "                         the path can also have generic with subject name"
@@ -8,8 +28,5 @@
        echo "                         If relative path, then assume to look in the"
        echo "                         anatomy [or coReg for warpHiRes] directory."
        echo "                         default is none."
-    else
-       echo "    -O refName           name to give realignRefVolume"
-       echo "                         default : ${otherName[0]}"
-    fi
-    echo 
+esac
+

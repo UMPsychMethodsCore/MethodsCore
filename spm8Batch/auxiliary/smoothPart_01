@@ -7,7 +7,8 @@ cat ${thisDir}/parts/smooth_part_1.m                               > ${FULLSCRIP
 . ${thisDir}/auxiliary/buildMatlabScripts_02
 
 echo "UMKernel       = [${Gx} ${Gy} ${Gz}];"                       >> ${FULLSCRIPTNAME}.m
-echo "UMImgWildCard  = '${volumeWILD}';"                           >> ${FULLSCRIPTNAME}.m
+
+# echo "UMImgWildCard  = '${volumeWILD}';"                           >> ${FULLSCRIPTNAME}.m
 
 # Name of the functional volumes to find.
 

@@ -1,8 +1,19 @@
-    echo "    -G TGLOBAL           set the TGLOBAL parameters for fsl/slicetimer"
-    echo "                         "
-    echo "                         setting this parameter will CHANGE the behavior"
-    echo "                         of slicetimer. A set value results in a global"
-    echo "                         shift of all time-series by that amount, and NO"
-    echo "                         slice-by-slice differential correction to be made to"
-    echo "                         account for the slice acquisition delay slice-by-slice."
-    echo 
+case "${thisCommand}" in
+    "sliceTime")
+	    echo "    -G TGLOBAL           set the TGLOBAL parameters for fsl/slicetimer"
+	    echo "                         "
+	    echo "                         setting this parameter will CHANGE the behavior"
+	    echo "                         of slicetimer. A set value results in a global"
+	    echo "                         shift of all time-series by that amount, and NO"
+	    echo "                         slice-by-slice differential correction to be made to"
+	    echo "                         account for the slice acquisition delay slice-by-slice."
+	    echo 
+	    ;;
+    "sliceTime8")
+	    echo "    -G referenceSlice    set the value for the reference slice for timing correction"
+	    echo "                         this can be a number or a word, if a word it must be in "
+	    echo "                         double set of quotes e.g.:"
+	    echo 
+	    echo "                         \"'first'\" or \"'last'\" \"'middle'\" "
+	    echo
+esac 

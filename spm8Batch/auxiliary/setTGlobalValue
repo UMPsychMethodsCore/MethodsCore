@@ -10,18 +10,25 @@
 		  let argn++
 		  if (( $argn >= $args ))
 		      then
-		      echo "Missing parameter for setting TGLOBAL"
+		      echo "Missing parameter for setting TGLOBAL/referenceSlice"
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
-	              isnumber $1
-		      retVal=$?
-		      if [ "$retVal" != "0" ]
-		      then
-			echo "TGLOBAL needs to be numeric, you entered : $1"
-			. ${thisDir}/auxiliary/exit_w_removal
-		      fi
-		      TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
-		      TGLOBALSET=1
+                      if [ "${thisCommand}" == "sliceTime" ]
+                      then
+	                isnumber $1
+		        retVal=$?
+		        if [ "$retVal" != "0" ]
+		        then
+		  	  echo "TGLOBAL needs to be numeric, you entered : $1"
+			  . ${thisDir}/auxiliary/exit_w_removal
+		        fi
+		        TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
+		        TGLOBALSET=1
+                      else  #This is for sliceTime8
+                        # we will just naively take the value given as the code can handle
+                        # numbers and words for sliceTime8
+                        referenceSlice=$1
+                      fi
 		  fi
 		  # 
 		  # Change back to success

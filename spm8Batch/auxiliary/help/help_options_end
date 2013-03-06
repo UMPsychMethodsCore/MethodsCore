@@ -21,5 +21,7 @@
     echo "${helpComment} SANDBOX                   : ${SANDBOX}"
     echo "${helpComment} SANDBOXPID                : ${SANDBOXPID}"
     echo
+    echo "${helpComment} UMSTREAM_STATUS_FILE      : ${UMSTREAM_STATUS_FILE}"
+    echo
     echo "${helpComment} ${COPYRIGHT} ${VERSION}/${VERSIONDATE}"
     echo
