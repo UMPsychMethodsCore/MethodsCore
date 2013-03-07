@@ -18,7 +18,7 @@ mkdir(outputPath);
 %% Design Matrix
 %%% R System Call
 cd(outputPath)
-Rcmd = ['Rscript --vanilla --args ' des.csvpath ' ' des.IncludeCol ' ' des.model ' < MDF_Parser.R'];
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniCOrN/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"'];
 system(Rcmd);
 
 %%% Load Design Matrix
