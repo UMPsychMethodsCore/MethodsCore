@@ -51,22 +51,52 @@ param = load(ParamPath);
 %%% Look up ROI Networks
 roiMNI = param.parameters.rois.mni.coordinates;
 nets = mc_NearestNetworkNode(roiMNI,5);
+sq_blanks = zeros(size(roiMNI,1));
+
 
 %%% Build Netmask
 % need to generalize this to support cPPI and resting
-sq_blanks = zeros(size(roiMNI,1));
 
-for iNet = 0:max(nets)
-    for jNet = iNet:max(nets)
-        csq_blanks = sq_blanks;
-        csq_blanks(nets==iNet,nets==jNet) = 1;  % csq: current square
-        csq_blanks(nets==jNet,nets==iNet) = 1;
-        csq_blanks=triu(csq_blanks,1);
-        csq = mc_flatten_upper_triangle(csq_blanks);
-        netmask{iNet+1,jNet+1} = logical(csq); % network index starts from zero
-    end    
+
+switch matrixtype
+    case 'upper'
+
+      for iNet = 0:max(nets)
+          for jNet = iNet:max(nets)
+              csq_blanks = sq_blanks;
+              csq_blanks(nets==iNet,nets==jNet) = 1;  % csq: current square
+              csq_blanks(nets==jNet,nets==iNet) = 1;
+              csq_blanks=triu(csq_blanks,1);
+              csq = mc_flatten_upper_triangle(csq_blanks);
+              netmask{iNet+1,jNet+1} = logical(csq); % network index starts from zero
+          end    
+      end
+  case 'nodiag'
+% for yoke 1
+    for iNet = 0:max(nets)
+        for jNet = iNet:max(nets)
+            csq_blanks = sq_blanks;
+            csq_blanks(nets==iNet,nets==jNet) = 1;
+            csq_blanks(nets==jNet,nets==iNet) = 1;
+            csq_blanks=triu(csq_blanks,1);
+            csq = reshape(csq_blanks,size(roiMNI,1)^2,1);
+            netmask{iNet+1,jNet+1,1} = logical(csq);
+        end    
+    end
+
+% for yoke 2
+    for iNet = 0:max(nets)
+        for jNet = iNet:max(nets)
+            csq_blanks = sq_blanks;
+            csq_blanks(nets==iNet,nets==jNet) = 1;
+            csq_blanks(nets==jNet,nets==iNet) = 1;
+            csq_blanks=tril(csq_blanks,-1);
+            csq = reshape(csq_blanks,size(roiMNI,1)^2,1);
+            netmask{iNet+1,jNet+1,2} = logical(csq);
+        end    
+    end
 end
-
+      
 %% Fit Real Model
 
 %%% Do the GLM
