@@ -150,25 +150,11 @@ FDRrate = 0.05;
 CalcP = 1;
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Networks Selection
-%                      
-%                   net1, net2  ---   Define networks for contingency analyis
-%                      netName  ---   Assign a network name
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-net1=[2]; %enter network [range: 0-13]
-net2=[2];
-netName= 'defFront';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do Not Edit Below This Line %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Add path 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mcRoot = '~/users/yfang/MethodsCore';
 
 addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
