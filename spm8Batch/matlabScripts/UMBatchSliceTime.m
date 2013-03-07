@@ -177,6 +177,13 @@ end
 
 matlabbatch{1}.spm.temporal.st.scans{1} = pScans;
 
+% All seems ok
+if TestFlag == 1
+    fprintf('Testing succesful.\n');
+    results = toc;
+    return
+end
+
 % Run the job.
 
 spm_jobman('run_nogui',matlabbatch);
