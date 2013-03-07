@@ -155,7 +155,12 @@ CalcP = 1;
 % Do Not Edit Below This Line %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-mcRoot = '~/users/yfang/MethodsCore';
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
+%DEVSTOP
+
+%[DEVmcRootAssign]
+
 
 addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
 addpath(fullfile(mcRoot,'svmbatch'))
