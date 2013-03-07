@@ -83,7 +83,6 @@ matrixtype = 'nodiag';
 
 outputPath = '/net/data4/MyStudy/SweetNewOutput'
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also need to find just ONE parameter file that has info on where the     %
 % ROIs were located, so that we can assign them to networks. We assume that   %
@@ -92,8 +91,6 @@ outputPath = '/net/data4/MyStudy/SweetNewOutput'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubject]/Grid/Grid_parameters.mat';
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Permutation Settings                                                                        %
