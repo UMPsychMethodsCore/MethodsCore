@@ -253,8 +253,8 @@ edgemat(edgemat==1) = 0; % set all of the nonsig edges to zero
 
 for iCell = 1:size(GoodX,1)
     mask = zeros(nROI); % build a mask
-    iNet = netSort(GoodX); % figure out the first network's actual label
-    jNet = netSort(GoodY); % figure out the second network's label
+    iNet = netSort(GoodX(iCell)); % figure out the first network's actual label
+    jNet = netSort(GoodY(iCell)); % figure out the second network's label
     mask(nets == iNet, nets == jNet) = 1;
     edgemat_temp = edgemat .* mask;
     roimat_temp = roimat;
