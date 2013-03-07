@@ -160,27 +160,14 @@ cellneg = a.cellcount.cellneg; % count of negative
 %Third dimension will index different threshold values. 
 %Fourth dimension will index repetitions of the permutation test
 
-% for perms.mean
-% First two dimensions will index nework structure
-% Third dimension will index repetitions of permutation test
-
-nNet   =  numel(unique(nets));  % Number of unique networks
-
-perms = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, permutation, cppi needs 5th dimension
-pos = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, count how many positive
-neg = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, count how many negative
-
-% Quick timing test   %%% need this or not?
-tic
-mc_uni_permute(data,netmask,thresh,des.FxCol,s.design);  % do a permutation
-toc
+perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
 for i=1:nRep
-    [perms(:,:,:,:,i), pos(:,:,:,:,i), ~] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+    [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
     fprintf(1,'%g\n',i)
 end
 
-save(permSave,'perms','pos','-v7.3');  %%%%  Backup, save perms and pos (you can get neg from the two), instead of everything
+save(permSave,'perms','-v7.3');  %%%%  Backup
 
 a.perms = perms;
 %% Cell-Level Statistics
