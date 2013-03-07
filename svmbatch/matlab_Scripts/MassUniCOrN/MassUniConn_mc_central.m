@@ -153,6 +153,8 @@ celltot = a.cellcount.celltot; % Count Edges Per Cell
 cellpos = a.cellcount.cellpos; % count of positive
 cellneg = a.cellcount.cellneg; % count of negative
 
+edgemat = a.values; %snag edgemat for use down in network contingency stuff
+
 %% Permutations
 
 % for perms.count
@@ -227,12 +229,14 @@ end
 %% Network Contingency Visualizations
 
 %%% Grab the final edgemat and roiMat
-edgemat = a.mediator.square;
+% edgemat was snagged way above, before risk of dilation
 roimat = [roiMNI nets'];
 nROI = size(roimat,1);
 
 %%% Identify the cells that survived FDR (and were actually included in FDR)
 [GoodX GoodY] = find(a.stats.FDR.hypo==1);
+
+edgemat(edgemat==1) = 0; % set all of the nonsig edges to zero
 
 for iCell = 1:size(GoodX,1)
     mask = zeros(nROI); % build a mask
@@ -241,7 +245,7 @@ for iCell = 1:size(GoodX,1)
     mask(nets == iNet, nets == jNet) = 1;
     edgemat_temp = edgemat .* mask;
     roimat_temp = roimat;
-    roimat_temp(:,5) = sum([sum(edgemat_temp,1) ; sum(edgemat_temp,2)']);
+    roimat_temp(:,5) = sum([sum(logical(edgemat_temp),1) ; sum(logical(edgemat_temp),2)']); % use logical in there cuz we just want to count
     nodefile = fopen([num2str(iNet) '-' num2str(jNet),'.node'],'w');
     fprintf(nodefile,'%d\t%d\t%d\t%d\t%d\t-\n',roimat_temp'); %Transpose is necessary b/c it will use elements in a row-major order
     dlmwrite([num2str(iNet) '-' num2str(jNet)) '.edge'],edgemat_temp,'\t'); % Write edge file
