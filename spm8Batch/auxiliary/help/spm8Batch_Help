@@ -1,0 +1,72 @@
+echo
+echo This is the suite of spm8Batch unix command-line commands.
+echo	 
+echo The code was written by Robert C. Welsh over the period of 2005-2012
+echo and it is in further development.
+echo
+echo The driving force behind these scripts is to implement a level of error
+echo checking on data structures, parameter specification, logging of commands, 
+echo ability to process batchs of subjects, and to run in the background.
+echo 
+echo In general people have found their productivity to increase greatly 
+echo through the use of these scripts.
+echo 
+echo Presently these scripts are maintained by Robert Welsh and additional
+echo contributors to the Psychiatry Methods Core as well as the BIRB functional
+echo imaging lab.
+echo
+echo The listing of commands is in the rough order that one would do for
+echo processing of data from k-space data to final smoothed, MNI-based 
+echo T2* images.
+echo
+echo August-2012
+echo
+echo --------------------------------------------------------------------------
+echo 
+echo "Command         Purpose"
+echo "----------      ----------------------------------------------------------"
+echo 
+echo "whitePixel      Filtering of GE raw pfiles to remove white pixel artifact."
+echo 
+echo "reconSpiral     To process pfiles and do spiral reconstruction (ala Doug Noll)"
+echo "                and return NIFTI files (radiological convention."
+echo
+echo "physioCorr      Implements image based physiological correction (ala RETRICOR)"
+echo "                this command will work with both GE and Philips data."
+echo 
+echo "sliceTime       A wrapper to the FSL 'slicetimer' routine."
+echo 
+echo "realignfMRI     A wrapper to the FSL 'mcflirt' routine."
+echo 
+echo "detectSpike     A matlab routine to find bad image slices."
+echo
+echo "coregOverlay    A wrapper to the coregistration routine in SPM8."
+echo
+echo "coregHiRes      A wrapper to the coregistration routine in SPM8."
+echo
+echo "bestBET         A wrapper to the FSL 'bet' routine to try to determine"
+echo "                the best values of 'bet' cut-off. It is NOT recommended"
+echo "                to use this routine."
+echo
+echo "checkBET        An auxiliary routine to use in conjunction with 'bestBET'."
+echo
+echo "fslCheck        An auxiliary routine to do some check-registrations from"
+echo "                the command-line as long as images are in the same space."
+echo
+echo "vbm8HiRes       A wrapper to do MNI warping of hi-resolution image"
+echo "                to MNI space using the vbm8 toolbox add-on for SPM8."
+echo
+echo "vbm8Check       An auxililary routine to use with vbm8HiRes to do some"
+echo "                visual quality control. This is highly recommended!"
+echo 
+echo "warpHiRes       A wrapper to do MNI warping of hi-resolution image"
+echo "                to MNI the standard normalize function in SPM8."
+echo 
+echo "warpfMRI        A wrapper to do MNI warping of functional images"
+echo "                to MNI space based on either output of warpHiRes or vbm8HiRes."
+echo
+echo "smoothfMRI      A wrapper to smooth images using SPM8 routines."
+echo
+echo
+echo "Copyright Robert C. Welsh and others, 2012"
+echo

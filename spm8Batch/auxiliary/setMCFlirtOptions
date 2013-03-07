@@ -1,9 +1,18 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
 		  shift
 		  let argn++
 		  if (( $argn >= $args ))
 		      then
-		      echo "Missing mcflirt options, aborting"
+		      echo "Missing mcflirt/fslmaths options, aborting"
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      mcOPT=$1
 		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0
