@@ -124,22 +124,22 @@ switch matrixtype
     
   case 'nodiag'
     ts_twin = mc_twinstack(ts);
-    b.values = squeeze(ts_twin(:,1));
+    b.values = squeeze(ts_twin(:,:,1));
     b.NetworkLabels = nets;
-    c.values = squeeze(ts_twin(:,2));
+    c.values = squeeze(ts_twin(:,:,2));
     c.NetworkLabels = nets;
     b = mc_Network_CellCount(mc_Network_FeatRestruct(b));
     c = mc_Network_CellCount(mc_Network_FeatRestruct(c));
     
-    prune_up = ts_twin(:,1) ~= 1; % find all of the upper diag elements that are nonone (sig)
-    prune_dn = ts_twin(:,2) ~= 1; % find all of the lower diag elements that are nonone (sig)
+    prune_up = squeeze(ts_twin(:,:,1) ~= 1); % find all of the upper diag elements that are nonone (sig)
+    prune_dn = squeeze(ts_twin(:,:,2) ~= 1); % find all of the lower diag elements that are nonone (sig)
     
     overlap = all([prune_up; prune_dn],1); % identify cases where both elements were pruned
     disagree = ts_twin(:,1) - ts_twin(:,2); % calculate degree of disagreement
     disagree(~overlap) = 0; % throw out disagreements where there is no overlap
     disagreeID = find(disagree);
     
-    a.values = max([b.values; c.values],1); % take the max. This should preserve 2s or 3s over 1s
+    a.values = max([b.values; c.values],[],1); % take the max. This should preserve 2s or 3s over 1s
     a.values(disagreeID) = 4; % in places with disagreements, set it to yellow
     a.NetworkLabels = nets;
     a = mc_Network_FeatRestruct(a); % get stuff resorted
