@@ -34,21 +34,24 @@ end
 
 
 %% Load Connectomes
-CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
-CorrPath = mc_GenPath(CorrPathCheck);
-% need to add switch here for paired vs unpaired
-
 switch paired
   case 0
-    data = mc_load_connectomes_unpaired(s.subs,CorrPath,matrixtype); 
+    data = mc_load_connectomes_unpaired(s.subs,CorrTemplate,matrixtype); 
     data = mc_connectome_clean(data);
 % if paired, need to calculate deltas
   case 1
-    [data savail] = mc_load_connectomes_paired(s.subs,CorrPath,RunDir,matrixtype);
-    data = mc_calc_deltas_paired(data, savail, pairedContrast);
+    s.subs(:,2) = num2cell(1:numel(RunDir),2);
+    [data savail] = mc_load_connectomes_paired(s.subs,CorrTemplate,RunDir,matrixtype);
+    data = mc_connectome_clean(data);
+    [data labels] = mc_calc_deltas_paired(data, savail, pairedContrast);
+    data = data(labels==1,:); % grab only the positive delta
 end
 %% Figure out Network Structure
 %%% Load parameter File
+Subject = s.subs{1};
+if paired==1
+    Run = RunDir{1};
+end
 ParamPathCheck = struct('Template',ParamTemplate,'mode','check');
 ParamPath = mc_GenPath(ParamPathCheck);
 param = load(ParamPath);
