@@ -19,7 +19,13 @@ function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate )
 %                           Only thing you can use here is Subject.
 %                           Example:
 %                           '/net/data4/MAS/FirstLevel/[Subject]/conn.mat'
-% 
+%       matrixtype      -   Used to specify matrix mode. If
+%                           doing a cPPI, you may be using
+%                           a flattened form of the entire
+%                           connectivity matrix. In this
+%                           case, flattening and
+%                           unflattening will work a little
+%                           bit differently. % 
 %   NOTE - Use this function if loading unpaired datasets where you have two or more classes.
 
 conPathTemplate.Template=FileTemplate;
@@ -36,14 +42,19 @@ for iSub=1:size(SubjDir,1)
   conmat=load(conPath);
   rmat=conmat.rMatrix;
   if iSub==1
-    data=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
+      switch matrixtype
+        case 'upper'
+          data=zeros(nSubs,size(mc_flatten_upper_triangle(rmat),2));
+        case 'nodiag'
+          data=zeros(nSubs,numel(rmat));
+      end
+      switch matrixtype
+        case 'upper'
+          data(iSub,:)=mc_flatten_upper_triangle(rmat);
+        case 'nodiag'
+          data(iSub,:)=reshape(rmat,numel(rmat),1);
+      end
+      label(iSub,1)=Example;
+      
   end
-  data(iSub,:)=mc_flatten_upper_triangle(rmat);
-  label(iSub,1)=Example;
 end
-
-        
-        
-        
-end
-
