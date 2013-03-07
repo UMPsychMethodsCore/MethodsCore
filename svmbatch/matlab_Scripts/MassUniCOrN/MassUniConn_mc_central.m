@@ -200,15 +200,17 @@ a.perms = squeeze(perms(:,:,1,:)); % only give it one threshold to work with
 %%%%% Calc Cell-Level Statistics %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-a.NetworkInclude = NetInclude;
+a.stats.FDR.NetIn = NetInclude;
 
-a.stats.FDRrate  = FDRrate;
+a.stats.FDR.Enable = 1;
 
-a.stats.FDRmode  = FDRmode;
+a.stats.FDR.rate  = FDRrate;
 
-a.stats.CalcP    = CalcP;
+a.stats.FDR.mode  = FDRmode;
 
-a = mc_Network_CellLevelstats(a);
+a.stats.FDR.CalcP    = CalcP;
+
+a = mc_Network_CellLevelStats(a);
 
 %% Generate TakGraph
 
