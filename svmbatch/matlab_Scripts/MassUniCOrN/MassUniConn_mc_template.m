@@ -93,20 +93,22 @@ outputPath = '/net/data4/MyStudy/SweetNewOutput'
 
 ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubject]/Grid/Grid_parameters.mat';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Permutation Settings
-%                      
-%       nRep            -       Number of permutations to perform.
-%       permSave        -       Where should we save the permutation results?
-%       permDone        -       If you have previously run this script and have permutations,
-%                               set this to 1, and it will load up your previous result based
-%                               value in permSave
-%       permCores       -       How many CPU cores to use for permutations. We will try,
-%                               but it often fails with big data, in which case we will
-%                               fall back to just one core.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Permutation Settings                                                                        %
+%                                                                                             %
+%       nRep            -       Number of permutations to perform.                            %
+%       permSave        -       Where should we save the permutation results?                 %
+%       permDone        -       If you have previously run this script and have permutations, %
+%                               set this to 1, and it will load up your previous result based %
+%                               value in permSave                                             %
+%       permCores       -       How many CPU cores to use for permutations. We will try,      %
+%                               but it often fails with big data, in which case we will       %
+%                               fall back to just one core.                                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 nRep     = 10000;
 permSave = 'AutismPermutations_5.mat';  
 permsDone = 0;
