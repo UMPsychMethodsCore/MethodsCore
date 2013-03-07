@@ -81,7 +81,7 @@ matrixtype = 'nodiag';
 % it will be created for you.                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-outputPath = '/net/data4/MyStudy/SweetNewOutput'
+outputPath = '/net/data4/MyStudy/SweetNewOutput';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also need to find just ONE parameter file that has info on where the     %
