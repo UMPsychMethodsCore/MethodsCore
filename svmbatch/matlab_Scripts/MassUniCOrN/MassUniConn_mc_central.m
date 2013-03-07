@@ -28,6 +28,11 @@ s = load('FixedFX.mat');
 s.subs(:,2) = num2cell(1); % add a second column
 s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates except for first column
 
+if des.FxFlip == 1; % flip the effect of interest, if desired
+    s.design(:,des.FxCol) = -1 * s.design(:,des.FxCol);
+end
+
+
 %% Load Connectomes
 CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
 CorrPath = mc_GenPath(CorrPathCheck);

@@ -24,12 +24,24 @@
 %                         to 1. If you were interested in the first term in       %
 %                         des.model, you would set this to 2. If the third term,  %
 %                         set it to 3, and so on.                                 %
+% des.FlipFx      -       By default, results will be reported in terms of your   %
+%                         design matrix. However, sometimes this is the reverse   %
+%                         of the way you want to interpret it. R will order its   %
+%                         categorical factors alphabetically, so if you have      %
+%                         some subjects labeled 'A' for autism and others labeled %
+%                         'H' for healthy control, autism will end up being the   %
+%                         reference group, and your "effect" will actually be the %
+%                         effect of being healthy. If you'd like to flip this, set%
+%                         des.FlipFx to 1, and it will multiply the des.FxCol of  %
+%                         your design matrix by -1, so that you can interpret     %
+%                         results in a more naturaly way.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 des.csvpath = '/net/data4/SomeStudy/MDF.csv';
 des.IncludeCol = 'Include.Overall';
 des.model = '~ Disease + Motion' ; 
 des.FxCol = 2;
+des.FxFlip = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
