@@ -259,5 +259,5 @@ for iCell = 1:size(GoodX,1)
     roimat_temp(:,5) = sum([sum(logical(edgemat_temp),1) ; sum(logical(edgemat_temp),2)']); % use logical in there cuz we just want to count
     nodefile = fopen([num2str(iNet) '-' num2str(jNet),'.node'],'w');
     fprintf(nodefile,'%d\t%d\t%d\t%d\t%d\t-\n',roimat_temp'); %Transpose is necessary b/c it will use elements in a row-major order
-    dlmwrite([num2str(iNet) '-' num2str(jNet)) '.edge'],edgemat_temp,'\t'); % Write edge file
+    dlmwrite([num2str(iNet) '-' num2str(jNet) '.edge'],edgemat_temp,'\t'); % Write edge file
 end
