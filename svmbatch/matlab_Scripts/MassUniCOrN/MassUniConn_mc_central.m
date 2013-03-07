@@ -225,34 +225,24 @@ if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
 end
 
 %% Network Contingency Visualizations
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Network Contingency Analyses
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-edgemat = mc_unflatten_upper_triangle(ts);
+
+%%% Grab the final edgemat and roiMat
+edgemat = a.mediator.square;
 roimat = [roiMNI nets'];
 nROI = size(roimat,1);
-mask = zeros(nROI);
 
-% Assign edges 
-for iNet=1:length(net1)
-    for i1=1:length(net2)
-        mask(nets==net1(iNet),nets==net2(i1)) = 1;
-        mask(nets==net2(i1), nets==net1(iNet)) = 1;
-    end
+%%% Identify the cells that survived FDR (and were actually included in FDR)
+[GoodX GoodY] = find(a.stats.FDR.hypo==1);
+
+for iCell = 1:size(GoodX,1)
+    mask = zeros(nROI); % build a mask
+    iNet = netSort(GoodX); % figure out the first network's actual label
+    jNet = netSort(GoodY); % figure out the second network's label
+    mask(nets == iNet, nets == jNet) = 1;
+    edgemat_temp = edgemat .* mask;
+    roimat_temp = roimat;
+    roimat_temp(:,5) = sum([sum(edgemat_temp,1) ; sum(edgemat_temp,2)']);
+    nodefile = fopen([num2str(iNet) '-' num2str(jNet),'.node'],'w');
+    fprintf(nodefile,'%d\t%d\t%d\t%d\t%d\t-\n',roimat_temp'); %Transpose is necessary b/c it will use elements in a row-major order
+    dlmwrite([num2str(iNet) '-' num2str(jNet)) '.edge'],edgemat_temp,'\t'); % Write edge file
 end
-
-edgemat_temp = edgemat .* mask;
-roimat(:,5) = sum([sum(edgemat_temp,1) ; sum(edgemat_temp,2)']);
-
-% Write node file
-nodefile = fopen([sprintf(netName),'.node'],'w');
-fprintf(nodefile,'%d\t%d\t%d\t%d\t%d\t-\n',roimat'); %Transpose is necessary b/c it will use elements in a row-major order
-
-% Write edge file
-dlmwrite([sprintf(netName),'.edge'],edgemat_temp,'\t');
-
-
-
-
-
-              
