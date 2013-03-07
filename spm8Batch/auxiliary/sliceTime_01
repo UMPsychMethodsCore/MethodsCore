@@ -2,7 +2,7 @@
 
 . ${thisDir}/auxiliary/buildMatlabScripts_01
 
-cat ${thisDir}/parts/smooth_part_1.m                               > ${FULLSCRIPTNAME}.m
+cat ${thisDir}/parts/sliceTime_part_1.m                               > ${FULLSCRIPTNAME}.m
 
 . ${thisDir}/auxiliary/buildMatlabScripts_02
 
