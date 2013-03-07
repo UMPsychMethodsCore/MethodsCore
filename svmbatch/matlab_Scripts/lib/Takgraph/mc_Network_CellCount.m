@@ -16,7 +16,7 @@ function [ a ] = mc_Network_CellCount( a )
 %                       a.cellcount.cellsize    -       A nNet x nNet matrix that counts of number of edges in each cell.
 %                       a.cellcount.celltot     -       A nNet x nNet matrix that counts how many edges were "on" in each cell.
 %                       a.cellcount.cellpos     -       A nNet x nNet matrix that counts how many edges were "on" and "positive" in each cell.
-%                       a.cellcount.cellpos     -       A nNet x nNet matrix that counts how many edges were "on" and "negative" in each cell.
+%                       a.cellcount.cellneg     -       A nNet x nNet matrix that counts how many edges were "on" and "negative" in each cell.
 
 
 % Variable Initialization
