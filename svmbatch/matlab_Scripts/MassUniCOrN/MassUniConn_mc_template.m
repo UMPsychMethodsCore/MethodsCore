@@ -18,11 +18,19 @@
 % des.model       -       A formula expression indicating how to build the design %
 %                         matrix. See R or examples for details. Intercept is     %
 %                         automatically included in most cases                    %
+% des.FxCol       -       Which column of the design matrix will hold the effect  %
+%                         of interest? Note that the first column will be an      %
+%                         intercept term, so if you have a paired design, set this%
+%                         to 1. If you were interested in the first term in       %
+%                         des.model, you would set this to 2. If the third term,  %
+%                         set it to 3, and so on.                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 des.csvpath = '/net/data4/SomeStudy/MDF.csv';
 des.IncludeCol = 'Include.Overall';
 des.model = '~ Disease + Motion' ; 
+des.FxCol = 2;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Does your data follow a paired structure? If so, set paired to 1, and also        %
@@ -78,7 +86,6 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 % Permutation Settings
 %                      
 %       nRep            -       Number of permutations to perform.
-%       permcol         -       Which column of your design matrix should we permute?
 %       permSave        -       Where should we save the permutation results?
 %       permDone        -       If you have previously run this script and have permutations,
 %                               set this to 1, and it will load up your previous result based
@@ -86,7 +93,6 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nRep     = 10000;
-permcol  = 2;
 permSave = 'AutismPermutations_5.mat';  
 permsDone = 0;
 

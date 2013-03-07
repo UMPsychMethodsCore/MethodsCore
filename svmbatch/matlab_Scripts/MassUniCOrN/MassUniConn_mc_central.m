@@ -100,7 +100,7 @@ end
 %% Fit Real Model
 
 %%% Do the GLM
-[~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,1,2); % 2: tell the code which column we care about 
+[~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,3,des.FxCol);
 
 ts = sign(t(2,:)); % figure out the sign
 
@@ -155,11 +155,11 @@ neg = zeros(nNet,nNet,1,numel(thresh),nRep); %5D object, count how many negative
 
 % Quick timing test   %%% need this or not?
 tic
-mc_uni_permute(data,netmask,thresh,permcol,s.design);  % do a permutation
+mc_uni_permute(data,netmask,thresh,des.FxCol,s.design);  % do a permutation
 toc
 
 for i=1:nRep
-    [perms(:,:,:,:,i), pos(:,:,:,:,i), ~] = mc_uni_permute(data,netmask,thresh,permcol,s.design,1);
+    [perms(:,:,:,:,i), pos(:,:,:,:,i), ~] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
     fprintf(1,'%g\n',i)
 end
 
