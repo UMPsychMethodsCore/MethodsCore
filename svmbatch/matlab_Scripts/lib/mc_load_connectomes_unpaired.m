@@ -31,6 +31,9 @@ function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate )
 conPathTemplate.Template=FileTemplate;
 conPathTemplate.mode='check';
 
+if ~exist('matrixtype','var')
+    matrixtype='upper';
+end
 
 
 nSubs=size(SubjDir,1);
