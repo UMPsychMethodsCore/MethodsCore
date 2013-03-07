@@ -156,7 +156,7 @@ celltot = a.cellcount.celltot; % Count Edges Per Cell
 cellpos = a.cellcount.cellpos; % count of positive
 cellneg = a.cellcount.cellneg; % count of negative
 
-edgemat = a.values; %snag edgemat for use down in network contingency stuff
+edgemat = a.mediator.square; %snag edgemat for use down in network contingency stuff
 
 %% Permutations
 
