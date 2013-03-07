@@ -194,7 +194,7 @@ end
 
 save(permSave,'perms','-v7.3');  %%%%  Backup
 
-a.perms = perms;
+a.perms = squeeze(perms(:,:,1,:)); % only give it one threshold to work with
 %% Cell-Level Statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Calc Cell-Level Statistics %%%%%
