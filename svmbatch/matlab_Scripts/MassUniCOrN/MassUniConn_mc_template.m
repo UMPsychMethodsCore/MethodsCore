@@ -114,54 +114,40 @@ permSave = 'AutismPermutations_5.mat';
 permsDone = 0;
 permCores = 1;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Stats Settings
-% 
-%               NetInclude: The networks we want to include (The whole network set is typically from 0 to 13)
-% 
-%               thresh:     1   ---
-%                           2   ---
-%                           3   ---  
-%
-%               nRep:       Number of permutation repetition
-%
-%               FDRmode:    'pdep'  --- The original Bejnamini & Hochberg FDR procedure is used, which is guaranteed to be accurate if
-%                                       the individual tests are independent or positively dependent (e.g., Gaussian variables that 
-%                                       are positively correlated or independent).
-%                           'dep'   --- The FDR procedure described in Benjamini & Yekutieli (2001) that is guaranteed to be accurate for 
-%                                       any test dependency structure (e.g., Gaussian variables with any covariance matrix) is used. 'dep'
-%                                       is always appropriate to use but is less powerful than 'pdep. 
-%                            Defaults to 'pdep'.
-% 
-%               FDRrate:     FDR thresh (The desired false discovery rate). Default 0.05.
-%
-%               SignAlpha:   The alpha level used for the binomial sign test. Defaults to 0.05 if unset.
-% 
-%               CalcP:       [1 or 0]. Defaults to 0. If set to 1, it will actually calculate adjusted p values. 
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-thresh = [.001, .01, .05];
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % Stats Settings                                                                                                                                         %
+ %                                                                                                                                                        %
+ %        NetInclude      -       If you only want to do FDR correction on a subset of your networks, specify them here. You have two options             %
+ %                                a - Provide a row vector networks to include. These should use the same range of values as in a.NetworkLabels           %
+ %                                b - Provide a 2D logical square matrix with as many rows & columns as unique values in a.NetworkLabels. This allows you %
+ %                                maximum flexibility to turn some cells on and others off. Note, the lower triangle will be ignored regardless.          %
+ %        thresh          -       What is the p-value threshold in the mass univariate model for a single edge to be significant?                         %
+ %                                Pro tip - pass it a vector. Your analysis will be based on only the first value, but your permutation object            %
+ %                                will have results from all of them.                                                                                     %
+ %                                                                                                                                                        %
+ %        nRep            -       How many repetitions of permutations should we do?                                                                      %
+ %                                                                                                                                                        %
+ %        FDRmode:        -       'pdep'  --- The original Bejnamini & Hochberg FDR procedure is used, which is guaranteed to be accurate if              %
+ %                                        the individual tests are independent or positively dependent (e.g., Gaussian variables that                     %
+ %                                        are positively correlated or independent).                                                                      %
+ %                                'dep'   --- The FDR procedure described in Benjamini & Yekutieli (2001) that is guaranteed to be accurate for           %
+ %                                        any test dependency structure (e.g., Gaussian variables with any covariance matrix) is used. 'dep'              %
+ %                                        is always appropriate to use but is less powerful than 'pdep.                                                   %
+ %                                                                                                                                                        %
+ %                                        Defaults to 'pdep'.                                                                                             %
+ %                                                                                                                                                        %
+ %        FDRRate         -               FDR thresh (The desired false discovery rate). Default 0.05.                                                    %
+ %                                                                                                                                                        %
+ %        CalcP           -               [1 or 0]. Defaults to 0. If set to 1, it will actually calculate adjusted p values.                             %
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+thresh = [.001];
 NetInclude = [1,2,3,4,5,6,7];
 FDRmode = 'pdep';
 FDRrate = 0.05;
-SignAlpha = 0.05;
 CalcP = 1;
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Shading Options
-% 
-%              enable     1    ---     turn on shading
-%                         0    ---     turn off shading
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-enable = 1;
-transmode = 0;
-SingleTrans = 0.5;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
