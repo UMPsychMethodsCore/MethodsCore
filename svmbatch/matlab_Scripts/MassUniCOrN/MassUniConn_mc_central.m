@@ -205,10 +205,6 @@ a.stats.CalcP    = CalcP;
 
 a = mc_Network_CellLevelstats(a);
 
-a.stats.SignAlpha = SignAlpha;
-
-a = mc_Network_SignTest(a);
-
 %% Generate TakGraph
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Call TakGraph_lowlevel
@@ -218,17 +214,13 @@ if isfield(a,'DotDilateMat')
     a = mc_TakGraph_enlarge(a);
 end
 
-[h,a] = mc_TakGraph_plot(a);
+a = mc_TakGraph_plot(a);
 
 if isfield(a,'shading') && isfield(a.shading,'enable') && a.shading.enable==1
     
-    a.shading.transmode = transmode;
+    a = mc_CalcShadeColor(a);
     
-    a.shading.trans0    = SingleTrans;
-    
-    a = mc_TakGraph_shadingtrans(a);
-    
-    mc_TakGraph_addshading(a);
+    a = mc_TakGraph_addshading(a);
     
 end
 
