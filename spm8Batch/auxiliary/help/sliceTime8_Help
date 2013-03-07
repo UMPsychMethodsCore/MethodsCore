@@ -1,6 +1,5 @@
     echo
-    echo "A command line interface to slice time correction procedures in FSL."
-    echo "This uses the FSL routines : slicetimer."
+    echo "A command line interface to slice time correction procedures in SPM8."
     echo 
     echo
     echo
