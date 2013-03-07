@@ -107,35 +107,56 @@ end
 %%% Do the GLM
 [~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,3,des.FxCol);
 
-ts = sign(t(2,:)); % figure out the sign
+ts = sign(t(des.FxCol,:)); % figure out the sign
+ps = p(des.FxCol,:);
+
+
 
 %%% Figure out the subthreshold edges and their sign
 % will want to be able to loop over threshold probably? we rarely use that, so maybe we don't need to support?
-prune = p(2,:) < thresh(1);
+prune = ps < thresh;
+ts(~prune) = 0; % mask out everything that didn't survive pruning
 
-% will want to allow swap of positive to negative values depending on coding here? or should we fix up at design matrix level?
-ts(ts==+1) = 3; % map the positive values to 3 (flip the direction since autism is 1)
-ts(ts==-1) = 2; % map the negative values to 2 (flip direction)
-ts(ts==+0) = 1;
+ts(ts==+1) = 2; % map the positive values to 2 per mc_network_FeatRestruct standard
+ts(ts==-1) = 3; % map the negative values to 3 per mc_network_FeatRestruct standard
+ts(ts==+0) = 1; % map the nonsig values to 1 per mc_network_FeatRestruct standard
 
-%%% Construct Option for CellCount Function
-a.pruneColor.values = ts;
-a.prune = prune;
-a.NetworkLabels = nets;
-a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
-                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
-                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
-
-a.pruneColor.map = [1 1 1; % make 1 white
-                    1 0 0; % make 2 red
-                    0 0 1; % make 3 blue
-                    ];
-a.shading.enable = enable;
-
-
-%%% Count Cells
-a = mc_Network_mediator(a);
-a = mc_Network_Cellcount(a);
+%%% Do CellCounting
+switch matrixtype
+  case 'upper'
+    a.values = ts;
+    a.NetworkLabels = nets;
+    a = mc_Network_CellCount(mc_Neatwork_FeatRestruct(a));
+    
+  case 'nodiag'
+    ts_twin = mc_twinstack(ts);
+    b.values = squeeze(ts_twin(:,1));
+    b.NetworkLabels = nets;
+    c.values = squeeze(ts_twin(:,2));
+    c.NetworkLabels = nets;
+    b = mc_Network_CellCount(mc_Neatwork_FeatRestruct(b));
+    c = mc_Network_CellCount(mc_Neatwork_FeatRestruct(c));
+    
+    prune_up = ts_twin(:,1) ~= 1; % find all of the upper diag elements that are nonone (sig)
+    prune_dn = ts_twin(:,2) ~= 1; % find all of the lower diag elements that are nonone (sig)
+    
+    overlap = all([prune_up; prune_dn],1); % identify cases where both elements were pruned
+    disagree = ts_twin(:,1) - ts_twin(:,2); % calculate degree of disagreement
+    disagree(~overlap) = 0; % throw out disagreements where there is no overlap
+    disagreeID = find(disagree);
+    
+    a.values = max([b.values; c.values],1); % take the max. This should preserve 2s or 3s over 1s
+    a.values(disagreeID) = 4; % in places with disagreements, set it to yellow
+    a.NetworkLabels = nets;
+    a = mc_Network_FeatRestruct(a); % get stuff resorted
+    
+    %combine b and c results from CellCount
+    a.cellcount.cellsize = b.cellcount.cellsize + c.cellcount.cellsize;
+    a.cellcount.celltot = b.cellcount.celltot + c.cellcount.celltot;
+    a.cellcount.cellpos = b.cellcount.cellpos + c.cellcount.cellpos;
+    a.cellcount.cellneg = b.cellcount.cellneg + c.cellcount.cellneg;
+end
+    
 
 celltot = a.cellcount.celltot;     % Count Edges Per Cell
 cellpos = a.cellcount.cellpos; %%% count of positive
