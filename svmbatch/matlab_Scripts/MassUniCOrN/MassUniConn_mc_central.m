@@ -128,8 +128,8 @@ switch matrixtype
     b.NetworkLabels = nets;
     c.values = squeeze(ts_twin(:,2));
     c.NetworkLabels = nets;
-    b = mc_Network_CellCount(mc_Neatwork_FeatRestruct(b));
-    c = mc_Network_CellCount(mc_Neatwork_FeatRestruct(c));
+    b = mc_Network_CellCount(mc_Network_FeatRestruct(b));
+    c = mc_Network_CellCount(mc_Network_FeatRestruct(c));
     
     prune_up = ts_twin(:,1) ~= 1; % find all of the upper diag elements that are nonone (sig)
     prune_dn = ts_twin(:,2) ~= 1; % find all of the lower diag elements that are nonone (sig)
