@@ -149,9 +149,9 @@ switch matrixtype
 end
     
 
-celltot = a.cellcount.celltot;     % Count Edges Per Cell
-cellpos = a.cellcount.cellpos; %%% count of positive
-cellneg = a.cellcount.cellneg; %%% count of negative
+celltot = a.cellcount.celltot; % Count Edges Per Cell
+cellpos = a.cellcount.cellpos; % count of positive
+cellneg = a.cellcount.cellneg; % count of negative
 
 %% Permutations
 
