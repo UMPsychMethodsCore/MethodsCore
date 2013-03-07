@@ -162,10 +162,30 @@ cellneg = a.cellcount.cellneg; % count of negative
 
 perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
-for i=1:nRep
-    [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
-    fprintf(1,'%g\n',i)
+% attempt parallel
+
+if permCores ~= 1
+    try
+        matlabpool('open',permCores)
+        parfor i=1:nRep
+            [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+            fprintf(1,'%g\n',i)
+        end
+        matlabpool('close')
+    catch
+        matlabpool('close')
+        for i=1:nRep
+            [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+            fprintf(1,'%g\n',i)
+        end
+    end
+else
+    for i=1:nRep
+        [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+        fprintf(1,'%g\n',i)
+    end
 end
+      
 
 save(permSave,'perms','-v7.3');  %%%%  Backup
 
