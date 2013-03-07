@@ -32,9 +32,16 @@ s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates ex
 CorrPathCheck = struct('Template',CorrTemplate,'mode','check');
 CorrPath = mc_GenPath(CorrPathCheck);
 % need to add switch here for paired vs unpaired
-data = mc_load_connectomes_unpaired(s.subs,CorrPath);  % input: subject list
-data = mc_connectome_clean(data);
+
+switch paired
+  case 0
+    data = mc_load_connectomes_unpaired(s.subs,CorrPath,matrixtype); 
+    data = mc_connectome_clean(data);
 % if paired, need to calculate deltas
+  case 1
+    [data savail] = mc_load_connectomes_paired(s.subs,CorrPath,RunDir,matrixtype);
+    data = mc_calc_deltas_paired(data, savail, pairedContrast);
+end
 %% Figure out Network Structure
 %%% Load parameter File
 ParamPathCheck = struct('Template',ParamTemplate,'mode','check');

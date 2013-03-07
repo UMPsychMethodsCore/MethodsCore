@@ -47,6 +47,14 @@ pairedContrast = [1 -1 0];
 
 CorrTemplate = '/net/data4/SomeStudy/FirstLevel/MotionScrubbedLinks/[Subject]/censortest_corr.mat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Is the data that you're loading connectivity or cPPI? In other words, do you %
+% care about the upper portion of the connectivity matrix, or the whole thing? %
+% If doing connectivity, set matrixtype to 'upper'.                            %
+% If doing cPPI, set matrixtype to 'nodiag'.                                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+matrixtype = 'nodiag';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify a folder to hold your output. If it does not not already exist, %
