@@ -7,22 +7,7 @@
 # Copyright 2006-2011
 #
 #
-# Mofified to accept option for 
-# different reference file name as
-# output.
-#
 # # # # # # # # # # # # # # # # # # 
-
-# We need to know where we live.
-
-theCommand=`which $0`
-thisDir=`dirname $theCommand`
-
-# Default error code
-
-SPM8BATCH_ERROR_CODE=65
-
-#
 
 CURPID=$$
 
@@ -30,23 +15,12 @@ RUNDIR=$1
 VOLUME=$2
 N=$3
 
-# Get the name of the output for the reference volume.
-# must have default value if none speficied.
-# Added 2012-12-18 RCWelsh
-
-if [ -z "$4" ]
-then
-    REFNAME=realignRefVolume
-else
-    REFNAME=$4
-fi
-
 tmpfile=mcflirt_${CURPID}
 
 if [ ! -d "${RUNDIR}" ]
 then
     echo "Missing run directory : $RUNDIR"
-    . ${thisDir}/auxiliary/exit_w_removal
+    exit 1
 fi
 
 cd ${RUNDIR}
@@ -56,10 +30,10 @@ VOLNII=`ls ${VOLUME}*.nii 2> /dev/null`
 if [ -z "${VOLNII}" ]
 then
     echo "Missing nifti file in $RUNDIR for $VOLUME"
-    . ${thisDir}/auxiliary/exit_w_removal
+    exit 1
 fi
 
-rm -r ${tmpfile} 2> /dev/null
+rm -r ${tmpfile}
 
 mkdir -p ${tmpfile}
 
@@ -76,7 +50,7 @@ REFFILE=${tmpfile}_${REFNO}
 if [ ! -e ${REFFILE}.img ]
 then
     echo "Conversion failed, or coudn't find ${REFFILE}.img"
-    . ${thisDir}/auxiliary/exit_w_removal
+    exit 1
 fi
 
 mv ${REFFILE}.img ../
@@ -88,7 +62,7 @@ rm -r ${tmpfile}
 
 FSLOUTPUTTYPE=NIFTI
 
-fslmerge -t ../${REFNAME} ${REFFILE}
+fslmerge -t ../realignRefVolume ${REFFILE}
 
 rm ${REFFILE}.img
 rm ${REFFILE}.hdr

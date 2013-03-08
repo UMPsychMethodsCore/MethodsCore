@@ -1,7 +1,0 @@
-#
-# Set the flag to tell vbm8HiRes to erode after resampling to finale space.
-#
-
-	EROSIONLAST=0
-        EROSIONLASTOPT="-L"
-

@@ -9,14 +9,3 @@ echo "#"             								       >> ${FULLSCRIPTNAME}.sh
 # Unique code for this command.
 helpComment="#    "
 . ${thisDir}/auxiliary/help/help_${thisCommand}_Options                                >> ${FULLSCRIPTNAME}.sh
-
-# We default to this NOT being a matlab based process, however if we use shellScriptMATLABCall 
-# that will override this value.
-
-echo "MATLAB_BASED_PROCESS=0   # Default to not a matlab process"                     >> ${FULLSCRIPTNAME}.sh
-echo                                                                                  >> ${FULLSCRIPTNAME}.sh
-
-# Get into the correct working directory
-
-echo "# Get into the right working directory"                                         >> ${FULLSCRIPTNAME}.sh
-echo "cd ${execDIR}"                                                                  >> ${FULLSCRIPTNAME}.sh

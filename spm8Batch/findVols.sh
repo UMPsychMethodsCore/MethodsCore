@@ -7,14 +7,10 @@
 # Modified to look for NIFTI images (.nii or .nii.gz)
 # 2011 April 18
 #
-# Modified to accept a file extension for finding files.
-# 2012 Dec 18
-#
 # Explicitly put in exclusion of directoy name of ANALYZE
 #
 # Copyright Robert C. Welsh, Ann Arbor Michigan. 2005-2011
 # 
-#
 
 theDIRS=""
 
@@ -24,7 +20,7 @@ if [ -z "$1" ]
 then
     echo "Usage:"
     echo 
-    echo "   findVols.sh [directory name] [volumeWILD] [subdir] [fileextension]"
+    echo "   findVols.sh [directory name] [volumeWILD] [subdir]"
     echo ""
     echo "       e.g. findVols.sh 050128mh ravol"
     echo
@@ -44,18 +40,9 @@ fi
 
 cd $searchDir
 
-# Default to using just nii, the calling program has responsbility to set to img
-
-if [ -z "${4}" ]
-then
-    FILEXT=nii
-else
-    FILEXT=$4
-fi
-
 # How many images are in this directory?
 
-nIMGS=`ls $2*.${FILEXT}* 2> /dev/null | wc |  awk '{print $1}'`
+nIMGS=`ls $2*.nii* 2> /dev/null | wc |  awk '{print $1}'`
 if (( $nIMGS > 0 ))
 then
     #
@@ -76,13 +63,13 @@ then
 fi
 
 # Become recursive for the other directories present.
-for newDIR in `ls -l 2> /dev/null | grep -e drw -e lrw | awk '{print $NF}'`
+for newDIR in `ls -l 2> /dev/null | grep -e drw -e lrw | awk '{print $9}'`
 do
   if [ -d "${newDIR}" ]
       then
       if [ "${newDIR}" != "ANALYZE" ]
       then
-	  foundDIR=`findVols.sh "$newDIR" "$2" "$3" "$FILEXT"`
+	  foundDIR=`findVols.sh $newDIR $2 $3`
 	  if [ ! -z "${foundDIR}" ]
 	  then
 	      theDIRS=${theDIRS},${foundDIR}

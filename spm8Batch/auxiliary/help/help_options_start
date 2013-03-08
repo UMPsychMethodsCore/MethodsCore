@@ -7,9 +7,8 @@
 	echo "      matlabScripts/spm8Batch/${thisCommand}/YYYY_MM directory"
 	echo
 	echo " directly below the current directory and will launch this script in"
-	echo " background. The names of the matlab (if matlab based command) and shell "
-	echo " scripts will be in the format of :"
-	echo
+	echo " background. The names of the matlab and shell scripts will be in the format"
+	echo " of :"
 	echo "          ${thisCommand}_yymmdd_HH_MM_[USER]_[COMPUTER].m   and"
 	echo "          ${thisCommand}_yymmdd_HH_MM_[USER]_[COMPUTER].sh"
 	echo
@@ -67,12 +66,6 @@
 	    "d") 
 	        . ${thisDir}/auxiliary/help/help_case_debug_flag
 	        ;;
-	    "E") 
-	        . ${thisDir}/auxiliary/help/help_case_setErosion
-	        ;;
-	    "e") 
-	        . ${thisDir}/auxiliary/help/help_case_setVolExtension
-	        ;;
 	    "F") 
 	        . ${thisDir}/auxiliary/help/help_case_fmri_tr
 	        ;;
@@ -85,9 +78,6 @@
 	    "g") 
 	        . ${thisDir}/auxiliary/help/help_case_BET_gradient
 	        ;;
-	    "H") 
-	        . ${thisDir}/auxiliary/help/help_case_biasfield_flag
-	        ;;
 	    "h") 
 	        . ${thisDir}/auxiliary/help/help_case_hires_name
 	        ;;
@@ -97,9 +87,6 @@
 	    "i") 
 	        . ${thisDir}/auxiliary/help/help_case_set_run
 	        ;;
-            "L") 
-                . ${thisDir}/auxiliary/help/help_case_erosion_flag
-                ;;
 	    "M") 
 	        . ${thisDir}/auxiliary/help/help_case_subject_dir
 	        ;;
@@ -107,7 +94,7 @@
 	        . ${thisDir}/auxiliary/help/help_case_flirt_options
 	        ;;
 	    "N") 
-	        . ${thisDir}/auxiliary/help/help_case_reconrunnumber
+	        . ${thisDir}/auxiliary/help/help_case_output_name
 	        ;;
 	    "n") 
 	        . ${thisDir}/auxiliary/help/help_case_output_name
@@ -124,9 +111,6 @@
 	    "p") 
 	        . ${thisDir}/auxiliary/help/help_case_physioname
 	        ;;
-            "q")
-                . ${thisDir}/auxiliary/help/help_case_qualitycheck
-                ;;
 	    "R") 
 	        . ${thisDir}/auxiliary/help/help_case_reslice_2
 	        ;;

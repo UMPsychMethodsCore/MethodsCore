@@ -7,15 +7,9 @@ volumeWILD=prun
 
 FSL_COMMENT_B="Slice time correcting subject"
 
-FSL_COMMAND=slicetimer
-
 outputName=a
 
 mcOPT=""
-TGLOBALSET=0
-
-# Default is to NOT run this command unless the override "-!" is used 
-RUNSLICETIMEFSL=0
 
 #
 # all done
