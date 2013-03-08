@@ -1,5 +1,0 @@
-    echo "${helpComment} Start runs labeling with  : ${reconRunNumber}"
-    echo "${helpComment} Look for raw k-space data : ${volumeWILD}*.7"
-    echo "${helpComment} reconstruction matrix     : ${voxelSize}"
-
-    . ${thisDir}/auxiliary/help/help_options_end

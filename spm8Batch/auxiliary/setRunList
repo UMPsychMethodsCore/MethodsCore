@@ -1,8 +1,3 @@
-		  #
-		  # Set the error code to bad parameter.
-		  #
-		  SPM8BATCH_ERROR_CODE=64
-		  #
 		  shift 
 		  let argn++
 		  if (( $argn >= $args ))
@@ -16,7 +11,3 @@
 		      runNAMES=(`for (( ii=$run0 ; ii<= $runX ; ii++ )) do echo $ii ; done`)
 		      let nRUN=`expr ${#runNAMES[@]}`
 		  fi
-		  # 
-		  # Change back to success
-		  #
-		  SPM8BATCH_ERROR_CODE=0

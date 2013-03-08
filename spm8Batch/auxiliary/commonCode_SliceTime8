@@ -1,8 +1,0 @@
-# validate that we have what we need.
-
-. ${thisDir}/auxiliary/checkSliceTimeParts
-
-# Initialize smoothing variables.
-
-. ${thisDir}/auxiliary/initialization_all
-

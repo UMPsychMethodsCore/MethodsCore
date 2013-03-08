@@ -1,8 +1,3 @@
-		  #
-		  # Set the error code to bad parameter.
-		  #
-		  SPM8BATCH_ERROR_CODE=64
-		  #
 		  shift
 		  let argn++
 		  if (( $argn >= $args ))
@@ -11,9 +6,4 @@
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      outputName=$1
-                      setOutputNameCalledFLAG=1
 		  fi
-		  # 
-		  # Change back to success
-		  #
-		  SPM8BATCH_ERROR_CODE=0

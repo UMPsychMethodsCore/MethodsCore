@@ -75,8 +75,6 @@ Ntime   = size(allDesMat,2);
 
 if Ntime < Nframes
     fprintf('    Error, design matrix is not of sufficient length to regress out physio\n');
-    results = -65;
-    UMCheckFailure(results);
     return
 end
 
@@ -221,10 +219,10 @@ clear niftiVarOut niftiVarOutData
 
 save regressors allDesMat
 
-results = cputime-startCPU;
-
 fprintf('Done\n');
-fprintf('       CPU Usage : %f\n',results);
+fprintf('       CPU Usage : %f\n',cputime-startCPU);
+
+results = 1;
 
 return
 

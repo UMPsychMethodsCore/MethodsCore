@@ -1,3 +1,0 @@
-    echo "    -H                   calculate bias field corrected image in vbm8 only."
-    echo "                         default is off."
-    echo 
