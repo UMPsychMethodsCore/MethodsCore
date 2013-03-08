@@ -1,0 +1,3 @@
+    echo "    -N [#]               set the run number for naming the directory."
+    echo "                         default \"${reconRunNumber}\"."
+    echo 

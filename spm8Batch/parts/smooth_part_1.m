@@ -1,17 +1,20 @@
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
 % Copyright Robert C. Welsh
 % Ann Arbor, Michigan 2005
 % 
-% This is to be used with the UMBatch System for SPM2.
+% This is to be used with the UMBatch System for SPM8.
 %
 % This is to SMOOTH IMAGES.
-
+%
 % You must point to the batch processing code
 %
-%  addpath /net/dysthymia/spm2
-%  addpath /net/dysthymia/spm2Batch
+% e.g.
 %
-
+%  addpath /net/dysthymia/spm8
+%  addpath /net/dysthymia/spm8Batch
+%
+% 
 % You need to fill the following variables:
 %
 %   UMBatchMaster  =   point to the directory of the experiment.
@@ -25,22 +28,28 @@
 %   UMImgDIRS      =   directory to which to find images.
 %                      (full path name)
 %
-%   UMImgWildCard  =   wild card name for images
+%   UMVolumeWild   =   wild card name for images
 %                      (e.g. "ravol_*.img')
-
+%
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % Make sure the UM Batch system is installed.
 
 if exist('UMBatchPrep') ~= 2 | exist('UMBatchCoReg') ~= 2
     fprintf('You need to have the UM Batch system\n');
-    return
+    resuts = -69;
+    UMCheckFailure(results);
+    exit(abs(results))
 end
 
 % 
 % Prepare the batch processes
 %
 
-UMBatchPrep
+results = UMBatchPrep;
+
+if UMCheckFailure(results)
+  exit(abs(results))
+end
 
 % --------------- END OF PART I ----------------------
