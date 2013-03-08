@@ -1,8 +1,3 @@
-		  #
-		  # Set the error code to bad parameter.
-		  #
-		  SPM8BATCH_ERROR_CODE=64
-		  #
 		  shift
 		  let argn++
 		  if (( $argn >= $args ))
@@ -13,7 +8,4 @@
 		      anatomyPATH=$1
 		  fi
 
-		  debugout "Anatomy path set to: $anatomyPATH" $SuperDebugFLAG		  # 
-		  # Change back to success
-		  #
-		  SPM8BATCH_ERROR_CODE=0
+		  debugout "Anatomy path set to: $anatomyPATH" $SuperDebugFLAG

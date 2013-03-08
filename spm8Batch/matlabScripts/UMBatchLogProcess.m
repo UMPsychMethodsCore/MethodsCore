@@ -18,14 +18,6 @@ function results = UMBatchLogProcess(loggingDirectory,loggingComment)
 global UMBatchJobName
 global UMBatchProcessName
 
-if isempty(UMBatchProcessName)
-    UMBatchProcessName='commandLineCall';
-end
-
-if isempty(UMBatchJobName)
-    UMBatchJobName='commandLineCall';
-end
-
 loggingFile=fullfile(loggingDirectory,sprintf('.%s',UMBatchProcessName));
 
 try

@@ -10,7 +10,7 @@
     echo "   To coregister the 'het1spgr.img' to the 'het1overlay.img' that has been coreg'd"
     echo "   to the fMRI times series and to drop the results in 'func/MSIT/coReg' :"
     echo 
-    echo "     coregHiRes -w MSIT/coReg 050126zz"
+    echo "     coregSPGR -w MSIT/coReg 050126zz"
     echo
     echo
     echo " Current command default configuration is:"

@@ -52,8 +52,6 @@ UMBatchPrep
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
-  results = -70;
-  UMCheckFailure(results);
   return
 end
 

@@ -1,10 +1,3 @@
-#
-# Set the error code to I/O error
-#
-SPM8BATCH_ERROR_CODE=74
-#
-
-
     if [ ! -d "${fmriPATH}/${coregPATH}" ]
     then
 	echo
@@ -15,7 +8,3 @@ SPM8BATCH_ERROR_CODE=74
 	. ${thisDir}/auxiliary/exit_w_removal
     fi
     
-# 
-# Change back to success
-#
-SPM8BATCH_ERROR_CODE=0

@@ -1,8 +1,0 @@
-# validate that we have what we need.
-
-. ${thisDir}/auxiliary/checkReconParts
-
-# Initialize warping variables.
-
-. ${thisDir}/auxiliary/initialization_all
-

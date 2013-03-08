@@ -4,18 +4,12 @@
 
 # permitted arguments
 # 
-# AabDdEeFfghiMmnOopPRrSsTtUuVvwZ#
+# AabDdFfghiMmnOopPRrSsTtUuVvwZ#
 #
 #
 
 echo "Parsing commands:"
 echo
-
-#
-# Set the error code to bad input parameter.
-#
-SPM8BATCH_ERROR_CODE=64
-#
 
 while (( $argn < $args ))
 do
@@ -106,19 +100,6 @@ do
 		    . ${thisDir}/auxiliary/setDebugFlag
 		    ;;
 
-              # case_erosion_settings
-	      #
-	      # set the amount to erode the WM and CSF segments.
-	        "E")
-		    . ${thisDir}/auxiliary/setErosion
-		    ;;
-              # case_file_extension
-	      #
-	      # set the file extension to use with findVols.sh
-	      # this is needed for smoothing of img/hdr
-	        "e")
-		    . ${thisDir}/auxiliary/setVolExtension
-		    ;;
               # case_fmri_tr 
 	      #
 	      # Set the TR
@@ -137,8 +118,7 @@ do
 		
               # case_set_TGLOBAL
               #
-              # Set the TGLOBAL value for slice time for FSL
-	      # Or set the reference slice for SPM8
+              # Set the TGLOBAL value for slice time
               #
 		"G")
                     . ${thisDir}/auxiliary/setTGlobalValue
@@ -150,14 +130,6 @@ do
 		"g")
                     . ${thisDir}/auxiliary/setGradientValue
                     ;;
-              # case_homogeniety
- 	      # 
-	      # homogeniety correction flag
-	      #
-		"H")
-		    . ${thisDir}/auxiliary/setBiasFieldFLAG
-		    ;;
-
               # case_hires_name 
  	      # 
 	      # SPGR (hiRES) name to use 
@@ -189,28 +161,12 @@ do
 		    . ${thisDir}/auxiliary/setSubjectsMasterDir
 		    ;;
 		
-	      # case_do_erosion_last
-              #
-              # a flag to tell vbm8HiRes to do erosion as last step
-              #
-                "L")
-                   . ${thisDir}/auxiliary/setErosionLast
-                   ;;
               # case_flirt_options 
 	      # 
-	      # find the flirt options,
-              # also options for "vbm8HiRes erosion phase"
+	      # find the flirt options
 	      #
 		"m")
 		    . ${thisDir}/auxiliary/setMCFlirtOptions
-		    ;;
-		
-              # case_set_run_number
-	      #
-	      # Set the run number to start the recon.
-	      #
-		"N")
-		    . ${thisDir}/auxiliary/setReconRunNumber
 		    ;;
 		
               # case_output_name 
@@ -223,7 +179,7 @@ do
 		
               # case_other_names 
 	      #
-	      # Simliar Other images or the slice order in sliceTime8
+	      # Simliar Other images
 	      # 
 		"O")
 		    . ${thisDir}/auxiliary/setOtherNames
@@ -252,13 +208,7 @@ do
 		"P")
 		    . ${thisDir}/auxiliary/setPhysioOptions
 		    ;;
-		
-              # case_qualitycheck
-	      #
-	      #
-                "q")
-                    . ${thisDir}/auxiliary/setQualityCheckFlag
-                    ;;
+
               # case_reslice_2 
 	      #
 	      # reslice the geometry only with no estimation?
@@ -378,12 +328,7 @@ do
 			let nRUN++
 		    fi
 		    ;;
-             # 
-             # Override needed to get sliceTime (the FSL based one to run)
-             #
-                "!")
-                    RUNSLICETIMEFSL=1
-                    ;;
+
              # case_0 for vbm8Check
              #
 		"0")
@@ -437,8 +382,3 @@ do
     shift
     let argn++
 done
-
-# 
-# Change back to success
-#
-SPM8BATCH_ERROR_CODE=0

@@ -13,16 +13,6 @@ echo " "                                                      >> ${FULLSCRIPTNAM
 echo "UMBatchMaster = '${UMBatchMaster}';"                    >> ${FULLSCRIPTNAME}.m
 echo " "                                                      >> ${FULLSCRIPTNAME}.m
 
-echo ""                                                       >> ${FULLSCRIPTNAME}.m
-echo "% If the abort file varialbe is set then we"            >> ${FULLSCRIPTNAME}.m
-echo "% can write status of the failure there."               >> ${FULLSCRIPTNAME}.m
-echo ""                                                       >> ${FULLSCRIPTNAME}.m
-
-echo "global UMBatchStatusFile"                               >> ${FULLSCRIPTNAME}.m
-echo "UMBatchStatusFile = '${UMSTREAM_STATUS_FILE}';"         >> ${FULLSCRIPTNAME}.m
-
-echo ""                                                       >> ${FULLSCRIPTNAME}.m
-
 if [ "$testFLAG" == "0" ]
 then
     echo "UMTestFlag    = 0;"                                 >> ${FULLSCRIPTNAME}.m

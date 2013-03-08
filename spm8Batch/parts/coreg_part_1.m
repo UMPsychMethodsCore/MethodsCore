@@ -33,19 +33,13 @@
 
 if exist('UMBatchPrep') ~= 2 | exist('UMBatchCoReg') ~= 2
     fprintf('You need to have the UM Batch system\n');
-    results = -69;
-    UMCheckFailure(results);
-    exit(abs(results))
+    return
 end
 
 % 
 % Prepare the batch processes
 %
 
-results = UMBatchPrep;
-
-if UMCheckFailure(results)
-  exit(abs(results))
-end
+UMBatchPrep
 
 % - - - - - - - - - - END OF PART I - - - - - - - - - - - - -

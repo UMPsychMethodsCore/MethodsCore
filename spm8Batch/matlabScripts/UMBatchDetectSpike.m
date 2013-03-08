@@ -15,11 +15,10 @@
 %
 %  Output
 %  
-%     results        <  0 if failure
+%     results        = -1 if failure
 %                       1 if success
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
-
     detOpt  = 1;
     Thres   = 10;
     results = -1;
@@ -28,8 +27,6 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
     if fid == -1
         fprintf('Cannot open file: %s\n',Outputfile);
         fprintf('   * * * A B O R T I N G * * *\n');
-        results = -65;
-        UMCheckFailure(results);
         return;
     end
 
@@ -57,8 +54,6 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
     %
     [success results] = dSpike(data,detOpt);
     if success == -1
-        results = -70;
-        UMCheckFailure(results);
         return;
     end
     
@@ -98,7 +93,5 @@ function results = UMBatchDetectSpike(Images,OutputFile,ImagePath)
     end
     
     results = 1;
-
-    return
-    
+end
 
