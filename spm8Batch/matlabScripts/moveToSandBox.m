@@ -38,7 +38,7 @@ if exist(SandBoxPID) == 7
     CS=0
     SandBoxPID='';
   else    
-    FILESTOMOVE=dir([sourceDir '/' sourceVolume sourceExtension]);
+    FILESTOMOVE=dir([sourceDir '/' sourceVolume sourceExtension(2:end)]);
     %
     % Big assumption is one nifti file per directory
     %
