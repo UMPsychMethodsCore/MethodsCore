@@ -23,8 +23,8 @@ then
        echo 
        ${FULLSCRIPTNAME}.sh &> ${FULLSCRIPTNAME}.log
        echo
-       echo "   Script ${FULLSCRIPTNAME}.sh is finished"
-       echo "   Script LOGFILE is : ${FULLSCRIPTNAME}.log"
+       echo "   ${thisCommand} Script ${FULLSCRIPTNAME}.sh is finished"
+       echo "   ${thisCommand} Script LOGFILE is : ${FULLSCRIPTNAME}.log"
        echo    
    fi
 else
