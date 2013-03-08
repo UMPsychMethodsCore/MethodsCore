@@ -223,7 +223,7 @@ do
 		
               # case_other_names 
 	      #
-	      # Simliar Other images
+	      # Simliar Other images or the slice order in sliceTime8
 	      # 
 		"O")
 		    . ${thisDir}/auxiliary/setOtherNames

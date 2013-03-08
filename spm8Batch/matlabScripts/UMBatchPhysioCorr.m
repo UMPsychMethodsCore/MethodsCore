@@ -336,7 +336,7 @@ for iRUN = 1:nRUNS
       PhysioMat = mkPhysioMatGE(physioDatFILE, UMrate, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
     end
   catch
-    fprint('Failure to make physio mat.\n');
+    fprintf('Failure to make physio mat.\n');
     fprintf('ABORTING\n\n');
     results = -70;
     UMCheckFailure(results);
@@ -364,11 +364,8 @@ for iRUN = 1:nRUNS
   % Now log it.
   PhysioCorrectionDirectory=fileparts(NIFTIRUNFILE.name);
   UMBatchLogProcess(PhysioCorrectionDirectory,sprintf('UMBatchPhysioCorr : Corrected file : %s',NIFTIRUNFILE.name))
-  else
-  results = 0; % if you've made it this far, and didn't make pruns, you're good
-  end
 end
-
+  
 % All finished
 
 results = toc;
