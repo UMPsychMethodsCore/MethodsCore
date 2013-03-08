@@ -1,7 +1,0 @@
-    echo "${helpComment} directory to vbm8                         : ${coregPATH}/"
-    echo "${helpComment} hiresolution name to look for             : ${HIRESNAME}/"
-    echo "${helpComment} prepending name                           : ${outputName}"
-    echo "${helpComment} WM and CSF Erosion iteration factors      : ${WMEROSION} ${CSFEROSION}"
-    echo "${helpComment} Erosion Last flag                         : ${EROSIONLAST}"
-   
-    . ${thisDir}/auxiliary/help/help_options_end

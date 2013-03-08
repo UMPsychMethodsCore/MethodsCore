@@ -38,17 +38,4 @@ isnumber ()   # Test if the parameter is a number (integer or float)
     return $retVal
 }
 
-# Now check to see if an integer - just require no "."
-
-isinteger () # return a zero is success
-{
-    Z=`echo $1 | grep -e "\."`
-    if [ -z "$Z" ] 
-	then
-	return 0
-    else
-	return 1
-    fi
-}
-
 

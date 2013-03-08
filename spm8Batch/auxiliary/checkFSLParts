@@ -1,11 +1,5 @@
 # need mcflirt, fslsplit, fslmerge, and slicetimer
 
-#
-# Set the error code to missing configuration.
-#
-SPM8BATCH_ERROR_CODE=78
-#
-
 for ITEM in mcflirt fslsplit fslmerge slicetimer
 do
     results=`which ${ITEM}`
@@ -15,11 +9,7 @@ do
 	echo 
 	echo "Can't find element '$ITEM', do you have FSL installed?"
 	echo
-	. ${thisDir}/auxiliary/exit_w_removal
+	exit 0
     fi
 done
 
-# 
-# Change back to success
-#
-SPM8BATCH_ERROR_CODE=0

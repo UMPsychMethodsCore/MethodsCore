@@ -60,8 +60,7 @@ defaults.dicom.root     = 'flat'; % Folder hierarchy
 
 % Stats defaults
 %=======================================================================
-%defaults.stats.maxmem       = 2^26;
-defaults.stats.maxmem       = 2^30; % 1 gigabyte  RCWelsh 2012-12-20
+defaults.stats.maxmem       = 2^26;
 defaults.stats.maxres       = 64;
 defaults.stats.fmri.ufp     = 0.001;  % Upper tail F-probability
 defaults.stats.pet.ufp      = 0.05;

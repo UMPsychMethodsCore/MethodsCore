@@ -1,36 +1,20 @@
-		  #
-		  # Set the error code to bad parameter.
-		  #
-		  SPM8BATCH_ERROR_CODE=64
-		  #
-		  #
-		  # Set the value of TGLOBAL
-		  #
+#
+# Set the value of TGLOBAL
+#
 		  shift
 		  let argn++
 		  if (( $argn >= $args ))
 		      then
-		      echo "Missing parameter for setting TGLOBAL/referenceSlice"
+		      echo "Missing parameter for setting TGLOBAL"
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
-                      if [ "${thisCommand}" == "sliceTime" ]
-                      then
-	                isnumber $1
-		        retVal=$?
-		        if [ "$retVal" != "0" ]
-		        then
-		  	  echo "TGLOBAL needs to be numeric, you entered : $1"
-			  . ${thisDir}/auxiliary/exit_w_removal
-		        fi
-		        TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
-		        TGLOBALSET=1
-                      else  #This is for sliceTime8
-                        # we will just naively take the value given as the code can handle
-                        # numbers and words for sliceTime8
-                        referenceSlice=$1
-                      fi
+	              isnumber $1
+		      retVal=$?
+		      if [ "$retVal" != "0" ]
+		      then
+			echo "TGLOBAL needs to be numeric, you entered : $1"
+			. ${thisDir}/auxiliary/exit_w_removal
+		      fi
+		      TGLOBAL=`echo $1 | awk '{printf "%2.2f",$1}'`
+		      isnumber $TGLOBAL
 		  fi
-		  # 
-		  # Change back to success
-		  #
-		  SPM8BATCH_ERROR_CODE=0

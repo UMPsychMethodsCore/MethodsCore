@@ -1,4 +1,0 @@
-	          #
-		  # set the flag to enable on doing bias field
-		  #
-		  BIASFIELDFLAG=0

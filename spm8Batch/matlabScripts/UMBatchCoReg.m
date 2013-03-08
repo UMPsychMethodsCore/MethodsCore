@@ -50,8 +50,6 @@ UMBatchPrep
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
-  results = -70;
-  UMCheckFailure(results);
   return
 end
 
@@ -85,15 +83,11 @@ if exist(TargetImage)~=2 | exist(ObjectImage)~=2
     if exist(TargetImage) ~= 2
         fprintf('Target Image "%s"\n does not exist.\n',TargetImage);
         fprintf('  * * * A B O R T I N G * * *\n\n');
-        results = -65;
-        UMCheckFailure(results);
         return
     end
     if exist(ObjectImage) ~= 2
         fprintf('Object Image "%s"\n does not exist.\n',ObjectImage);
         fprintf('  * * * A B O R T I N G * * *\n\n');
-        results = -65;
-        UMCheckFailure(results);
         return
     end
 end
@@ -109,8 +103,6 @@ if length(OtherImages) > 0
         fprintf('Other Image :%2\n does not exist\n', ...
                 OtherImages{iother});
         fprintf('  * * * A B O R T I N G * * *\n\n');
-        results = -65;
-        UMCheckFailure(results);
         return
       end
     end

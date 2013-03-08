@@ -1,4 +1,0 @@
-    echo "    -E [WME CSFE]        set the erosion iteration numbers for"
-    echo "                         the white matter and csf respectively."
-    echo "                         YOU HAVE TO SPECIFY TWO NUMBERS!"
-    echo 

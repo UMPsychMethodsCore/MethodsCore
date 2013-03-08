@@ -2,14 +2,8 @@
 #  Some common code for all of the fsl routines.
 #
 
-FSL_COMMAND_LOCATION=`which ${FSL_COMMAND}`
-
 echo "    cd ${UMBatchMaster}"                                       >> ${FULLSCRIPTNAME}.sh
 echo "    cd ${SUBJDIR}"                                             >> ${FULLSCRIPTNAME}.sh
 echo "    cd \${SUBJECT}"                                            >> ${FULLSCRIPTNAME}.sh
 echo "    CURDATE=\`date\` "                                         >> ${FULLSCRIPTNAME}.sh
 echo "    echo \"${FSL_COMMENT_B} \${SUBJECT} at \${CURDATE}\" "     >> ${FULLSCRIPTNAME}.sh
-echo "                                                         "     >> ${FULLSCRIPTNAME}.sh
-echo "    #which ${FSL_COMMAND}"                                     >> ${FULLSCRIPTNAME}.sh
-echo "    # -> ${FSL_COMMAND_LOCATION}"                              >> ${FULLSCRIPTNAME}.sh
-echo "                                                         "     >> ${FULLSCRIPTNAME}.sh

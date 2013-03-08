@@ -1,11 +1,5 @@
 # Now write out the other images
 
-#
-# Set the error code to bad input data
-#
-SPM8BATCH_ERROR_CODE=65
-#
-
 echo " "                                                     >> ${FULLSCRIPTNAME}.m
 
 echo "UMOtherImages = {..."                                  >> ${FULLSCRIPTNAME}.m
@@ -99,8 +93,3 @@ done
 
 echo "};"                                                      >> ${FULLSCRIPTNAME}.m
 echo " "                                                       >> ${FULLSCRIPTNAME}.m
-
-# 
-# Change back to success
-#
-SPM8BATCH_ERROR_CODE=0

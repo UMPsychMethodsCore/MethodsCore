@@ -12,7 +12,7 @@
 %
 %  Call as :
 %
-   %  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMQualityCheck)
+%  function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown)
 %
 %  To Make this work you need to provide the following input:
 %
@@ -28,7 +28,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag,UMQualityCheck);
+function results = UMBatchPhysioCorr(UMBatchMaster,UMSubjectDir,UMSubject,UMFuncDir,UMRunList,UMVolumeWILD,UMOutName,UMPhysioTable,UMrate,UMdown,UMdisdaq,UMfMRITR,TestFlag);
 
 global defaults
 
@@ -90,8 +90,7 @@ if exist(fullfile(physioDIR,[physioFILE physioEXT])) == 0
   fprintf('Can''t find file : %s\n',fullfile(physioDIR,[physioFILE physioEXT]));
   fprintf('\n');
   fprintf('ABORTING\n\n');
-  results = -65;
-  UMCheckFailure(results);
+  results = -1
   return
 end
 
@@ -139,8 +138,6 @@ if(targetruns{1}~=-1)
       fprintf('* * * * FATAL ERROR * * * * \n');
       fprintf(['No runs available for preprocessing for this subject'])
       fprintf('ABORTING\n\n');
-      results = -65;
-      UMCheckFailure(results);
       return
     end
 end
@@ -160,8 +157,6 @@ end
 if sum(pRUNFOUND) ~= nRUNS
     fprintf('Some runs may be specified more than once in the physio log file. Are you sure you haven''t made a typo?\n')
     fprintf('ABORTING\n\n');  
-    results = -65;
-    UMCheckFailure(results);
     return
 end
 
@@ -187,8 +182,6 @@ if any(NPHYSPERRUN - NPHYSPERRUN(1))
   fprintf('* * * * FATAL ERROR * * * * \n');
   fprintf('Different phys log files per run, not programmed for that!\n');
   fprintf('ABORTING\n\n');
-  results = -65;
-  UMCheckFailure(results);
   return
 end
 
@@ -210,8 +203,6 @@ for iRUN = 1:nRUNS
       fprintf('* * * * FATAL ERROR * * * * \n');
       fprintf('Can''t find physio file %s in %s\n',strtrim(physioInfo{iRUN}(iLINE,:)),physioDIR);
       fprintf('ABORTING\n\n');  
-      results = -65;
-      UMCheckFailure(results);
       return
     end
   end
@@ -240,8 +231,6 @@ end
 if sum(RUNFOUND) ~= nRUNS
   fprintf('I can''t match the runs found in the physio log %s and those found in the directory %s\n',physioFILE,UMFuncDir)
   fprintf('ABORTING\n\n');  
-  results = -65;
-  UMCheckFailure(results);
   return
 end
    
@@ -256,16 +245,12 @@ for iRUN = 1:length(physioInfo)
         if length(RUNFILE) ~= 1
             fprintf('Too many or too few run files (%d) found in %s\n',length(RUNFILE),RUNDIRS(iRUN).name);
             fprintf('ABORTING\n\n');
-            results = -65;
-            UMCheckFailure(results);
             return
         end
         cd (functionalDIR)
     catch
         fprintf('Name issue with %s, not a directory.\n',physioInfo{iRUN}(1,:));
         fprintf('ABORTING\n\n');
-        results = -65;
-        UMCheckFailure(results);
         return
     end
 end
@@ -282,32 +267,20 @@ for iRUN = 1:nRUNS
   % Now do we have philips or GE data, based on the number of
   % physio files per run. 1 means philips, 2 is GE.
   %
-  try
-    if strcmp(physioTYPE,PHILIPS)
-      [physData physOk philipsData] = convertPhilipsPhysio(fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))),UMrate,UMdown);
-      if physOk ~= 1
-	fprintf('Error converting %s\n',fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))));
-	fprintf('ABORTING\n\n');
-	results = -65;
-	UMCheckFailure(results);
-	return
-      end
-    else
-      [physData physOk] = convertGEPhysio(fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))),fullfile(physioDIR,strtrim(physioInfo{iRUN}(3,:))),UMrate);
-      if physOk ~= 1
-	fprintf('Error converting %s\n',fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))));
-	fprintf('ABORTING\n\n');
-	results = -65;
-	UMCheckFailure(results);
-	return
-      end
+  if strcmp(physioTYPE,PHILIPS)
+    [physData physOk philipsData] = convertPhilipsPhysio(fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))),UMrate,UMdown);
+    if physOk ~= 1
+      fprintf('Error converting %s\n',fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))));
+      fprintf('ABORTING\n\n');
+      return
     end
-  catch
-    fprintf('Error converting physio file to proper internal format.\n');
-    fprintf('ABORTING\n\n');
-    results = -70;
-    UMCheckFailure(results);
-    return
+  else
+    [physData physOk] = convertGEPhysio(fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))),fullfile(physioDIR,strtrim(physioInfo{iRUN}(3,:))),UMrate);
+    if physOk ~= 1
+      fprintf('Error converting %s\n',fullfile(physioDIR,strtrim(physioInfo{iRUN}(2,:))));
+      fprintf('ABORTING\n\n');
+      return
+    end
   end
   % Save to ascii file.
   save(physioDatFILE,'physData','-ascii');
@@ -326,46 +299,17 @@ for iRUN = 1:nRUNS
     fprintf('                    : %s\n',physioInfo{iRUN}(3,:));
   end
   % Now make the physio regressors.
-  %
-  % We need to check errors
-  %
-  try
-    if strcmp(physioTYPE,PHILIPS)      
-      PhysioMat = mkPhysioMatPhilips(physioDatFILE, UMrate*UMdown, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
-    else
-      PhysioMat = mkPhysioMatGE(physioDatFILE, UMrate, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
-    end
-  catch
-    fprintf('Failure to make physio mat.\n');
-    fprintf('ABORTING\n\n');
-    results = -70;
-    UMCheckFailure(results);
-    return
-  end  
-  %
-  % We need to check errors
-  %
-  try
-      if ~exist('UMQualityCheck','var') || UMQualityCheck==0
-          results = rmReg_nii(NIFTIRUNFILE.name, [UMOutName NIFTIRUNFILE.name], PhysioMat);
-          if UMCheckFailure(results)
-              return
-          end
-      else
-          results = 1; % if we are not actually doing physioCorrection, indicate success
-      end
-  catch
-    fprint('Failure to do removal by regression.\n');
-    fprintf('ABORTING\n\n');
-    results = -70;
-    UMCheckFailure(results);
-    return
-  end
+  if strcmp(physioTYPE,PHILIPS)      
+    PhysioMat = mkPhysioMatPhilips(physioDatFILE, UMrate*UMdown, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
+  else
+    PhysioMat = mkPhysioMatGE(physioDatFILE, UMrate, UMdisdaq, nSLICE, UMfMRITR, physioMATFILE);
+  end     
+  results = rmReg_nii(NIFTIRUNFILE.name, [UMOutName NIFTIRUNFILE.name], PhysioMat);
   % Now log it.
   PhysioCorrectionDirectory=fileparts(NIFTIRUNFILE.name);
   UMBatchLogProcess(PhysioCorrectionDirectory,sprintf('UMBatchPhysioCorr : Corrected file : %s',NIFTIRUNFILE.name))
 end
-  
+
 % All finished
 
 results = toc;

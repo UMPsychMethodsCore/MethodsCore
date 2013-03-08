@@ -8,8 +8,6 @@ BATCHCOMMAND=0
 HIRESNAME=ht1spgr
 HIRESEXT=
 
-FSL_COMMAND=fslview
-
 # Which checking option
 
 VBM8CHECKOPT=0
