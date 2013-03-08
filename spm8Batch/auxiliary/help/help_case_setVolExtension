@@ -1,0 +1,4 @@
+    echo "    -e [extension]       set the file extension for smoothfMRI"
+    echo "                         default=nii"
+    echo "                         you can specify either nii or img"
+    echo 

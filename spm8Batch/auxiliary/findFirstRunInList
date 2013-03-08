@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#
+# Copyright Robert C Welsh
+# Dec, 2012
+# Ann Arbor, MI
+# 
+
+# Based on the list of runs that is listed, find the first that is present, 
+# this allows us to have a missing run, but no barf.
+
+# If no run numbers are sent, then look for the first run.
+# report "NONE" if nothing is found.
+
+# Mainly this is a functionality to add for Heitzeg lab in particular
+
+# get the runs and sort them into descending order
+
+# 2013-03-6 - RCWelsh
+# This needs to be changes to find runs directories with actual run files 
+# in them.
+
+THERUNS=`echo $* | tr " " "\n" | sort -gur | awk '{printf "%d ",$1}' && echo `
+
+#echo ${THERUNS}
+
+FIRSTRUN=NONE
+
+# Did any parameters to passed?
+
+if [ -z "$1" ] 
+then
+    #
+    # No, so we make a list of all directories with name "run_*"
+    # Look for all directories and then only those that have "run_" in their name.
+    # 
+    THERUNS=`ls -l | grep drw | awk '{print $NF}' | grep run_ | sort -ur`
+else
+    TMPRUNS=
+    for RUN in `echo ${THERUNS}`
+    do
+	THETMPRUN=`echo $RUN  | awk '{printf "run_%02d ",$1}'`
+	TMPRUNS="${TMPRUNS} ${THETMPRUN}"
+    done
+    THERUNS=${TMPRUNS}
+fi
+
+#
+# Now search backwards though that list and getting
+# the directory with the run files.
+#
+
+for RUN in `echo ${THERUNS}`
+do
+    if [ -d ${RUN} ]
+    then
+	NIFTIPRESENT=`ls ${RUN}/${volumeWILD}*.nii 2> /dev/null`
+	if [ ! -z "${NIFTIPRESENT}" ]
+	then
+	    FIRSTRUN=${RUN}
+	fi
+    fi
+done
+
+# Report it back.
+
+echo $FIRSTRUN
+
+#
+# all done
+#

@@ -10,6 +10,12 @@
   # image really exists, else we bugger out with error.
   #
     
+  #
+  # Set the error code to bad input data
+  #
+  SPM8BATCH_ERROR_CODE=65
+  #
+
   # For now SPM8 can NOT handle nift-gz images, only nifti. - @rcwelsh
 
     if [ -z ${TARGETEXT} ] 
@@ -49,3 +55,7 @@
 
     TARGETIMG=${TARGETNAME}${USEEXT}
 
+  # 
+  # Change back to success
+  #
+  SPM8BATCH_ERROR_CODE=0
