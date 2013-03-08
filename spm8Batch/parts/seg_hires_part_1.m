@@ -49,7 +49,15 @@
 
 if exist('UMBatchPrep') ~= 2 | exist('UMBatchSegment') ~= 2
     fprintf('You need to have the UM Batch system\n');
-    return
+    results = -69;
+    UMCheckFailure(results);
+    exit(abs(results))
+end
+
+results = UMBatchPrep;
+
+if UMCheckFailure(results)
+  exit(abs(results))
 end
 
 % - - - - - - - END OF PART I - - - - - - - - - - - - - - - - -
