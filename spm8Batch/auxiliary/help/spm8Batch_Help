@@ -1,7 +1,7 @@
 echo
 echo This is the suite of spm8Batch unix command-line commands.
 echo	 
-echo The code was written by Robert C. Welsh over the period of 2005-2012
+echo The code was written by Robert C. Welsh over the period of 2005-2013
 echo and it is in further development.
 echo
 echo The driving force behind these scripts is to implement a level of error
@@ -34,7 +34,9 @@ echo
 echo "physioCorr      Implements image based physiological correction (ala RETRICOR)"
 echo "                this command will work with both GE and Philips data."
 echo 
-echo "sliceTime       A wrapper to the FSL 'slicetimer' routine."
+echo "sliceTime       A wrapper to the FSL 'slicetimer' routine. DO NOT USE"
+echo 
+echo "sliceTime8      A wrapper to the SPM8 slice time correction routine."
 echo 
 echo "realignfMRI     A wrapper to the FSL 'mcflirt' routine."
 echo 
@@ -68,5 +70,5 @@ echo
 echo "smoothfMRI      A wrapper to smooth images using SPM8 routines."
 echo
 echo
-echo "Copyright Robert C. Welsh and others, 2012"
+echo "Copyright Robert C. Welsh and others, 2003-2012"
 echo
