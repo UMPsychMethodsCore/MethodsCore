@@ -12,10 +12,14 @@
 
 % Turn off progress bar.
 
-function UMBatchPrep
+function results=UMBatchPrep
 
 global UMBatch
 global UMBatchInit
+
+% Return code
+
+results = -1;
 
 % Success code.
 
@@ -26,6 +30,8 @@ UMBatch = 1;
 if exist('spm') ~= 2
   fprintf('\nFATAL ERROR, no SPM in the matlab path!!!\n');
   UMBatch = 0;
+  results=-70;
+  UMCheckFailure(results);
   return
 end
 
@@ -34,6 +40,8 @@ end
 if strcmp(spm('ver'),'SPM8') == 0
   fprintf('\nFATAL ERROR, these scripts only are SPM8 specific!!!\n');
   UMBatch = 0;
+  results=-70;    % We will code as negative and then use exit(abs(returnvalue));
+  UMCheckFailure(results);
   return
 end
 
@@ -51,7 +59,9 @@ if isempty(defaults)
       fprintf('\n\n* * * * * \nAre you not running SPM8?\n\n* * * * * \n\n');
       fprintf('        A B O R T I N G\n\n');
       UMBatch = 0;
-      return
+      results=-70;
+      UMCheckFailure(results);
+      exit(abs(results))
   end
 end
 
@@ -64,6 +74,8 @@ if isempty(UMBatchInit)
 end
 
 % Turn off annoying warnings.
+
+results = 1;
 
 warning off
 

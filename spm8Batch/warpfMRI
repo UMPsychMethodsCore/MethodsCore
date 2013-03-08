@@ -139,7 +139,7 @@ do
         # remove the sandbox if we made one.
         #
 	${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
     echo "'${TARGETIMG}';..."                             >> ${FULLSCRIPTNAME}.m
     
