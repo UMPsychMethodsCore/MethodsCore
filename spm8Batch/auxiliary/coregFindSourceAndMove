@@ -13,6 +13,13 @@
     else
 	destSOURCENAME=${outputName}${SOURCENAME}
     fi
+
+  #
+  # Set the error code to bad input data
+  #
+  SPM8BATCH_ERROR_CODE=65
+  #
+
   # 
   # remove any current coregistation in that directory.
   #
@@ -77,3 +84,7 @@
 
     SOURCEIMG=${anatPATH}/${destSOURCENAME}${USEEXT}
 
+  # 
+  # Change back to success
+  #
+  SPM8BATCH_ERROR_CODE=0

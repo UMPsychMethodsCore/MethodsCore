@@ -1,5 +1,7 @@
 echo "#"                                                                          >> ${FULLSCRIPTNAME}.sh
 
+echo "MATLAB_BASED_PROCESS=1   # We are indeed a matlab based process"            >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
 echo "${MATLAB} -nojvm -nodisplay <<EOF "                                         >> ${FULLSCRIPTNAME}.sh
 echo                                                                              >> ${FULLSCRIPTNAME}.sh
 echo "% ${thisCommand} Script Created on $theDate"                                >> ${FULLSCRIPTNAME}.sh
@@ -23,6 +25,14 @@ then
     echo "addpath ${AUXPATH}"                                                    >> ${FULLSCRIPTNAME}.sh
 fi
 
+# Add the path to the spiral reconstruction code. We need to make sure this does NOT interfer with 
+# any SPM paths.
+
+if [ ! -z "${RECONMLIB}" ]
+then
+    echo "addpath ${RECONMLIB} -END"                                             >> ${FULLSCRIPTNAME}.sh
+fi
+
 echo "addpath ${UMBatchMaster}/$MATLABDIR"                                       >> ${FULLSCRIPTNAME}.sh
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
 echo "global UMBatchJobName"                                                     >> ${FULLSCRIPTNAME}.sh
@@ -34,4 +44,5 @@ echo "${SCRIPTNAME}"                                                            
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
 echo "exit"                                                                      >> ${FULLSCRIPTNAME}.sh
 echo "EOF"                                                                       >> ${FULLSCRIPTNAME}.sh
+echo "MATLAB_RETURN_CODE=\$?"                                                    >> ${FULLSCRIPTNAME}.sh
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
