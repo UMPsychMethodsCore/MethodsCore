@@ -160,7 +160,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..','..');
 
 
 addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
-addpath(fullfile(mcRoot,'svmbatch'))
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
