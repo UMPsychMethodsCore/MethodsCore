@@ -165,34 +165,40 @@ edgemat = a.mediator.square; %snag edgemat for use down in network contingency s
 %Third dimension will index different threshold values. 
 %Fourth dimension will index repetitions of the permutation test
 
-perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
+if permDone ~= 1
+
+    perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
 % attempt parallel
 
-if permCores ~= 1
-    try
-        matlabpool('open',permCores)
-        parfor i=1:nRep
-            [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
-            fprintf(1,'%g\n',i)
+    if permCores ~= 1
+        try
+            matlabpool('open',permCores)
+            parfor i=1:nRep
+                [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+                fprintf(1,'%g\n',i)
+            end
+            matlabpool('close')
+        catch
+            matlabpool('close')
+            for i=1:nRep
+                [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+                fprintf(1,'%g\n',i)
+            end
         end
-        matlabpool('close')
-    catch
-        matlabpool('close')
+    else
         for i=1:nRep
             [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
             fprintf(1,'%g\n',i)
         end
     end
-else
-    for i=1:nRep
-        [perms(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
-        fprintf(1,'%g\n',i)
-    end
-end
-      
+    
 
-save(permSave,'perms','-v7.3');  %%%%  Backup
+    save(permSave,'perms','-v7.3');  %%%%  Backup
+else
+    load(permSave);
+end
+
 
 a.perms = squeeze(perms(:,:,1,:)); % only give it one threshold to work with
 %% Cell-Level Statistics
