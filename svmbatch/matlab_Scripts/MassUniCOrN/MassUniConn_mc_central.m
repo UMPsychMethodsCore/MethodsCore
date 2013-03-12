@@ -252,7 +252,10 @@ a = mc_TakGraph_plot(a);
 a = mc_TakGraph_CalcShadeColor(a);
     
 a = mc_TakGraph_AddShading(a);
-    
+
+%%% Save the Figure
+
+print -dbmp -r300 TakGraph.bmp
 
 %% Network Contingency Visualizations
 
