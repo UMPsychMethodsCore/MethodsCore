@@ -280,3 +280,28 @@ for iCell = 1:size(GoodX,1)
     fprintf(nodefile,'%d\t%d\t%d\t%d\t%d\t-\n',roimat_temp'); %Transpose is necessary b/c it will use elements in a row-major order
     dlmwrite([num2str(iNet) '-' num2str(jNet) '.edge'],edgemat_temp,'\t'); % Write edge file
 end
+
+%% Cellwise Laterality
+
+if strcmp(matrixtype,'nodiag') % if cPPI
+    uplatin.roiMM = roiMNI;
+    uplatin.nets = b.mediator.sorted;
+    uplatin.edgemat = b.mediator.square ~= 0 & b.mediator.square ~=1;
+    
+    uplat = mc_LateralityCrossTabs(uplatin);
+    
+    dnlatin.roiMM = roiMNI;
+    dnlatin.nets = c.mediator.sorted;
+    dnlatin.edgemat = c.mediator.square ~= 0 & c.mediator.square ~=1;
+    
+    dnlat = mc_LateralityCrossTabs(dnlatin);
+    
+    lat = bsxfun(@plus,uplat,dnlat);
+    
+else
+    latin.roiMM = roiMNI;
+    latin.nets = a.mediator.sorted;
+    latin.edgemat = a.mediator.square ~=0 & a.mediator.square ~=1;
+    
+    lat = mc_LateralityCrossTabs(latin);
+end
