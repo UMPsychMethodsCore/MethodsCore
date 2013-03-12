@@ -34,6 +34,7 @@ NetLogicSquare(NetLogic,NetLogic) = 1;
 NetLogicIdx = find(NetLogicSquare);
 enlarge = enlarge(NetLogic,NetLogic);
 
+enlarge = triu(enlarge,1); % zero out the lower triangle and diagonal
 
 mat     = a.DotDilateMat;
 
@@ -59,6 +60,7 @@ end
 
 a.mediator.square(NetLogicIdx) = out;
 
+a.mediator.square = triu(a.mediator.square,1); % zero out any dilations below diag
 
 end
 
