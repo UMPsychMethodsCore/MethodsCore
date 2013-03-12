@@ -47,6 +47,20 @@ if numel(transp)==1
     transp=repmat(transp,size(shademask));
 end
 
+% do network subsetting, if enabled (see mc_TakGraph_plot for more details)
+if isfield(a.mediator,'NetSubset')
+    nets = sort(unique(sorted));
+    % figure out logic for edges, and for cells
+    NetLogic = ismember(sorted,a.mediator.NetSubset);
+    CellLogic = ismember(nets,a.mediator.NetSubset);
+    % apply filter
+    sorted = sorted(NetLogic);
+    transp = transp(CellLogic,CellLogic);
+    shademask = shademask(CellLogic,CellLogic);
+    shadecolor = shadecolor(CellLogic,CellLogic,:);
+end
+    
+
 sorted_new = sorted';
 jumps=diff(sorted_new);
 starts=[1 ;find(jumps)];

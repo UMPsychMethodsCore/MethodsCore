@@ -11,6 +11,7 @@ function [ a ] = mc_TakGraph_plot( a )
 %               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
+%                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot
 %
 %       OUTPUTS
 %               a.h                             -       Handle to the graphics object
@@ -22,6 +23,12 @@ if ~isfield(a,'colormap')
 end
 map    = a.colormap;
 sorted = a.mediator.sorted;
+
+if isfield(a.mediator,'NetSubset')
+    NetLogic = ismember(sorted,a.mediator.NetSubset);
+    square = square(NetLogic,NetLogic);
+    sorted = sorted(NetLogic);
+end
 
 % Plot the edges
 a.h = figure;

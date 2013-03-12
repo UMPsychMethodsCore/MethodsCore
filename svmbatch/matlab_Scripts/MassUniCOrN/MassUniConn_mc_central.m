@@ -236,6 +236,10 @@ a = mc_TakGraph_enlarge(a); % enlarge dots
 
 %%% plot the actual graph
 
+if TakGraphNetSubsetEnable == 1
+    a.mediator.NetSubset = TakGraphNetSubset;
+end
+
 a = mc_TakGraph_plot(a);
 
 %%% add shading

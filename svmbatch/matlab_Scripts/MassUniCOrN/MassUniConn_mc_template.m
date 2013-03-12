@@ -148,6 +148,23 @@ CalcP = 1;
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Network Subset                                                                               %
+%                                                                                              %
+% If you would like your final TakGraph to include only a subset of networks,                  %
+% specify that here. This must be a contiguous range in terms of your actual network labels,   %
+% otherwise weird things might happen.                                                         %
+% Set TakGraphNetSubsetEnable to 1 to enable this behavior, and set                            %
+% TakGraphNetSubset to the range of networks to include                                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+TakGraphNetSubsetEnable = 0;
+
+TakGraphNetSubset = 1:7;
+
+  
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do Not Edit Below This Line %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
