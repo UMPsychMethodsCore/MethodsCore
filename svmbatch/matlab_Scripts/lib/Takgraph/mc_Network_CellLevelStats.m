@@ -72,7 +72,7 @@ a.stats.rawp = epval.full;
 if a.stats.FDR.Enable == 1 % only if asked to do FDR Correction
 
 % Subset (Select the networks we want) 
-    nets = unique(a.NetworkLabels);
+    nets = sort(unique(a.NetworkLabels));
     NetSelect = zeros(numel(unique(a.NetworkLabels))); % initialize Netselect
     if ~isfield(a.stats.FDR,'NetIn')
         NetSelect(:) = 1; % select all nets
