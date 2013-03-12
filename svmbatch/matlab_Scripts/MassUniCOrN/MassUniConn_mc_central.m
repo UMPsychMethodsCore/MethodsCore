@@ -12,14 +12,19 @@
 DKinit
 
 %% Create the output path
-
-mkdir(outputPath);
+if ~exist(outputPath,'file')
+    mkdir(outputPath);
+end
 
 %% Design Matrix
 %%% R System Call
 cd(outputPath)
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniCOrN/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"'];
-system(Rcmd);
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniCOrN/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' &> /dev/null'];
+Rstatus = system(Rcmd);
+
+if Rstatus ~= 0
+    error('Something went wrong in the call to R')
+end
 
 %%% Load Design Matrix
 s = load('FixedFX.mat');
