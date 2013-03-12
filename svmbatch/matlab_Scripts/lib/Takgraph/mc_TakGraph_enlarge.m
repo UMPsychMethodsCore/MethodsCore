@@ -39,7 +39,7 @@ enlarge = triu(enlarge,1); % zero out the lower triangle and diagonal
 mat     = a.DotDilateMat;
 
 out = enlarge;
-[hotx, hoty] = find(enlarge~=1); % ID all non 1 (non sigifnicant) points
+[hotx, hoty] = find(enlarge~=1 & enlarge ~=0); % ID all non (1 or 0) (non sigifnicant) points
 [maxx, maxy] = size(enlarge);
 
 for ihot = 1:size(hotx,1) % Loop over values to enlarge
