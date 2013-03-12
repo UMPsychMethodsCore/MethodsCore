@@ -13,7 +13,7 @@ function [ a ] =  mc_TakGraph_AddShading( a )
 %                                                       Defaults to .3    
 %                       a.shading.shademask     -       Allows you to override behavior of FDR correction result(a.stats.FDR.hypo). 
 %                                                       nNet x nNet logical matrix of which cells to shade.
-
+%                       a.mediator.pad          -       OPTIONAL - Number of blank rows and columns to draw around the figure for better graphics.
 
 set(0,'currentfigure',a.h)
 hold on;
@@ -59,14 +59,19 @@ if isfield(a.mediator,'NetSubset')
     shademask = shademask(CellLogic,CellLogic);
     shadecolor = shadecolor(CellLogic,CellLogic,:);
 end
-    
 
-sorted_new = sorted';
+sorted_pad=ones(1,numel(sorted) + a.mediator.pad*2);
+sorted_pad(1:a.mediator.pad) = -Inf;
+sorted_pad((end - a.mediator.pad + 1) : end) = Inf;
+sorted_pad((a.mediator.pad+1):(end - a.mediator.pad)) = sorted;
+
+
+sorted_new = sorted_pad';
 jumps=diff(sorted_new);
-starts=[1 ;find(jumps)];
-stops=[find(jumps) - 1; size(sorted_new,1)];
-starts = starts - 0.5;
-stops = stops + 0.5;
+jumps(isnan(jumps)) = 0; % ignore all the Nan Jmps
+breaks=[find(jumps)] + 0.5;
+starts = breaks(1:(end-1));
+stops = breaks(2:end);
 
 for i = 1:size(shademask,1)
     for j = i:size(shademask,2)

@@ -13,7 +13,7 @@ function [ a ] = mc_TakGraph_enlarge( a )
 %                                                       a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1];
 %               a.mediator                      -       See mc_Network_FeatRestruct for details
 %                       a.mediator.square       -       
-%                                                       
+%                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot. We will only dilate edges in these networks                                                       
 %       OUTPUT
 %               a.mediator
 %                       a.mediator.square       -       Updated matrix representing enlarged dots.
@@ -22,6 +22,19 @@ function [ a ] = mc_TakGraph_enlarge( a )
 
 
 enlarge = a.mediator.square;
+
+if isfield(a.mediator,'NetSubset')
+    NetLogic = ismember(a.mediator.sorted,a.mediator.NetSubset);
+else
+    NetLogic = logical(ones(size(a.mediator.sorted)));
+end
+
+NetLogicSquare = zeros(size(a.mediator.square));
+NetLogicSquare(NetLogic,NetLogic) = 1;
+NetLogicIdx = find(NetLogicSquare);
+enlarge = enlarge(NetLogic,NetLogic);
+
+
 mat     = a.DotDilateMat;
 
 out = enlarge;
@@ -44,7 +57,8 @@ for ihot = 1:size(hotx,1) % Loop over values to enlarge
     end
 end
 
-a.mediator.square = out;
+a.mediator.square(NetLogicIdx) = out;
+
 
 end
 

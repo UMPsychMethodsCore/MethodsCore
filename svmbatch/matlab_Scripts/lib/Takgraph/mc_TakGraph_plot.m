@@ -12,12 +12,20 @@ function [ a ] = mc_TakGraph_plot( a )
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
 %                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot
+%                       a.mediator.pad          -       OPTIONAL - Number of blank rows and columns to draw around the figure for better graphics.
+%                                                       If unspecified, this will default to 10                        
 %
 %       OUTPUTS
 %               a.h                             -       Handle to the graphics object
 
 % Variable initialization
+
+if ~isfield(a.mediator,'pad')
+    a.mediator.pad = 10;
+end
+
 square = a.mediator.square;
+
 if ~isfield(a,'colormap')
     a.colormap=[1 1 1; 1 0 0; 0 0 1];
 end
@@ -30,22 +38,30 @@ if isfield(a.mediator,'NetSubset')
     sorted = sorted(NetLogic);
 end
 
+% add the padding to square and sorted
+square_pad = ones(size(square) + a.mediator.pad*2);
+square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = square;
+
+sorted_pad=ones(1,numel(sorted) + a.mediator.pad*2);
+sorted_pad(1:a.mediator.pad) = -Inf;
+sorted_pad((end - a.mediator.pad + 1) : end) = Inf;
+sorted_pad((a.mediator.pad+1):(end - a.mediator.pad)) = sorted;
+
 % Plot the edges
 a.h = figure;
-image(square);
+image(square_pad);
 colormap(map);
 axis off;
 
 hold on
 
 % figure out jump points in labels
-sorted_new = sorted';
+sorted_new = sorted_pad';
 jumps=diff(sorted_new);
-starts=[1 ;find(jumps)];
-stops=[find(jumps) - 1; size(sorted_new,1)];
-starts = starts-0.5;
-stops = stops + 0.5;
-
+jumps(isnan(jumps)) = 0; % ignore all the Nan Jmps
+breaks=[find(jumps)] + 0.5;
+starts = breaks(1:(end-1));
+stops = breaks(2:end);
 % Draw the diagonal line
 n = size(starts,1);
 plot([starts(1) stops(n)],[starts(1) stops(n)],'Color',[0.5 0.5 0.5]);

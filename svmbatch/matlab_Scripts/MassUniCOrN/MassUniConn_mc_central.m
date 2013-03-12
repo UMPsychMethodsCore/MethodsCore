@@ -236,14 +236,13 @@ a.colormap = [1 1 1; % make 1 white
               0 0 1; % make 3 blue
               1 1 0; % make 4 yellow (blended)
                     ];
+if TakGraphNetSubsetEnable == 1
+    a.mediator.NetSubset = TakGraphNetSubset;
+end
 
 a = mc_TakGraph_enlarge(a); % enlarge dots
 
 %%% plot the actual graph
-
-if TakGraphNetSubsetEnable == 1
-    a.mediator.NetSubset = TakGraphNetSubset;
-end
 
 a = mc_TakGraph_plot(a);
 
