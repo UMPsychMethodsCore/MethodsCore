@@ -19,8 +19,7 @@ unets = sort(unique(in.nets));
 nnets = numel(unets);
 nROI = size(in.nets,1);
 
-%identify unique nets
-out = zeros(nnets,nnets,2,2);
+out = zeros(nnets,nnets,3,3);
 
 for inet = 1:nnets
     for jnet = inet:nnets
