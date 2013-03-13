@@ -635,6 +635,12 @@ if (Processing(1) == 1)
             end
         end
         mc_Logger('log',sprintf('Done with subject %s',Subject),3);
-	end
+    end
 
+    if (UseSandbox)
+        [status, ~, ~] = rmdir(Sandbox, 's');
+        if (status ~= 0)
+            mc_Logger('log','Unable to remove sandbox directory',2);
+        end
+    end
 end
