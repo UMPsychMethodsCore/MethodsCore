@@ -125,7 +125,7 @@ switch matrixtype
   case 'upper'
     a.values = ts;
     a.NetworkLabels = nets;
-    a = mc_Network_CellCount(mc_Neatwork_FeatRestruct(a));
+    a = mc_Network_CellCount(mc_Network_FeatRestruct(a));
     
   case 'nodiag'
     ts_twin = mc_twinstack(ts);
