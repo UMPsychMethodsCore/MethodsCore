@@ -73,7 +73,7 @@ then
 
 # list the devices that require the use of the sandbox
 
-    SANDBOXUSE="data4"
+    SANDBOXUSE="-e data4 -e data3 -e data2 -e data1 -e /Volumes/ALS"
 
 #
 # You should put in the user id of the person

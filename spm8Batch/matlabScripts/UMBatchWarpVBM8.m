@@ -55,7 +55,7 @@ global defaults
 
 % Make the call to prepare the system for batch processing.
 
-UMBatchPrep
+UMBatchPrep;
 
 fprintf('Entering UMBatchWarpVBM8 V2.0 SPM8 Compatible\n');
 

@@ -46,7 +46,7 @@ results = -1;
 
 % Make the call to prepare the system for batch processing.
 
-UMBatchPrep
+UMBatchPrep;
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
