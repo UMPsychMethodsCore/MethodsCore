@@ -124,7 +124,6 @@ permCores = 1;
 %                                Pro tip - pass it a vector. Your analysis will be based on only the first value, but your permutation object            %
 %                                will have results from all of them.                                                                                     %
 %                                                                                                                                                        %
-%        nRep            -       How many repetitions of permutations should we do?                                                                      %
 %                                                                                                                                                        %
 %        FDRmode:        -       'pdep'  --- The original Bejnamini & Hochberg FDR procedure is used, which is guaranteed to be accurate if              %
 %                                        the individual tests are independent or positively dependent (e.g., Gaussian variables that                     %
