@@ -31,17 +31,17 @@ for inet = 1:nnets
         net1x = in.roiMM(net1roi,1);
         net2x = in.roiMM(net2roi,1);
         net1side = zeros(size(net1x));
-        net2side = zeros(size(net2x));
-        net1size(net1x<0) = 1; % left
-        net1size(net1x==0) = 2; % midline
-        net1size(net1x>0) = 3; %right
-        net2size(net2x<0) = 1; % left
-        net2size(net2x==0) = 2; %midline
-        net2size(net2x>0) = 3; % right
+        net2side = zeros(side(net2x));
+        net1side(net1x<0) = 1; % left
+        net1side(net1x==0) = 2; % midline
+        net1side(net1x>0) = 3; %right
+        net2side(net2x<0) = 1; % left
+        net2side(net2x==0) = 2; %midline
+        net2side(net2x>0) = 3; % right
         
         for n1side = 1:3
             for n2side = 1:3
-                out(inet,jnet,n1side,n2side) = sum(net2size(net1size==n1side)==n2side);
+                out(inet,jnet,n1side,n2side) = sum(net2side(net1side==n1side)==n2side);
             end
         end
     end
