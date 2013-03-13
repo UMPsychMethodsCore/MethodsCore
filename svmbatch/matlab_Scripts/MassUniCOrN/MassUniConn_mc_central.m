@@ -305,3 +305,6 @@ else
     
     lat = mc_LateralityCrossTabs(latin);
 end
+
+%% Store Laterality and TakGraph Plotting Object
+save('Results.mat','lat','a','-v7.3');  %%%%  Backup

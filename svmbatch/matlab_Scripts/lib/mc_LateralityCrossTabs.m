@@ -1,4 +1,4 @@
-function [ out ] = mc_LateralityCrossTabs.m (in)
+function [ out ] = mc_LateralityCrossTabs (in)
 %MC_LATERALITYCROSSTABS A function to calculate left/right laterality of edges
 %
 %       INPUTS
@@ -15,7 +15,7 @@ function [ out ] = mc_LateralityCrossTabs.m (in)
 
 
 % figure out basic properties
-unets = sort(unique(in.nets);
+unets = sort(unique(in.nets));
 nnets = numel(unets);
 nROI = size(in.nets,1);
 
@@ -24,15 +24,15 @@ out = zeros(nnets,nnets,2,2);
 
 for inet = 1:nnets
     for jnet = inet:nnets
-        cedgemat = in.edgemat
+        cedgemat = in.edgemat;
         mask = zeros(size(cedgemat));
         mask(in.nets == unets(inet), in.nets == unets(jnet)) = 1; % this has been sorted, so just grab the upper piece
         cedgemat = triu(cedgemat .* mask);
         [net1roi net2roi] = find(cedgemat);
         net1x = in.roiMM(net1roi,1);
         net2x = in.roiMM(net2roi,1);
-        net1side = zeros(size(net1x)
-        net2side = zeros(size(net2x);
+        net1side = zeros(size(net1x));
+        net2side = zeros(size(net2x));
         net1size(net1x<0) = 1; % left
         net1size(net1x==0) = 2; % midline
         net1size(net1x>0) = 3; %right
