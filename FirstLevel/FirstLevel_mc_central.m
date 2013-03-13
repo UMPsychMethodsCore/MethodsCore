@@ -911,14 +911,14 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end % loop through subjects
 
-
+if (UseSandbox) %should only run if sandbox is being used
 shellcommand = sprintf('rm -rf %s',Sandbox);
-[status result] = system(shellcommand);
+[status, ~, ~] = rmdir(Sandbox,'s'); %updated to use matlab command instead of system call
 if (status ~= 0)
     mcWarnings = mcWarnings + 1;
     mc_Logger('log','Unable to remove sandbox directory',2);
+end 
 end
-        
 fprintf('All Done\n');
 fprintf('***********************************************\n')
 
