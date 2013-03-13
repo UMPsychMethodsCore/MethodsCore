@@ -61,7 +61,7 @@ end
 
 % Only proceed if successful.
 
-fprintf('Entering UMBatchSmooth V0.1\n');
+fprintf('Entering UMBatchSmooth V1.1\n');
 
 if TestFlag~=0
     fprintf('\nTesting only, no work to be done\n\n');

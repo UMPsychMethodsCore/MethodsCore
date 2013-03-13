@@ -108,6 +108,10 @@ BATCHCOMMAND=1
 
 BACKGROUNDJOBFLAG=1
 
+# Sand Box override flag
+
+OverrideNoSandBoxFLAG=0
+
 # Are you running this command in qualitycheck mode?
 
 QUALITYCHECKFLAG=0

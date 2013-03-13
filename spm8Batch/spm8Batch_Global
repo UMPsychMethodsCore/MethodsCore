@@ -108,8 +108,14 @@ then
     
 # And finally, you need to point to matlab
         
-    MATLAB=`which matlab`
+    OSTYPE=`uname`
 
+    if [ "${OSTYPE}" == "Darwin" ]
+    then   
+        MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+    else
+        MATLAB=`which matlab`
+    fi
 #    
 # Only allow author to execute code during switch.
 # If the current user is the localowner then they may

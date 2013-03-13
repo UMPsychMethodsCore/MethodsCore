@@ -196,6 +196,12 @@ do
                 "L")
                    . ${thisDir}/auxiliary/setErosionLast
                    ;;
+              #
+              # do NOT use the sandbox even if possible
+              #
+                "l")
+                   . ${thisDir}/auxiliary/setNoSandBox
+                   ;;
               # case_flirt_options 
 	      # 
 	      # find the flirt options,

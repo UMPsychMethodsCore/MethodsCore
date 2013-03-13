@@ -1,0 +1,7 @@
+#
+# Override for no sandbox use, this is 
+# mainly use for speed comparisons.
+#
+
+OverrideNoSandBoxFLAG=1
+
