@@ -31,7 +31,7 @@ for inet = 1:nnets
         net1x = in.roiMM(net1roi,1);
         net2x = in.roiMM(net2roi,1);
         net1side = zeros(size(net1x));
-        net2side = zeros(side(net2x));
+        net2side = zeros(size(net2x));
         net1side(net1x<0) = 1; % left
         net1side(net1x==0) = 2; % midline
         net1side(net1x>0) = 3; %right
