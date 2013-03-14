@@ -57,7 +57,7 @@ end
 sorted_new = sorted';
 jumps=diff(sorted_new);
 starts=[1 ;find(jumps) + 1];
-stops=[find(jumps ; size(sorted_new,1)];
+stops=[find(jumps) ; size(sorted_new,1)];
 
 % Count positive and negative points
 for i = 1:Net_num
