@@ -19,7 +19,7 @@ end
 %% Design Matrix
 %%% R System Call
 cd(outputPath)
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniCOrN/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' &> /dev/null'];
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
 if Rstatus ~= 0
