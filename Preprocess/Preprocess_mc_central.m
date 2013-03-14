@@ -324,6 +324,8 @@ if (Processing(1) == 1)
 	    sscan = {};
 	    scancell = {};
         imagecell = {};
+        wimagefile = {};
+        w2imagefile = {};
         wimagecell = {};
         w2imagecell = {};
         
