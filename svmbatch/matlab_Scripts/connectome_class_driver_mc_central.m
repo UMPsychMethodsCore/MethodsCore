@@ -25,6 +25,14 @@ if(~exist('matrixtype','var'))
     matrixtype='upper';
 end
 
+if (~exist('ztrans','var'))
+    ztrans = 0;
+end
+
+if (~exist('binarize','var'))
+    binarize = 0;
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
@@ -100,6 +108,10 @@ if strcmpi(svmtype,'unpaired')
     % Zero out censored elements
     superflatmat(:,logical(censor_flat))=0;
     
+    if ztrans == 1
+        superflatmat = mc_FisherZ(superflatmat);
+    end
+    
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
@@ -149,9 +161,19 @@ if strcmpi(svmtype,'unpaired')
             % Restrict the training and test sets to only include the non-pruned features
             train=train(:,keepID);
             test=test(:,keepID);
+            
+            if binarize == 1
+                train = sign(train);
+                test = sign(test);
+            end
 
         elseif nFeatPrune==0
             LOOCV_pruning(iL,:)=1;
+            
+            if binarize == 1
+                train = sign(train);
+                test = sign(test);
+            end
 
         end
         
@@ -308,6 +330,10 @@ if strcmpi(svmtype,'paired')
     
     superflatmat_grouped(:,logical(censor_flat),:)=0;
     
+    if ztrans == 1
+        superflatmat_grouped = mc_FisherZ(superflatmat_grouped);
+    end
+    
     fprintf('Done\n');
 
     %Arrange data as if it were unpaired (and interleave it, cuz that's what downstream stuff expects)
@@ -417,9 +443,19 @@ if strcmpi(svmtype,'paired')
 
                 train=train(:,keepID);
                 test=test(:,keepID);
+                
+                if binarize == 1
+                    train = sign(train);
+                    test = sign(test);
+                end
 
             elseif nFeatPrune==0
                 LOOCV_pruning{iContrast}(iL,:)=1;
+                
+                if binarize == 1
+                    train = sign(train);
+                    test = sign(test);
+                end
             end
 
             if advancedkernel==1

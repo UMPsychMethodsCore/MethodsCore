@@ -1,4 +1,9 @@
-function Network_Viz(edgemat,nets,roimat,net1,net2, netName)
+function NetworkBNVSubset(edgemat,nets,roimat,net1,net2, netName)
+
+% Edgemat is nROI * nROI of edge intensities. Can either be binary, or trinary, to indicate direction
+% nets is 1 * nROI list of ROI network affilitations
+% roimat is nROI * 4 matrix. First three columns are MNI coordinates. Fourth column is nets
+
 
 nROI = size(roimat,1);
 mask = zeros(nROI);
