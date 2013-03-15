@@ -25,6 +25,10 @@ if(~exist('matrixtype','var'))
     matrixtype='upper';
 end
 
+if (~exist('ztrans','var'))
+    ztrans = 0;
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={

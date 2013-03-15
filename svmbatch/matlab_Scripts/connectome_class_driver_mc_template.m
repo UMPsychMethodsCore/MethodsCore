@@ -75,6 +75,14 @@ OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
 nFeatPrune = 50;
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If your data are connectomes consisting of Pearson R Values, it     %
+% may be wise to transform them to Z values using Fisher's Transform. %
+% Enable this by setting the below option to 1. Set to 0 to disable.  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ztrans = 0;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Of your consensus number of features, what proportion do you want to be
 %%% graphically represented moving forward? If nFeatPlot > nFeatConsensus,
