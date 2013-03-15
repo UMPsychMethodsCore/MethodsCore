@@ -29,7 +29,7 @@ if (~exist('ztrans','var'))
     ztrans = 0;
 end
 
-if (~exist('binarize','var')
+if (~exist('binarize','var'))
     binarize = 0;
 end
 
