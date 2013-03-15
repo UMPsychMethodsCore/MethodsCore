@@ -83,6 +83,16 @@ nFeatPrune = 50;
 
 ztrans = 0;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% In some cases, it may be interesting to test how your classifier          %
+% performs with binary features. In this case, feature selection will       %
+% proceed in the usual manner using your continuously valued features,      %
+% but SVM training and testing will occur on data whose features have       %
+% been reassigned to be either -1 or + 1 or 0. Set binarize to 1 to enable. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+binarize = 0;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Of your consensus number of features, what proportion do you want to be
 %%% graphically represented moving forward? If nFeatPlot > nFeatConsensus,

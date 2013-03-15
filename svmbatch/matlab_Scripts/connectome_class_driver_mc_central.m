@@ -29,6 +29,10 @@ if (~exist('ztrans','var'))
     ztrans = 0;
 end
 
+if (~exist('binarize','var')
+    binarize = 0;
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
