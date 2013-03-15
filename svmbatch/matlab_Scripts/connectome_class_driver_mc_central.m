@@ -161,9 +161,19 @@ if strcmpi(svmtype,'unpaired')
             % Restrict the training and test sets to only include the non-pruned features
             train=train(:,keepID);
             test=test(:,keepID);
+            
+            if binarize == 1
+                train = sign(train);
+                test = sign(test);
+            end
 
         elseif nFeatPrune==0
             LOOCV_pruning(iL,:)=1;
+            
+            if binarize == 1
+                train = sign(train);
+                test = sign(test);
+            end
 
         end
         
@@ -433,9 +443,19 @@ if strcmpi(svmtype,'paired')
 
                 train=train(:,keepID);
                 test=test(:,keepID);
+                
+                if binarize == 1
+                    train = sign(train);
+                    test = sign(test);
+                end
 
             elseif nFeatPrune==0
                 LOOCV_pruning{iContrast}(iL,:)=1;
+                
+                if binarize == 1
+                    train = sign(train);
+                    test = sign(test);
+                end
             end
 
             if advancedkernel==1
