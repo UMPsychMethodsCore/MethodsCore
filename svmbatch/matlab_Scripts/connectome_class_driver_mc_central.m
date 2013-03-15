@@ -104,6 +104,10 @@ if strcmpi(svmtype,'unpaired')
     % Zero out censored elements
     superflatmat(:,logical(censor_flat))=0;
     
+    if ztrans == 1
+        superflatmat = mc_FisherZ(superflatmat);
+    end
+    
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
@@ -311,6 +315,10 @@ if strcmpi(svmtype,'paired')
     %Zero out censored elements
     
     superflatmat_grouped(:,logical(censor_flat),:)=0;
+    
+    if ztrans == 1
+        superflatmat_grouped = mc_FisherZ(superflatmat_grouped);
+    end
     
     fprintf('Done\n');
 
