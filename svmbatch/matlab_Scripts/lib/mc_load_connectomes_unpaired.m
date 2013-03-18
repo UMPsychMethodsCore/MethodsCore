@@ -1,4 +1,4 @@
-function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate )
+function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, matrixtype )
 %MC_LOAD_SVM_DATASET Load connectomic data
 %   Prior to performing SVM, you will need to load your connectomic data.
 %   These can be produced by the som toolbox including in the advanced
