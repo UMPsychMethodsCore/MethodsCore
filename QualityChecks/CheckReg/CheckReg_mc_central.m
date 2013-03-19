@@ -40,17 +40,16 @@ for iSubject = 1:size(SubjDir,1)
     data = {
             [OverlayPathFile];
             [HiResPathFile];
-            [ImagePath ImagePathName ',1'];
-            [ImagePath ImagePathName ',2'];
-            [ImagePath ImagePathName ',3'];
+            fullfile(ImagePath, [ImagePathName ',1']);
+            fullfile(ImagePath, [ImagePathName ',2']);
+            fullfile(ImagePath, [ImagePathName ',3']);
         };
 
     CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
 
     spm_jobman('run',CheckRegJob.jobs);
 
-    % pause = input('Press [Return] to continue:\n');
-    fprintf('Press [Return] to continue:\n');
+    fprintf('Press any key to continue:\n');
     pause;
 
 end % Loop over subjects
