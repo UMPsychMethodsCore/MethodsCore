@@ -21,13 +21,6 @@ tempRuns = numel([Opt.List.Subjects{:,2}]);
 checkedFiles = cell(tempRuns,3);
 index = 1;
 
-fid = fopen(Opt.OutlierText,'w');
-if fid == -1
-    mc_Error(['Cannot write to %s\n'...
-              ' * * * A B O R T I N G * * *\n'],Opt.OutlierText);
-end
-fclose(fid);
-
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %f\n'...
               ' * * * A B O R T I N G * * *\n'],Opt.Thresh);
@@ -68,3 +61,9 @@ for i = 1:nsubjects
     end
 end
 
+fid = fopen(mc_GenPath(Opt.OutlierText),'w');
+if fid == -1
+    mc_Error(['Cannot write to %s\n'...
+              ' * * * A B O R T I N G * * *\n'],Opt.OutlierText);
+end
+fclose(fid);
