@@ -1,4 +1,8 @@
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% If you have any questions read the pdf documentation or contact
+%%% MethodsCore at methodscore@umich.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Experiment Directory
@@ -49,17 +53,23 @@ OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
+%%% The lever arm is used to calculate a Eudclidean displacement metric for
+%%% both the rotational and translational motion parameters.  It defines
+%%% the distance from fulcrum of head to furthest edge.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LeverArm = 75;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FD Lever arm (typically between 50-100mm) for FD calculation
+%%% The FD lever arm is used to calculate the framewise displacement
+%%% metric.  It is approximately the mean distance from the cerebral cortex
+%%% to the center of the head.  See Power et al 2011.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FDLeverArm = 50;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% FDcritera is a threshold values.  A censor vector is created for all
-%%% scans that exceed the FDcriteria.  
+%%% FDcritera is a threshold value.  A censor vector is created for each
+%%% scan that exceeds the FDcriteria.  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FDcriteria = 0.2;
 
