@@ -22,7 +22,8 @@ if isempty(checkedFiles)
     return;
 end
 
-fid = fopen(Opt.OutlierText,'w');
+Exp = Opt.Exp;
+fid = fopen(mc_GenPath(Opt.OutlierText),'w');
 fprintf(fid,'SCAN WALL OF SHAME\n');
 
 % Perform calculations

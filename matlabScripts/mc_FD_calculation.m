@@ -98,7 +98,7 @@ if ~isempty(badScans)
     
     if ScansAfter > 0
         for i = 1:size(badScans, 1)
-            tmpAfterScans = badScans(i) - [1:1:ScansAfter];
+            tmpAfterScans = badScans(i) + [1:1:ScansAfter];
             tmpAfterScans(tmpAfterScans > numScans) = [];
             cellBadScans{i} = [cellBadScans{i} tmpAfterScans];
         end

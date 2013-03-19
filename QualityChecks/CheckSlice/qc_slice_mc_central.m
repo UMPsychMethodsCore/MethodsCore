@@ -14,12 +14,13 @@ function Results = qc_slice_mc_central(Opt)
 Results = -1;
 
 % Check everything first
+Exp = Opt.Exp;
 checkedFiles = qc_CheckSliceOpt(Opt);
 if isempty(checkedFiles)
     return;
 end
 
-fid = fopen(Opt.OutlierText,'w');
+fid = fopen(mc_GenPath(Opt.OutlierText),'w');
 fprintf(fid,'SLICE WALL OF SHAME\n');
 
 % Perform calculations

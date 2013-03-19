@@ -56,10 +56,11 @@ for i = 1:nsubjects
     end
 end
 
-fid = fopen(Opt.OutlierText,'w');
+outlierTextFile = mc_GenPath(Opt.OutlierText);
+fid = fopen(outlierTextFile,'w');
 if fid == -1
     mc_Error(['Cannot write to %s\n'...
-              ' * * * A B O R T I N G * * *\n'], Opt.Detected);
+              ' * * * A B O R T I N G * * *\n'], Opt.OutlierText);
 end
 fclose(fid);
 

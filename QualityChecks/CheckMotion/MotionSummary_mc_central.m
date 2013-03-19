@@ -38,6 +38,7 @@ for iSubject = 1:size(SubjDir,1)
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
         
+        % Write out censor regressor csv
         if ~isempty(FDjudge)
             [pathstr file ext] = fileparts(MotionPath);
             fdCsv = fullfile(pathstr, 'fdOutliers.csv');
@@ -59,8 +60,8 @@ for iSubject = 1:size(SubjDir,1)
                     end
                     fprintf(fdFid, '%d\n', FDjudge(i, end));
                 end
-                fclose(fdFid);
             end
+            fclose(fdFid);
         end                
     end
 end
