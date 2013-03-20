@@ -39,9 +39,15 @@ function [tot pos] = mc_uni_permute(data, netmask, thresh,permcol, design, funch
 nuisance.design = design;
 nuisance.design(:,permcol) = []; %nuisance only version of design
 
+if numel(nuisance.design) ~= 0;
 [nuisance.cor nuisance.res nuisance.beta nuisance.int nuisance.t nuisance.p] = mc_CovariateCorrection(data,nuisance.design,3,1);
 
 nuisance.pred = nuisance.design  * nuisance.beta; % calculate your predicted values
+
+else
+nuisance.pred = data; % use the original data as if it is nuisance corrected
+nuisance.res = zeros(size(data)); % there will be no residuals
+end
 
 %% do the permutation part
 if any(diff(design(:,permcol))) % if permcol is not a constant, permute it
