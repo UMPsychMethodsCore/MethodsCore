@@ -1,4 +1,4 @@
-function [tot pos] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
+function [tot meanT meanB] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
 %
 %Per the model in FSL's RANDOMISE function and described in Freedman & Lane (1983).
 %
@@ -34,7 +34,8 @@ function [tot pos] = mc_uni_permute(data, netmask, thresh,permcol, design, funch
 %               tot     -       Array. Counts how many edges were subthreshold for a given netmask. Dimensionality is as follows
 %                                       nD      -       Dimensions of netmask
 %                                       Thresh  -       Indexes values of thresh
-%               pos     -       Identical structure to tot, but counts how many subthreshold edges were positive
+%               meanT   -       Identical structure to tot, but counts mean value of t scores in cell
+%               meanB   -       Identical structure to tot, but counts mean value of beta scores in cell
 
 nuisance.design = design;
 nuisance.design(:,permcol) = []; %nuisance only version of design
@@ -59,21 +60,23 @@ else % if permcol is a constant, swap its sign around. Bummer if it's zero
     rand_data = nuisance.pred + swap .* nuisance.res;
 end
     
-[~, ~, ~, ~, t, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
+[~, ~, b, ~, t, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
 
 t = t(permcol,:);
 p = p(permcol,:);
+b = b(permcol,:);
 
 %% figure out the threshold stuff
 
 tot = zeros([size(netmask),numel(thresh)]);
-pos = zeros([size(netmask),numel(thresh)]);
+meanB = zeros([size(netmask),numel(thresh)]);
+meanT = zeros([size(netmask),numel(thresh)]);
 
 for i = 1:numel(thresh)
     supra = p<thresh(i);
-    cpos = supra & t>0;
     for x = 1:numel(netmask)
         tot(x + (i-1)*numel(netmask)) = sum(supra(netmask{x})); %do assignment, jumping over the first dimensions for thresh
-        pos(x + (i-1)*numel(netmask)) = sum(cpos(netmask{x})); %do assignment, jumping over the first dimensions for thresh
+        meanT(x + (i-1)*numel(netmask)) = mean(t(netmask{x})); %do assignment, jumping over the first dimensions for thresh
+        meanB(x + (i-1)*numel(netmask)) = mean(b(netmask{x})); %do assignment, jumping over the first dimensions for thresh
     end
 end
