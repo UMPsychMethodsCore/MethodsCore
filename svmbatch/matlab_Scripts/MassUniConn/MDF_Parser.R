@@ -19,6 +19,8 @@ master = read.csv(csvpath,colClasses = colclass)
 ### Clean up the include logic in case of NA
 master[,IncludeCol] = ifelse(!is.na(master[,IncludeCol]),master[,IncludeCol],FALSE)
 
+master[,IncludeCol] = as.logical(master[,IncludeCol])
+
 ### Do the actual subset
 mini = master [ master[,IncludeCol],]
 
