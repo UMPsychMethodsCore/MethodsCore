@@ -23,7 +23,9 @@ if isempty(checkedFiles)
 end
 
 Exp = Opt.Exp;
-fid = fopen(mc_GenPath(Opt.OutlierText),'w');
+OutlierText.Template = Opt.OutlierText;
+OutlierText.mode = 'makeparentdir';
+fid = fopen(mc_GenPath(OutlierText),'w');
 fprintf(fid,'SCAN WALL OF SHAME\n');
 
 % Perform calculations

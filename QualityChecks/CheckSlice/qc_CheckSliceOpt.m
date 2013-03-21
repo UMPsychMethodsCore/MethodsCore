@@ -17,7 +17,7 @@ function checkedFiles = qc_CheckSliceOpt(Opt)
 %   checkedFiles{:,3} - run names
 %
 nsubjects = size(Opt.List.Subjects,1);
-tempRuns = numel([Opt.List.Subjects{:,2}]);
+tempRuns = numel([Opt.List.Subjects{:,3}]);
 checkedFiles = cell(tempRuns,3);
 index = 1;
 
@@ -31,7 +31,7 @@ Exp = Opt.Exp;
 check.Template = Opt.ImageTemplate;
 check.mode = 'check';
 for i = 1:nsubjects
-    for k = Opt.List.Subjects{i,2}
+    for k = Opt.List.Subjects{i,3}
         Run = Opt.List.Runs{k};
         Subject = Opt.List.Subjects{i,1};
         runDir = mc_GenPath(check);            
@@ -56,7 +56,9 @@ for i = 1:nsubjects
     end
 end
 
-outlierTextFile = mc_GenPath(Opt.OutlierText);
+outlierTextFile.Template = Opt.OutlierText;
+outlierTextFile.mode = 'makeparentdir';
+outlierTextFile = mc_GenPath(outlierTextFile);
 fid = fopen(outlierTextFile,'w');
 if fid == -1
     mc_Error(['Cannot write to %s\n'...
