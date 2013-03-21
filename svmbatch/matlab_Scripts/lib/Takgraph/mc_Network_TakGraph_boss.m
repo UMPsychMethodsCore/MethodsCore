@@ -68,7 +68,7 @@ a = mc_Network_FeatRestruct(a);
 
 %% Count your cells
 
-a = mc_Network_Cellcount(a);
+a = mc_Network_CellCount(a);
 
 %% Calculate CellLevel Statistics
 
