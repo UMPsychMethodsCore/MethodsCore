@@ -4,7 +4,7 @@ function Results = qc_slice_mc_central(Opt)
 %   Opt.
 %       Exp  -  Experiment top dir
 %       List.
-%           Subjects {Subjects,IncludedRuns}
+%           Subjects {Subjects, subjectNumber, IncludedRuns}
 %           Runs      - list of run name folders
 %       ImageTemplate - path template to image locations
 %       FileExp       - prefix of scan images to use
@@ -20,7 +20,10 @@ if isempty(checkedFiles)
     return;
 end
 
-fid = fopen(mc_GenPath(Opt.OutlierText),'w');
+outlierTextFile.Template = Opt.OutlierText;
+outlierTextFile.mode = 'makeparentdir';
+outlierTextFile = mc_GenPath(outlierTextFile);
+fid = fopen(outlierTextFile,'w');
 fprintf(fid,'SLICE WALL OF SHAME\n');
 
 % Perform calculations

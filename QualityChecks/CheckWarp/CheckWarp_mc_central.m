@@ -8,9 +8,9 @@ end
 global defaults;
 global UFp;
 
-display('*****************************************************************');
-display('Starting Check Warp to examine registration of canonical template and first five functional.');
-display('*****************************************************************');
+fprintf(1, '*****************************************************************');
+fprintf(1, 'Starting Check Warp to examine registration of canonical template and first five functional.');
+fprintf(1, '*****************************************************************');
 
 for iSubject = 1:size(SubjDir,1)
 
@@ -20,41 +20,38 @@ for iSubject = 1:size(SubjDir,1)
     
     for jRun = 1:length(SubjDir{iSubject,3})
     
-    Run=RunDir{jRun};
-    
-    fprintf('\n\n\nPerforming check registration for run: %s\n\n\n', Run);
+        Run=RunDir{jRun};
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    ImagePathCheck = struct('Template',ImageTemplate,...
-                            'mode','check');
-    ImagePath = mc_GenPath(ImagePathCheck);
+        fprintf('\n\n\nPerforming check registration for run: %s\n\n\n', Run);
 
-    fileName = fullfile( ImagePath, strcat(FilePrefix,'*.nii') );
-    ImagePathFile=dir(fileName);
-    ImagePathName=ImagePathFile(1).name;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        ImagePathCheck = struct('Template',ImageTemplate,...
+                                'mode','check');
+        ImagePath = mc_GenPath(ImagePathCheck);
 
-    WarpTemplateCheck = struct('Template',WarpTemplate,...
-                               'mode','check');
-    WarpTemplate = mc_GenPath(WarpTemplateCheck);
-    data = {
-            [WarpTemplate];
-            [ImagePath ImagePathName ',1'];
-            [ImagePath ImagePathName ',2'];
-            [ImagePath ImagePathName ',3'];
-            [ImagePath ImagePathName ',4'];
-            [ImagePath ImagePathName ',5'];
-           };
+        fileName = fullfile( ImagePath, strcat(FilePrefix,'*.nii') );
+        ImagePathFile=dir(fileName);
+        ImagePathName=ImagePathFile(1).name;
 
-    CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
+        WarpTemplateCheck = struct('Template',WarpTemplate,...
+                                   'mode','check');
+        WarpTemplate = mc_GenPath(WarpTemplateCheck);
+        data = {
+                [WarpTemplate];
+                fullfile(ImagePath, [ImagePathName ',1']);
+                fullfile(ImagePath, [ImagePathName ',2']);
+                fullfile(ImagePath, [ImagePathName ',3']);
+               };
 
-    spm_jobman('run',CheckRegJob.jobs);
+        CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
 
-    pause = input('Press [Return] to continue:\n');  
+        spm_jobman('run',CheckRegJob.jobs);
+
+        fprintf(1, 'Press any key to continue\n');
+        pause;
     end
  
 end % Loop over subjects
-   
-display('All Done')
-display('************************************')
-   
+close all
+fprintf(1, 'All done!\n');   
 

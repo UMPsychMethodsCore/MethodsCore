@@ -13,37 +13,35 @@ fprintf(1,'Starting Check Coregistration to examine registration of Overlay, HiR
 fprintf(1,'****************************************************************\n');
 
 
+ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
 for iSubject = 1:size(SubjDir,1)
 
     Subject=SubjDir{iSubject, 1};
-    fprintf('\n\n\nPerforming check registration for subject: %s\n\n\n', Subject);
+    fprintf('\n\n\nPerforming check registration for subject: %s\n', Subject);
 
-    Run=RunDir{1};
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    ImagePathCheck = struct('Template',ImageTemplate,...
-                            'mode','check');
-    ImagePath = mc_GenPath(ImagePathCheck);
-
-    OverlayPathCheck = struct('Template',OverlayTemplate,...
-                              'mode','check');
+    numRuns = size(SubjDir{iSubject, 3}, 2);
+    if numRuns > 3
+        numRuns = 3;
+    end
+    
+    runStr = '';
+    ImagePaths = cell(numRuns, 1);
+    for i = 1:numRuns
+        Run = RunDir{SubjDir{iSubject, 3}(i)};
+        ImagePathCheck = struct('Template', ImageTemplate, 'mode', 'check');
+        ImagePaths{i} = strcat(mc_GenPath(ImagePathCheck), ',1');
+        runStr = strcat(runStr, ' ', Run);
+    end
+    
+    fprintf('Displaying runs: %s\n\n\n', runStr);
+    
+    OverlayPathCheck = struct('Template', OverlayTemplate, 'mode', 'chekck');
     OverlayPathFile = mc_GenPath(OverlayPathCheck);
-
-    HiResPathCheck = struct('Template',HiResTemplate,...
-                            'mode','check');
+    
+    HiResPathCheck = struct('Template', HiResTemplate, 'mode', 'check');
     HiResPathFile = mc_GenPath(HiResPathCheck);
 
-    fileName = fullfile(ImagePath,strcat(FilePrefix,'*.nii'));
-    ImagePathFile=dir(fileName);
-    ImagePathName=ImagePathFile(1).name;
-
-    data = {
-            [OverlayPathFile];
-            [HiResPathFile];
-            fullfile(ImagePath, [ImagePathName ',1']);
-            fullfile(ImagePath, [ImagePathName ',2']);
-            fullfile(ImagePath, [ImagePathName ',3']);
-        };
+    data = { [OverlayPathFile] [HiResPathFile] ImagePaths{:} };
 
     CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
 
