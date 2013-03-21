@@ -261,6 +261,7 @@ print -dbmp -r300 TakGraph.bmp
 %%% Grab the final edgemat and roiMat
 % edgemat was snagged way above, before risk of dilation
 roimat = [roiMNI nets'];
+roimat = roimat(a.mediator.sortIDX,:);
 nROI = size(roimat,1);
 
 %%% Identify the cells that survived FDR (and were actually included in FDR)

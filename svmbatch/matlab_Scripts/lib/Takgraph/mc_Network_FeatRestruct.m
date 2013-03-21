@@ -18,6 +18,7 @@ function [ a ] = mc_Network_FeatRestruct( a )
 %               a.mediator                      -       A set of variables that are useful for the many downstream functions, containing
 %                       a.mediator.square       -       a.values restructured as network-sorted upper triangular matrix (nROI x nROI)
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
+%                       a.mediator.sortIDX      -       1 x nROI of indices used to resort Network labels into a.mediator.sorted    
 % 
 
 % Make your square matrix
@@ -34,6 +35,7 @@ square       = triu(square + square',1);
 % Save the result back to a
 a.mediator.square       = square;
 a.mediator.sorted       = sorted;
+a.mediator.sortIDX      = sortIDX;
 
 end
 
