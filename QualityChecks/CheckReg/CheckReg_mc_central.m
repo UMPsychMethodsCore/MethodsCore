@@ -16,8 +16,7 @@ fprintf(1,'****************************************************************\n');
 ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
 for iSubject = 1:size(SubjDir,1)
 
-    Subject=SubjDir{iSubject, 1};
-    fprintf('\n\n\nPerforming check registration for subject: %s\n', Subject);
+    Subject = SubjDir{iSubject, 1};
 
     numRuns = size(SubjDir{iSubject, 3}, 2);
     if numRuns > 3
@@ -33,8 +32,6 @@ for iSubject = 1:size(SubjDir,1)
         runStr = strcat(runStr, ' ', Run);
     end
     
-    fprintf('Displaying runs: %s\n\n\n', runStr);
-    
     OverlayPathCheck = struct('Template', OverlayTemplate, 'mode', 'chekck');
     OverlayPathFile = mc_GenPath(OverlayPathCheck);
     
@@ -44,12 +41,15 @@ for iSubject = 1:size(SubjDir,1)
     data = { [OverlayPathFile] [HiResPathFile] ImagePaths{:} };
 
     CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
-
+    
+    fprintf(1, '\n\n\n');
+    fprintf(1, 'Performing check registration for subject : %s\n', Subject);
+    fprintf(1, 'Displaying runs                           : %s\n\n\n', runStr);
+    
     spm_jobman('run',CheckRegJob.jobs);
 
     fprintf('Press any key to continue:\n');
     pause;
-
 end % Loop over subjects
 close all
 fprintf('All done!\n');

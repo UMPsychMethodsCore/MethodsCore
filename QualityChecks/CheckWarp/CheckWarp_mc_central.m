@@ -12,32 +12,34 @@ fprintf(1, '*****************************************************************');
 fprintf(1, 'Starting Check Warp to examine registration of canonical template and first five functional.');
 fprintf(1, '*****************************************************************');
 
+ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
 for iSubject = 1:size(SubjDir,1)
 
     Subject=SubjDir{iSubject};
 
-    fprintf('\n\n\nPerforming check registration for subject: %s', Subject);
+    numRuns = size(SubjDir{iSubject, 3}, 2);
+    if numRuns > 4
+        numRuns = 4;
+    end
     
-    Run = RunDir{SubjDir{iSubject,3}(1)};
-    
-    fprintf('Using run: %s\n\n\n', Run);
-    
-    ImagePathCheck = struct('Template', ImageTemplate, 'mode', 'check');
-    ImagePath = mc_GenPath(ImagePathCheck);
-    
-    spmFilt = ['^' FilePrefix '.*nii'];
-    displayImage = spm_select('ExtFPList', ImagePath, spmFilt, 1);
-    if isempty(displayImage) || size(displayImage, 1) > 2
-        fprintf(1, 'Invaild file prefix for subject %s\n', Subject);
-        fprintf(1, ' * * * S K I P P I N G * * *\n');
-        continue;
+    runStr = '';
+    ImagePaths = cell(numRuns, 1);
+    for i = 1:numRuns
+        Run = RunDir{SubjDir{iSubject, 3}(i)};
+        ImagePathCheck = struct('Template', ImageTemplate, 'mode', 'check');
+        ImagePaths{i} = strcat(mc_GenPath(ImagePathCheck), ',1');
+        runStr = strcat(runStr, ' ', Run);
     end
     
     WarpTemplateCheck = struct('Template', WarpTemplate, 'mopde', 'check');
     WarpTemplate = mc_GenPath(WarpTemplateCheck);
-    data = {WarpTemplate displayImage};
+    data = {WarpTemplate ImagePaths{:}};
     
     CheckRegJob.jobs{1}.util{1}.checkreg.data = data;
+    
+    fprintf('\n\n\n');
+    fprintf('Performing check registration for subject : %s\n', Subject);
+    fprintf('Displaying runs                           : %s\n\n\n', runStr);
     
     spm_jobman('run', CheckRegJob.jobs);
     
