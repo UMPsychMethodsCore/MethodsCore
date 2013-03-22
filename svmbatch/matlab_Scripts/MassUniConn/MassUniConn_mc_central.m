@@ -31,7 +31,9 @@ s = load('FixedFX.mat');
 
 %%% Clean up Design Matrix
 s.subs(:,2) = num2cell(1); % add a second column
-s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates except for first column
+if size(s.design,2) > 1
+    s.design(:,2:end) = mc_SweepMean(s.design(:,2:end)); % mean center covariates except for first column
+end
 
 if des.FxFlip == 1; % flip the effect of interest, if desired
     s.design(:,des.FxCol) = -1 * s.design(:,des.FxCol);
