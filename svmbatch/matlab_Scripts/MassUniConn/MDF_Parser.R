@@ -7,6 +7,7 @@ args <-  commandArgs(trailingOnly=TRUE)
 csvpath = args[2]
 IncludeCol = args[3]
 model = as.formula(args[4])
+writepath = args[5]
 
 
 ## Load the CSV
@@ -32,4 +33,4 @@ subs = mini$Subject
 ## Save the results
 
 library(R.matlab)
-writeMat('FixedFX.mat',subs=subs,design=design)
+writeMat(writepath,subs=subs,design=design)

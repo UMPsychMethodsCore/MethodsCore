@@ -19,7 +19,9 @@ end
 %% Design Matrix
 %%% R System Call
 cd(outputPath)
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' &> /dev/null'];
+
+FixedFxPath = fullfile(outputPath,'FixedFX.mat');
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' '"' FixedFxPath '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
 if Rstatus ~= 0
@@ -27,7 +29,7 @@ if Rstatus ~= 0
 end
 
 %%% Load Design Matrix
-s = load('FixedFX.mat');
+s = load(FixedFxPath);
 
 %%% Clean up Design Matrix
 s.subs(:,2) = num2cell(1); % add a second column
