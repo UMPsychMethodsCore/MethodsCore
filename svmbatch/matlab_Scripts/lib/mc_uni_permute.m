@@ -68,7 +68,7 @@ end
 end %end the if block for nuisance correction
 
     
-[~, ~, b, ~, t, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
+[~, ~, b, ~, t, p] = mc_CovariateCorrection(rand_data,design,3,permcol);
 
 t = t(permcol,:);
 p = p(permcol,:);
