@@ -182,14 +182,14 @@ if permDone ~= 1
         try
             matlabpool('open',permCores)
             parfor i=1:nRep
-                [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+                [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
                 fprintf(1,'%g\n',i)
             end
             matlabpool('close')
         catch
             matlabpool('close')
             for i=1:nRep
-                [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+                [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
                 fprintf(1,'%g\n',i)
             end
         end
