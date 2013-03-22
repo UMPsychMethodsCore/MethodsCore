@@ -45,11 +45,17 @@ switch paired
   case 0
     data = mc_load_connectomes_unpaired(s.subs,CorrTemplate,matrixtype); 
     data = mc_connectome_clean(data);
+    if ZTrans == 1
+        data = mc_FisherZ(data);
+    end
 % if paired, need to calculate deltas
   case 1
     s.subs(:,2) = num2cell(1:numel(RunDir),2);
     [data savail] = mc_load_connectomes_paired(s.subs,CorrTemplate,RunDir,matrixtype);
     data = mc_connectome_clean(data);
+    if ZTrans == 1
+        data = mc_FisherZ(data);
+    end
     [data labels] = mc_calc_deltas_paired(data, savail, pairedContrast);
     data = data(labels==1,:); % grab only the positive delta
 end

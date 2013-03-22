@@ -76,6 +76,14 @@ CorrTemplate = '/net/data4/SomeStudy/FirstLevel/MotionScrubbedLinks/[Subject]/ce
 
 matrixtype = 'nodiag';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If you have resting state data, you may want to Z tranform your data using %
+% Fisher's transform. If so, set ZTrans to 1.                                %
+% If you have cPPI data, BE SURE TO SET THIS TO 0.                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ZTrans = 0;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify a folder to hold your output. If it does not not already exist, %
 % it will be created for you.                                             %
