@@ -108,7 +108,7 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 
 nRep     = 10000;
 permSave = 'AutismPermutations_5.mat';  
-permsDone = 0;
+permDone = 0;
 permCores = 1;
 
 
