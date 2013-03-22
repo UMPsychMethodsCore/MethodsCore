@@ -45,10 +45,7 @@ if numel(nuisance.design) ~= 0;
 
 nuisance.pred = nuisance.design  * nuisance.beta; % calculate your predicted values
 
-else
-nuisance.pred = data; % use the original data as if it is nuisance corrected
-nuisance.res = zeros(size(data)); % there will be no residuals
-end
+
 
 %% do the permutation part
 if any(diff(design(:,permcol))) % if permcol is not a constant, permute it
@@ -59,6 +56,17 @@ else % if permcol is a constant, swap its sign around. Bummer if it's zero
     swap = repmat(swap,1,size(nuisance.res,2));
     rand_data = nuisance.pred + swap .* nuisance.res;
 end
+else % if there are no nuisance elements
+if any(diff(design(:,permcol))) % if permcol is not a constant, permute it
+    newseq = randsample(size(design,1),size(design,1));
+    rand_data = (newseq,:);
+else % if permcol is a constant, swap its sign around. Bummer if it's zero
+    swap = sign(rand(size(design,1),1) - .5);
+    swap = repmat(swap,1,size(nuisance.res,2));
+    rand_data = swap .* nuisance.res;
+end
+end %end the if block for nuisance correction
+
     
 [~, ~, b, ~, t, p] = mc_CovariateCorrection(rand_data,design,1,permcol);
 
