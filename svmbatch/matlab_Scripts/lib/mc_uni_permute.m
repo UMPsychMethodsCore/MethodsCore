@@ -83,8 +83,17 @@ meanT = zeros([size(netmask),numel(thresh)]);
 for i = 1:numel(thresh)
     supra = p<thresh(i);
     for x = 1:numel(netmask)
-        tot(x + (i-1)*numel(netmask)) = sum(supra(netmask{x})); %do assignment, jumping over the first dimensions for thresh
-        meanT(x + (i-1)*numel(netmask)) = mean(t(netmask{x})); %do assignment, jumping over the first dimensions for thresh
-        meanB(x + (i-1)*numel(netmask)) = mean(b(netmask{x})); %do assignment, jumping over the first dimensions for thresh
+        tempCount = supra(netmask{x});
+        tempCount(isnan(tempCount)) = []; % remove any NaN elements
+        
+        tot(x + (i-1)*numel(netmask)) = sum(tempCount); %do assignment, jumping over the first dimensions for thresh
+        
+        tempT = t(netmask{x}); % remove any NaN t's
+        tempT(isnan(tempT)) = [];
+        meanT(x + (i-1)*numel(netmask)) = mean(tempT); %do assignment, jumping over the first dimensions for thresh
+        
+        tempB = b(netmask{x}); % remove any Nan beta's
+        tempB(isnan(tempB)) = [];
+        meanB(x + (i-1)*numel(netmask)) = mean(tempB); %do assignment, jumping over the first dimensions for thresh
     end
 end
