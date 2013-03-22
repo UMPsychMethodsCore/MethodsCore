@@ -1,4 +1,4 @@
-function [tot meanT meanB] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
+function [count meanT meanB] = mc_uni_permute(data, netmask, thresh,permcol, design, funchand)
 %
 %Per the model in FSL's RANDOMISE function and described in Freedman & Lane (1983).
 %
@@ -76,7 +76,7 @@ b = b(permcol,:);
 
 %% figure out the threshold stuff
 
-tot = zeros([size(netmask),numel(thresh)]);
+count = zeros([size(netmask),numel(thresh)]);
 meanB = zeros([size(netmask),numel(thresh)]);
 meanT = zeros([size(netmask),numel(thresh)]);
 
@@ -85,8 +85,7 @@ for i = 1:numel(thresh)
     for x = 1:numel(netmask)
         tempCount = supra(netmask{x});
         tempCount(isnan(tempCount)) = []; % remove any NaN elements
-        
-        tot(x + (i-1)*numel(netmask)) = sum(tempCount); %do assignment, jumping over the first dimensions for thresh
+        count(x + (i-1)*numel(netmask)) = sum(tempCount); %do assignment, jumping over the first dimensions for thresh
         
         tempT = t(netmask{x}); % remove any NaN t's
         tempT(isnan(tempT)) = [];
