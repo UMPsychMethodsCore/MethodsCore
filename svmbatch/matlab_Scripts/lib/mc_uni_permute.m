@@ -59,11 +59,11 @@ end
 else % if there are no nuisance elements
 if any(diff(design(:,permcol))) % if permcol is not a constant, permute it
     newseq = randsample(size(design,1),size(design,1));
-    rand_data = (newseq,:);
+    rand_data = data(newseq,:);
 else % if permcol is a constant, swap its sign around. Bummer if it's zero
     swap = sign(rand(size(design,1),1) - .5);
     swap = repmat(swap,1,size(nuisance.res,2));
-    rand_data = swap .* nuisance.res;
+    rand_data = swap .* data;
 end
 end %end the if block for nuisance correction
 
