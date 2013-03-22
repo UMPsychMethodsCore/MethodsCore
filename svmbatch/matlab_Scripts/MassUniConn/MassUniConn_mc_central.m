@@ -19,7 +19,7 @@ end
 cd(outputPath)
 
 FixedFxPath = fullfile(outputPath,'FixedFX.mat');
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' '"' FixedFxPath '"' ' &> /dev/null'];
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
 if Rstatus ~= 0
