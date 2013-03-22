@@ -11,7 +11,7 @@ function [tot meanT meanB] = mc_uni_permute(data, netmask, thresh,permcol, desig
 % Finally, we fit a full model (nuisance and FX of interest) to the resulting data, and we look at the
 % distribution properties of our effect of interest.
 %
-% NOTE - If the permcol is a constant, then we will flip the sign, as this is what FSL's RANDOMIZE appears to do
+% NOTE - If the permcol is a constant, then we will flip the sign of the residuals, as this is what FSL's RANDOMIZE appears to do
 % after reading the source code
 %
 %
