@@ -201,7 +201,7 @@ if permDone ~= 1
         end
     else
         for i=1:nRep
-            [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
+            [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute(data,netmask,thresh,des.FxCol,s.design,1);
             fprintf(1,'%g\n',i)
         end
     end
