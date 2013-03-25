@@ -51,6 +51,7 @@ for iSub=1:size(SubjDir,1)
         case 'nodiag'
           data=zeros(nSubs,numel(rmat));
       end
+  end
       switch matrixtype
         case 'upper'
           data(iSub,:)=mc_flatten_upper_triangle(rmat);
@@ -58,6 +59,4 @@ for iSub=1:size(SubjDir,1)
           data(iSub,:)=reshape(rmat,numel(rmat),1);
       end
       label(iSub,1)=Example;
-      
-  end
 end
