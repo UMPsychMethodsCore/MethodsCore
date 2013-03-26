@@ -1,15 +1,15 @@
-function qc_WriteScanCsv(csvName,loc,tp)
+function qc_WriteFrameCsv(csvName,loc,tp)
 %
 % Input:
 %   csvName - full path name to output csv file
-%   loc   - scans > threshold value
+%   loc   - frames > threshold value
 %   tp    - number of timepoints
 %
 
 fid = fopen(csvName,'w');
 if fid == -1
     fprintf(1,'WARNING: Cannot write %s file.\n',csvName);
-    fprintf(1,'         Please check scanReport.pdf for outliers.\n');
+    fprintf(1,'         Please check frameReport.pdf for outliers.\n');
     return;
 end
 
@@ -25,7 +25,7 @@ output(ind) = 1;
 
 str = '';
 for i = allLoc'
-    str = strcat(str,sprintf('scan%d,',i));
+    str = strcat(str,sprintf('frame%d,',i));
 end
 
 fprintf(fid,'%s\n',str(1:end-1));

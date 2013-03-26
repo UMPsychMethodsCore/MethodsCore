@@ -1,4 +1,4 @@
-function Results = qc_scan_mc_central(Opt)
+function Results = qc_frame_mc_central(Opt)
 %
 % Input: 
 %   Opt.
@@ -17,7 +17,7 @@ function Results = qc_scan_mc_central(Opt)
 Results = -1;
 
 % Check everything first
-checkedFiles = qc_CheckScanOpt(Opt);
+checkedFiles = qc_CheckFrameOpt(Opt);
 if isempty(checkedFiles)
     return;
 end
@@ -26,20 +26,20 @@ Exp = Opt.Exp;
 OutlierText.Template = Opt.OutlierText;
 OutlierText.mode = 'makeparentdir';
 fid = fopen(mc_GenPath(OutlierText),'w');
-fprintf(fid,'SCAN WALL OF SHAME\n');
+fprintf(fid,'FRAME WALL OF SHAME\n');
 
 % Perform calculations
 fprintf(1,'Calculating outliers...\n');
 for i = 1:size(checkedFiles,1)
     fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
-    out = qc_CalcScanMetrics(checkedFiles{i,1});
+    out = qc_CalcFrameMetrics(checkedFiles{i,1});
     if ~isempty(out)
         [pathstr file ext] = fileparts(checkedFiles{i,1});
-        qc_ScanReport(out,fullfile(pathstr,'scanReport.ps'),Opt.Thresh);
+        qc_FrameReport(out,fullfile(pathstr,'frameReport.ps'),Opt.Thresh);
         
         t = find(abs(out{3}) > Opt.Thresh);
         if ~isempty(t)
-            qc_WriteScanCsv(fullfile(pathstr,'scanOutliers.csv'),t,length(out{3}));
+            qc_WriteFrameCsv(fullfile(pathstr,'frameOutliers.csv'),t,length(out{3}));
             
             fprintf(fid,'Image:\n');
             fprintf(fid,'%s\n',checkedFiles{i,1});
@@ -58,4 +58,4 @@ fprintf(1,'All done!\n');
 Results = 1;
 
 str = sprintf('%d runs checked\n',size(checkedFiles,1));
-mc_Usage(str,'CheckScans');
+mc_Usage(str,'CheckFrames');
