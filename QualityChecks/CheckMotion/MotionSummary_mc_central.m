@@ -73,7 +73,7 @@ if theFID < 0
     return;
 end
 
-fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,meanFD,nonzeroFD\n'); %header
+fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,meanFD,SupraThresholdFD\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
     for jRun = 1:size(SubjDir{iSubject,3},2)
