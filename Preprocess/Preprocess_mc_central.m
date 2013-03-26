@@ -225,6 +225,7 @@ if (Processing(1) == 1)
     
 	for x = 1:size(SubjDir,1)
         
+            SandboxFolders = {};
         SandboxFiles = {};
         
 	    clear job
@@ -328,7 +329,8 @@ if (Processing(1) == 1)
         w2imagefile = {};
         wimagecell = {};
         w2imagecell = {};
-        
+        wmatfile = {};
+        w2matfile = {};
         for r = 1:size(RunDir,1)
 	    	frames = 1;
             if strcmp(imagetype,'nii')
@@ -344,8 +346,10 @@ if (Processing(1) == 1)
             
             %%%%%%%%% Copy Images to Sandbox directory if necessary
             if (UseSandbox)
-                SandboxFiles{end+1,1} = ImageDir;
-                SandboxFiles{end,2} = fullfile(Sandbox,ImageDir);
+                SandboxFolders{end+1,1} = ImageDir;
+                SandboxFolders{end,2} = fullfile(Sandbox,ImageDir);
+                %SandboxFiles{end+1,1} = ImageDir;
+                %SandboxFiles{end,2} = fullfile(Sandbox,ImageDir);
             end
         
             subjpath = fullfile(Sandbox,ImageDir);
@@ -358,6 +362,8 @@ if (Processing(1) == 1)
                 sscan{end+1} = strtrim([subjpath Pwra scan{r}(s,:) suffix]);
             end
             for s = 1:size(imagefile{r},1)
+                SandboxFiles{end+1,1} = fullfile(ImageDir, imagefile{r}(s,:));
+                SandboxFiles{end,2} = fullfile(Sandbox,ImageDir,imagefile{r}(s,:));
                 wimagefile{r}(s,:) = fullfile(subjpath,['w' Pra imagefile{r}(s,:)]);
                 w2imagefile{r}(s,:) = fullfile(subjpath,[Pwra imagefile{r}(s,:)]);
                 [p f e] = fileparts(imagefile{r}(s,:));
@@ -418,6 +424,8 @@ if (Processing(1) == 1)
         if ((docoregoverlay || docoreghires) && ~strcmp(NormMethod,'func'))
             SandboxFiles{end+1,1} = AnatTemplate;
             SandboxFiles{end,2} = fullfile(Sandbox,AnatTemplate);
+            SandboxFolders{end+1,1} = AnatTemplate;
+            SandboxFolders{end,2} = fullfile(Sandbox,AnatTemplate);
         end
                 
         if (UseSandbox)
@@ -633,7 +641,8 @@ if (Processing(1) == 1)
             mc_Logger('log','Copying files from sandbox to original location',3);
             for iS = 1:size(SandboxFiles,1)
                 %copy 2nd element to 1st
-                mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
+                %mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
+                mc_Copy(fullfile(SandboxFolders{iS,2},'*'),SandboxFolders{iS,1});
             end
         end
         mc_Logger('log',sprintf('Done with subject %s',Subject),3);
