@@ -9,6 +9,7 @@ IncludeCol = args[3]
 model = as.formula(args[4])
 writepath = args[5]
 
+options(stringsAsFactors=FALSE) # don't deal with factors til the last second
 
 ## Load the CSV
 colclass = 'character'
