@@ -1,4 +1,4 @@
-function checkedFiles = qc_CheckScanOpt(Opt)
+function checkedFiles = qc_CheckFrameOpt(Opt)
 %
 % Input: 
 %   Opt.
