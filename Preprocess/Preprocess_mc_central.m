@@ -639,10 +639,16 @@ if (Processing(1) == 1)
         
         if (UseSandbox)
             mc_Logger('log','Copying files from sandbox to original location',3);
-            for iS = 1:size(SandboxFiles,1)
+            for iS = 1:size(SandboxFolders,1)
                 %copy 2nd element to 1st
                 %mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
-                mc_Copy(fullfile(SandboxFolders{iS,2},'*'),SandboxFolders{iS,1});
+                files = dir(SandboxFolders{iS,2});
+                for iFile = 1:size(files,1)
+                    if (~strcmp(files(iFile).name,'.') && ~strcmp(files(iFile).name,'..'))
+                        mc_Copy(fullfile(SandboxFolders{iS,2},files(iFile).name),SandboxFolders{iS,1});
+                    
+                    end
+                end
             end
         end
         mc_Logger('log',sprintf('Done with subject %s',Subject),3);
