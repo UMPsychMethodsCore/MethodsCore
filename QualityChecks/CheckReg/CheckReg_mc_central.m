@@ -13,7 +13,7 @@ fprintf(1,'Starting Check Coregistration to examine registration of Overlay, HiR
 fprintf(1,'****************************************************************\n');
 
 
-ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
+ImageTemplate = fullfile(ImageTemplate, strcat(FilePrefix, '*nii'));
 for iSubject = 1:size(SubjDir,1)
 
     Subject = SubjDir{iSubject, 1};

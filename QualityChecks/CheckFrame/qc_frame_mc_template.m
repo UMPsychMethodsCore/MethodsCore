@@ -67,7 +67,7 @@ mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
 
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'));
-addpath(fullfile(mcRoot,'QualityChecks','CheckScan'));
+addpath(fullfile(mcRoot,'QualityChecks','CheckFrame'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
-qc_scan_mc_central(Opt);
+qc_frame_mc_central(Opt);
