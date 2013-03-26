@@ -1,61 +1,73 @@
-function Results = qc_frame_mc_central(Opt)
-%
-% Input: 
-%   Opt.
-%       Exp  -  Experiment top dir
-%       List.
-%           Subjects {Subjects,IncludedRuns}
-%           Runs     - list of run name folders
-%       Postpend.
-%           Exp      - what goes after Exp
-%           Subjects - what goes after .List.Subjects{:,1}
-%           Runs     - what goes after Runs
-%       FileExp      - Regexp for file names
-%       OutlierText  - full path to output text file
-%       Thresh       - mean diff z-score threshold value
-%
-Results = -1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% If you have any questions read the pdf documentation or contact
+%%% MethodsCore at methodscore@umich.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear;
 
-% Check everything first
-checkedFiles = qc_CheckFrameOpt(Opt);
-if isempty(checkedFiles)
-    return;
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The folder that contains your subject folders
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.Exp = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
 
-Exp = Opt.Exp;
-OutlierText.Template = Opt.OutlierText;
-OutlierText.mode = 'makeparentdir';
-fid = fopen(mc_GenPath(OutlierText),'w');
-fprintf(fid,'FRAME WALL OF SHAME\n');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The list of subjects to process
+%%% The format is {'subjectfolder',subjectNumber,[runs to include]}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.List.Subjects = {
+                     'CM2001NTX',1,[1 2 3 4 5 6 7];
+                     'CM2002NTX',2,[1 2 3 4 5 6 7];
+                    };
 
-% Perform calculations
-fprintf(1,'Calculating outliers...\n');
-for i = 1:size(checkedFiles,1)
-    fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
-    out = qc_CalcFrameMetrics(checkedFiles{i,1});
-    if ~isempty(out)
-        [pathstr file ext] = fileparts(checkedFiles{i,1});
-        qc_FrameReport(out,fullfile(pathstr,'frameReport.ps'),Opt.Thresh);
-        
-        t = find(abs(out{3}) > Opt.Thresh);
-        if ~isempty(t)
-            qc_WriteFrameCsv(fullfile(pathstr,'frameOutliers.csv'),t,length(out{3}));
-            
-            fprintf(fid,'Image:\n');
-            fprintf(fid,'%s\n',checkedFiles{i,1});
-            fprintf(fid,'{\n');
-            for k = 1:length(t)
-                fprintf(fid,'\ttimepoint: %3d MeanIntensity: %4.3f z-score: %2.3f DiffZScore: %2.3f mse: %4.3f\n',t(k)-1,out{1}(t(k)-1),out{2}(t(k)-1),out{3}(t(k)-1),out{4}(t(k)-1));
-                fprintf(fid,'\ttimepoint: %3d MeanIntensity: %4.3f z-score: %2.3f DiffZScore: %2.3f mse: %4.3f\n',t(k),out{1}(t(k)),out{2}(t(k)),out{3}(t(k)),out{4}(t(k)));
-            end
-            fprintf(fid,'}\n');
-        end
-    end
-end
-        
-fclose('all');
-fprintf(1,'All done!\n');
-Results = 1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% A list of run folders where the script can find the images to use
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.List.Runs = {
+                  'run_01';
+                  'run_02';
+                  'run_03';
+                  'run_04';
+                  'run_05';
+                  'run_06';
+                  'run_07';
+                };
 
-str = sprintf('%d runs checked\n',size(checkedFiles,1));
-mc_Usage(str,'CheckFrames');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Path where your images are located
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp      = path to your experiment directory
+%%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%%       Run      = name of run from RunDir (using iRun as index of row)
+%%% Examples:
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.ImageTemplate = '[Exp]/[Subject]/day4/func/[Run]/';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Prefix of scan images to use.  This should be the final smoothed
+%%% images.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.FileExp = 'swrarun';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Text file to output detected slice outliers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/scan_detected.txt';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Z score threshold; slices with absolute z scores greater than this 
+%%% value will be considered as outliers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.Thresh = 4;
+
+global mcRoot;
+%DEVSTART
+mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
+%DEVSTOP
+
+%[DEVmcRootAssign]
+addpath(fullfile(mcRoot,'matlabScripts'));
+addpath(fullfile(mcRoot,'QualityChecks','CheckFrame'));
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+
+qc_frame_mc_central(Opt);
