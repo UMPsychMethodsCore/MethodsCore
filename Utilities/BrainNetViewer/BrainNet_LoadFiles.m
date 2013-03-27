@@ -108,14 +108,14 @@ function OK_button_Callback(hObject, eventdata, handles)
 global File
 global FLAG
 global EC
-File.MF=[];
-File.NI=[];
-File.NT=[];
-File.VF=[];
-File.MF=get(handles.MF_edit,'string');
-File.NI=get(handles.NI_edit,'string');
-File.NT=get(handles.NT_edit,'string');
-File.VF=get(handles.VF_edit,'String');
+File.MF=['/home/slab/users/krishan/repos/MethodsCore/svmbatch/lib/BrainNetViewer/Data/SurfTemplate/BrainMesh_Ch2withCerebellum.nv']; %surface file
+File.NI=['/home/slab/users/krishan/repos/MethodsCore2/svmbatch/lib/BrainNetViewer/dorsalAttDef.node']; %node file
+File.NT=['/home/slab/users/krishan/repos/MethodsCore2/svmbatch/lib/BrainNetViewer/dorsalAttDef.edge']; %edge file
+File.VF=[]; %volume file
+% File.MF=get(handles.MF_edit,'string');
+% File.NI=get(handles.NI_edit,'string');
+% File.NT=get(handles.NT_edit,'string');
+% File.VF=get(handles.VF_edit,'String');
 if isempty(File.MF)
     mf=0;
 else

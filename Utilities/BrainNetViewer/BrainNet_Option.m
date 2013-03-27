@@ -2270,15 +2270,16 @@ function Load_button_Callback(hObject, eventdata, handles)
 % hObject    handle to Load_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[filename,pathname]=uigetfile({'*.mat','MAT-files (*.mat)'},'Load Configuration');
-if isequal(filename,0)||isequal(pathname,0)
-    return;
-else
-    fpath=fullfile(pathname,filename);
+% [filename,pathname]=uigetfile({'*.mat','MAT-files (*.mat)'},'Load Configuration');
+% if isequal(filename,0)||isequal(pathname,0)
+%     return;
+% else
+%     fpath=fullfile(pathname,filename);
+fpath=['/home/slab/users/krishan/repos/MethodsCore/svmbatch/lib/BrainNetViewer/BrainNet_AAL_Label.mat']
     load(fpath);
     Initialization(handles);
     msgbox('Option Loaded!','Success','help');
-end
+% end
 
 % --- Executes on button press in Save_button.
 function Save_button_Callback(hObject, eventdata, handles)
