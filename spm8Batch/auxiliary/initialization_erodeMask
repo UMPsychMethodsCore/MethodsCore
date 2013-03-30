@@ -13,6 +13,10 @@ coregPATH=anatomy/vbm8/
 
 BATCHCOMMAND=0
 
+# Is this command to run in the background
+
+BACKGROUNDJOBFLAG=0
+
 outputName=eroMask_
 
 # Erosion default factors

@@ -8,6 +8,7 @@
     echo "${helpComment} spm8Batch is located in   : $SPM8B2"
     echo "${helpComment} spm8 patch is located in  : $SPM8B3"
     echo "${helpComment} auxiliary matlab path     : $AUXPATH"
+    echo "${helpComment} matlab options file       : ${commandOptionsFile}"
     echo
     if [ -z "${USEREMAIL}" ]
     then

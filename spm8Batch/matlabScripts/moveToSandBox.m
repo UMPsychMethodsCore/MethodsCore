@@ -9,6 +9,10 @@
 %
 % function [CS SandBoxPID Images2Write] = moveToSandBox(sourceDir,sourceVolume,SandBoxPID,sourceExtension)
 %
+% 2013-03-17 
+% Added a call to "validateSandBoxMove" due to an error in "cp" as it MATLAB tries to use "cp -p" with their
+% copy to preserve the flags and on some systems the chflags error is generated but the copy succeeded.
+%
 % - - - - - - - - - - - - - - - - - - - -
 
 function [CS SandBoxPID Images2Write] = moveToSandBox(sourceDir,sourceVolume,SandBoxPID,sourceExtension)

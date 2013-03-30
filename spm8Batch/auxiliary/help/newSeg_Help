@@ -1,15 +1,15 @@
     echo
-    echo " A command line command to drive batch processing to VBM8 the 'HIRES' image."
+    echo " A command line command to drive batch processing to newSeg the 'HIRES' image."
     echo
     . ${thisDir}/auxiliary/help/help_options_start
 
     echo 
     echo " e.g. "
     echo
-    echo "   To process the image 'ht1spgr.nii' through VBM8 to create MNI space"
+    echo "   To process the image 'ht1spgr.nii' through newSeg warp to MNI space"
     echo "   image do:"
     echo 
-    echo "     vbm8HiRes 050126zz"
+    echo "     newSeg 050126zz"
     echo
     echo " This command can be used with two different strategies:"
     echo 
@@ -18,7 +18,7 @@
     echo "    In this case (the default mode), the code will look for the high resolution image"
     echo "    in the 'anatomy/' directory." 
     echo 
-    echo "       e.g. vbm8HiRes 050126zz"
+    echo "       e.g. newSeg 050126zz"
     echo 
     echo " 2) calculation normalization of a coregistered hi-resolution image for warping of functionals."
     echo 
@@ -26,7 +26,7 @@
     echo "   Additionally, you will need to use the '-w' flag to indicate where to write the"
     echo "   results." 
     echo 
-    echo "      e.g. vbm8HiRes 050126zz -a func/coReg -w func/coReg/VBM8"
+    echo "      e.g. newSeg 050126zz -a func/coReg -w func/coReg/newSeg"
     echo
     
     . ${thisDir}/auxiliary/help/help_matlabOptions
@@ -34,4 +34,4 @@
     echo " Current command default configuration is:"
     echo 
 
-    . ${thisDir}/auxiliary/help/help_vbm8HiRes_Options
+    . ${thisDir}/auxiliary/help/help_newSeg_Options

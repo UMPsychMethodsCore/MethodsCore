@@ -8,7 +8,7 @@
 % UMBatchWarp
 %
 % A drivable routine for warping some images using the 
-% batch options of spm2.
+% batch options of spm8.
 %
 % Version 2.0
 %
@@ -91,7 +91,7 @@ results = -1;
 % Make sure that the ParamImage is there.
 %
 
-tic;
+ticStart = tic;
 
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
@@ -300,7 +300,7 @@ end
 % Set the flag to the amount of time to execute.
 %
 
-results = toc;
+results = toc(ticStart);
 
 fprintf('Warping finished in %f seconds\n',results);
 

@@ -8,7 +8,7 @@
 % UMBatchCoReg
 %
 % A drivable routine for coregistering some images using the 
-% batch options of spm2
+% batch options of spm8
 %
 %  Call as :
 %

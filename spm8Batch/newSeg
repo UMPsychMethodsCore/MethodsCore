@@ -3,27 +3,27 @@
 # # # # # # # # # # # # # # # # # # 
 #
 # A command to make it easier on the user to warp the 
-# fmri time-series to the standard template.
+# SPGR to the standard template.
 #
 # This command will build a script to run and will also 
 # run the script in background.
 #
-#   e.g.    warpfMRI
+#   e.g.    newSeg
 #
 #
 #                         Robert C. Welsh
 #                         Copyright 2005-2011
 #
-# warpfRMI
+# newSeg
 #
 # # # # # # # # # # # # # # # # # #
 
 #
-# Main warpfMRI function.
+# Main newSeg function.
 #
 
-VERSION="2.1"
-VERSIONDATE="2011-07-30"
+VERSION="1.0"
+VERSIONDATE="2012-03-28"
 
 # Find out where the current command lives and execute some common code.
 
@@ -37,13 +37,13 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="BDdfhIlMntUvWwz"
+allowedOptions="aBDdEHhIMmnOtUwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
 # This is the common in-line code for the warping steps.
-. ${thisDir}/auxiliary/commonCode_Warp_01
+. ${thisDir}/auxiliary/commonCode_newSeg_01
 
 # This is common in-line code for all spm8Batch script to make sure arguments were passed
 . ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
@@ -57,10 +57,6 @@ allowedOptions="BDdfhIlMntUvWwz"
 #
 
 . ${thisDir}/auxiliary/superDebugStatus
-
-# Make the sandbox if possible.
-
-. ${thisDir}/auxiliary/make_sandbox
 
 #
 # Ok - let's start displaying things back to the terminal
@@ -95,83 +91,83 @@ allowedOptions="BDdfhIlMntUvWwz"
 #    FULLSCRIPTNAME   - full path and name of scripts to write.
 # 
 
-. ${thisDir}/auxiliary/warpPart_01
-
-# Name of the functional volumes to find.
-
-echo "UMVolumeWild  = '${volumeWILD}';"                   >> ${FULLSCRIPTNAME}.m
+. ${thisDir}/auxiliary/newSeg_part_01
 
 # Now build the list of directories for each subject.
 
-. ${thisDir}/auxiliary/createDirectoryList
+echo "UMImg2Warp    = {..."                               >> ${FULLSCRIPTNAME}.m
 
-echo " UMHighRes    = {..."                               >> ${FULLSCRIPTNAME}.m
+declare -i is
+declare -i ii
+
+curDIR=`pwd`
+
 for (( is=1 ; is<=$nSubjects ; is++ ))
 do
     
+    cd ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/
   #
-  # Make sure that now the HIRES exists.
+  # create the newSeg directory.
   #
     
-    TARGETNAME=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${HIRESNAME}
-    TARGETEXT=${overlayExt}
+    debugout "- - - - - - - - - - - - - -"        $SuperDebugFLAG
+    debugout "mkdir -p ${fmriPATH}/${coregPATH}/" $SuperDebugFLAG
+    debugout "- - - - - - - - - - - - - -"        $SuperDebugFLAG
+    mkdir -p ${fmriPATH}/${coregPATH}/
+    debugout "- - - - - - - - - - - - - -"        $SuperDebugFLAG
+    debugout "cd ${fmriPATH}/${coregPATH}/"       $SuperDebugFLAG
+    debugout "- - - - - - - - - - - - - -"        $SuperDebugFLAG
     
-    . ${thisDir}/auxiliary/verifyTargetImage
+    . ${thisDir}/auxiliary/coregDirectoryErrorCheck
+
+    # The hires is becoming the source,
     
-    debugout "HiRes name is : ${TARGETIMG}"    $SuperDebugFLAG
-    debugout "HiRes name is : ${HIRESNAME}"    $SuperDebugFLAG
+    SOURCENAME=${HIRESNAME}
+    SOURCEEXT=${HIRESEXT}
+    
+    debugout "HiRes name is : ${SOURCENAME}"   $SuperDebugFLAG
     debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
-    
-    # Check for the warping matrix (_sn.mat) or the deformation field (y_r).
-    
-    if [ "${WARPMETHOD}" -eq "1" ] 
+
+    # Copy the options file to the current working directory for invocation by the matlab code.
+
+    # We can reuse the vbm8 code here as there is nothing particular in vbm8FindSourceAndMove
+
+    . ${thisDir}/auxiliary/vbm8FindSourceAndMove
+
+    if [ ! -z "${commandOptionsFile}" ]
     then
-	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/y_r${HIRESNAME}.nii
-	WARP_FILEALT=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/y_${HIRESNAME}.nii
-    else
-	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${HIRESNAME}_sn.mat
+	cp ${commandOptionsDir}/${commandOptionsFile} ./${thisCommand}_options.m
     fi
-    if [ ! -e "${WARP_FILE}" ]
-    then
-	if [ ! -e "${WARP_FILEALT}" ]
-	then
-	    echo
-	    echo "MISSING warping instuctions ${WARP_FILE} for ${subjects[$is]}"
-	    echo
-	# 
-        # remove the sandbox if we made one.
-        #
-	    ${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}
-	    . ${thisDir}/auxiliary/exit_w_removal
-	else
-	    WARP_FILE=${WARP_FILEALT}
-	fi
-    fi
-    echo "'${TARGETIMG}';..."                             >> ${FULLSCRIPTNAME}.m
-    
+
+  echo "'${SOURCEIMG}';..."                               >> ${FULLSCRIPTNAME}.m
+
 done
 
 echo "                };"                                 >> ${FULLSCRIPTNAME}.m
 
+echo
+
+. ${thisDir}/auxiliary/warpPrepOtherImages
+
 echo "    4) finalizing matlab scripts"
 
-cat ${thisDir}/parts/warp_fMRI_part_2.m                   >> ${FULLSCRIPTNAME}.m
+cat ${thisDir}/parts/newSeg_part_02.m                       >> ${FULLSCRIPTNAME}.m
 
 echo "    5) building shell script"
-
+echo
 
 # Now build the shell script command that will get launched into the background.
 
-# Common start to all shell scripts
+# Common star to all shell scripts
 . ${thisDir}/auxiliary/shellScriptStart
-
-# Now create verify that the sandbox is there.
-
-. ${thisDir}/auxiliary/shellScriptCreateSandBox
 
 # Add the matlab code to the shell script
 
 . ${thisDir}/auxiliary/shellScriptMATLABCall
+
+# Now add the call for creation of the mask.
+
+. ${thisDir}/auxiliary/shellScriptErode
 
 # Finalize the shell script.
 

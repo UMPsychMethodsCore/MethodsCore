@@ -8,7 +8,7 @@
 % UMBatchSmooth
 %
 % A drivable routine for smoothing some images using the 
-% batch options of spm2
+% batch options of spm8
 %
 %  Call as :
 %

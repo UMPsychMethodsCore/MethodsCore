@@ -7,7 +7,23 @@
 %
 % My own check to see if the file made it to the sandbox.
 %
-% function [CSmyCheck CMmyCheck] = validateSandBoxMove(sourceDir,sourceVolume,SandBoxPID,sourceExtension)
+% NOTE : If you wish to check to see if a file made it out of the sandbox then just 
+%        swap the sourceDir and SandBoxPID. The first directory is the source and the 
+%        second is the destination directory.
+%
+% function [CSmyCheck CMmyCheck] = validateSandBoxMove(sourceDir,sandBoxVolume,SandBoxPID)
+%
+% Input
+%  
+%    sourceDir        -- string    -- location of original file.
+%    sandBoxVolume    -- string    -- name of the original file that has been moved
+%    SandBoxPID       -- string    -- location of the sandbox. 
+%
+% 
+% Output
+% 
+%    CSmyCheck        -- scalar    -- 1 = okay, 0 = failure
+%    CMmyCheck        -- string    -- error message.
 %
 % - - - - - - - - - - - - - - - - - - - -
 
