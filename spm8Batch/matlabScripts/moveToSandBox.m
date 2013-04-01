@@ -35,7 +35,7 @@ CS           = 0;
 % single file as we use "FILESTOMOVE(1)" below. Not sure on the
 % impact of other code?
 
-if exist(SandBoxPID,'file')
+if exist(SandBoxPID,'dir')
     if ~isempty(strfind(sourceExtension,'img'))
         fprintf('Only nifti files are supported for use with the sandbox\n');
         fprintf('Turning off sandbox\n');

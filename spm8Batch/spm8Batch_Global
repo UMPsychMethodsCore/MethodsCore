@@ -22,7 +22,8 @@
 
 # Added some proper error returns when failing due to error.
 
-COPYRIGHT="Copyright Robert C. Welsh, 2005-2012, Version"
+COPYRIGHTENDYEAR=`date +%Y`
+COPYRIGHT="Copyright Robert C. Welsh, 2005-${COPYRIGHTENDYEAR}, Version"
 
 if [ -z "${SPM8BATCHGLOBAL_CALLED}" ]
 then

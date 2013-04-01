@@ -190,14 +190,6 @@ do
 		    . ${thisDir}/auxiliary/setRunList
 		    ;;
 		
-              # case_subject_dir 
-	      # 
-	      # subject directory name to use
-	      #
-		"M")
-		    . ${thisDir}/auxiliary/setSubjectsMasterDir
-		    ;;
-		
 	      # case_do_erosion_last
               #
               # a flag to tell vbm8HiRes to do erosion as last step
@@ -211,6 +203,14 @@ do
                 "l")
                    . ${thisDir}/auxiliary/setNoSandBox
                    ;;
+              # case_subject_dir 
+	      # 
+	      # subject directory name to use
+	      #
+		"M")
+		    . ${thisDir}/auxiliary/setSubjectsMasterDir
+		    ;;
+		
               # case_flirt_options 
 	      # 
 	      # find the flirt options,

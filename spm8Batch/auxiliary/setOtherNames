@@ -24,13 +24,12 @@
 	                . ${thisDir}/auxiliary/exit_w_removal
 		    else
 		        otherName[$iother]=$1
-		        let iother++
 		    fi
 		    if [ ${otherName:0:1} == "/" ]
 		    then
-		        otherDIR[$io]=1    # means that absolute path
+		        otherDIR[$iother]=1    # means that absolute path
 		    else
-		        otherDIR[$io]=0    # means relative path.
+		        otherDIR[$iother]=0    # means relative path.
 		    fi
                     BAD=0
 		    FILENAME=${otherName[$iother]}
@@ -46,6 +45,7 @@
 		    fi
 		    otherName[$iother]=${FILENAME}
 		    otherExt[$iother]=${FILEEXT}
+		    let iother++
                   fi
 		  # 
 		  # Change back to success
