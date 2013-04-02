@@ -36,7 +36,7 @@ function varargout = BrainNet_LoadFiles(varargin)
 
 % Edit the above text to modify the response to help BrainNet_LoadFiles
 
-% Last Modified by GUIDE v2.5 26-Oct-2011 19:54:43
+% Last Modified by GUIDE v2.5 01-Apr-2013 11:37:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -573,3 +573,17 @@ else
     fpath=fullfile(pathname,filename);
     set(handles.VF_edit,'string',fpath);
 end
+
+
+% --------------------------------------------------------------------
+function uipanel1_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to uipanel1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes during object creation, after setting all properties.
+function uipanel1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uipanel1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
