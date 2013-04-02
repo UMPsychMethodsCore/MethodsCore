@@ -107,7 +107,8 @@ e = e(:);
 i = find(e < eps);
 e(i) = [];
 
-kmax = min([d-1 n-2]);
+%kmax = min([d-1 n-2]);
+kmax = min([d-1 n-2])-length(i);
 %kmax = min([kmax 15]);
 ks = 1:kmax;
 
