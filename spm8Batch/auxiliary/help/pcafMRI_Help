@@ -19,6 +19,13 @@
     echo "        that 'subdir' is a string contained in the list of directories returned for processing."
     echo "        If this DOES NOT make sense to you please contact Robert before proceeding."
     echo
+    echo " * * * * * USAGE NOTE * * * * * * "
+    echo "  This should be invoked after running warpfMRI. It will look for for the WM and CSF masks generated "
+    echo "  by erodeMask and apply them to the warped time-series data and extract timeseries and run PCA."
+    echo "  CSV files are written with the first column being the global mean of the mask and the subsequent "
+    echo "  columns being the ordered PCA components. Also a log file is written with a report on the variance" 
+    echo "  captured by each component. These files live in the same directory as time-series data."
+    echo " * * * * * USAGE NOTE * * * * * * "
     echo
     echo " Current command default configuration is:"
     echo 
