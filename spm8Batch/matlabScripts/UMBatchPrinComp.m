@@ -37,20 +37,6 @@ global defaults
 
 results = cputime;
 
-% Make sure we have access to stats toolbox
-
-prinCompDir = which('princomp');
-
-if isempty(prinCompDir)
-    fprintf('\n\n* * * * * * * * * * * * * * * * * * *\n');
-    fprintf('* * * * * * * * * * * * * * * * * * *\n');
-    fprintf('* * * * *  princomp.m missing * * * *\n');
-    fprintf('* * * * * * * * * * * * * * * * * * *\n');
-    fprintf('* * * * * * * * * * * * * * * * * * *\n');
-    results = -1;
-    return
-end
-
 OutputNames = {'WM_PCA_','CSF_PCA_','BOTH_PCA_'};
 
 % Make the call to prepare the system for batch processing.
@@ -88,7 +74,8 @@ if exist(UMCSFMask,'file')
     UMCSFMaskIDX = find(UMCSFMaskVol);
 end
 
-UMMaskIDX = {UMWMMaskIDX,UMCSFMaskIDX,unique([UMWMMaskIDX;UMCSFMaskIDX])};
+UMMaskIDX   = {UMWMMaskIDX,UMCSFMaskIDX,unique([UMWMMaskIDX;UMCSFMaskIDX])};
+UMMaskNames = {UMWMMask,UMCSFMask,'Both Mask'};
 
 % Now point to the time-series data.
 
@@ -120,7 +107,8 @@ for iIDX = 1:3
         VOXIDX   = VARIDX(1:NIDX,2);
         fprintf('  Using a fraction %f with %d voxels\n',dataFraction,NIDX);
         try
-            [PCCoeff PCScore PCLatent PCT2] = princomp(theData(VOXIDX,:)');
+            PCAResults = UMBatchPCA(theData(VOXIDX,:)');
+            %[PCCoeff PCScore PCLatent PCT2] = princomp(theData(VOXIDX,:)');
         catch
             fprintf('\n\n* * * * * * * * * * * * * * * * * * *\n');
             fprintf('* * * * * * * * * * * * * * * * * * *\n');
@@ -134,14 +122,40 @@ for iIDX = 1:3
         OutputFile = fullfile(TimeSeriesDir,[OutputNames{iIDX} TimeSeriesName,'.csv']);
         MeanTS = mean(theData,1);
         if ~ TestFlag
-            csvwrite(OutputFile,[MeanTS' PCScore(:,1:min(NComponents,size(PCScore,2)))]);
+            csvwrite(OutputFile,[MeanTS' PCAResults.TC(:,1:min(NComponents,size(PCAResults.TC,2)))]);
             fprintf('  Wrote to the file %s\n',OutputFile);
         else
             fprintf('  Would have written to the file %s\n',OutputFile);
         end
+        PCALogFile = fullfile(TimeSeriesDir,[OutputNames{iIDX} TimeSeriesName,'.log']);
+        PCAFID     = fopen(PCALogFile,'a');
+        THECLOCK   = clock;
+        THEDATE    = sprintf('%4d-%02d-%02d %02d:%02d:%02d',round(THECLOCK(1:6)));
+        if PCAFID > 0
+            fprintf(PCAFID,'* * * * * * * PCA Analysis of %s * * * * * * * \n\n',OutputNames{iIDX});
+            fprintf(PCAFID,'  Report on %s\n\n',THEDATE);
+            fprintf(PCAFID,'  Total number of components found : %d\n\n',size(PCAResults.TC,2));
+            fprintf(PCAFID,'  Total Variance in time series    : %e\n\n',PCAResults.totalVar);
+            fprintf(PCAFID,'  Total Variance after global mean : %e %1.3f\n\n',PCAResults.varMean,1-PCAResults.varMean/PCAResults.totalVar);
+            fprintf(PCAFID,'  Variance Report\n');
+            fprintf(PCAFID,'  Variance Remaining   Fraction Explained   Cumulative Fraction\n');
+            fprintf(PCAFID,'  ------------------   ------------------   ------------------\n');
+            for IC = 1:length(PCAResults.varComp)
+                fprintf(PCAFID,'      %6.2f               %1.3f                %1.3f\n',...
+                    PCAResults.varComp(IC),1-PCAResults.varComp(IC)/PCAResults.totalVar,...
+                    sum(PCAResults.totalVar-PCAResults.varComp(1:IC))/PCAResults.totalVar);
+            end
+            fprintf(PCAFID,'\n\n* * * * * REPORT FINISHED * * * * *\n');
+            fclose(PCAFID);
+        end
+       
         % Log that we finished this portion.
         
         UMBatchLogProcess(TimeSeriesDir,sprintf('UMBatchPrinComp : Calculated %s PCA (%d) for %s',OutputNames{iIDX},NIDX,Images2Read));
+        UMBatchLogProcess(TimeSeriesDir,sprintf('UMBatchPrinComp : Mask : %s',UMMaskNames{iIDX}));
+        UMBatchLogProcess(TimeSeriesDir,sprintf('UMBatchPrinComp : Output in : %s',OutputFile));
+        UMBatchLogProcess(TimeSeriesDir,sprintf('UMBatchPrinComp : Report in : %s',PCALogFile));
+    
     end
 end
 
