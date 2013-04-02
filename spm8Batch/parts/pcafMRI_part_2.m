@@ -27,7 +27,6 @@ for iSub = 1:length(UMBatchSubjs)
   %
   for iRun = 1:length(UMImgDIRS{iSub})
     %
-    % Find out if they are using a sandbox for the warping.
     %
     Images2Read = dir([fullfile(UMImgDIRS{iSub}{iRun},UMVolumeWild) '*.nii']);
     nFiles = size(Images2Read,1);
@@ -52,7 +51,7 @@ for iSub = 1:length(UMBatchSubjs)
   end
 end
 
-fprintf('\nAll done with warping of fMRIs to template using HiResolution data.\n');
+fprintf('\nAll done with calculating PCA.\n');
 
 %
 % All done.

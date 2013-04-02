@@ -45,7 +45,7 @@ allowedOptions="BDdFfhMNOpstUvw"
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
 
-# This is the common in-line code for the warping steps.
+# This is the common in-line code for the PCA steps.
 . ${thisDir}/auxiliary/commonCode_pcafMRI_01
 
 # This is common in-line code for all spm8Batch script to make sure arguments were passed
