@@ -107,7 +107,7 @@ for iIDX = 1:3
         VOXIDX   = VARIDX(1:NIDX,2);
         fprintf('  Using a fraction %f with %d voxels\n',dataFraction,NIDX);
         try
-            PCAResults = UMBatchPCA(theData(VOXIDX,:)');
+            PCAResults = UMBatchPCA(zscore(theData(VOXIDX,:)'));
             %[PCCoeff PCScore PCLatent PCT2] = princomp(theData(VOXIDX,:)');
         catch
             fprintf('\n\n* * * * * * * * * * * * * * * * * * *\n');
