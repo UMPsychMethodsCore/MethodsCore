@@ -8,7 +8,7 @@
 % UMBatchWarp
 %
 % A drivable routine for warping some images using the 
-% batch options of spm2.
+% batch options of spm8.
 %
 % Version 2.0
 %
@@ -55,7 +55,7 @@ global defaults
 
 % Make the call to prepare the system for batch processing.
 
-UMBatchPrep
+UMBatchPrep;
 
 fprintf('Entering UMBatchWarpVBM8 V2.0 SPM8 Compatible\n');
 
@@ -75,7 +75,7 @@ results = -1;
 % Make sure that the ParamImage is there.
 %
 
-tic;
+ticStart = tic;
 
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
@@ -109,8 +109,26 @@ clear matlabbatch
 
 % Name of the deformation file
 
-matlabbatch{1}.spm.util.defs.comp{1}.def{1} = fullfile(ParamImageDirectory,['y_r' ParamImageName ParamImageExt]);
+% Now we need to find the correct deformation field, if VBM8 was used the deformation field
+% is called "y_r_", while NEW SEGMENT calls is "y_"
 
+ParamDeformationVBM8 = fullfile(ParamImageDirectory,['y_r' ParamImageName ParamImageExt]);
+ParamDeformationNEWS = fullfile(ParamImageDirectory,['y_' ParamImageName ParamImageExt]);
+
+if exist(ParamDeformationVBM8,'file')  
+  matlabbatch{1}.spm.util.defs.comp{1}.def{1} = ParamDeformationVBM8;  
+else
+  if exist(ParamDeformationNEWS,'file')
+    matlabbatch{1}.spm.util.defs.comp{1}.def{1} = ParamDeformationNEWS;  
+  else
+    fprintf('I tried to find the VBM8 and the newSegment defomation fields, neither exists');
+    fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -66;
+    UMCheckFailure(results);
+    return
+  end
+end
+  
 % Check to make sure that the defomation field is there.
 
 if isempty(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) | exist(matlabbatch{1}.spm.util.defs.comp{1}.def{1}) == 0
@@ -301,9 +319,9 @@ clear matlabbatch
 % Set the flag to the amount of time to execute.
 %
 
-results = toc;
+results = toc(ticStart);
 
-fprintf('Deformation finished in %f seconds\n',results);
+fprintf('Deformation applied and finished in %f seconds\n',results);
 
 return
 

@@ -1,4 +1,12 @@
-    echo "    -p physiofilexref    set name of text file with run-physio xref table,"
-    echo "                         default=physio.log"
-    echo "                         this file is expected in func/Physio/"
-    echo 
+case "${thisCommand}" in
+    "pcafMRI")
+      echo "    -p #                 order of polynomial for detrending"
+      echo "                         default is 0 for linear. Any negative value will turn it off."
+      echo 
+      ;;
+    *)
+      echo "    -p physiofilexref    set name of text file with run-physio xref table,"
+      echo "                         default=physio.log"
+      echo "                         this file is expected in func/Physio/"
+      echo 
+esac

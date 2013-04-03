@@ -8,7 +8,7 @@
 % UMBatchCoReg
 %
 % A drivable routine for coregistering some images using the 
-% batch options of spm2
+% batch options of spm8
 %
 %  Call as :
 %
@@ -46,7 +46,7 @@ results = -1;
 
 % Make the call to prepare the system for batch processing.
 
-UMBatchPrep
+UMBatchPrep;
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')

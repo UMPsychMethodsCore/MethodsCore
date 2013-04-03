@@ -1,0 +1,9 @@
+    echo "${helpComment} anatomy path             : ${anatomyPATH}"
+    echo "${helpComment} name of hisres image     : ${HIRESNAME}"
+    echo "${helpComment} directory to vbm8        : ${coregPATH}/"
+    echo "${helpComment} all(1) or biasfield(0)   : ${BIASFIELDFLAG}"
+    echo "${helpComment} prepending name          : ${outputName}"
+    echo "${helpComment} Erosion Last flag        : ${EROSIONLAST}"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_options_end

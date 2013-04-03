@@ -50,6 +50,7 @@ HIRESEXT=
 iother=0
 otherName=
 otherExt=
+otherDIR=
 
 # Are we coreg only, coreg/reslice, or reslice only?
 resliceFLAG=0
@@ -85,7 +86,7 @@ BETGRADIENT=.15
 ALLRUNSFLAG=0
 
 # Volume TR
-TR=2
+TR=2.0
 
 # which slice to align time to?
 TGLOBAL=0.5
@@ -107,6 +108,10 @@ BATCHCOMMAND=1
 # Is this command to run in the background
 
 BACKGROUNDJOBFLAG=1
+
+# Sand Box override flag
+
+OverrideNoSandBoxFLAG=0
 
 # Are you running this command in qualitycheck mode?
 

@@ -47,7 +47,16 @@ do
 	    if [ -z "${ALLOWED}" ]
 	    then 
 		echo 
-		echo "Option : $curParam : is not allowed for ${thisCommand}"
+		echo "     * * * * * * * * * * * * * * * * * * * * * * * * * * *"
+		echo "     * * * *"
+		echo "     * * * * Option : $curParam : is not allowed for ${thisCommand}"
+		echo "     * * * *"
+		echo "     * * * *"
+		echo "     * * * * To learn more about this command, type"
+		echo "     * * * *"
+       		echo "     * * * *      ${thisCommand} <CR>"
+		echo "     * * * *"
+		echo "     * * * * * * * * * * * * * * * * * * * * * * * * * * *"
 		echo
 	        . ${thisDir}/auxiliary/exit_w_removal
             fi
@@ -181,6 +190,19 @@ do
 		    . ${thisDir}/auxiliary/setRunList
 		    ;;
 		
+	      # case_do_erosion_last
+              #
+              # a flag to tell vbm8HiRes to do erosion as last step
+              #
+                "L")
+                   . ${thisDir}/auxiliary/setErosionLast
+                   ;;
+              #
+              # do NOT use the sandbox even if possible
+              #
+                "l")
+                   . ${thisDir}/auxiliary/setNoSandBox
+                   ;;
               # case_subject_dir 
 	      # 
 	      # subject directory name to use
@@ -189,13 +211,6 @@ do
 		    . ${thisDir}/auxiliary/setSubjectsMasterDir
 		    ;;
 		
-	      # case_do_erosion_last
-              #
-              # a flag to tell vbm8HiRes to do erosion as last step
-              #
-                "L")
-                   . ${thisDir}/auxiliary/setErosionLast
-                   ;;
               # case_flirt_options 
 	      # 
 	      # find the flirt options,
