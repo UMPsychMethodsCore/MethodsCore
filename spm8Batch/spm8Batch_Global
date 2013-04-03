@@ -22,7 +22,8 @@
 
 # Added some proper error returns when failing due to error.
 
-COPYRIGHT="Copyright Robert C. Welsh, 2005-2012, Version"
+COPYRIGHTENDYEAR=`date +%Y`
+COPYRIGHT="Copyright Robert C. Welsh, 2005-${COPYRIGHTENDYEAR}, Version"
 
 if [ -z "${SPM8BATCHGLOBAL_CALLED}" ]
 then
@@ -73,7 +74,7 @@ then
 
 # list the devices that require the use of the sandbox
 
-    SANDBOXUSE="data4"
+    SANDBOXUSE="-e data4 -e data3 -e data2 -e data1 -e /Volumes/ALS"
 
 #
 # You should put in the user id of the person
@@ -108,8 +109,14 @@ then
     
 # And finally, you need to point to matlab
         
-    MATLAB=`which matlab`
+    OSTYPE=`uname`
 
+    if [ "${OSTYPE}" == "Darwin" ]
+    then   
+        MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+    else
+        MATLAB=`which matlab`
+    fi
 #    
 # Only allow author to execute code during switch.
 # If the current user is the localowner then they may
@@ -193,8 +200,31 @@ then
     
 # We can build the names for the scripts right here.
     
-    theDate=`date +%y%m%d_%H_%M_%S`
-    theYearMonth=`date +%Y_%m`
+# Put in a little more protection for the 
+# naming of the script files. On linux we can request 
+# the nanosecond timing and then take the first two (most significan digits)
+
+# On MAC OS X we just have to suck it up and hope there are no
+# clashes of file names. In genearl it shoudlnt' happen as
+# the script builing has a forced delay of 1 second in it.
+
+# For MAC OS X we just throw a 3-digit random number on it.
+
+    if [ "${OSTYPE}" == "Darwin" ]
+    then   
+       theDate=`date +%y%m%d_%H_%M_%S`
+       # Need to seed with process ID, else we get the same number
+       RANDOM=$$
+       THERANDOM=$RANDOM
+       theRandom=`echo $THERANDOM | awk '{printf "%05d",$1}'`
+       theDate=${theDate}_${theRandom:0:3}
+       theYearMonth=`date +%Y_%m`
+    else
+       # On LINUX we can get the nano-second clock as well.
+       theDate=`date +%y%m%d_%H_%M_%S_%N`
+       theDate=${theDate:0:19}
+       theYearMonth=`date +%Y_%m`
+    fi
     
     HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}' | sed 's/-/_/g'`
     

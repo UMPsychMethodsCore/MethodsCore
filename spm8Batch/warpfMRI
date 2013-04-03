@@ -37,7 +37,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="BDdfhIMntUvWwz"
+allowedOptions="BDdfhIlMntUvWwz"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -127,19 +127,25 @@ do
     if [ "${WARPMETHOD}" -eq "1" ] 
     then
 	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/y_r${HIRESNAME}.nii
+	WARP_FILEALT=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/y_${HIRESNAME}.nii
     else
 	WARP_FILE=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}/${HIRESNAME}_sn.mat
     fi
     if [ ! -e "${WARP_FILE}" ]
     then
-	echo
-	echo "MISSING warping instuctions ${WARP_FILE} for ${subjects[$is]}"
-	echo
+	if [ ! -e "${WARP_FILEALT}" ]
+	then
+	    echo
+	    echo "MISSING warping instuctions ${WARP_FILE} for ${subjects[$is]}"
+	    echo
 	# 
         # remove the sandbox if we made one.
         #
-	${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}
-	. ${thisDir}/auxiliary/exit_w_removal
+	    ${thisDir}/auxiliary/remove_sandbox ${SANDBOXYES} ${SANDBOXPID}
+	    . ${thisDir}/auxiliary/exit_w_removal
+	else
+	    WARP_FILE=${WARP_FILEALT}
+	fi
     fi
     echo "'${TARGETIMG}';..."                             >> ${FULLSCRIPTNAME}.m
     

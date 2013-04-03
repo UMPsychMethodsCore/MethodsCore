@@ -8,6 +8,14 @@ DATESECONDS=`date +%s | awk '{printf "%012d",$1}'`
 
 useSandBox=`echo $CURDIR | grep ${SANDBOXUSE}`
 
+if [ "${OverrideNoSandBoxFLAG}" == "1" ]
+then
+	echo
+	echo "    * * * * * Shutting off sandbox capability as requested * * * * *"
+	echo	     
+	useSandBox=""
+fi
+
 if [ ! -z "${useSandBox}" ]
 then
     if [ -d "${SANDBOX}" ] 

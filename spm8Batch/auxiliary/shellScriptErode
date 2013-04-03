@@ -3,22 +3,41 @@
 # Add the erodeMask command to the current command.
 #
 
+echo 
+echo "Calling erodeMask with :"
+echo 
+echo -n "erodeMask"          
+echo -n " -E ${WMEROSION}"   
+echo -n " ${CSFEROSION}"     
+echo -n " -w ${coregPATH}"   
+echo -n " ${EROSIONLASTOPT}" 
+echo -n " -v ${outputName}"  
+echo -n " -h ${HIRESNAME}"   
+echo -n " -m \"${mcOPT}\""   
+echo -n " -M ${SUBJDIR}"     
+echo " -n eroMask_    [list of subjects] (see shell script file: ${FULLSCRIPTNAME}.sh)"       
+
 echo "#"                                                                          >> ${FULLSCRIPTNAME}.sh
 echo "# Calling erodeMask now interactively"                                      >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                          >> ${FULLSCRIPTNAME}.sh
 echo "# Get into the right working directory"                                     >> ${FULLSCRIPTNAME}.sh
 echo "cd ${execDIR}"                                                              >> ${FULLSCRIPTNAME}.sh
 echo                                                                              >> ${FULLSCRIPTNAME}.sh
-echo -n "erodeMask"                                                               >> ${FULLSCRIPTNAME}.sh
-echo -n " -E ${WMEROSION}"                                                        >> ${FULLSCRIPTNAME}.sh
-echo -n " ${CSFEROSION}"                                                          >> ${FULLSCRIPTNAME}.sh
-echo -n " -w ${coregPATH}"                                                        >> ${FULLSCRIPTNAME}.sh
-echo -n " ${EROSIONLASTOPT}"                                                      >> ${FULLSCRIPTNAME}.sh
-echo -n " -v ${outputName}"                                                       >> ${FULLSCRIPTNAME}.sh
-echo -n " -h ${HIRESNAME}"                                                        >> ${FULLSCRIPTNAME}.sh
-echo -n " -m \"${mcOPT}\""                                                        >> ${FULLSCRIPTNAME}.sh
-echo -n " -M ${SUBJDIR}"                                                          >> ${FULLSCRIPTNAME}.sh
-echo -n " -n eroMask_"                                                            >> ${FULLSCRIPTNAME}.sh
+echo "# Make sure that warping job successfully finished"                         >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "if [ \"\${MATLAB_RETURN_CODE}\" == \"0\" ]"                                 >> ${FULLSCRIPTNAME}.sh
+echo "then"                                                                       >> ${FULLSCRIPTNAME}.sh
+echo "    # Make sure that warping job successfully finished"                         >> ${FULLSCRIPTNAME}.sh
+echo -n "    erodeMask"                                                               >> ${FULLSCRIPTNAME}.sh
+echo -n "     -E ${WMEROSION}"                                                        >> ${FULLSCRIPTNAME}.sh
+echo -n "     ${CSFEROSION}"                                                          >> ${FULLSCRIPTNAME}.sh
+echo -n "     -w ${coregPATH}"                                                        >> ${FULLSCRIPTNAME}.sh
+echo -n "     ${EROSIONLASTOPT}"                                                      >> ${FULLSCRIPTNAME}.sh
+echo -n "     -v ${outputName}"                                                       >> ${FULLSCRIPTNAME}.sh
+echo -n "     -h ${HIRESNAME}"                                                        >> ${FULLSCRIPTNAME}.sh
+echo -n "     -m \"${mcOPT}\""                                                        >> ${FULLSCRIPTNAME}.sh
+echo -n "     -M ${SUBJDIR}"                                                          >> ${FULLSCRIPTNAME}.sh
+echo -n "     -n eroMask_"                                                            >> ${FULLSCRIPTNAME}.sh
 
 # Now list out the participants.
 
@@ -30,9 +49,10 @@ for (( ii=1 ; ii<=$nSubjects ; ii++ ))
 do
   echo -n " ${subjects[$ii]}"                                                     >> ${FULLSCRIPTNAME}.sh
 done
-
 echo                                                                              >> ${FULLSCRIPTNAME}.sh
-
+echo "else"                                                                       >> ${FULLSCRIPTNAME}.sh
+echo "    echo \"Warping of hi res failed so no erosion possible\""               >> ${FULLSCRIPTNAME}.sh
+echo "fi"                                                                         >> ${FULLSCRIPTNAME}.sh
 #
 # All done
 #

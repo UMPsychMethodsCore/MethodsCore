@@ -20,6 +20,18 @@ case "${thisCommand}" in
 	echo "                         DEFAULT : \"'ascending'\""
 	echo " "
 	;;
+    "pcafMRI")
+        echo "    -O maskwild          start of the name to use for masking the time-series data"
+	echo "                         for extracting the data for PCA analysis."
+	echo "                         Typically this is WM_ero and CSF_ero." 
+	echo "                         You will need to specify both."
+	echo "                         If you want to override the defaults of \"WM_ero\" and \"CSF_ero\""
+	echo "                         the use this flag. The first instance will override the WM and the "
+	echo "                         second instance will override the CSF."
+	echo 
+	echo "              NOTE: IF YOU DO NOT WANT TO CALCULATE THEN PASS \"NONE\" as the option"
+	echo
+        ;;
     *)
        echo "    -O OtherName         coregOverlay/HiRes : name of other file to process,"
        echo "                         you can specify relative path or absolute path,"
