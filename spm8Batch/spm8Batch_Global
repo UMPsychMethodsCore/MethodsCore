@@ -208,13 +208,21 @@ then
 # clashes of file names. In genearl it shoudlnt' happen as
 # the script builing has a forced delay of 1 second in it.
 
+# For MAC OS X we just throw a 3-digit random number on it.
+
     if [ "${OSTYPE}" == "Darwin" ]
     then   
        theDate=`date +%y%m%d_%H_%M_%S`
+       # Need to seed with process ID, else we get the same number
+       RANDOM=$$
+       THERANDOM=$RANDOM
+       theRandom=`echo $THERANDOM | awk '{printf "%05d",$1}'`
+       theDate=${theDate}_${theRandom:0:3}
        theYearMonth=`date +%Y_%m`
     else
+       # On LINUX we can get the nano-second clock as well.
        theDate=`date +%y%m%d_%H_%M_%S_%N`
-       theDate=${theDate:0:18}
+       theDate=${theDate:0:19}
        theYearMonth=`date +%Y_%m`
     fi
     
