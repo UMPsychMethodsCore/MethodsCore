@@ -200,8 +200,23 @@ then
     
 # We can build the names for the scripts right here.
     
-    theDate=`date +%y%m%d_%H_%M_%S`
-    theYearMonth=`date +%Y_%m`
+# Put in a little more protection for the 
+# naming of the script files. On linux we can request 
+# the nanosecond timing and then take the first two (most significan digits)
+
+# On MAC OS X we just have to suck it up and hope there are no
+# clashes of file names. In genearl it shoudlnt' happen as
+# the script builing has a forced delay of 1 second in it.
+
+    if [ "${OSTYPE}" == "Darwin" ]
+    then   
+       theDate=`date +%y%m%d_%H_%M_%S`
+       theYearMonth=`date +%Y_%m`
+    else
+       theDate=`date +%y%m%d_%H_%M_%S_%N`
+       theDate=${theDate:0:18}
+       theYearMonth=`date +%Y_%m`
+    fi
     
     HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}' | sed 's/-/_/g'`
     
