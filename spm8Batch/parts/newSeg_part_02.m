@@ -9,7 +9,7 @@ UMBatchMaster = deblank(UMBatchMaster);
 % then you should not have to modify this piece of code from this point 
 % forward.
 
-fprintf('\nWarping images using UMBatchVBM8\n');
+fprintf('\nWarping images using UMBatchNewSeg\n');
 
 fprintf('Looping on the subjects now\n\n');
 

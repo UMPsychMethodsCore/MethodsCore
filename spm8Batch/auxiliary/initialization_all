@@ -50,7 +50,7 @@ HIRESEXT=
 iother=0
 otherName=
 otherExt=
-oterhDIR=
+otherDIR=
 
 # Are we coreg only, coreg/reslice, or reslice only?
 resliceFLAG=0

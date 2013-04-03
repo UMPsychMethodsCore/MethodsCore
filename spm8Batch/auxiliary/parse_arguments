@@ -54,7 +54,7 @@ do
 		echo "     * * * *"
 		echo "     * * * * To learn more about this command, type"
 		echo "     * * * *"
-                echo "     * * * *      ${thisCommand} <CR>"
+       		echo "     * * * *      ${thisCommand} <CR>"
 		echo "     * * * *"
 		echo "     * * * * * * * * * * * * * * * * * * * * * * * * * * *"
 		echo

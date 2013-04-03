@@ -12,7 +12,7 @@
 
 % Make sure the UM Batch system is installed.
 
-if exist('UMBatchPrep') ~= 2 | exist('UMBatchPrinComp') ~= 2
+if exist('UMBatchPrep') ~= 2 | exist('UMBatchPrinComp') ~= 2 | exist('UMBatchPCA') ~= 2
     fprintf('You need to have the UM Batch system\n');
     return
 end

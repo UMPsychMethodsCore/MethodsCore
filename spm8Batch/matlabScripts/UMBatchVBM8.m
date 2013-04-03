@@ -194,7 +194,7 @@ if exist('vbm8HiRes_options.m','file')
             fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.affreg     = %s\n',opts.affreg);
         end
         if isfield('opts','warpreg')
-            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.biasreg = opts.warpreg;
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.warpreg = opts.warpreg;
             fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.warpreg    = %d\n',opts.warpreg);
         end
         if isfield('opts','samp')
