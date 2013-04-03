@@ -65,6 +65,12 @@ P=Y*G;
 results.TC  = P;
 results.SC  = G;
 
+% Let normalize the magnitude of the components.
+
+for iC = 1:size(results.TC,2)
+  results.TC(:,iC) = results.TC(:,iC)/max(results.TC(:,iC));
+end
+
 % Last thing for them, we can calculate the variance removed by each
 % component independently
 

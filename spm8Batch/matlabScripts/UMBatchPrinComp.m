@@ -21,12 +21,8 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 %
-% 2011.11.18 - RCWelsh - Fixed error on subscript to line below to
-%                        reflect change:
-%                        size(PCScore,1) -> size(PCScore,2);
 %
-
-%function results = UMBatchPrinComp(theData,dataFraction)
+%
 
 function results = UMBatchPrinComp(UMWMMask,UMCSFMask,Images2Read,detrendFlag,NComponents,dataFraction,TestFlag)
 
