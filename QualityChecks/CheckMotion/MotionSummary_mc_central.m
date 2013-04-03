@@ -39,21 +39,21 @@ for iSubject = 1:size(SubjDir,1)
         CombinedOutput{iSubject,jRun} = Output;
         
         % Write out censor regressor csv
-        if ~isempty(FDjudge)
-            [pathstr file ext] = fileparts(MotionPath);
-            fdCsv = fullfile(pathstr, 'fdOutliers.csv');
-            fdFid = fopen(fdCsv, 'w');
-            if fdFid == -1
-                fprintf(1, 'Cannot write fdOutliers.csv for subject %s\n', Subject);
-                fprintf(1, 'Check permissions for path: %s\n', pathstr);
-            else
+        [pathstr file ext] = fileparts(MotionPath);
+        fdCsv = fullfile(pathstr, 'fdOutliers.csv');
+        fdFid = fopen(fdCsv, 'w');
+        if fdFid == -1
+            fprintf(1, 'Cannot write fdOutliers.csv for subject %s\n', Subject);
+            fprintf(1, 'Check permissions for path: %s\n', pathstr);
+        else
+            if ~isempty(FDjudge)
                 ind = find(FDjudge(:) > 0);
                 [m n] = ind2sub(size(FDjudge), ind);
                 for i = 1:(length(m) - 1)
                     fprintf(fdFid, 'scan%d,', m(i));
                 end
                 fprintf(fdFid, 'scan%d\n', m(end));
-                
+
                 for i = 1:size(FDjudge, 1)
                     for k = 1:(size(FDjudge, 2) - 1)
                         fprintf(fdFid, '%d,', FDjudge(i, k));
@@ -62,7 +62,7 @@ for iSubject = 1:size(SubjDir,1)
                 end
             end
             fclose(fdFid);
-        end                
+        end
     end
 end
 
