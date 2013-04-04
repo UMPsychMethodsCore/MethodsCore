@@ -116,45 +116,16 @@ File.VF=[]; %volume file
 % File.NI=get(handles.NI_edit,'string');
 % File.NT=get(handles.NT_edit,'string');
 % File.VF=get(handles.VF_edit,'String');
-if isempty(File.MF)
-    mf=0;
-else
-    mf=1;
-end
-if isempty(File.NI)
-    ni=0;
-else
-    ni=2;
-end
-if isempty(File.NT)
-    nt=0;
-else
-    nt=4;
-end
-if isempty(File.VF)
-    vf=0;
-else
-    vf=8;
-end
 
-FLAG.Loadfile=mf+ni+nt+vf;
+    mf=1;
+    ni=2;
+    nt=4;
+    vf=0;
+
+FLAG.Loadfile=mf+ni+nt+vf; %7
 global surf
-if FLAG.Loadfile==0
-    h=msgbox('Please select file!','Error','error');
-    uiwait(h);
-    return;
-else
-    if FLAG.Loadfile==4||FLAG.Loadfile==5|| FLAG.Loadfile == 13 %%% Edited by Mingrui Xia 20120219, add volume, node and edge mode
-        h=msgbox('Please select node file!','Error','error');
-        uiwait(h);
-        return;
-        %     elseif FLAG.Loadfile>9 %%%Edited by Mingrui Xia 20111116, add volume
-        %     and & mode
-    elseif FLAG.Loadfile == 8 || FLAG.Loadfile == 10 || FLAG.Loadfile == 12 || FLAG.Loadfile == 14
-        h=msgbox('Please select surf file!','Error','error');
-        uiwait(h);
-        return;
-    else
+
+
         surf=[];
         switch FLAG.Loadfile
             case 1
@@ -211,11 +182,10 @@ else
                 end
                 [surf.nsph surf.sphere surf.label]=NI_load(File.NI);
                 surf.net=NT_load(File.NT);
-        end
+
         FLAG.LF=1;
         close(findobj('Tag','LF_fig'));
-    end
-end
+        end
 
 
 function [hdr,mask]=VF_load(filename)
