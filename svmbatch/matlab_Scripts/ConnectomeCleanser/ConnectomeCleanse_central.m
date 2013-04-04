@@ -83,7 +83,10 @@ for iFold = 1:size(s.CrossValidFold,2)
     
     test.corrected = test.data - test.predicted;
     
-    Folds(iFold).train = train;
-    Folds(iFold).test = test;
+    Folds.partition  = s.CrossValidFold(:,iFold);
+    Folds.train = train;
+    Folds.test = test;
+    
+    save(fullfile(outputPath,['Fold' num2str(iFold) '.mat']),'Folds','-v7.3')
         
 end
