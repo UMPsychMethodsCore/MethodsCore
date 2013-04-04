@@ -80,14 +80,13 @@ ZTrans = 0;
 
 outputPath = '/net/data4/MyStudy/SweetNewOutput';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% How should we do crossvalidation?                                %
-% We expect the CrossValidFold is a nSub x nFold matrix.           %
-% It should should either be a logical or easily coerced to one.   %
-% It will indicate which subjects should be included in each fold. %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Which column of your MDF has info on how to partition your data into folds? %
+% There should be a column which has a defined value for each of subjects     %
+% that are marked to be included.                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+FoldsCol = 'Fold';
 
-%CrossValidFold = 
 
 
