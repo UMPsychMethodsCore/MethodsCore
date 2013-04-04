@@ -16,7 +16,7 @@ end
 cd(outputPath)
 
 FixedFxPath = fullfile(outputPath,'FixedFX.mat');
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/ConnectomeCleanser/RPart.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' ' &> /dev/null'];
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/ConnectomeCleanser/RPart.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' '"' FoldsCol '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
 if Rstatus ~= 0
@@ -25,6 +25,7 @@ end
 
 %%% Load Design Matrix
 s = load(FixedFxPath);
+s.CrossValidFold = logical(s.CrossValidFold);
 
 %%% Clean up Design Matrix
 s.subs(:,2) = num2cell(1); % add a second column

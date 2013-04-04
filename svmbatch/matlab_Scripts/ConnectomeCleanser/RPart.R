@@ -37,13 +37,14 @@ subs = mini$Subject
 library(R.matlab)
 
 FoldIDS = sort(unique(mini$Fold))
-CVFoldLogic = matrix(rep(FALSE,length(FoldIDS)*nrow(mini)),nrow=nrow(mini),ncol=length(FoldIDS))
+CrossValidFold = matrix(rep(FALSE,length(FoldIDS)*nrow(mini)),nrow=nrow(mini),ncol=length(FoldIDS))
 for (iFold in 1:length(FoldIDS)){
-  CVFoldLogic[,iFold] <- mini$Fold==FoldIDS[iFold]
+  CrossValidFold[,iFold] <- mini$Fold==FoldIDS[iFold]
 }
-    
+
+CrossValidFold = apply(CrossValidFold,c(1,2),as.numeric)
 
 ## Save the results
 
 library(R.matlab)
-writeMat(writepath,subs=subs,design=design,CrossValidFold=CVFoldLogic)
+writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold)
