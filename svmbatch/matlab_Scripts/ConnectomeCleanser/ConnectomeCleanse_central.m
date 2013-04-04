@@ -66,18 +66,18 @@ end
 % in each fold
 
 for iFold = 1:size(s.CrossValidFold,2)
-    train.data = data(logical(s.CrossValidFold(:,iFold));
-    test.data = data(~logical(s.CrossValidFold(:,iFold));
-    train.des = s.design(logical(s.CrossValidFold(:,iFold));
-    test.des = s.design(~logical(s.CrossValidFold(:,iFold));
+    train.data = data(~logical(s.CrossValidFold(:,iFold)),:);
+    test.data = data(logical(s.CrossValidFold(:,iFold)),:);
+    train.des = s.design(~logical(s.CrossValidFold(:,iFold)),:);
+    test.des = s.design(logical(s.CrossValidFold(:,iFold)),:);
 
     
     [c r b i t pv pd] = mc_CovariateCorrection(train.data,train.des,3,1);
     
     train.corrected = c;
     
-    test.des(:,Des.FxCol) = []; % get rid of the effect of interest
-    b(Des.FxCol,:) = []; % get rid of beta for effect of interest
+    test.des(:,des.FxCol) = []; % get rid of the effect of interest
+    b(des.FxCol,:) = []; % get rid of beta for effect of interest
     
     test.predicted = test.des * b;
     
