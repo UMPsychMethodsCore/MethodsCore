@@ -89,4 +89,16 @@ outputPath = '/net/data4/MyStudy/SweetNewOutput';
 FoldsCol = 'Fold';
 
 
+%DEVSTART
+mcRoot = '~/users/kesslerd/repos/MethodsCore';
+%DEVSTOP
 
+%[DEVmcRootAssign]
+
+
+addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+addpath(fullfile(mcRoot,'spm8Batch'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
+
+ConnectomeCleanse_central
