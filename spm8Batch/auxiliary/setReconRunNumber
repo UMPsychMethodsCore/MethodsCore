@@ -7,7 +7,7 @@
 		  let argn++
 		  if (( $argn >= $args ))
 		      then
-		      echo "Missing parameter for reconRunNumber, aborting"
+		      echo "Missing parameter for reconRunNumber/PCA Components, aborting"
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
 		      isnumber $1
