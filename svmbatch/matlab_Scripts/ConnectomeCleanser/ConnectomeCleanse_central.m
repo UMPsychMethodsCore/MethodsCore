@@ -74,7 +74,7 @@ for iFold = 1:size(s.CrossValidFold,2)
     test.subs = s.subs(logical(s.CrossValidFold(:,iFold)),:);
 
     
-    [c r b i t pv pd] = mc_CovariateCorrection(train.data,train.des,3,1);
+    [c r b i] = mc_CovariateCorrection(train.data,train.des,3,[]);
     
     train.corrected = c;
     
