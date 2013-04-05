@@ -16,7 +16,7 @@ end
 cd(outputPath)
 
 FixedFxPath = fullfile(outputPath,'FixedFX.mat');
-Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/ConnectomeCleanser/RPart.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' '"' FoldsCol '"' ' &> /dev/null'];
+Rcmd = ['Rscript --vanilla ' mcRoot '/svmbatch/matlab_Scripts/ConnectomeCleanser/RPart.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' ' ' '"' FoldsCol '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
 if Rstatus ~= 0
