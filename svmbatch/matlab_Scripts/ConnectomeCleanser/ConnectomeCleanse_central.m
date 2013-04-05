@@ -76,14 +76,15 @@ for iFold = 1:size(s.CrossValidFold,2)
     
     [c r b i] = mc_CovariateCorrection(train.data,train.des,3,[]);
     
-    train.corrected = c;
+    b([1 des.FxCol],:) = []; % only leave nuisance Fx for betas and design matrices
+    train.des(:,[1 des.FxCol]) = [];
+    test.des(:,[1 des.FxCol]) = [];
     
-    test.des(:,des.FxCol) = []; % get rid of the effect of interest
-    b(des.FxCol,:) = []; % get rid of beta for effect of interest
+    train.corrected = train.data - train.des * b; % subtract nuisance from observed
+    test.corrected = test.data - test.des * b; % subtract predicted nuisance from observed
     
-    test.predicted = test.des * b;
-    
-    test.corrected = test.data - test.predicted;
+    train = rmfield(train,'data');
+    test = rmfield(test,'data');
     
     Folds.partition  = s.CrossValidFold(:,iFold);
     Folds.train = train;
