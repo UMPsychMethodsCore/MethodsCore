@@ -82,7 +82,7 @@ for iSubject = 1:size(SubjDir,1)
         %%%%% Select appropriate output based on h user has set
         index=strfind(MotionPathTemplate,'Run');
         if size(index)>0
-            RunString=RunDir{jRun};
+            RunString=RunDir{RunNum};
         else
             RunString=num2str(jRun);
         end
