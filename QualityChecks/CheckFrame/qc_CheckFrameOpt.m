@@ -1,10 +1,10 @@
-function checkedFiles = qc_CheckScanOpt(Opt)
+function checkedFiles = qc_CheckFrameOpt(Opt)
 %
 % Input: 
 %   Opt.
 %       Exp  -  Experiment top dir
 %       List.
-%           Subjects {Subjects,IncludedRuns}
+%           Subjects {Subjects,SubjectNumber,IncludedRuns}
 %           Runs     - list of run name folders
 %       ImageTemplate - template to image
 %       FileExp      - Regexp for file names
@@ -17,16 +17,9 @@ function checkedFiles = qc_CheckScanOpt(Opt)
 %   checkedFiles{:,3} - run names
 %
 nsubjects = size(Opt.List.Subjects,1);
-tempRuns = numel(size([Opt.List.Subjects]));
-checkedFiles = cell(size(Opt.List.Subjects,1)*tempRuns,3);
+tempRuns = numel([Opt.List.Subjects{:,3}]);
+checkedFiles = cell(tempRuns,3);
 index = 1;
-
-fid = fopen(Opt.OutlierText,'w');
-if fid == -1
-    mc_Error(['Cannot write to %s\n'...
-              ' * * * A B O R T I N G * * *\n'],Opt.OutlierText);
-end
-fclose(fid);
 
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %f\n'...
@@ -38,7 +31,7 @@ Exp = Opt.Exp;
 check.Template = Opt.ImageTemplate;
 check.mode = 'check';
 for i = 1:nsubjects
-    for k = Opt.List.Subjects{i,2}
+    for k = Opt.List.Subjects{i,3}
         Run = Opt.List.Runs{k};
         Subject = Opt.List.Subjects{i,1};
         runDir = mc_GenPath(check);
@@ -68,3 +61,12 @@ for i = 1:nsubjects
     end
 end
 
+OutlierText.Template = Opt.OutlierText;
+OutlierText.mode = 'makeparentdir';
+OutlierText = mc_GenPath(OutlierText);
+fid = fopen(OutlierText,'w');
+if fid == -1
+    mc_Error(['Cannot write to %s\n'...
+              ' * * * A B O R T I N G * * *\n'],Opt.OutlierText);
+end
+fclose(fid);

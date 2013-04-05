@@ -7,15 +7,15 @@ clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.Exp  = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
+Opt.Exp  = '/zubdata/oracle7/Researchers/heffjos/SignalChange/ChronicPain/testData';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
-%%% The format is {'subjectfolder',[runs to include]}
+%%% The format is {'subjectfolder',subjectNumber,[runs to include]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.List.Subjects = {
-                     'CM2001NTX',[1 2 3 4 5 6 7];
-                     'CM2002NTX',[1 2 3 4 5 6 7];
+                     'CM1286CHR',1,[1 2];
+                     'CM1329CHR',2,[1 2];
                     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,7 +41,7 @@ Opt.List.Runs = {
 %%% Examples:
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
+Opt.ImageTemplate = '[Exp]/[Subject]/func/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Prefix of scan images to use
@@ -51,7 +51,7 @@ Opt.FileExp = 'run';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Text file to output detected slice outliers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/run_detected.txt';
+Opt.OutlierText = '[Exp]/TestDir/outlier.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Z score threshold; slices with absolute z scores greater than this 
@@ -60,8 +60,11 @@ Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/run_detected
 Opt.Thresh = 4;
 
 global mcRoot;
+%DEVSTART
 mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
+%DEVSTOP
 
+%[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'QualityChecks','CheckSlice'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));

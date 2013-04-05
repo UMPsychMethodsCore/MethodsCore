@@ -4,25 +4,26 @@ function Results = qc_slice_mc_central(Opt)
 %   Opt.
 %       Exp  -  Experiment top dir
 %       List.
-%           Subjects {Subjects,IncludedRuns}
-%           Runs     - list of run name folders
-%       Postpend.
-%           Exp      - what goes after Exp
-%           Subjects - what goes after .List.Subjects{:,1}
-%           Runs     - what goes after Runs
-%       FileExp      - Regexp for file names
-%       OutlierText  - full path to output text file
-%       Thresh       - z-score threshold value
+%           Subjects {Subjects, subjectNumber, IncludedRuns}
+%           Runs      - list of run name folders
+%       ImageTemplate - path template to image locations
+%       FileExp       - prefix of scan images to use
+%       OutlierText   - full path to output text file
+%       Thresh        - z-score threshold value
 %
 Results = -1;
 
 % Check everything first
+Exp = Opt.Exp;
 checkedFiles = qc_CheckSliceOpt(Opt);
 if isempty(checkedFiles)
     return;
 end
 
-fid = fopen(Opt.OutlierText,'w');
+outlierTextFile.Template = Opt.OutlierText;
+outlierTextFile.mode = 'makeparentdir';
+outlierTextFile = mc_GenPath(outlierTextFile);
+fid = fopen(outlierTextFile,'w');
 fprintf(fid,'SLICE WALL OF SHAME\n');
 
 % Perform calculations
