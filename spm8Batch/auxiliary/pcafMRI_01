@@ -1,0 +1,13 @@
+# Use common in-line code #01 -- comments out to standard output.
+
+. ${thisDir}/auxiliary/buildMatlabScripts_01
+
+cat ${thisDir}/parts/pcafMRI_part_1.m                          > ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_02
+
+echo "detrendFlag    = ${PCADETREND};"                        >> ${FULLSCRIPTNAME}.m
+echo "NComponents    = ${NPCACOMP};"                          >> ${FULLSCRIPTNAME}.m
+echo "dataFraction   = ${DATAFRACTION};"                      >> ${FULLSCRIPTNAME}.m
+
+. ${thisDir}/auxiliary/buildMatlabScripts_03

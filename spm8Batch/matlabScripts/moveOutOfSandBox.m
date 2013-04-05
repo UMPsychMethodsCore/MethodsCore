@@ -16,15 +16,19 @@ function CSBACK = moveOutOfSandBox(sourceDir,sourceVolume,SandBoxPID,OutputName,
 
 CSBACK = 0;
 
+% Was the file even residing in the sandbox?
+
 if CS == 1
   %     Now we need to move the file back.
   FILESTOMOVE=dir([SandBoxPID '/' OutputName sourceVolume '*.nii']);
   tic;
   fprintf('Moving %s out of sandbox',FILESTOMOVE(1).name);  
-  [CSBACK CM CMID] = copyfile(fullfile(SandBoxPID,FILESTOMOVE(1).name),sourceDir);
+  [CSBACK CM CMID]      = copyfile(fullfile(SandBoxPID,FILESTOMOVE(1).name),sourceDir);
+  [CSmyCheck CMmyCheck] = validateSandBoxMove(SandBoxPID,FILESTOMOVE(1).name,sourceDir);
   xtoc=toc;
   fprintf('; It took %f seconds\n',xtoc);
-  if CSBACK == 1
+  %if CSBACK == 1
+  if ( CSBACK && CSmyCheck ) || ( ~CSBACK && CSmyCheck && strfind(CM,'chflags') && strfind(computer,'MAC'))
     % Delete the copy.
     UMBatchLogProcess(SandBoxPID,sprintf('Moved file out of sandbox %s and back to %s',SandBoxPID,fullfile(sourceDir,FILESTOMOVE(1).name)));
     delete(fullfile(SandBoxPID,FILESTOMOVE(1).name));
