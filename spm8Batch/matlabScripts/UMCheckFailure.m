@@ -30,9 +30,9 @@ global UMBatchProcessName
 [dbStruct] = dbstack;
 
 if results < 0
-  fprintf('* * * * * FAILURE * * * *\n')
-  fprintf('     %s failed in %s.\n',UMBatchProcessName,dbStruct(min([2 length(dbStruct)])).name);
-  fprintf('* * * * * FAILURE * * * *\n')
+  fprintf('* * * * * FAILURE * * * *\n\n')
+  fprintf('     %s failed in %s.\n\n',UMBatchProcessName,dbStruct(min([2 length(dbStruct)])).name);
+  fprintf('* * * * * FAILURE * * * *\n\n       EXIT MATLAB\n\n')
   errorresults = 1;
   UMBatchAbort;
   exit(abs(results));

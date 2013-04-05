@@ -7,4 +7,7 @@
     echo "                         coregHiRes    : directory to run the registation of 't1spgr'"
     echo "                         warpHiRes     : directory to run the warping of HiRes ('t1spgr')"
     echo "                         vbm8HiRes     : directory to place the VBM8 produced files"
+    echo "                         newSeg        : directory to place the New Segment produced files"
     echo "                         warpfMRI      : location to find the warping instructions"
+    echo "                         pcafMRI       : location to find WM and CSF masks, typically "
+    echo "                                         the directory from vbm8HiRes or newSeg"
