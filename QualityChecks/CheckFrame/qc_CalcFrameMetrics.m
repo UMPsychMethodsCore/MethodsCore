@@ -1,14 +1,14 @@
-function out = qc_CalcScanMetrics(fname)
+function out = qc_CalcFrameMetrics(fname)
 %
 % Input:
 %   fname - string file name
 %
 % Output
 %   out
-%       out{1} - mean of masked scans
-%       out{2} - z score of mean scans
-%       out{3} - z score of difference between mean scans
-%       out{4} - mse between scans
+%       out{1} - mean of masked frames
+%       out{2} - z score of mean frames
+%       out{3} - z score of difference between mean frames
+%       out{4} - mse between frames
 
 out = cell(4,1);
 

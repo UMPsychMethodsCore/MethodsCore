@@ -17,16 +17,9 @@ function checkedFiles = qc_CheckSliceOpt(Opt)
 %   checkedFiles{:,3} - run names
 %
 nsubjects = size(Opt.List.Subjects,1);
-tempRuns = numel(size([Opt.List.Subjects]));
-checkedFiles = cell(size(Opt.List.Subjects,1)*tempRuns,3);
+tempRuns = numel([Opt.List.Subjects{:,3}]);
+checkedFiles = cell(tempRuns,3);
 index = 1;
-
-fid = fopen(Opt.OutlierText,'w');
-if fid == -1
-    mc_Error(['Cannot write to %s\n'...
-              ' * * * A B O R T I N G * * *\n'], Opt.Detected);
-end
-fclose(fid);
 
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %3.2f\n'...
@@ -38,7 +31,7 @@ Exp = Opt.Exp;
 check.Template = Opt.ImageTemplate;
 check.mode = 'check';
 for i = 1:nsubjects
-    for k = Opt.List.Subjects{i,2}
+    for k = Opt.List.Subjects{i,3}
         Run = Opt.List.Runs{k};
         Subject = Opt.List.Subjects{i,1};
         runDir = mc_GenPath(check);            
@@ -62,4 +55,14 @@ for i = 1:nsubjects
         index = index + 1;
     end
 end
+
+outlierTextFile.Template = Opt.OutlierText;
+outlierTextFile.mode = 'makeparentdir';
+outlierTextFile = mc_GenPath(outlierTextFile);
+fid = fopen(outlierTextFile,'w');
+if fid == -1
+    mc_Error(['Cannot write to %s\n'...
+              ' * * * A B O R T I N G * * *\n'], Opt.OutlierText);
+end
+fclose(fid);
 

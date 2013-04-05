@@ -11,11 +11,11 @@ Opt.Exp = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
-%%% The format is {'subjectfolder',[runs to include]}
+%%% The format is {'subjectfolder',subjectNumber,[runs to include]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.List.Subjects = {
-                     'CM2001NTX',[1 2 3 4 5 6 7];
-                     'CM2002NTX',[1 2 3 4 5 6 7];
+                     'CM2001NTX',1,[1 2 3 4 5 6 7];
+                     'CM2002NTX',2,[1 2 3 4 5 6 7];
                     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,7 +47,7 @@ Opt.ImageTemplate = '[Exp]/[Subject]/day4/func/[Run]/';
 %%% Prefix of scan images to use.  This should be the final smoothed
 %%% images.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.FileExp = 'run';
+Opt.FileExp = 'swrarun';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Text file to output detected slice outliers
@@ -61,10 +61,13 @@ Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/scan_detecte
 Opt.Thresh = 4;
 
 global mcRoot;
+%DEVSTART
 mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
+%DEVSTOP
 
+%[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'));
-addpath(fullfile(mcRoot,'QualityChecks','CheckScan'));
+addpath(fullfile(mcRoot,'QualityChecks','CheckFrame'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
 
-qc_scan_mc_central(Opt);
+qc_frame_mc_central(Opt);
