@@ -100,6 +100,9 @@
             "L") 
                 . ${thisDir}/auxiliary/help/help_case_erosion_flag
                 ;;
+            "l") 
+                . ${thisDir}/auxiliary/help/help_case_setNoSandBox
+                ;;
 	    "M") 
 	        . ${thisDir}/auxiliary/help/help_case_subject_dir
 	        ;;

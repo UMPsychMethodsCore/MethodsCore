@@ -60,7 +60,7 @@ results = -1;
 
 % Make the call to prepare the system for batch processing.
 
-UMBatchPrep
+UMBatchPrep;
 
 if UMBatch == 0
   fprintf('UMBatchPrep failed.')
@@ -71,7 +71,7 @@ end
 
 % Only proceed if successful.
 
-fprintf('Entering UMBatchWarp V2.0 SPM8 Compatible\n');
+fprintf('Entering UMBatchSliceTime V1.0 SPM8 Compatible\n');
 
 if exist('TestFlag') == 0
     TestFlag = 0;

@@ -2,8 +2,16 @@
 
 # # # # # # # # # # # # # # # # # # 
 #
-# A command to erode the p2 and p3 segments
+# A command to erode the p2 and p3 segments from VBM8
+# of the c2 and c3 segments from newSeg
 # in a directory and turn into WMMask and CSFMask
+#
+#
+#   p2 is WM
+#   p3 is CSF
+#
+#   c2 is WM
+#   c2 is CSF
 #
 #
 #                         Robert C. Welsh
@@ -20,7 +28,7 @@
 # Main erodeMask function.
 #
 
-VERSION="1.0"
+VERSION="1.1"
 VERSIONDATE="2012-12-21"
 
 # Find out where the current command lives and execute some common code.
@@ -107,6 +115,8 @@ then
     echo "Eroding the final segments."
     WMSEG=${volumeWILD}p2${HIRESNAME}
     CSFSEG=${volumeWILD}p3${HIRESNAME}
+    WMSEGALT=${volumeWILD}c2${HIRESNAME}
+    CSFSEGALT=${volumeWILD}c3${HIRESNAME}
 else
     echo "Eroding the intermediate segments."
     WMSEG=wrp2${HIRESNAME}
@@ -133,12 +143,24 @@ do
 	nP2PRESENT=`ls ${WMSEG}*.nii 2> /dev/null | wc -l `
 	nP3PRESENT=`ls ${CSFSEG}*.nii 2> /dev/null | wc -l `
 	if [ ${nP2PRESENT} -ne 1 ] 
+	then
+	    nP2PRESENT=`ls ${WMSEGALT}*.nii 2> /dev/null | wc -l`
+	    if [ ${nP2PRESENT} -ne 1 ] 
 	    then
-	    BAD=1
+		BAD=1
+	    else
+		WMSEG=${WMSEGALT}
+	    fi
 	fi
 	if [ ${nP3PRESENT} -ne 1 ] 
 	then
-	    BAD=1
+	    nP3PRESENT=`ls ${CSFSEGALT}*.nii 2> /dev/null | wc -l`
+	    if [ ${nP3PRESENT} -ne 1 ] 
+	    then
+		BAD=1
+	    else
+		CSFSEG=${CSFSEGALT}
+	    fi
 	fi
 	if [ ${BAD} == 1 ] 
 	then
