@@ -70,6 +70,8 @@ for iFold = 1:size(s.CrossValidFold,2)
     test.data = data(logical(s.CrossValidFold(:,iFold)),:);
     train.des = s.design(~logical(s.CrossValidFold(:,iFold)),:);
     test.des = s.design(logical(s.CrossValidFold(:,iFold)),:);
+    train.subs = s.subs(~logical(s.CrossValidFold(:,iFold)),:);
+    test.subs = s.subs(logical(s.CrossValidFold(:,iFold)),:);
 
     
     [c r b i t pv pd] = mc_CovariateCorrection(train.data,train.des,3,1);
