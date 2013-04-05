@@ -7,9 +7,6 @@ display(SubjDir)
 display ('-----')
 
 
-
-
-
 clear CombinedOutput
 clear MotionPath
 for iSubject = 1:size(SubjDir,1)
