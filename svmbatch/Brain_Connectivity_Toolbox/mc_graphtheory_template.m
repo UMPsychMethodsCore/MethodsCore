@@ -36,22 +36,29 @@ RunDir = {
 % Path where the correlation matrix are located
 % 
 % TemplateType: Type of correlation matrix template 
-%                           'single'   -    Single network template
-%                           'averaged'  -    Template files from multiple runs 
+%                           'single'   -    Single network template, usually it's cppi_grid
+%                           'averaged' -    Template files from multiple runs 
 %                                           which need to be averaged (corrected) 
-%                                           in the downstream
+%                                           in the downstream, usually it's corrected t score
 % 
 % TemplateAverageRun: If TemplateType is 'averaged', then set the number of runs here
+% 
+% TRow: In cppi_grid data, row of interest which contains t-score
+% BRow: In cppi_grid data, row of interest which contains beta (unstandardized or standardized)
+% Column: In cppi_grid data, columns of interst which contain conditions we want to include
+%
+% 
 % 
 % NetworkTemplate[num]: num is from 1 to TemplateAverageRun
 %  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 TemplateType = 'averaged';
-
 TemplateAverageRun = 2;
-
-ValueType = '
+TRow = 3;
+BRow = 4;
+Column = [3,4,8,9]; 
+% Column = [7,8];  % goERT
 
 % NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_19_nogm_corr.mat';
 % NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_cppi_grid.mat';
@@ -65,12 +72,14 @@ NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruen
 %%% network.directed:    0 - undirected matrix; 1 - directed matrix
 %%% network.weighted:    0 - unweighted matrix; 1 - weighted matrix
 %%% network.datatype: 
-%%%                     'p' - thresholding p-value matrix to binary matrix by p-value
-%%%                     't' - thresholding t-score matrix to binary matrix by t-score
-%%%                     'r' - thresholding r-value matrix to weighted matrix by p-value
-%%%                     'b' - threshloding beta-value matrix to weighted matrix by t-score
-%%% network.loc:         1 - upper triangular; 2 - lower triangular  
-%%% network.value:       0 - Absolute value;   1 - Only positive value
+%%%                     'p' - thresholding p-value matrix to binary matrix by p-value (e.g. results from SOM)
+%%%                     't' - thresholding t-score matrix to binary matrix by t-score (e.g. results from cPPI)
+%%%                     'r' - thresholding r-value matrix to weighted matrix by p-value (e.g. results from SOM)
+%%%                     'b' - threshloding beta-value matrix to weighted matrix by t-score (e.g. results from cPPI)
+%%% network.ztransform:  If network.datatype is set to 'r', we have the option to do an r to z transform
+%%%                      0  - Don't do z transform    1 - Do z transform
+%%% network.loc:         0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
+%%% network.value(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% network.iter: rewiring parameter when generating random graph (each
 %%% edge is rewired approximatel network.iter times)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,7 +87,8 @@ NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruen
 network.directed = 0;
 network.weighted = 0;
 network.datatype = 't';
-network.loc      = 1;
+network.ztransform = 1;
+network.loc      = 0;
 network.value    = 0;
 network.iter     = 5;
 % network.alpha = 0.5;

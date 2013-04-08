@@ -51,104 +51,124 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                 
                 NetworkPathCheck  = struct('Template',NetworkTemplate,'mode','check');
                 NetworkPath       = mc_GenPath(NetworkPathCheck);
-            
-            case 'average'
-
-        %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
-        NetworkPathCheck1  = struct('Template',NetworkTemplate1,'mode','check');
-        NetworkPath1      = mc_GenPath(NetworkPathCheck1);
-        NetworkPathCheck2  = struct('Template',NetworkTemplate2,'mode','check');
-        NetworkPath2       = mc_GenPath(NetworkPathCheck2);
-        
+                
+            case 'averaged'
+                for i = 1:TemplateAverageRun
+                    %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
+                    NetworkPathCheck{i}  = struct('Template',NetworkTemplate{i},'mode','check');
+                    NetworkPath{i}      = mc_GenPath(NetworkPathCheck{i});
+                    
+                end
+                clear i
+            otherwise
+                error('TemplateType should be single or averaged, other type names are not accepted');
+                
         end
-
 
         % Generate the binary adjacency matrix, do the computation
         switch network.datatype
             case 'p'
                 NetworkParameters = load(NetworkPath,'pMatrix');
                 NetworkConnect    = double(NetworkParameters.pMatrix<network.adjacency);
-            case 't'
+            case 't'                
+                switch TemplateType
+                    case 'single'                        
+                        NetworkParameters = load(NetworkPath,'cppi_grid');
+                        
+                        [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
+                        NetworkTscore = zeros(sizex,sizey);                        
+                        for i = 1:length(Column)
+                            NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};                            
+                        end
+                        clear i;
+                        NetworkTscore = NetworkTscore./length(Column);                        
+
+                    case 'averaged'
+                        for i = 1:TemplateAverageRun
+                            NetworkParameters{i} = load(NetworkPath{i});
+                        end
+                        clear i
+                        [sizex,sizey] = size(NetworkParameters{1}.RecoverTscore);
+                        NetworkTscore = zeros(sizex,sizey);
+                        for j = 1:TemplateAverageRun
+                            NetworkTscore = NetworkTscore + NetworkParameters{j}.RecoverTscore;
+                        end
+                        clear j;
+                        NetworkTscore = NetworkTscore./TemplateAverageRun;
+                    otherwise
+                        error('TemplateType should be single or averaged, other type names are not accepted');
+                end
                 
-%               NetworkParameters = load(NetworkPath,'cppi_grid');
-                %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
-                NetworkParameters1 = load(NetworkPath1);
-                NetworkParameters2 = load(NetworkPath2);
+                NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements            
+                 
+                switch network.loc
+                    case 0
+                        NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average over upper and lower triangulars
+                        NetworkConnectint = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % Padding to the whole matrix
+                    case 1
+                        NetworkConnectint = triu(NetworkTscore,1)+tril(NetworkTscore.'); % Use upper triangular values
+                    case 2
+                        NetworkConnectint = tril(NetworkTscore,1)+triu(NetworkTscore.'); % Use lower triangular values
+                end
                 
-%                 NetworkTscore     = (NetworkParameters.cppi_grid{3,3}+NetworkParameters.cppi_grid{3,4}+...
-%                     NetworkParameters.cppi_grid{3,8}+NetworkParameters.cppi_grid{3,9})./4;
-%                 NetworkTscore     =   (NetworkParameters.cppi_grid{3,7}+NetworkParameters.cppi_grid{3,18})./2;  % goERT                
-                %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
-                NetworkTscore     = (NetworkParameters1.RecoverTscore + NetworkParameters2.RecoverTscore)./2; % Average over runs
-                
-                NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements                
-                NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average over upper and lower triangulars
-                NetworkConnectint = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % Padding to the whole matrix
                 NetworkConnect    = double(NetworkConnectint>=network.adjacency);  % Thresholding the Tscore to get binary matrix
-                
-%                 switch network.loc
-%                     case 1
-%                         NetworkConnect = triu(NetworkConnectint);
-%                         for mNet = 1:size(NetworkConnect,1)
-%                             for nNet = 1:mNet
-%                                 NetworkConnect(mNet,nNet) = NetworkConnect(nNet,mNet);
-%                             end
-%                         end
-%                     case 2
-%                         NetworkConnect = tril(NetworkConnectint);
-%                         for mNet = 1:size(NetworkConnect,1)
-%                             for nNet = mNet:size(NetworkConnect,2)
-%                                 NetworkConnect(mNet,nNet) = NetworkConnect(nNet,mNet);
-%                             end
-%                         end
-%                 end
+                               
             case 'r'
                 NetworkPvalue     = load(NetworkPath,'pMatrix');
-                NetworkParameters = load(NetworkPath,'rMatrix');
+                NetworkParameters = load(NetworkPath,'rMatrix');   
+                if (network.ztransform == 1)
+                     %%% NEED EDIT %%%
+                end
                 NetworkConnect    = (NetworkParameters.rMatrix).*(double(NetworkPvalue.pMatrix<network.adjacency));
-                NetworkConnect    = abs(NetworkConnect); % Take the absolute
-                %                 value of correlation to fit the following computing
-                %                 requirements (convert the value range from
-                %                 (-1,1) to (0,1), the positive and negative correlation
-                %                 with the same absolute value are as meaningful as each
-                %                 other
                 NetworkConnect(isnan(NetworkConnect))=0; % Exclude the NaN elments
+                if (network.value == 1)
+                    NetworkConnect(NetworkConnect<0)=0;   % Only keep positive values if option is set so
+                end
+                NetworkConnect    = abs(NetworkConnect); % Take the absolute value of correlation to fit the following computing
+                                                         % requirements (convert the value range from (-1,1) to (0,1), the positive 
+                                                         % and negative correlation with the same absolute value are as meaningful 
+                                                         % as each other. If the 'positive' step was done, then this step is just 
+                                                         % reassuring
+                
             case 'b'
                 NetworkParameters = load(NetworkPath,'cppi_grid');
-%                 NetworkTscore     = (NetworkParameters.cppi_grid{3,3}+NetworkParameters.cppi_grid{3,4}+...
-%                     NetworkParameters.cppi_grid{3,8}+NetworkParameters.cppi_grid{3,9})./4;
-                NetworkTscore     = (NetworkParameters.cppi_grid{3,8}+NetworkParameters.cppi_grid{3,19})./2;
-%                 NetworkBeta = (NetworkParameters.cppi_grid{4,3}+NetworkParameters.cppi_grid{4,4}+...
-%                     NetworkParameters.cppi_grid{4,8}+NetworkParameters.cppi_grid{4,9})./4;
-                NetworkBeta = (NetworkParameters.cppi_grid{4,8}+NetworkParameters.cppi_grid{4,19})./2;
+                [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
+                NetworkTscore = zeros(sizex,sizey);
+                NetworkBeta   = zeros(sizex,sizey);
+                for i = 1:length(Column)
+                    NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};
+                end
+                clear i;
+                NetworkTscore = NetworkTscore./length(Column);
                 
+                for j = 1:length(Column)
+                    NetworkBeta = NetworkBeta + NetworkParameters.cppi_grid{BRow,Column(j)};
+                end
+                clear j;
+                NetworkBeta = NetworkBeta./length(Column);
+              
                 NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements  
                 NetworkBeta(isnan(NetworkBeta)) = 0; % Exclude the NaN elements  
-                
-                NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average t-score over upper and lower triangulars
-                NetworkTscoreAve = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % T-score shouldn't take absolute value
-                
-                NetworkBetaint  = (triu(NetworkBeta)+triu(NetworkBeta.'))./2; % Average standardized beta over upper and lower triangulars
-                NetworkBetaAve = abs(triu(NetworkBetaint,1)+NetworkBetaint.');% Take absolute value for beta
-                
+                                             
+                switch network.loc
+                    case 0
+                        NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average t-score over upper and lower triangulars
+                        NetworkTscoreAve  = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % T-score shouldn't take absolute value
+                        NetworkBetaint    = (triu(NetworkBeta)+triu(NetworkBeta.'))./2; % Average standardized beta over upper and lower triangulars
+                        NetworkBetaAve    = triu(NetworkBetaint,1)+NetworkBetaint.';
+                    case 1
+                        NetworkTscoreint = triu(NetworkTscore,1)+tril(NetworkTscore.');
+                        NetworkBetaint   = triu(NetworkBeta,1)+tril(NetworkBeta.');
+                    case 2
+                        NetworkTscoreint = tril(NetworkTscore,1)+triu(NetworkTscore.');
+                        NetworkBetaint   = tril(NetworkBeta,1)+triu(NetworkBeta.');
+                end
+                if (network.value == 1)
+                    NetworkBetaAve(NetworkBetaAve<0) = 0;  % Only keep positive values if option is set so
+                end
+                NetworkBetaAve    = abs(NetworkBetaAve);   % Take absolute value for beta, if 'positive' step is done, then this step is just reassuring
                 NetworkConnect = NetworkBetaAve.*double(NetworkTscoreAve>=network.adjacency); % masking over the Beta
-                                
-%                 switch network.loc
-%                     case 1
-%                         NetworkConnect = triu(NetworkConnectint);
-%                         for mNet = 1:size(NetworkConnect,1)
-%                             for nNet = 1:mNet
-%                                 NetworkConnect(mNet,nNet) = NetworkConnect(nNet,mNet);
-%                             end
-%                         end
-%                     case 2
-%                         NetworkConnect = tril(NetworkConnectint);
-%                         for mNet = 1:size(NetworkConnect,1)
-%                             for nNet = mNet:size(NetworkConnect,2)
-%                                 NetworkConnect(mNet,nNet) = NetworkConnect(nNet,mNet);
-%                             end
-%                         end
-%                 end
+             
         end
         
         [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network.directed,network.weighted,network.measures);
@@ -184,9 +204,11 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
         
         CombinedOutput{iSubject,jRun} = Output;  
         toc
-    end   
-   
+    end
+
 end
+   
+
 
 %%%%%%% Save the global results to CSV file %%%%%%%%%%
 theFID = fopen(OutputPathFile1,'w');
