@@ -291,6 +291,8 @@ for iCell = 1:size(GoodX,1)
     iNet = netSort(GoodX(iCell)); % figure out the first network's actual label
     jNet = netSort(GoodY(iCell)); % figure out the second network's label
     mask(nets_sorted == iNet, nets_sorted == jNet) = 1;
+    mask(nets_sorted == jNet, nets_sorted == iNet) = 1;
+    mask = triu(mask);
     edgemat_temp = edgemat .* mask;
     roimat_temp = roimat;
     roimat_temp(:,5) = sum([sum(logical(edgemat_temp),1) ; sum(logical(edgemat_temp),2)']); % use logical in there cuz we just want to count
