@@ -76,22 +76,31 @@ for iFold = 1:size(s.CrossValidFold,2)
     
     [c r b i] = mc_CovariateCorrection(train.data,train.des,3,[]);
     
-    b([1 des.FxCol],:) = []; % only leave nuisance Fx for betas and design matrices
-    train.des(:,[1 des.FxCol]) = [];
-    test.des(:,[1 des.FxCol]) = [];
+    b_nuisance = b;
+    b_nuisance([1 des.FxCol],:) = []; % only leave nuisance Fx for betas and design matrices
+
+    train.des_nuisance = train.des;
+    train.des_nuisance(:,[1 des.FxCol]) = [];
     
-    train.corrected = train.data - train.des * b; % subtract nuisance from observed
-    test.corrected = test.data - test.des * b; % subtract predicted nuisance from observed
+    test.des_nuisance = test.des;
+    test.des_nuisance(:,[1 des.FxCol]) = [];
+    
+    train.corrected = train.data - train.des_nuisance * b_nuisance; % subtract nuisance from observed
+    test.corrected = test.data - test.des_nuisance * b_nuisance; % subtract predicted nuisance from observed
     
     train = rmfield(train,'data');
     test = rmfield(test,'data');
+    train.labels = sign(train.des(:,2));
+    test.labels = sign(test.des(:,2));
     
+    Folds.labels = sign(s.design(:,2));
     Folds.partition  = s.CrossValidFold(:,iFold);
     Folds.train = train;
     Folds.test = test;
     Folds.subs = s.subs;
     Folds.CrossValidFold = s.CrossValidFold;
     Folds.SiteIDS = s.SiteIDS;
+    Folds.DesignColNames = s.DesignColNames;
     
     save(fullfile(outputPath,['Fold' num2str(iFold) '.mat']),'Folds','-v7.3')
         

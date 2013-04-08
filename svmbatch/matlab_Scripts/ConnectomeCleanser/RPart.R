@@ -46,7 +46,9 @@ CrossValidFold = apply(CrossValidFold,c(1,2),as.numeric)
 
 SiteIDS = mini$SITE_ID
 
+DesignColNames = colnames(design)
+
 ## Save the results
 
 library(R.matlab)
-writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold,SiteIDS=SiteIDS)
+writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold,SiteIDS=SiteIDS,DesignColNames = DesignColNames)
