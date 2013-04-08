@@ -278,6 +278,7 @@ print -dbmp -r300 TakGraph.bmp
 % edgemat was snagged way above, before risk of dilation
 roimat = [roiMNI nets'];
 roimat = roimat(a.mediator.sortIDX,:);
+nets_sorted = nets(a.mediator.sortIDX);
 nROI = size(roimat,1);
 
 %%% Identify the cells that survived FDR (and were actually included in FDR)
@@ -289,7 +290,7 @@ for iCell = 1:size(GoodX,1)
     mask = zeros(nROI); % build a mask
     iNet = netSort(GoodX(iCell)); % figure out the first network's actual label
     jNet = netSort(GoodY(iCell)); % figure out the second network's label
-    mask(nets == iNet, nets == jNet) = 1;
+    mask(nets_sorted == iNet, nets_sorted == jNet) = 1;
     edgemat_temp = edgemat .* mask;
     roimat_temp = roimat;
     roimat_temp(:,5) = sum([sum(logical(edgemat_temp),1) ; sum(logical(edgemat_temp),2)']); % use logical in there cuz we just want to count
