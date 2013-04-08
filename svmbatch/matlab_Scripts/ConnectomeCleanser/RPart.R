@@ -44,7 +44,9 @@ for (iFold in 1:length(FoldIDS)){
 
 CrossValidFold = apply(CrossValidFold,c(1,2),as.numeric)
 
+SiteIDS = mini$SITE_ID
+
 ## Save the results
 
 library(R.matlab)
-writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold)
+writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold,SiteIDS=SiteIDS)

@@ -91,6 +91,7 @@ for iFold = 1:size(s.CrossValidFold,2)
     Folds.test = test;
     Folds.subs = s.subs;
     Folds.CrossValidFold = s.CrossValidFold;
+    Folds.SiteIDS = s.SiteIDS;
     
     save(fullfile(outputPath,['Fold' num2str(iFold) '.mat']),'Folds','-v7.3')
         
