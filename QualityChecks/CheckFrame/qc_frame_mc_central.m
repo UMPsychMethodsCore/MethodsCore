@@ -24,7 +24,6 @@ end
 
 Exp = Opt.Exp;
 OutlierText.Template = Opt.OutlierText;
-OutlierText.mode = 'makeparentdir';
 fid = fopen(mc_GenPath(OutlierText),'w');
 fprintf(fid,'FRAME WALL OF SHAME\n');
 
