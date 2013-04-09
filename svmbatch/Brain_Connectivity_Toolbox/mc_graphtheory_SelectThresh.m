@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                      %
 %        Graph Theory Measurements of connectivity matrix              %
-%                         Template Script                              %
+%                      Select Threshold Script                         %
 %                                                                      %
 % Yu Fang 2013/01                                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,12 +26,6 @@ RunDir = {
   'Tx2/';
          };
 
-% RunDir = { 
-%   'ERT_cPPI_norm/';
-%          };
-
-
-     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path where the correlation matrix are located
 % 
@@ -48,7 +42,6 @@ RunDir = {
 % Column: In cppi_grid data, columns of interst which contain conditions we want to include
 %
 % 
-% 
 % If TemplateType is set as 'averaged':
 % The template variable should be NetworkTemplate{num}: num is from 1 to TemplateAverageRun
 %
@@ -62,11 +55,7 @@ TemplateAverageRun = 2;
 TRow = 3;
 BRow = 4;
 Column = [3,4,8,9]; 
-% Column = [7,8];  % goERT
 
-% NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_19_nogm_corr.mat';
-% NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_cppi_grid.mat';
-% NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/ERT_cPPI_norm_cppi_grid.mat';
 NetworkTemplate{1}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run05.mat';
 NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run06.mat';
 
@@ -95,7 +84,6 @@ network.ztransform = 1;
 network.loc      = 0;
 network.value    = 0;
 network.iter     = 5;
-% network.alpha = 0.5;
 
 
 
@@ -106,47 +94,19 @@ network.iter     = 5;
 NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_parameters.mat';
 % NetworkParameter = '[Exp]/FirstLevel/024/ERT_cPPI_norm/ERT_cPPI_norm_parameters.mat';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Nodes of interest (Please input the coordinates that are contained in the
-% parameters file)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NodeList = [
-    -18 0 72;
-     6 12 72;
-    -6 12 72;
-    ];  
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Name and path for your output file, 1 is for global measures, 2 is for
-% local measures (leave off the .csv)
+% Name and path for your output file(leave off the .csv) 
+% <For different threshold values, output to a same file>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% OutputPathTemplate1 = '[Exp]/GraphTheory/12mmGrid_19_nogm_weighted_global';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/12mmGrid_19_nogm_weighted_local';
 
-OutputPathTemplate1 = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_corrected_averagedT_global';
-OutputPathTemplate2 = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_corrected_averagedT_local';
-% OutputPathTemplate1 = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_weighted_global_low';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_weighted_local_low';
-
-% OutputPathTemplate1 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_weighted_averagedT_global';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_weighted_averagedT_local';
-% OutputPathTemplate1 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Maintain_global_low';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Maintain_local_low';
-% OutputPathTemplate1 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_global_low';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_local_low';
-% OutputPathTemplate1 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_global_up';
-% OutputPathTemplate2 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_local_up';
+OutputPathTemplate = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_corrected_averagedT_global';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Threshold for the P-value / t-score correlation matrix (to create binary
-%%% adjacency matrix)
+%%% or weighted adjacency matrix)
+%%% <An array of threshold value you want to test>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% network.adjacency = 0.05; 
-network.adjacency = 2.336; % dof = 400, p = 0.01, one-tailed MAS MSIT
-% network.adjacency = 2.341; % dof = 256, p = 0.01, one-tailed goERT
-
-
-
+network.adjacency = [2,2.1,2.2,2.3,2.4,2.5,2.6];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects 
@@ -188,101 +148,21 @@ SubjDir = {
     '5042',1,[1 2]
     };
 
-% SubjDir = {
-%     
-% '024',1,[1]
-% '046',1,[1]
-% '066',1,[1]
-% '074',1,[1]
-% '081',1,[1]
-% '084',1,[1]
-% '095',1,[1]
-% '103',1,[1]
-% '107',1,[1]
-% '110',1,[1]
-% '111',1,[1]
-% '124',1,[1]
-% '133',1,[1]
-% '137',1,[1]
-% '138',1,[1]
-% '142',1,[1]
-% '143',1,[1]
-% '148',1,[1]
-% '153',1,[1]
-% '157',1,[1]
-% '158',1,[1]
-% '160',1,[1]
-% '162',1,[1]
-% '167',1,[1]
-% '174',1,[1]
-% '176',1,[1]
-% '191',1,[1]
-% '200',1,[1]
-% '202',1,[1]
-% '203',1,[1]
-% '206',1,[1]
-% '207',1,[1]
-% '218',1,[1]
-% '219',1,[1]
-% '221',1,[1]
-% '227',1,[1]
-% '229',1,[1]
-% '233',1,[1]
-% '235',1,[1]
-% '237',1,[1]
-% '245',1,[1]
-% '251',1,[1]
-% '256',1,[1]
-% '268',1,[1]
-% '269',1,[1]
-% '293',1,[1]
-% '331',1,[1]
-% '332',1,[1]
-% '344',1,[1]
-% 
-% };
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The measurements you want to select
+%%% The measurements you need to do
 %%% ( Detailed explanation of the measurements is in mc_graphtheory_measures.m)
 %%% 
-%%%         A = assortativity
-%%%         B = betweenness
-%%%         C = clustering coefficient
-%%%         D = density
 %%%         E = degree
-%%%         F = motif
-%%%         G = global efficiency
-%%%         L = local efficiency
-%%%         M = modularity
-%%%         P = characteristic path length
 %%%         S = small-worldness
-%%%         T = transitivity
-%%%         
-%%% 
-%%%         
+%%%                  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-network.measures = 'ACDEGMPT';
-     
+network.measures = 'ES';
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Add path (mc_GenPath and some other functions are to be used)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mcRoot = '~/users/yfang/MethodsCore';
-addpath('~/users/yfang/Brain_Connectivity_Toolbox/');
-addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
-
+addpath(fullfile(mcRoot,'Brain_Connectivity_Toolbox/');
+addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+addpath(fullfile(mcRoot,'spm8Batch'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
 mc_graphtheory_central
-
-
-
-
-
-
-
-
-
