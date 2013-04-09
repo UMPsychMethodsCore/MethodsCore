@@ -115,11 +115,16 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                                
             case 'r'
                 NetworkPvalue     = load(NetworkPath,'pMatrix');
-                NetworkParameters = load(NetworkPath,'rMatrix');   
+                NetworkParameters = load(NetworkPath,'rMatrix'); 
+                NetworkRvalue     = NetworkParameters.rMatrix;
                 if (network.ztransform == 1)
-                     %%% NEED EDIT %%%
+                    
+                    NetworkZvalue     = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
+                    NetworkConnect    = NetworkZvalue.*(double(NetworkPvalue.pMatrix<network.adjacency));
+                else
+                    NetworkConnect    = NetworkRvalue.*(double(NetworkPvalue.pMatrix<network.adjacency));                    
                 end
-                NetworkConnect    = (NetworkParameters.rMatrix).*(double(NetworkPvalue.pMatrix<network.adjacency));
+                
                 NetworkConnect(isnan(NetworkConnect))=0; % Exclude the NaN elments
                 if (network.value == 1)
                     NetworkConnect(NetworkConnect<0)=0;   % Only keep positive values if option is set so
