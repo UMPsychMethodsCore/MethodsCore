@@ -529,6 +529,28 @@ if (network.stream =='m')
     fclose(theFID);
     display('Local Measures All Done')
     
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AUC of Metric - Threshold curve
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if ~isempty(network.AUC)
+    
+    auc = network.AUC;    
+    aucflag.density = any(strfind(upper(auc),'D'));
+    aucflag.transitivity = any(strfind(upper(auc),'T'));
+    aucflag.gefficiency = any(strfind(upper(auc),'G'));
+    aucflag.lefficiency = any(strfind(upper(auc),'L'));
+    aucflag.modularity = any(strfind(upper(auc),'M'));
+    aucflag.assortativity = any(strfind(upper(auc),'A'));
+    aucflag.pathlength = any(strfind(upper(auc),'P'));
+    aucflag.motif = any(strfind(upper(auc),'F'));
+    aucflag.degree = any(strfind(upper(auc),'E'));
+    aucflag.clustering = any(strfind(upper(auc),'C'));
+    aucflag.betweenness = any(strfind(upper(auc),'B'));
+    aucflag.smallworldness = any(strfind(upper(auc),'S'));
+    
     
 end
 

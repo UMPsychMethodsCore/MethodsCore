@@ -262,7 +262,6 @@ SubjDir = {
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 network.measures = 'ACDEGMPT';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -274,6 +273,27 @@ network.measures = 'ACDEGMPT';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 network.stream = 'm';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The metrics you want to draw and calculate the AUC
+%%%
+%%%         A = assortativity
+%%%         B = betweenness
+%%%         C = clustering coefficient
+%%%         D = density
+%%%         E = degree
+%%%         F = motif
+%%%         G = global efficiency
+%%%         L = local efficiency
+%%%         M = modularity
+%%%         P = characteristic path length
+%%%         S = small-worldness
+%%%         T = transitivity
+%%%
+%%% If you don't want to do this for any metric, set network.AUC to ''.        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.AUC = 'GP';
 
 
 
