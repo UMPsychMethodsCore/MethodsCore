@@ -258,12 +258,22 @@ SubjDir = {
 %%%         P = characteristic path length
 %%%         S = small-worldness
 %%%         T = transitivity
-%%%         
-%%% 
+%%%
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 network.measures = 'ACDEGMPT';
-     
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The stream you are at
+%%%          m   =   measurement
+%%%          t   =   threshold selection
+%%%
+%%%         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.stream = 'm';
 
 
 

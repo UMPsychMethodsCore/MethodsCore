@@ -152,14 +152,31 @@ SubjDir = {
 %%% The measurements you need to do
 %%% ( Detailed explanation of the measurements is in mc_graphtheory_measures.m)
 %%% 
+%%%         D = density
 %%%         E = degree
 %%%         S = small-worldness
+%%%         
 %%%                  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-network.measures = 'ES';
+network.measures = 'DES';
 
-mcRoot = '~/users/yfang/MethodsCore';
-addpath(fullfile(mcRoot,'Brain_Connectivity_Toolbox/');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The stream you are at
+%%%          m   =   measurement
+%%%          t   =   threshold selection
+%%%
+%%%         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.stream = 't';
+
+
+%%%%%%%%%%%%%%%%%%%
+% set the path
+%%%%%%%%%%%%%%%%%%%
+
+mcRoot = '~/users/yfang/MethodsCore/';
+addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
 addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
 addpath(fullfile(mcRoot,'spm8Batch'))
