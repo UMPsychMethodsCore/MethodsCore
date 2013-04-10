@@ -170,6 +170,27 @@ network.measures = 'DES';
 
 network.stream = 't';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The metrics you want to draw and calculate the AUC
+%%%
+%%%         A = assortativity
+%%%       
+%%%         C = clustering coefficient
+%%%         D = density
+%%%         E = degree
+%%%         G = global efficiency
+%%%       
+%%%         M = modularity
+%%%         P = characteristic path length
+%%%         S = small-worldness
+%%%         T = transitivity
+%%%
+%%% If you don't want to do this for any metric(like in 't' stream, 
+%%% set network.AUC to ''.        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.AUC = '';
+
 
 %%%%%%%%%%%%%%%%%%%
 % set the path

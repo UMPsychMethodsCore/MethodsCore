@@ -278,13 +278,12 @@ network.stream = 'm';
 %%% The metrics you want to draw and calculate the AUC
 %%%
 %%%         A = assortativity
-%%%         B = betweenness
+%%%       
 %%%         C = clustering coefficient
 %%%         D = density
 %%%         E = degree
-%%%         F = motif
 %%%         G = global efficiency
-%%%         L = local efficiency
+%%%       
 %%%         M = modularity
 %%%         P = characteristic path length
 %%%         S = small-worldness

@@ -536,22 +536,65 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isempty(network.AUC)
+            
+    aucflag.density = any(strfind(upper(network.AUC),'D'));
+    aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
+    aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
+    aucflag.modularity = any(strfind(upper(network.AUC),'M'));
+    aucflag.assortativity = any(strfind(upper(network.AUC),'A'));
+    aucflag.pathlength = any(strfind(upper(network.AUC),'P'));
+    aucflag.degree = any(strfind(upper(network.AUC),'E'));
+    aucflag.clustering = any(strfind(upper(network.AUC),'C'));
+    aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
     
-    auc = network.AUC;    
-    aucflag.density = any(strfind(upper(auc),'D'));
-    aucflag.transitivity = any(strfind(upper(auc),'T'));
-    aucflag.gefficiency = any(strfind(upper(auc),'G'));
-    aucflag.lefficiency = any(strfind(upper(auc),'L'));
-    aucflag.modularity = any(strfind(upper(auc),'M'));
-    aucflag.assortativity = any(strfind(upper(auc),'A'));
-    aucflag.pathlength = any(strfind(upper(auc),'P'));
-    aucflag.motif = any(strfind(upper(auc),'F'));
-    aucflag.degree = any(strfind(upper(auc),'E'));
-    aucflag.clustering = any(strfind(upper(auc),'C'));
-    aucflag.betweenness = any(strfind(upper(auc),'B'));
-    aucflag.smallworldness = any(strfind(upper(auc),'S'));
+    if aucflag.density
+        auc.density = mc_AUCcalcualtion(CombinedOutput,SubjDir,network.adjacency,'density');
+    end
     
+    if aucflag.transitivity
+        auc.trans = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'trans');
+    end
     
+    if aucflag.gefficiency
+        auc.eglob = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'eglob');
+    end
+    
+    if aucflag.modularity
+        auc.modu = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'modu');
+    end
+    
+    if aucflag.assortativity
+        auc.assort = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'assort');
+    end
+    
+    if aucflag.pathlength
+        auc.pathlength = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'pathlength');
+    end
+    
+    if aucflag.degree
+        if network.weighted
+            auc.glostr = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'glostr');
+        else
+            auc.glodeg = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'glodeg');
+        end
+    end
+    
+    if aucflag.clustering
+        auc.cluster = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'cluster');
+    end
+    
+    if aucflag.smallworldness
+        auc.smallworld = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'smallworld');
+    end
 end
+    
+    
+
+
+
+    
+    
+    
+
 
 
