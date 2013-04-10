@@ -239,6 +239,10 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
     end
 end
 
+%%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
+
+save(network.save,'CombinedOutput','-v7.3');
+
 
 %%%%%%% Save the global results to CSV file %%%%%%%%%%
 theFID = fopen(OutputPathFile1,'w');
@@ -587,6 +591,8 @@ if ~isempty(network.AUC)
         auc.smallworld = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'smallworld');
     end
 end
+
+save(network.aucSave,'auc','-v7.3');
     
     
 

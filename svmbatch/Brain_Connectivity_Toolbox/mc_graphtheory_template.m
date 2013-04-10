@@ -264,6 +264,14 @@ SubjDir = {
 
 network.measures = 'ACDEGMPT';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%%  Save the measurement results into a mat file  
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.save = 'CombinedOutput.mat';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The stream you are at
 %%%          m   =   measurement
@@ -293,6 +301,8 @@ network.stream = 'm';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 network.AUC = 'GP';
+
+network.aucSave = 'AUC.mat';
 
 
 
