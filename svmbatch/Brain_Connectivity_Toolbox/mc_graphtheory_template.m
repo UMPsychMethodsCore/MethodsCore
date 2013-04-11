@@ -62,11 +62,11 @@ BRow = 4;
 Column = [3,4,8,9]; 
 % Column = [7,8];  % goERT
 
-% NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_19_nogm_corr.mat';
+NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_19_nogm_corr.mat';
 % NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_cppi_grid.mat';
 % NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/ERT_cPPI_norm_cppi_grid.mat';
-NetworkTemplate{1}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run05.mat';
-NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run06.mat';
+% NetworkTemplate{1}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run05.mat';
+% NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run06.mat';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,7 +95,7 @@ network.loc        = 0;
 network.positive   = 0;
 network.iter       = 5;
 network.netinclude = [1:7]; 
-% network.alpha = 0.5;
+
 
 
 

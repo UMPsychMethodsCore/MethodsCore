@@ -59,6 +59,103 @@ clear NetworkPath
 tempflag = any(strfind(upper(network.measures),'S'));
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Initialization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+NetworkConnectRaw = cell(size(SubjDir,1),size(SubjDir{iSubject,3},2));
+
+NetworkConnectSub = cell(length(network.netinclude),1);
+
+CombinedOutput    = cell(size(SubjDir,1),size(SubjDir{iSubject,3},2),length(network.netincllude),length(network.sparsity));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Figure out Network Structure 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if (network.netinclude~=-1)  % If the netinclude is set to -1, then means whole brain, no need to figure out the net structure then
+    
+    %%% Load parameter File
+    Subject = SubjDir{1};
+    Run = RunDir{1};
+    
+    ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
+    ParamPath = mc_GenPath(ParamPathCheck);
+    param = load(ParamPath);
+    
+    %%% Look up ROI Networks
+    roiMNI = param.parameters.rois.mni.coordinates;
+    nets = mc_NearestNetworkNode(roiMNI,5);
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Load Files
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+switch network.datatype
+    case 'r'
+        for iSubject = 1:size(SubjDir,1)
+            Subject = SubjDir{iSubject,1};
+            for jRun = 1:size(SubjDir{iSubject,3},2)   % Loop over runs
+                RunNum = SubjDir{iSubject,3}(jRun);
+                Run    = RunDir{RunNum};
+                display(sprintf('Now loading files in %s',Run));
+                display(sprintf('of %s',Subject));
+                
+                switch TemplateType                    
+                    case 'single'                        
+                        NetworkPathCheck  = struct('Template',NetworkTemplate,'mode','check');
+                        NetworkPath       = mc_GenPath(NetworkPathCheck);   
+                        Network
+                    case 'averaged'
+                        for i = 1:TemplateAverageRun
+                            %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
+                            NetworkPathCheck{i}  = struct('Template',NetworkTemplate{i},'mode','check');
+                            NetworkPath{i}      = mc_GenPath(NetworkPathCheck{i});                            
+                        end
+                        clear i
+                    otherwise
+                        error('TemplateType should be single or averaged, other type names are not accepted');
+                end
+                                
+                NetworkParameters = load(NetworkPath,'rMatrix');
+                NetworkRvalue     = NetworkParameters.rMatrix;
+                if (network.ztransform == 1)
+                    NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
+                else
+                    NetworkValue  = NetworkRvalue;
+                end
+                
+                if (network.positive == 1)
+                    NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+                else
+                    NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+                end
+                
+                NetworkValue(isnan(NetworkValue))=0;     % Exclude the NaN elments
+                
+                if (network.netinclude == -1)
+                    NetworkConnectRaw{iSubject,jRun,1} = NetworkValue;
+                else
+                    for kNetwork = 1:length(network.netinclude)
+                        networklabel = network.netinclude(kNetwork);
+                        NetworkConnectRaw{iSubject,jRun,kNetwork} = NetworkValue(nets==networklabel,nets==networklabel);
+                    end
+                    
+                end             
+                
+            end
+        end
+        
+    case 'b'
+    otherwise 
+        error('You need to either load r matrix or beta matrix')
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Measurements
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 for iSubject = 1:size(SubjDir,1)    % Loop over subjects
     Subject = SubjDir{iSubject,1};
@@ -68,199 +165,121 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
         display(sprintf('Now computing %s',Run));
         display(sprintf('of %s',Subject));
         tic
-        for mThresh = 1:length(network.sparsity)
-            
-            switch TemplateType
-                
-                case 'single'
-                    
-                    NetworkPathCheck  = struct('Template',NetworkTemplate,'mode','check');
-                    NetworkPath       = mc_GenPath(NetworkPathCheck);
-                    
-                case 'averaged'
-                    for i = 1:TemplateAverageRun
-                        %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
-                        NetworkPathCheck{i}  = struct('Template',NetworkTemplate{i},'mode','check');
-                        NetworkPath{i}      = mc_GenPath(NetworkPathCheck{i});
+        for kNetwork = 1:length(network.netinclude)            
+            for mThresh = 1:length(network.sparsity)                               
+                % Generate the binary adjacency matrix, do the computation
+                switch network.datatype
+                    case 'r'                     
                         
-                    end
-                    clear i
-                otherwise
-                    error('TemplateType should be single or averaged, other type names are not accepted');
-                    
-            end
-            
-            % Generate the binary adjacency matrix, do the computation
-            switch network.datatype
-%                 case 't'
-%                     switch TemplateType
-%                         case 'single'
-%                             NetworkParameters = load(NetworkPath,'cppi_grid');
-%                             
-%                             [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
-%                             NetworkTscore = zeros(sizex,sizey);
-%                             for i = 1:length(Column)
-%                                 NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};
-%                             end
-%                             clear i;
-%                             NetworkTscore = NetworkTscore./length(Column);
-%                             
-%                         case 'averaged'
-%                             for i = 1:TemplateAverageRun
-%                                 NetworkParameters{i} = load(NetworkPath{i});
-%                             end
-%                             clear i
-%                             [sizex,sizey] = size(NetworkParameters{1}.RecoverTscore);
-%                             NetworkTscore = zeros(sizex,sizey);
-%                             for j = 1:TemplateAverageRun
-%                                 NetworkTscore = NetworkTscore + NetworkParameters{j}.RecoverTscore;
-%                             end
-%                             clear j;
-%                             NetworkTscore = NetworkTscore./TemplateAverageRun;
-%                         otherwise
-%                             error('TemplateType should be single or averaged, other type names are not accepted');
-%                     end
-%                     
-%                     NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements
-%                     
-%                     switch network.loc
-%                         case 0
-%                             NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average over upper and lower triangulars
-%                             NetworkConnectint = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % Padding to the whole matrix
-%                         case 1
-%                             NetworkConnectint = triu(NetworkTscore,1)+tril(NetworkTscore.'); % Use upper triangular values
-%                         case 2
-%                             NetworkConnectint = tril(NetworkTscore,1)+triu(NetworkTscore.'); % Use lower triangular values
-%                     end
-%                     
-%                     NetworkConnect    = double(NetworkConnectint>=network.adjacency(mThresh));  % Thresholding the Tscore to get binary matrix
-%                     
-                case 'r'
-                    
-                    NetworkParameters = load(NetworkPath,'rMatrix');
-                    NetworkRvalue     = NetworkParameters.rMatrix;
-                    if (network.ztransform == 1)
-                        NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
-                    else
-                        NetworkValue  = NetworkRvalue;
-                    end
-                    
-                    if (network.positive == 1)    
-                        NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
-                    else
-                        NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
-                    end
-                    
-                    NetworkValue(isnan(NetworkValue))=0;     % Exclude the NaN elments
-                    
-                    % Keep most siginificant connections based on sparsity
-                    
-                    keep                = round(network.sparsity * numel(NetworkValue));
-                    
-                    NetworkValue_flat   = reshape(NetworkValue,[],1);
-                    
-                    [~,index]           = sort(NetworkValue_flat,'descend');
-                    
-                    NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
-                    
-                    NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
-                    
-                    NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkValue,1),size(NetworkValue,2));
-                    
-                    % Create binary matrix if being set so
-                    
-                    if ~network.weighted
-                        NetworkConnect(NetworkConnect>0) = 1;
-                    end                    
-                    
-                case 'b'
-                    switch TemplateType
-                        case 'single'
-                            NetworkParameters = load(NetworkPath,'cppi_grid');
-                            [sizex, sizey]=size(NetworkParameters.cppi_grid{BRow,Column(1)});
-                            NetworkBeta   = zeros(sizex,sizey);
-                            for j = 1:length(Column)
-                                NetworkBeta = NetworkBeta + NetworkParameters.cppi_grid{BRow,Column(j)};
-                            end
-                            clear j;
-                            NetworkBeta = NetworkBeta./length(Column);
-                        case 'averaged'
-                            for i = 1:TemplateAverageRun
-                                NetworkParameters{i} = load(NetworkPath{i});
-                            end
-                            clear i
-                            [sizex,sizey] = size(NetworkParameters{1}.RecoverTscore);
-                            NetworkTscore = zeros(sizex,sizey);
-                            for j = 1:TemplateAverageRun
-                                NetworkTscore = NetworkTscore + NetworkParameters{j}.RecoverTscore;
-                            end
-                            clear j;
-                            NetworkTscore = NetworkTscore./TemplateAverageRun;
-                        otherwise
-                            error('TemplateType should be single or averaged, other type names are not accepted');
-                    end
-                           
-                  
-                    NetworkBeta(isnan(NetworkBeta)) = 0; % Exclude the NaN elements
-                    
-                    switch network.loc
-                        case 0
-                            NetworkBetaint    = (triu(NetworkBeta)+triu(NetworkBeta.'))./2; % Average standardized beta over upper and lower triangulars
-                            NetworkBetaAve    = triu(NetworkBetaint,1)+NetworkBetaint.';
-                            NetworkValue      = NetworkBetaAve;
-                        case 1
-                            NetworkBetaint   = triu(NetworkBeta,1)+tril(NetworkBeta.');
-                            NetworkValue     = NetworkBetaint;
-                        case 2
-                            NetworkBetaint   = tril(NetworkBeta,1)+triu(NetworkBeta.');
-                            NetworkValue     = NetworkBetaAve;
-                    end
-                    if (network.positive == 1)    
-                        NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
-                    else
-                        NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
-                    end  
-                    
-                    %%%%%%%%%% Need Edit, sparsity %%%%%%%%%%%%
-                    
-                    if ~network.weighted
-                        NetworkConnect(NetworkConnect>0) = 1;
-                    end 
-            end
-            
-            [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network.directed,network.weighted,network.measures);
-            Output                   = NetworkMeasures;
-            % Comupte the smallworldness
-            Flag.smallworld    = tempflag;
-            if Flag.smallworld
-                randcluster    = zeros(100,1);
-                randpathlength = zeros(100,1);
-                % Compute the averaged clustering coefficient and characteristic path length
-                % of 100 randomized version of the tested network with the
-                % preserved degree distribution, which is used in the
-                % smallworldness computing.
-                for k = 1:100
-                    display(sprintf('loop %d',k));
-                    [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
-                    drand         = distance_bin(NetworkRandom);
-                    [lrand,~]     = charpath(drand);
-                    if network.directed
-                        crand = clustering_coef_bd(NetworkRandom);
-                    else
-                        crand = clustering_coef_bu(NetworkRandom);
-                    end
-                    randcluster(k)    = mean(crand);
-                    randpathlength(k) = lrand;
+                        % Keep most siginificant connections based on sparsity
+                        NetworkConnectInt   = NetworkConnectRaw{iSubject,jRun,kNetwork};
+                        
+                        keep                = round(network.sparsity * numel(NetworkConnectInt));
+                        
+                        NetworkValue_flat   = reshape(NetworkConnectInt,[],1);
+                        
+                        [~,index]           = sort(NetworkValue_flat,'descend');
+                        
+                        NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
+                        
+                        NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
+                        
+                        NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkValue,1),size(NetworkValue,2));
+                        
+                        % Create binary matrix if being set so
+                        
+                        if ~network.weighted
+                            NetworkConnect(NetworkConnect>0) = 1;
+                        end
+                        
+                    case 'b'
+%                         switch TemplateType
+%                             case 'single'
+%                                 NetworkParameters = load(NetworkPath,'cppi_grid');
+%                                 [sizex, sizey]=size(NetworkParameters.cppi_grid{BRow,Column(1)});
+%                                 NetworkBeta   = zeros(sizex,sizey);
+%                                 for j = 1:length(Column)
+%                                     NetworkBeta = NetworkBeta + NetworkParameters.cppi_grid{BRow,Column(j)};
+%                                 end
+%                                 clear j;
+%                                 NetworkBeta = NetworkBeta./length(Column);
+%                             case 'averaged'
+%                                 for i = 1:TemplateAverageRun
+%                                     NetworkParameters{i} = load(NetworkPath{i});
+%                                 end
+%                                 clear i
+%                                 [sizex,sizey] = size(NetworkParameters{1}.RecoverTscore);
+%                                 NetworkTscore = zeros(sizex,sizey);
+%                                 for j = 1:TemplateAverageRun
+%                                     NetworkTscore = NetworkTscore + NetworkParameters{j}.RecoverTscore;
+%                                 end
+%                                 clear j;
+%                                 NetworkTscore = NetworkTscore./TemplateAverageRun;
+%                             otherwise
+%                                 error('TemplateType should be single or averaged, other type names are not accepted');
+%                         end
+%                         
+%                         NetworkBeta(isnan(NetworkBeta)) = 0; % Exclude the NaN elements
+%                         
+%                         switch network.loc
+%                             case 0
+%                                 NetworkBetaint    = (triu(NetworkBeta)+triu(NetworkBeta.'))./2; % Average standardized beta over upper and lower triangulars
+%                                 NetworkBetaAve    = triu(NetworkBetaint,1)+NetworkBetaint.';
+%                                 NetworkValue      = NetworkBetaAve;
+%                             case 1
+%                                 NetworkBetaint   = triu(NetworkBeta,1)+tril(NetworkBeta.');
+%                                 NetworkValue     = NetworkBetaint;
+%                             case 2
+%                                 NetworkBetaint   = tril(NetworkBeta,1)+triu(NetworkBeta.');
+%                                 NetworkValue     = NetworkBetaAve;
+%                         end
+%                         if (network.positive == 1)
+%                             NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+%                         else
+%                             NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+%                         end
+%                         
+%                         %%%%%%%%%% Need Edit, sparsity %%%%%%%%%%%%
+%                         
+%                         if ~network.weighted
+%                             NetworkConnect(NetworkConnect>0) = 1;
+%                         end
                 end
-                RandomMeasures.cluster    = mean(randcluster);
-                RandomMeasures.pathlength = mean(randpathlength);
-                gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
-                lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
-                Output.smallworld         = gamma / lambda;
+                
+                [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network.directed,network.weighted,network.measures);
+                Output                   = NetworkMeasures;
+                % Comupte the smallworldness
+                Flag.smallworld    = tempflag;
+                if Flag.smallworld
+                    randcluster    = zeros(100,1);
+                    randpathlength = zeros(100,1);
+                    % Compute the averaged clustering coefficient and characteristic path length
+                    % of 100 randomized version of the tested network with the
+                    % preserved degree distribution, which is used in the
+                    % smallworldness computing.
+                    for k = 1:100
+                        display(sprintf('loop %d',k));
+                        [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
+                        drand         = distance_bin(NetworkRandom);
+                        [lrand,~]     = charpath(drand);
+                        if network.directed
+                            crand = clustering_coef_bd(NetworkRandom);
+                        else
+                            crand = clustering_coef_bu(NetworkRandom);
+                        end
+                        randcluster(k)    = mean(crand);
+                        randpathlength(k) = lrand;
+                    end
+                    RandomMeasures.cluster    = mean(randcluster);
+                    RandomMeasures.pathlength = mean(randpathlength);
+                    gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
+                    lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+                    Output.smallworld         = gamma / lambda;
+                end
+                
+                CombinedOutput{iSubject,jRun,kNetwork,mThresh} = Output;
+                toc
             end
-            
-            CombinedOutput{iSubject,jRun,mThresh} = Output;
-            toc
         end
         
     end
@@ -284,14 +303,14 @@ switch network.stream
     case 't'
         if network.weighted
             fprintf(theFID,...
-                'Subject,Run,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
+                'Subject,Run,Network,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
         else
             fprintf(theFID,...
-                'Subject,Run,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
+                'Subject,Run,Network,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
         end
     case 'm'
         fprintf(theFID,...
-            'Subject,Run,Sparsity,Smallworldness,Degree\n');
+            'Subject,Run,Network,Sparsity,Smallworldness,Degree\n');
     otherwise
         error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
 end
@@ -311,33 +330,34 @@ for iSubject = 1:size(SubjDir,1)
 %             RunString=num2str(jRun);
 %         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        for kNetwork = 1:lentgh(network.netinclude);
         for mThresh = 1:length(network.adjacency)
-            fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.sparsity(mThresh));
+            fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.netinclude(kNetwork),network.sparsity(mThresh));
             
             switch network.stream
                 case 'm'
                     if Flag.smallworld
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.smallworld);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.smallworld);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.clustering
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.cluster);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.cluster);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.pathlength
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.pathlength);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.pathlength);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.degree
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.glodeg);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.glodeg);
                         if network.weighted
-                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.glostr);
+                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.glostr);
                         end
                     else
                         fprintf(theFID,'%s,','NA');
@@ -347,31 +367,31 @@ for iSubject = 1:size(SubjDir,1)
                     end                    
                     
                     if Flag.density
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.density);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.density);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.transitivity
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.trans);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.trans);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.gefficiency
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.eglob);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.eglob);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.modularity
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.modu);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.modu);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.assortativity
-                        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun,mThresh}.assort);
+                        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.assort);
                     else
                         fprintf(theFID,'%s\n','NA');
                     end
@@ -379,15 +399,15 @@ for iSubject = 1:size(SubjDir,1)
                 case 't'
                     
                     if Flag.smallworld
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.smallworld);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.smallworld);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.degree
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.glodeg);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.glodeg);
                         if network.weighted
-                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.glostr);
+                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.glostr);
                         end
                     else
                         fprintf(theFID,'%s,','NA');
@@ -397,7 +417,7 @@ for iSubject = 1:size(SubjDir,1)
                     end  
                     
                      if Flag.density
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,mThresh}.density);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.density);
                     else
                         fprintf(theFID,'%s,','NA');
                      end
@@ -405,6 +425,7 @@ for iSubject = 1:size(SubjDir,1)
                 otherwise
                     error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
             end
+        end
         end
                       
     end
@@ -425,10 +446,8 @@ end
 if (network.stream =='m')
     
     %%%%%%% Save the local results to CSV file %%%%%%%%%%
-    NetworkParamPath  = mc_GenPath(struct('Template',NetworkParameter,'mode','check'));
-    param      = load(NetworkParamPath);
-    NodeCoord  = param.parameters.rois.mni.coordinates;
-    NodeSelect = mc_node_select(NodeCoord,NodeList);
+    
+    NodeSelect = mc_node_select(roiMNI,NodeList);
     
     theFID = fopen(OutputPathFile2,'w');
     if theFID < 0
@@ -439,7 +458,7 @@ if (network.stream =='m')
     %%%%%% Output Local Measure Values for each selected node, each Run of each Subject %%%%%%%%%%%
     % Header
     fprintf(theFID,...
-        'Subject,Run,Threshold');
+        'Subject,Run,Network,Threshold');
     for p = 1:length(NodeSelect)
         fprintf(theFID,...
             ',LocalDegree_%d',NodeSelect(p));
@@ -481,18 +500,19 @@ if (network.stream =='m')
             %             RunString=num2str(jRun);
             %         end
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            for kNetwork = 1:length(network.netinclude)
             for mThresh = 1:length(network.adjacency)
-                fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.adjacency(mThresh));
+                fprintf(theFID,'%s,%s,%s,%s,',Subject,RunString,network.netinclude(kNetwork),network.adjacency(mThresh));
                 
                 
                 
                 if Flag.degree
-                    intdeg = CombinedOutput{iSubject,jRun,mThresh}.deg;
+                    intdeg = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.deg;
                     for p = 1:length(NodeSelect)
                         fprintf(theFID,'%.4f,',intdeg(NodeSelect(p)));
                     end
                     if network.weighted
-                        intstr = CombinedOutput{iSubject,jRun,mThresh}.strength;
+                        intstr = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.strength;
                         for p = 1:length(NodeSelect)
                             fprintf(theFID,'%.4f,',intstr(NodeSelect(p)));
                         end
@@ -509,7 +529,7 @@ if (network.stream =='m')
                 end
                 
                 if Flag.lefficiency
-                    inteloc = CombinedOutput{iSubject,jRun,mThresh}.eloc;
+                    inteloc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.eloc;
                     for p = 1:length(NodeSelect)
                         fprintf(theFID,'%.4f,',inteloc(NodeSelect(p)));
                     end
@@ -520,7 +540,7 @@ if (network.stream =='m')
                 end
                 
                 if Flag.clustering
-                    intenc = CombinedOutput{iSubject,jRun,mThresh}.nodecluster;
+                    intenc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.nodecluster;
                     for p = 1:length(NodeSelect)
                         fprintf(theFID,'%.4f,',intenc(NodeSelect(p)));
                     end
@@ -531,7 +551,7 @@ if (network.stream =='m')
                 end
                 
                 if Flag.pathlength
-                    intecc = CombinedOutput{iSubject,jRun,mThresh}.ecc.nodes;
+                    intecc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.ecc.nodes;
                     for p = 1:length(NodeSelect)
                         fprintf(theFID,'%.4f,',intecc(NodeSelect(p)));
                     end
@@ -542,7 +562,7 @@ if (network.stream =='m')
                 end
                 
                 if Flag.betweenness
-                    intbtwn = CombinedOutput{iSubject,jRun,mThresh}.btwn;
+                    intbtwn = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.btwn;
                     for p = 1:length(NodeSelect)
                         fprintf(theFID,'%.4f,',intbtwn(NodeSelect(p)));
                     end
@@ -554,6 +574,7 @@ if (network.stream =='m')
                     fprintf(theFID,'\n');
                 end
             end
+            end
         end
     end
     
@@ -563,7 +584,7 @@ if (network.stream =='m')
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% AUC of Metric - Threshold curve
+% AUC of Metric - Threshold curve  %%%%% NEED EDIT, AUC for each network
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isempty(network.AUC)
