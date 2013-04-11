@@ -68,7 +68,7 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
         display(sprintf('Now computing %s',Run));
         display(sprintf('of %s',Subject));
         tic
-        for mThresh = 1:length(network.adjacency)
+        for mThresh = 1:length(network.sparsity)
             
             switch TemplateType
                 
@@ -92,22 +92,98 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
             
             % Generate the binary adjacency matrix, do the computation
             switch network.datatype
-                case 'p'
-                    NetworkParameters = load(NetworkPath,'pMatrix');
-                    NetworkConnect    = double(NetworkParameters.pMatrix<network.adjacency(mThresh));
-                case 't'
+%                 case 't'
+%                     switch TemplateType
+%                         case 'single'
+%                             NetworkParameters = load(NetworkPath,'cppi_grid');
+%                             
+%                             [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
+%                             NetworkTscore = zeros(sizex,sizey);
+%                             for i = 1:length(Column)
+%                                 NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};
+%                             end
+%                             clear i;
+%                             NetworkTscore = NetworkTscore./length(Column);
+%                             
+%                         case 'averaged'
+%                             for i = 1:TemplateAverageRun
+%                                 NetworkParameters{i} = load(NetworkPath{i});
+%                             end
+%                             clear i
+%                             [sizex,sizey] = size(NetworkParameters{1}.RecoverTscore);
+%                             NetworkTscore = zeros(sizex,sizey);
+%                             for j = 1:TemplateAverageRun
+%                                 NetworkTscore = NetworkTscore + NetworkParameters{j}.RecoverTscore;
+%                             end
+%                             clear j;
+%                             NetworkTscore = NetworkTscore./TemplateAverageRun;
+%                         otherwise
+%                             error('TemplateType should be single or averaged, other type names are not accepted');
+%                     end
+%                     
+%                     NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements
+%                     
+%                     switch network.loc
+%                         case 0
+%                             NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average over upper and lower triangulars
+%                             NetworkConnectint = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % Padding to the whole matrix
+%                         case 1
+%                             NetworkConnectint = triu(NetworkTscore,1)+tril(NetworkTscore.'); % Use upper triangular values
+%                         case 2
+%                             NetworkConnectint = tril(NetworkTscore,1)+triu(NetworkTscore.'); % Use lower triangular values
+%                     end
+%                     
+%                     NetworkConnect    = double(NetworkConnectint>=network.adjacency(mThresh));  % Thresholding the Tscore to get binary matrix
+%                     
+                case 'r'
+                    
+                    NetworkParameters = load(NetworkPath,'rMatrix');
+                    NetworkRvalue     = NetworkParameters.rMatrix;
+                    if (network.ztransform == 1)
+                        NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
+                    else
+                        NetworkValue  = NetworkRvalue;
+                    end
+                    
+                    if (network.positive == 1)    
+                        NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+                    else
+                        NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+                    end
+                    
+                    NetworkValue(isnan(NetworkValue))=0;     % Exclude the NaN elments
+                    
+                    % Keep most siginificant connections based on sparsity
+                    
+                    keep                = round(network.sparsity * numel(NetworkValue));
+                    
+                    NetworkValue_flat   = reshape(NetworkValue,[],1);
+                    
+                    [~,index]           = sort(NetworkValue_flat,'descend');
+                    
+                    NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
+                    
+                    NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
+                    
+                    NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkValue,1),size(NetworkValue,2));
+                    
+                    % Create binary matrix if being set so
+                    
+                    if ~network.weighted
+                        NetworkConnect(NetworkConnect>0) = 1;
+                    end                    
+                    
+                case 'b'
                     switch TemplateType
                         case 'single'
                             NetworkParameters = load(NetworkPath,'cppi_grid');
-                            
-                            [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
-                            NetworkTscore = zeros(sizex,sizey);
-                            for i = 1:length(Column)
-                                NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};
+                            [sizex, sizey]=size(NetworkParameters.cppi_grid{BRow,Column(1)});
+                            NetworkBeta   = zeros(sizex,sizey);
+                            for j = 1:length(Column)
+                                NetworkBeta = NetworkBeta + NetworkParameters.cppi_grid{BRow,Column(j)};
                             end
-                            clear i;
-                            NetworkTscore = NetworkTscore./length(Column);
-                            
+                            clear j;
+                            NetworkBeta = NetworkBeta./length(Column);
                         case 'averaged'
                             for i = 1:TemplateAverageRun
                                 NetworkParameters{i} = load(NetworkPath{i});
@@ -123,82 +199,33 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                         otherwise
                             error('TemplateType should be single or averaged, other type names are not accepted');
                     end
-                    
-                    NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements
-                    
-                    switch network.loc
-                        case 0
-                            NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average over upper and lower triangulars
-                            NetworkConnectint = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % Padding to the whole matrix
-                        case 1
-                            NetworkConnectint = triu(NetworkTscore,1)+tril(NetworkTscore.'); % Use upper triangular values
-                        case 2
-                            NetworkConnectint = tril(NetworkTscore,1)+triu(NetworkTscore.'); % Use lower triangular values
-                    end
-                    
-                    NetworkConnect    = double(NetworkConnectint>=network.adjacency(mThresh));  % Thresholding the Tscore to get binary matrix
-                    
-                case 'r'
-                    NetworkPvalue     = load(NetworkPath,'pMatrix');
-                    NetworkParameters = load(NetworkPath,'rMatrix');
-                    NetworkRvalue     = NetworkParameters.rMatrix;
-                    if (network.ztransform == 1)
-                        
-                        NetworkZvalue     = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
-                        NetworkConnect    = NetworkZvalue.*(double(NetworkPvalue.pMatrix<network.adjacency(mThresh)));
-                    else
-                        NetworkConnect    = NetworkRvalue.*(double(NetworkPvalue.pMatrix<network.adjacency(mThresh)));
-                    end
-                    
-                    NetworkConnect(isnan(NetworkConnect))=0; % Exclude the NaN elments
-                    if (network.value == 1)
-                        NetworkConnect(NetworkConnect<0)=0;   % Only keep positive values if option is set so
-                    end
-                    NetworkConnect    = abs(NetworkConnect); % Take the absolute value of correlation to fit the following computing
-                    % requirements (convert the value range from (-1,1) to (0,1), the positive
-                    % and negative correlation with the same absolute value are as meaningful
-                    % as each other. If the 'positive' step was done, then this step is just
-                    % reassuring
-                    
-                case 'b'
-                    NetworkParameters = load(NetworkPath,'cppi_grid');
-                    [sizex, sizey]=size(NetworkParameters.cppi_grid{TRow,Column(1)});
-                    NetworkTscore = zeros(sizex,sizey);
-                    NetworkBeta   = zeros(sizex,sizey);
-                    for i = 1:length(Column)
-                        NetworkTscore = NetworkTscore+NetworkParameters.cppi_grid{TRow,Column(i)};
-                    end
-                    clear i;
-                    NetworkTscore = NetworkTscore./length(Column);
-                    
-                    for j = 1:length(Column)
-                        NetworkBeta = NetworkBeta + NetworkParameters.cppi_grid{BRow,Column(j)};
-                    end
-                    clear j;
-                    NetworkBeta = NetworkBeta./length(Column);
-                    
-                    NetworkTscore(isnan(NetworkTscore)) = 0; % Exclude the NaN elements
+                           
+                  
                     NetworkBeta(isnan(NetworkBeta)) = 0; % Exclude the NaN elements
                     
                     switch network.loc
                         case 0
-                            NetworkTscoreint  = (triu(NetworkTscore)+triu(NetworkTscore.'))./2; % Average t-score over upper and lower triangulars
-                            NetworkTscoreAve  = triu(NetworkTscoreint,1)+NetworkTscoreint.'; % T-score shouldn't take absolute value
                             NetworkBetaint    = (triu(NetworkBeta)+triu(NetworkBeta.'))./2; % Average standardized beta over upper and lower triangulars
                             NetworkBetaAve    = triu(NetworkBetaint,1)+NetworkBetaint.';
+                            NetworkValue      = NetworkBetaAve;
                         case 1
-                            NetworkTscoreint = triu(NetworkTscore,1)+tril(NetworkTscore.');
                             NetworkBetaint   = triu(NetworkBeta,1)+tril(NetworkBeta.');
+                            NetworkValue     = NetworkBetaint;
                         case 2
-                            NetworkTscoreint = tril(NetworkTscore,1)+triu(NetworkTscore.');
                             NetworkBetaint   = tril(NetworkBeta,1)+triu(NetworkBeta.');
+                            NetworkValue     = NetworkBetaAve;
                     end
-                    if (network.value == 1)
-                        NetworkBetaAve(NetworkBetaAve<0) = 0;  % Only keep positive values if option is set so
-                    end
-                    NetworkBetaAve    = abs(NetworkBetaAve);   % Take absolute value for beta, if 'positive' step is done, then this step is just reassuring
-                    NetworkConnect = NetworkBetaAve.*double(NetworkTscoreAve>=network.adjacency(mThresh)); % masking over the Beta
+                    if (network.positive == 1)    
+                        NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+                    else
+                        NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+                    end  
                     
+                    %%%%%%%%%% Need Edit, sparsity %%%%%%%%%%%%
+                    
+                    if ~network.weighted
+                        NetworkConnect(NetworkConnect>0) = 1;
+                    end 
             end
             
             [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network.directed,network.weighted,network.measures);
@@ -257,16 +284,16 @@ switch network.stream
     case 't'
         if network.weighted
             fprintf(theFID,...
-                'Subject,Run,Threshold,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
+                'Subject,Run,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
         else
             fprintf(theFID,...
-                'Subject,Run,Threshold,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
+                'Subject,Run,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
         end
     case 'm'
         fprintf(theFID,...
-            'Subject,Run,Threshold,Smallworldness,Degree,Density');
+            'Subject,Run,Sparsity,Smallworldness,Degree\n');
     otherwise
-        error('You should be either measure the metrics or selecting the threshold, check your network.stream setting');
+        error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
 end
 
 
@@ -285,7 +312,7 @@ for iSubject = 1:size(SubjDir,1)
 %         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for mThresh = 1:length(network.adjacency)
-            fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.adjacency(mThresh));
+            fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.sparsity(mThresh));
             
             switch network.stream
                 case 'm'
@@ -376,7 +403,7 @@ for iSubject = 1:size(SubjDir,1)
                      end
                      
                 otherwise
-                    error('You should be either measure the metrics or selecting the threshold, check your network.stream setting');
+                    error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
             end
         end
                       
@@ -392,7 +419,7 @@ switch network.stream
     case 't'
         display('Threshold Test All Done')
     otherwise
-        error('You should be either measure the metrics or selecting the threshold, check your network.stream setting');
+        error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
 end
 
 if (network.stream =='m')
@@ -541,7 +568,6 @@ end
 
 if ~isempty(network.AUC)
             
-    aucflag.density = any(strfind(upper(network.AUC),'D'));
     aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
     aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
     aucflag.modularity = any(strfind(upper(network.AUC),'M'));
@@ -551,44 +577,41 @@ if ~isempty(network.AUC)
     aucflag.clustering = any(strfind(upper(network.AUC),'C'));
     aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
     
-    if aucflag.density
-        auc.density = mc_AUCcalcualtion(CombinedOutput,SubjDir,network.adjacency,'density');
-    end
-    
+     
     if aucflag.transitivity
-        auc.trans = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'trans');
+        auc.trans = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'trans');
     end
     
     if aucflag.gefficiency
-        auc.eglob = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'eglob');
+        auc.eglob = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'eglob');
     end
     
     if aucflag.modularity
-        auc.modu = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'modu');
+        auc.modu = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'modu');
     end
     
     if aucflag.assortativity
-        auc.assort = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'assort');
+        auc.assort = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'assort');
     end
     
     if aucflag.pathlength
-        auc.pathlength = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'pathlength');
+        auc.pathlength = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'pathlength');
     end
     
     if aucflag.degree
         if network.weighted
-            auc.glostr = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'glostr');
+            auc.glostr = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'glostr');
         else
-            auc.glodeg = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'glodeg');
+            auc.glodeg = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'glodeg');
         end
     end
     
     if aucflag.clustering
-        auc.cluster = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'cluster');
+        auc.cluster = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'cluster');
     end
     
     if aucflag.smallworldness
-        auc.smallworld = mc_AUCcalculation(CombinedOutput,SubjDir,network.adjacency,'smallworld');
+        auc.smallworld = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'smallworld');
     end
 end
 

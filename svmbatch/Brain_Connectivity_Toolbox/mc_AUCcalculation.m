@@ -33,7 +33,7 @@ aveOutputSorted = aveOutput(index);
 % Plot the threshold - metric curve
 figure;
 plot(ThreshSorted,aveOutputSorted);
-xlabel('Threshold');
+xlabel('Sparsity');
 ylabel(subName);
 
 % Calculate AUC

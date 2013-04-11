@@ -43,7 +43,6 @@ RunDir = {
 % 
 % TemplateAverageRun: If TemplateType is 'averaged', then set the number of runs here
 % 
-% TRow: In cppi_grid data, row of interest which contains t-score
 % BRow: In cppi_grid data, row of interest which contains beta (unstandardized or standardized)
 % Column: In cppi_grid data, columns of interst which contain conditions we want to include
 %
@@ -57,9 +56,8 @@ RunDir = {
 %  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-TemplateType = 'averaged';
+TemplateType = 'single';
 TemplateAverageRun = 2;
-TRow = 3;
 BRow = 4;
 Column = [3,4,8,9]; 
 % Column = [7,8];  % goERT
@@ -71,30 +69,32 @@ NetworkTemplate{1}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruen
 NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run06.mat';
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Required Network Options:
 %%% network.directed:    0 - undirected matrix; 1 - directed matrix
 %%% network.weighted:    0 - unweighted matrix; 1 - weighted matrix
 %%% network.datatype: 
-%%%                     'p' - thresholding p-value matrix to binary matrix by p-value (e.g. results from SOM)
-%%%                     't' - thresholding t-score matrix to binary matrix by t-score (e.g. results from cPPI)
-%%%                     'r' - thresholding r-value matrix to weighted matrix by p-value (e.g. results from SOM)
-%%%                     'b' - threshloding beta-value matrix to weighted matrix by t-score (e.g. results from cPPI)
+%%%                     'r' - thresholding r-value matrix to binary/weighted matrix by p-value (e.g. results from SOM)
+%%%                     'b' - threshloding beta-value matrix to binary/weighted matrix by t-score (e.g. results from cPPI)
 %%% network.ztransform:  If network.datatype is set to 'r', we have the option to do an r to z transform
 %%%                      0  - Don't do z transform    1 - Do z transform
 %%% network.loc:         0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
-%%% network.value(when using weighted network):       0 - Absolute value;   1 - Only positive value
+%%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% network.iter: rewiring parameter when generating random graph (each
-%%% edge is rewired approximatel network.iter times)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%               edge is rewired approximatel network.iter times)
+%%% network.netinclude:  Any network number in the array will be treated separately and 
+%%%                      for now the number is in the range of 0 to 12. We are usually interested
+%%%                      in network 1:7. If set to -1, than treat the whole brain(include all 13 networks).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.directed = 0;
-network.weighted = 0;
-network.datatype = 't';
+network.directed   = 0;
+network.weighted   = 0;
+network.datatype   = 'r';
 network.ztransform = 1;
-network.loc      = 0;
-network.value    = 0;
-network.iter     = 5;
+network.loc        = 0;
+network.positive   = 0;
+network.iter       = 5;
+network.netinclude = [1:7]; 
 % network.alpha = 0.5;
 
 
@@ -138,12 +138,11 @@ OutputPathTemplate2 = '[Exp]/GraphTheory/Congruency_NORT_new_cppi_norm_corrected
 % OutputPathTemplate2 = '[Exp]/GraphTheory/go_ERT_cPPI_norm_Reappraise_local_up';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Threshold for the P-value / t-score correlation matrix (to create binary
-%%% adjacency matrix)
+%%% Sparsity threshold for the P-value / t-score correlation matrix (to create 
+%%% binary adjacency matrix)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% network.adjacency = 0.05; 
-network.adjacency = 2.336; % dof = 400, p = 0.01, one-tailed MAS MSIT
-% network.adjacency = 2.341; % dof = 256, p = 0.01, one-tailed goERT
+
+network.sparsity = 0.2;
 
 
 
