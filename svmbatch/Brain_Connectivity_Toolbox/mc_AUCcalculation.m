@@ -1,4 +1,4 @@
-function auc = mc_AUCcalculation(Data,SubjDir,Thresh,subName)
+function auc = mc_AUCcalculation(Data,SubjDir,Net,Thresh,subName)
 
     
 % Total subject number x run number
@@ -35,6 +35,7 @@ figure;
 plot(ThreshSorted,aveOutputSorted);
 xlabel('Sparsity');
 ylabel(subName);
+title(['Network',num2str(Net)]);
 
 % Calculate AUC
 auc = 0;

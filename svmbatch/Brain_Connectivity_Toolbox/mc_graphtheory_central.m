@@ -63,11 +63,11 @@ tempflag = any(strfind(upper(network.measures),'S'));
 %%% Initialization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NetworkConnectRaw = cell(size(SubjDir,1),size(SubjDir{iSubject,3},2));
+NetworkConnectRaw = cell(size(SubjDir,1), size(RunDir,1));
 
 NetworkConnectSub = cell(length(network.netinclude),1);
 
-CombinedOutput    = cell(size(SubjDir,1),size(SubjDir{iSubject,3},2),length(network.netincllude),length(network.sparsity));
+CombinedOutput    = cell(size(SubjDir,1),size(RunDir,1),length(network.netinclude),length(network.sparsity));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure out Network Structure 
@@ -107,7 +107,7 @@ switch network.datatype
                     case 'single'                        
                         NetworkPathCheck  = struct('Template',NetworkTemplate,'mode','check');
                         NetworkPath       = mc_GenPath(NetworkPathCheck);   
-                        Network
+                      
                     case 'averaged'
                         for i = 1:TemplateAverageRun
                             %%%%%% MAS MSIT CORRECTED TSCORE %%%%%
@@ -184,7 +184,7 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                         
                         NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
                         
-                        NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkValue,1),size(NetworkValue,2));
+                        NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkConnectInt,1),size(NetworkConnectInt,2));
                         
                         % Create binary matrix if being set so
                         
@@ -291,10 +291,22 @@ save(network.save,'CombinedOutput','-v7.3');
 
 
 %%%%%%% Save the global results to CSV file %%%%%%%%%%
-theFID = fopen(OutputPathFile1,'w');
-if theFID < 0
-    fprintf(1,'Error opening the csv file!\n');
-    return;
+
+switch network.stream
+    case 'm'
+        theFID = fopen(OutputPathFile1,'w');
+        if theFID < 0
+            fprintf(1,'Error opening the csv file!\n');
+            return;
+        end
+    case 't'
+        theFID = fopen(OutputPathFile,'w');
+        if theFID < 0
+            fprintf(1,'Error opening the csv file!\n');
+            return;
+        end
+    otherwise
+        error('You should be either measure the metrics or selecting the threshold, check your network.stream setting');
 end
 
 %%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%%
@@ -303,7 +315,7 @@ switch network.stream
     case 't'
         if network.weighted
             fprintf(theFID,...
-                'Subject,Run,Network,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
+                'Subject,Run,Network,Sparsity,Smallworldness,GlobalDegree,Density\n');
         else
             fprintf(theFID,...
                 'Subject,Run,Network,Sparsity,Smallworldness,ClusteringCoef,CharacetristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity\n');
@@ -330,9 +342,9 @@ for iSubject = 1:size(SubjDir,1)
 %             RunString=num2str(jRun);
 %         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        for kNetwork = 1:lentgh(network.netinclude);
-        for mThresh = 1:length(network.adjacency)
-            fprintf(theFID,'%s,%s,%s,',Subject,RunString,network.netinclude(kNetwork),network.sparsity(mThresh));
+        for kNetwork = 1:length(network.netinclude);
+        for mThresh = 1:length(network.sparsity)
+            fprintf(theFID,'%s,%s,%s,%s,',Subject,RunString,num2str(network.netinclude(kNetwork)),num2str(network.sparsity(mThresh)));
             
             switch network.stream
                 case 'm'
@@ -417,9 +429,9 @@ for iSubject = 1:size(SubjDir,1)
                     end  
                     
                      if Flag.density
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.density);
+                        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun,kNetwork,mThresh}.density);
                     else
-                        fprintf(theFID,'%s,','NA');
+                        fprintf(theFID,'%s\n','NA');
                      end
                      
                 otherwise
@@ -588,7 +600,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isempty(network.AUC)
-            
+    
     aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
     aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
     aucflag.modularity = any(strfind(upper(network.AUC),'M'));
@@ -598,45 +610,66 @@ if ~isempty(network.AUC)
     aucflag.clustering = any(strfind(upper(network.AUC),'C'));
     aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
     
-     
+    
     if aucflag.transitivity
-        auc.trans = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'trans');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.trans(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'trans');
+        end
     end
     
     if aucflag.gefficiency
-        auc.eglob = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'eglob');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.eglob(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'eglob');
+        end
     end
     
     if aucflag.modularity
-        auc.modu = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'modu');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.modu(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'modu');
+        end
     end
     
     if aucflag.assortativity
-        auc.assort = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'assort');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.assort(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'assort');
+        end
     end
     
     if aucflag.pathlength
-        auc.pathlength = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'pathlength');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.pathlength(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'pathlength');
+        end
     end
     
     if aucflag.degree
         if network.weighted
-            auc.glostr = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'glostr');
+            for kNetwork = 1:lentgh(network.netinclude)
+                auc.glostr(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glostr');
+            end
         else
-            auc.glodeg = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'glodeg');
+            for kNetwork = 1:lentgh(network.netinclude)
+                auc.glodeg(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glodeg');
+            end
         end
     end
     
     if aucflag.clustering
-        auc.cluster = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'cluster');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.cluster(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
+        end
     end
     
     if aucflag.smallworldness
-        auc.smallworld = mc_AUCcalculation(CombinedOutput,SubjDir,network.sparsity,'smallworld');
+        for kNetwork = 1:lentgh(network.netinclude)
+            auc.smallworld(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'smallworld');
+        end
     end
+    
+    save(network.aucSave,'auc','-v7.3');
+    
 end
 
-save(network.aucSave,'auc','-v7.3');
+
     
     
 
