@@ -78,8 +78,11 @@ NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_1
 %%%                     'b' - threshloding beta-value matrix to binary/weighted matrix by t-score (e.g. results from cPPI)
 %%% network.ztransform:  If network.datatype is set to 'r', we have the option to do an r to z transform
 %%%                      0  - Don't do z transform    1 - Do z transform
-%%% network.loc:         0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
+%%% network.loc(only for cPPI):  0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
 %%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
+%%% 
+%%% network.local:  1 - Include local measurement; 0 - Do not include local measurement
+%%%
 %%% network.iter: rewiring parameter when generating random graph (each
 %%%               edge is rewired approximatel network.iter times)
 %%% network.netinclude:  Any network number in the array will be treated separately and 
@@ -92,9 +95,13 @@ network.weighted   = 0;
 network.datatype   = 'r';
 network.ztransform = 1;
 network.loc        = 0;
-network.positive   = 0;
+network.positive   = 1;
+
+network.local = 0;
+
 network.iter       = 5;
 network.netinclude = [1:7]; 
+
 
 
 
@@ -303,16 +310,19 @@ network.AUC = 'GP';
 
 network.aucSave = 'AUC.mat';
 
+AUCTemplate = '[Exp]/GraphTheory/0412/MeanValue';
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Add path (mc_GenPath and some other functions are to be used)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-mcRoot = '~/users/yfang/MethodsCore';
-addpath('~/users/yfang/Brain_Connectivity_Toolbox/');
-addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile)
-
+%%%%%%%%%%%%%%%%%%%
+% set the path
+%%%%%%%%%%%%%%%%%%%
+mcRoot = '~/users/yfang/MethodsCore/';
+addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
+addpath(fullfile(mcRoot,'matlabScripts')) % if report error, add 'genpath' before fullfile
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+addpath(fullfile(mcRoot,'spm8Batch'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
 mc_graphtheory_central
 
