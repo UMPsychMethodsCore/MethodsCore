@@ -284,7 +284,10 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                     Output.smallworld         = gamma / lambda;
                 end
                 
-                CombinedOutput{iSubject,jRun,kNetwork,mThresh} = Output;
+                CombinedOutput{iSubject,jRun,kNetwork,mThresh} = Output; % saved variables each time
+                
+                save(network.save,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
+                
                 toc
             end
         end
@@ -682,7 +685,36 @@ if ~isempty(network.AUC)
     
     save(network.aucSave,'auc','-v7.3');
     
-
+    AUCPathFile = mc_GenPath( struct('Template',AUCTemplate,...
+        'suffix','.csv',...
+        'mode','makeparentdir') );
+    
+    theFID = fopen(AUCPathFile,'w');
+    if theFID < 0
+        fprintf(1,'Error opening the csv file!\n');
+        return;
+    end
+    
+    fprintf(theFID,...
+        'metric');
+    for kNetwork = 1:length(network.netinclude)
+        fprintf(theFID,...
+            [',Network',num2str(network.netinclude(kNetwork))]);
+    end
+    fprintf(theFID,'\n');
+    
+    names = fieldnames(auc);
+    for nMetric = 1:length(names)
+        subname = names{nMetric};
+        fprintf(theFID,subname);
+        for kNetwork = 1:length(network.netinclude)
+            fprintf(theFID,[',',num2str(auc.(subname)(kNetwork))]);
+        end
+        fprintf(theFID,'\n');
+    end
+    
+    display('AUC results saved.')
+    
     
     
 end
