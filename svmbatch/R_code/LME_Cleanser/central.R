@@ -117,7 +117,7 @@ if (model.approach == 'lme'){
   model.fit = lmeMCfit(1,model.fixed,model.random,superflatmat,master,'full')
   
 #### Do correction on all models
-  correction = mclapply(1:nFeat,lmeMCcorrection,model.fixed,model.random,superflatmat,master,mc.cores=22)
+  correction = mclapply(1:nFeat,lmeMCcorrection,model.fixed,model.random,superflatmat,master,mc.cores=multicore.cores)
 
   
 
