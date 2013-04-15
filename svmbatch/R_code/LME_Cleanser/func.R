@@ -73,6 +73,13 @@ lmeMCcorrection = function(ind,model.fixed,model.random,data,master){
     }
 
   mini = data.frame(R = data[,ind],master)
+  if( as.logical(sum(is.na(mini$R))) | all(diff(mini$R)==0)){
+    out = list(typical.Lev0 = 0,
+      typical.Lev1 = 0,
+      cleansed = rep(0,length(mini$R)))
+    return(out)
+   }
+
   model.fit = lme(fixed = model.fixed, random = model.random, data = mini)
   X.real = mini[,all.vars(model.fixed)] # subset to only variables in model
   X.real = model.matrix(model.fixed,X.real) # code into a design matrix
