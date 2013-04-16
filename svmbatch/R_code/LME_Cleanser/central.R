@@ -124,9 +124,24 @@ design=model.matrix(rhs,master)
 
 
 
-writeMat(file.path(outputPath,'Results.mat'),
-         cleansed = cleansed,
-         typical.Lev0 = typical.Lev0,
-         typical.Lev1 = typical.Lev1,
-         design = design,
-         master = master)
+res = writeMat(file.path(outputPath,'Results.mat'),
+  typical_Lev0 = typical.Lev0,
+  typical_Lev1 = typical.Lev1,
+  design = design,
+  master = master,
+  varnames = colnames(design))
+
+chunk = 100
+
+iter = ceiling(nrow(cleansed)/chunk)
+
+for (i in 1:iter){
+  writepath = file.path(outputPath,paste('Results_Cleansed_Part',i,'.mat',sep=''))
+  myrange = ((i-1)*chunk + 1) : ((i*chunk))
+  myrange = myrange[1] : min(myrange[chunk],nrow(cleansed))
+  args= list(con=writepath,cleansed = cleansed[myrange,])
+  names(args)[2] = paste('Cleansed_Part',i,sep='')
+  do.call(writeMat,args)
+}
+
+
