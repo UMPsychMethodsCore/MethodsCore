@@ -53,21 +53,30 @@ display ('-----')
 clear CombinedOutput
 clear NetworkPath
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Flag for smallworldness
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tempflag = any(strfind(upper(network.measures),'S'));
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Initialization
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 NetworkConnectRaw = cell(size(SubjDir,1), size(RunDir,1));
 
 NetworkConnectSub = cell(length(network.netinclude),1);
 
 CombinedOutput    = cell(size(SubjDir,1),size(RunDir,1),length(network.netinclude),length(network.sparsity));
+
+OutputMatPath = mc_GenPath( struct('Template',network.save,...
+        'suffix','.mat',...
+        'mode','makeparentdir'));
+    
+AUCMatFile = mc_GenPath( struct('Template',network.aucSave,...
+        'suffix','.mat',...
+        'mode','makeparentdir'));
+    
+AUCPathFile = mc_GenPath( struct('Template',AUCTemplate,...
+        'suffix','.csv',...
+        'mode','makeparentdir') );
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Flag for smallworldness
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+tempflag = any(strfind(upper(network.measures),'S'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure out Network Structure 
@@ -169,7 +178,7 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
             display(sprintf('in network %d',network.netinclude(kNetwork)));
             for mThresh = 1:length(network.sparsity)                               
                 % Generate the binary adjacency matrix, do the computation
-                display(sprintf('with sparsity %d',network.sparsity(mThresh)));
+                display(sprintf('with sparsity %.2g',network.sparsity(mThresh)));
                 tic
                 switch network.datatype
                     case 'r'                     
@@ -286,7 +295,7 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
                 
                 CombinedOutput{iSubject,jRun,kNetwork,mThresh} = Output; % saved variables each time
                 
-                save(network.save,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
+                save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
                 
                 toc
             end
@@ -297,7 +306,7 @@ end
 
 %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
 
-save(network.save,'CombinedOutput','-v7.3');
+save(OutputMatPath,'CombinedOutput','-v7.3');
 
 
 %%%%%%% Save the global results to CSV file %%%%%%%%%%
@@ -683,11 +692,10 @@ if ~isempty(network.AUC)
         end
     end
     
-    save(network.aucSave,'auc','-v7.3');
+   
     
-    AUCPathFile = mc_GenPath( struct('Template',AUCTemplate,...
-        'suffix','.csv',...
-        'mode','makeparentdir') );
+    save(AUCMatFile,'auc','-v7.3');
+       
     
     theFID = fopen(AUCPathFile,'w');
     if theFID < 0
