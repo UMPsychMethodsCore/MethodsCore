@@ -175,6 +175,15 @@ edgemat = a.mediator.square; %snag edgemat for use down in network contingency s
 
 %% Permutations
 
+% If Shading is disabled, then reset nRep to 1 no matter what value it was given.
+if (~exist('ShadingEnable','var'))
+    ShadingEnable = 1;
+end
+
+if ShadingEnable == 0
+    nRep = 1;
+end
+
 % for perms.count
 %First two dimensions will index the network structure. 
 %Third dimension will index different threshold values. 
@@ -264,9 +273,13 @@ a = mc_TakGraph_plot(a);
 
 %%% add shading
 
-a = mc_TakGraph_CalcShadeColor(a);
+if ShadingEnable
     
-a = mc_TakGraph_AddShading(a);
+    a = mc_TakGraph_CalcShadeColor(a);
+    
+    a = mc_TakGraph_AddShading(a);
+    
+end
 
 %%% Save the Figure
 
