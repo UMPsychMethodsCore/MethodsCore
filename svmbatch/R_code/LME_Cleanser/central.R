@@ -96,26 +96,7 @@ if(FisherZ==1){
 
 ## Do the modeling
 
-### LM Approach
-if (model.approach == 'lm'){
-  #### Build a simple lm model, and save the results for later inspection
-  mini = data.frame(R = superflatmat[,1],master)
-  model.fit = lm(model.formula,mini)
-  save(model.fit,file=file.path(outputPath,'FirstModel.RData'))
-
-  #### Fit the big model
-  design = model.matrix(model.formula,mini) # create a design matrix
-  results = massuni(superflatmat, design) # do the mass univariate modeling
-  t.array = results$tvals # grab the t values
-  p.array = results$pvals # grab the p values
-  int.array = 0
-}
-
 ### LME Approach
-if (model.approach == 'lme'){
-#### Fit the first model, save it for reference
-  model.fit = lmeMCfit(1,model.fixed,model.random,superflatmat,master,'full')
-  
 #### Do correction on all models
   correction = mclapply(1:nFeat,lmeMCcorrection,model.fixed,model.random,superflatmat,master,mc.cores=multicore.cores)
 
@@ -132,7 +113,7 @@ if (model.approach == 'lme'){
   cleansed = arrays$cleansed
   typical.Lev0 = arrays$typical.Lev0
   typical.Lev1 = arrays$typical.Lev1
-}
+
 
 rhs = model.fixed
 rhs[[2]] = c()

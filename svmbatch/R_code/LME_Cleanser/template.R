@@ -76,20 +76,6 @@ outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_347_C
 ################################################################################
 ## Model Options                                                              ##
 ##                                                                            ##
-## First off, do you want to fit a standard linear model or will you be       ##
-## using a fancier multilevel modeling approach? Set model.approach to        ##
-## the appropriate value                                                      ##
-## 'lm'    -       standard linear modeling, done with call to lm             ##
-## 'lme'   -       Multilevel modeling done with call to lmer                 ##
-##                                                                            ##
-##                                                                            ##
-## For lm mode, you'll need to create a formula object in the way that R      ##
-## likes it. This means it will look something like this: "R ~ dx +           ##
-## motion". The left hand term will always be R, this is hardcoded into       ##
-## the central script to be the Pearson R correlation for the current         ##
-## feature of interest. All of the terms on the right hand side need to       ##
-## be the same as column names in your master datafile.                       ##
-##                                                                            ##
 ## For lme mode it's a bit more complicated. Better to look at the help       ##
 ## for lme and fill in the fixed and random components based on the           ##
 ## documentation there. In most cases, random will just be ~1|grouping factor ##
@@ -101,12 +87,7 @@ outputPath = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_347_C
 ################################################################################
 
 
-model.approach = 'lme'
-
-# Options for lm
-model.formula = R ~ TYPE + meanFD + F4IQ + AGE + GENDER
-
-# Options for lme (we will only save results for the first fixed term!)
+# Options for lme (It is assumed that the first RHS term is the Fx of interest)
 model.fixed = R ~ TYPE + meanFD + meanFDquad + IQMeasure + AGE + GENDER 
 model.random = ~1|SITE_ID
 
