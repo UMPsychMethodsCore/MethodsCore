@@ -175,7 +175,10 @@ edgemat = a.mediator.square; %snag edgemat for use down in network contingency s
 
 %% Permutations
 
-% If Shading is disenabled, then reset nRep to 1 no matter what value it was given.
+% If Shading is disabled, then reset nRep to 1 no matter what value it was given.
+if (~exist('ShadingEnable','var'))
+    ShadingEnable = 1;
+end
 
 if ShadingEnable == 0
     nRep = 1;
