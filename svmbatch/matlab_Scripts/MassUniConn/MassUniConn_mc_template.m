@@ -100,8 +100,16 @@ outputPath = '/net/data4/MyStudy/SweetNewOutput';
 
 ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubject]/Grid/Grid_parameters.mat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do you want to add shading?                                             %
+% Yes --- 1; No --- 0;                                                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ShadingEnable = 1;
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Permutation Settings                                                                        %
+% Permutation Settings (Will only be effective if ShadingEnable == 1)                                                                      %
 %                                                                                             %
 %       nRep            -       Number of permutations to perform.                            %
 %       permSave        -       Where should we save the permutation results?                 %
@@ -112,7 +120,6 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 %                               but it often fails with big data, in which case we will       %
 %                               fall back to just one core.                                   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 nRep     = 10000;
 permSave = 'AutismPermutations_5.mat';  
