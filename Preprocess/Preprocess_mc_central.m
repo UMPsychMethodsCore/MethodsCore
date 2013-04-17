@@ -645,7 +645,7 @@ if (Processing(1) == 1)
                 files = dir(SandboxFolders{iS,2});
                 for iFile = 1:size(files,1)
                     if (~strcmp(files(iFile).name,'.') && ~ strcmp(files(iFile).name,'..'))
-                        if (~strncmp(files(iFile).name,basefile,length(basefile)) %don't copy  original basefile back
+                        if (~strncmp(files(iFile).name,basefile,length(basefile))) %don't copy  original basefile back
                             mc_Copy(fullfile(SandboxFolders{iS,2},files(iFile).name),SandboxFolders{iS,1});
                         end
                     end
