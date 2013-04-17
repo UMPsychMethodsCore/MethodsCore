@@ -65,7 +65,7 @@ for i = 1:nargin-1
             PicFileEnable = varargin{i};
     end
 end
-net=varargin{nargin};
+ind=varargin{nargin};
 
 % Start BrainNet
 [H_BrainNet] = BrainNet;
@@ -170,72 +170,33 @@ end
 
 
 %superior view
-ind_sup=[-66, 24;
-     66,  24;
-     -66, -60;
-     66, -60;
-     6, -108;
-     -42, -96;];
 
-ind_edit=[-64, 24;
-     64,  24;
-     -64, -60;
-     64, -60;
-     8, -105;
-     -42, -93;];
- 
-for i=1:length(ind_sup)
-rois=find(surf.sphere(:,1)==ind_sup(i,1)&surf.sphere(:,2)==ind_sup(i,2));
-outlier_rois=rois(find(surf.sphere(rois,4)==net.label1|surf.sphere(rois,4)==net.label2));
+for i=1:length(ind.orig.sup)
+rois=find(surf.sphere(:,1)==ind.orig.sup(i,1)&surf.sphere(:,2)==ind.orig.sup(i,2));
+outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
 if ~isempty(outlier_rois)
-surf.sphere(outlier_rois,1:2)=repmat(ind_edit(i,:),length(outlier_rois),1);
+surf.sphere(outlier_rois,1:2)=repmat(ind.edit.sup(i,:),length(outlier_rois),1);
 end
 end
 
 %lateral view
-%index of outliers in lateral view
-ind_lat=[24,  72;
-    -12,  84;
-    %     -48, -36; %cerebellum
-    %     -60, -36;
-    %     -72, -36;
-    %     -84, -36;
-    -96, -24;
-    -96,  36;
-    -108,  0;
-    -108, 12;];
 
-ind_edit=[24,  69;
-    -12,  81;
-    %     -48, -36; %cerebellum
-    %     -60, -36;
-    %     -72, -36;
-    %     -84, -36;
-    -96, -21;
-    -94,  36;
-    -105,  0;
-    -105, 12;];
 % Here I find ROIs and co-ordinates of outliers
-for i=1:length(ind_lat)
-    rois=find(surf.sphere(:,2)==ind_lat(i,1)&surf.sphere(:,3)==ind_lat(i,2));
-    outlier_rois=rois(find(surf.sphere(rois,4)==net.label1|surf.sphere(rois,4)==net.label2));
+for i=1:length(ind.orig.lat)
+    rois=find(surf.sphere(:,2)==ind.orig.lat(i,1)&surf.sphere(:,3)==ind.orig.lat(i,2));
+    outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
     if ~isempty(outlier_rois)
-        surf.sphere(outlier_rois,2:3)=repmat(ind_edit(i,:),length(outlier_rois),1);
+        surf.sphere(outlier_rois,2:3)=repmat(ind.edit.lat(i,:),length(outlier_rois),1);
     end
 end
 
 %anterior view
-ind_ant=[-66, 48;
-     66,  48;];
 
-ind_edit=[-63, 48;
-     63,  48;];
- 
-for i=1:length(ind_ant)
-rois=find(surf.sphere(:,1)==ind_ant(i,1)&surf.sphere(:,3)==ind_ant(i,2));
-outlier_rois=rois(find(surf.sphere(rois,4)==net.label1|surf.sphere(rois,4)==net.label2));
+for i=1:length(ind.orig.ant)
+rois=find(surf.sphere(:,1)==ind.orig.ant(i,1)&surf.sphere(:,3)==ind.orig.ant(i,2));
+outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
 if ~isempty(outlier_rois)
-surf.sphere(outlier_rois,[1 3])=repmat(ind_edit(i,:),length(outlier_rois),1);
+surf.sphere(outlier_rois,[1 3])=repmat(ind.edit.ant(i,:),length(outlier_rois),1);
 end
 end
 
