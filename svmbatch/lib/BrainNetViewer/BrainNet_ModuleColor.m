@@ -66,13 +66,42 @@ guidata(hObject, handles);
 movegui(handles.MC_fig,'center');
 
 global EC
+global surf
+textcell = cell(length(EC.nod.ModularNumber),1);
 EC.nod.CMm_temp=EC.nod.CMm;
-set(handles.text1,'BackgroundColor',EC.nod.CMm_temp(1,:));
-set(handles.text2,'BackgroundColor',EC.nod.CMm_temp(2,:));
-set(handles.text3,'BackgroundColor',EC.nod.CMm_temp(3,:));
-set(handles.text4,'BackgroundColor',EC.nod.CMm_temp(4,:));
-set(handles.text5,'BackgroundColor',EC.nod.CMm_temp(5,:));
-set(handles.text6,'BackgroundColor',EC.nod.CMm_temp(6,:));
+for i = 1:length(textcell)
+    textcell{i} = ['Module',num2str(EC.nod.ModularNumber(i))];
+end
+set(handles.popupmenu1,'String',textcell);
+set(handles.popupmenu2,'String',textcell);
+set(handles.popupmenu3,'String',textcell);
+set(handles.popupmenu4,'String',textcell);
+set(handles.popupmenu5,'String',textcell);
+set(handles.popupmenu6,'String',textcell);
+
+for i = 5:-1:0
+    if length(textcell) > i
+        for j = (i+1):-1:1
+            ind = num2str(j);
+            eval(['set(handles.text',ind ',''BackgroundColor'',EC.nod.CMm_temp(',ind,',:));']);
+            eval(['set(handles.popupmenu',ind,',''Value'',',ind,');']);
+        end
+        for j = 6:-1:i+2
+            ind = num2str(j);
+            eval(['set(handles.text',ind ',''Enable'',''off'');']);
+            eval(['set(handles.popupmenu',ind,',''Enable'',''off'');']);
+        end
+        break;
+    end    
+end
+        
+% 
+% set(handles.text1,'BackgroundColor',EC.nod.CMm_temp(1,:));
+% set(handles.text2,'BackgroundColor',EC.nod.CMm_temp(2,:));
+% set(handles.text3,'BackgroundColor',EC.nod.CMm_temp(3,:));
+% set(handles.text4,'BackgroundColor',EC.nod.CMm_temp(4,:));
+% set(handles.text5,'BackgroundColor',EC.nod.CMm_temp(5,:));
+% set(handles.text6,'BackgroundColor',EC.nod.CMm_temp(6,:));
 
 
 
