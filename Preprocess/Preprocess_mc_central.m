@@ -422,10 +422,10 @@ if (Processing(1) == 1)
         end
         
         if ((docoregoverlay || docoreghires) && ~strcmp(NormMethod,'func'))
-            SandboxFiles{end+1,1} = AnatTemplate;
-            SandboxFiles{end,2} = fullfile(Sandbox,AnatTemplate);
-            SandboxFolders{end+1,1} = AnatTemplate;
-            SandboxFolders{end,2} = fullfile(Sandbox,AnatTemplate);
+            SandboxFiles{end+1,1} = mc_GenPath(AnatTemplate);
+            SandboxFiles{end,2} = mc_GenPath(fullfile(Sandbox,AnatTemplate));
+            SandboxFolders{end+1,1} = mc_GenPath(AnatTemplate);
+            SandboxFolders{end,2} = mc_GenPath(fullfile(Sandbox,AnatTemplate));
         end
                 
         if (UseSandbox)
@@ -557,12 +557,12 @@ if (Processing(1) == 1)
             
             job{7}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])};
             
-            V = spm_vol(HiResDir);
-            vox = spm_imatrix(V.mat);
-            vox = vox(7:9);
-            vox = abs(vox);
-            job{7}.spm.util.defs.comp{2}.idbbvox.vox = vox;
-            job{7}.spm.util.defs.fnames = HiResDir;
+            %V = spm_vol(HiResDir);
+            %vox = spm_imatrix(V.mat);
+            %vox = vox(7:9);
+            %vox = abs(vox);
+            %job{7}.spm.util.defs.comp{2}.idbbvox.vox = vox;
+            job{7}.spm.util.defs.fnames = {HiResDir};
 
             job{8}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
@@ -644,9 +644,10 @@ if (Processing(1) == 1)
                 %mc_Copy(SandboxFiles{iS,2},SandboxFiles{iS,1});
                 files = dir(SandboxFolders{iS,2});
                 for iFile = 1:size(files,1)
-                    if (~strcmp(files(iFile).name,'.') && ~strcmp(files(iFile).name,'..'))
-                        mc_Copy(fullfile(SandboxFolders{iS,2},files(iFile).name),SandboxFolders{iS,1});
-                    
+                    if (~strcmp(files(iFile).name,'.') && ~ strcmp(files(iFile).name,'..'))
+                        if (~strncmp(files(iFile).name,basefile,length(basefile)) %don't copy  original basefile back
+                            mc_Copy(fullfile(SandboxFolders{iS,2},files(iFile).name),SandboxFolders{iS,1});
+                        end
                     end
                 end
             end
@@ -655,7 +656,7 @@ if (Processing(1) == 1)
     end
 
     if (UseSandbox)
-        [status, ~, ~] = rmdir(Sandbox, 's');
+        [status, ans, ans] = rmdir(Sandbox, 's');
         if (status ~= 0)
             mc_Logger('log','Unable to remove sandbox directory',2);
         end
