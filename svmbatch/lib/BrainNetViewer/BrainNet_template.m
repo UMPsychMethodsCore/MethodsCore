@@ -1,5 +1,5 @@
 % condition: net_1 < net_2
-net.label1=[1];  
+net.label1=[4];  
 net.label2=[7];
 
 Exp=['/net/data4/ADHD/UnivariateConnectomics/Results/1166_CensorZ/'];
