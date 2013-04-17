@@ -8,7 +8,7 @@ function varargout = BrainNet_LoadFiles(varargin)
 %	Mail to Author:  <a href="mingruixia@gmail.com">Mingrui Xia</a>
 %   Version 1.3;
 %   Date 20110531;
-%   Last edited 20120412
+%   Last edited 20120918
 %-----------------------------------------------------------
 %
 
@@ -36,7 +36,7 @@ function varargout = BrainNet_LoadFiles(varargin)
 
 % Edit the above text to modify the response to help BrainNet_LoadFiles
 
-% Last Modified by GUIDE v2.5 01-Apr-2013 11:37:47
+% Last Modified by GUIDE v2.5 26-Oct-2011 19:54:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -108,29 +108,58 @@ function OK_button_Callback(hObject, eventdata, handles)
 global File
 global FLAG
 global EC
-File.MF=['/home/slab/users/krishan/repos/MethodsCore/svmbatch/lib/BrainNetViewer/Data/SurfTemplate/BrainMesh_Ch2withCerebellum.nv']; %surface file
-File.NI=['/home/slab/users/krishan/repos/MethodsCore2/svmbatch/lib/BrainNetViewer/dorsalAttDef.node']; %node file
-File.NT=['/home/slab/users/krishan/repos/MethodsCore2/svmbatch/lib/BrainNetViewer/dorsalAttDef.edge']; %edge file
-File.VF=[]; %volume file
-% File.MF=get(handles.MF_edit,'string');
-% File.NI=get(handles.NI_edit,'string');
-% File.NT=get(handles.NT_edit,'string');
-% File.VF=get(handles.VF_edit,'String');
-
+File.MF=[];
+File.NI=[];
+File.NT=[];
+File.VF=[];
+File.MF=get(handles.MF_edit,'string');
+File.NI=get(handles.NI_edit,'string');
+File.NT=get(handles.NT_edit,'string');
+File.VF=get(handles.VF_edit,'String');
+if isempty(File.MF)
+    mf=0;
+else
     mf=1;
+end
+if isempty(File.NI)
+    ni=0;
+else
     ni=2;
+end
+if isempty(File.NT)
+    nt=0;
+else
     nt=4;
+end
+if isempty(File.VF)
     vf=0;
+else
+    vf=8;
+end
 
-FLAG.Loadfile=mf+ni+nt+vf; %7
+FLAG.Loadfile=mf+ni+nt+vf;
 global surf
-
-
+if FLAG.Loadfile==0
+    h=msgbox('Please select file!','Error','error');
+    uiwait(h);
+    return;
+else
+    if FLAG.Loadfile==4||FLAG.Loadfile==5|| FLAG.Loadfile == 13 %%% Edited by Mingrui Xia 20120219, add volume, node and edge mode
+        h=msgbox('Please select node file!','Error','error');
+        uiwait(h);
+        return;
+        %     elseif FLAG.Loadfile>9 %%%Edited by Mingrui Xia 20111116, add volume
+        %     and & mode
+    elseif FLAG.Loadfile == 8 || FLAG.Loadfile == 10 || FLAG.Loadfile == 12 || FLAG.Loadfile == 14
+        h=msgbox('Please select surf file!','Error','error');
+        uiwait(h);
+        return;
+    else
         surf=[];
         switch FLAG.Loadfile
             case 1
-                EC.msh.alpha=1;
                 [surf.vertex_number surf.coord surf.ntri surf.tri]=MF_load(File.MF);
+                EC.msh.alpha = 1;
             case 2
                 [surf.nsph surf.sphere surf.label]=NI_load(File.NI);
             case 3
@@ -144,48 +173,68 @@ global surf
                 [surf.nsph surf.sphere surf.label]=NI_load(File.NI);
                 surf.net=NT_load(File.NT);
             case 9
-                EC.msh.alpha=1;
                 [surf.vertex_number surf.coord surf.ntri surf.tri]=MF_load(File.MF);
                 [path, fname,ext]=fileparts(File.VF);
                 switch ext
                     case '.txt'
                         [surf.T]=load(File.VF);
                         FLAG.MAP=1;
+                    case '.gz' % Added by Mingrui, 20120611, support for .nii.gz files
+                        tmp_folder = tempdir;
+                        gunzip(File.VF,tmp_folder);
+                        filename = [tmp_folder,fname];
+                        [surf.hdr surf.mask]=VF_load(filename);
+                        FLAG.MAP=2;
+                        delete(filename);
                     otherwise
                         [surf.hdr surf.mask]=VF_load(File.VF);
                         FLAG.MAP=2;
                 end
+                EC.msh.alpha = 1;
             case 11
-                EC.msh.alpha=0.8;
                 [surf.vertex_number surf.coord surf.ntri surf.tri]=MF_load(File.MF);
                 [path, fname,ext]=fileparts(File.VF);
                 switch ext
                     case '.txt'
                         [surf.T]=load(File.VF);
                         FLAG.MAP=1;
+                    case '.gz' % Added by Mingrui, 20120611, support for .nii.gz files
+                        tmp_folder = tempdir;
+                        gunzip(File.VF,tmp_folder);
+                        filename = [tmp_folder,fname];
+                        [surf.hdr surf.mask]=VF_load(filename);
+                        FLAG.MAP=2;
+                        delete(filename);
                     otherwise
                         [surf.hdr surf.mask]=VF_load(File.VF);
                         FLAG.MAP=2;
                 end
                 [surf.nsph surf.sphere surf.label]=NI_load(File.NI);
             case 15 %%% Added by Mingrui Xia, 20100210, add volume, node and edge mode.
-                EC.msh.alpha=0.5;
                 [surf.vertex_number surf.coord surf.ntri surf.tri]=MF_load(File.MF);
                 [path, fname,ext]=fileparts(File.VF);
                 switch ext
                     case '.txt'
                         [surf.T]=load(File.VF);
                         FLAG.MAP=1;
+                    case '.gz' % Added by Mingrui, 20120611, support for .nii.gz files
+                        tmp_folder = tempdir;
+                        gunzip(File.VF,tmp_folder);
+                        filename = [tmp_folder,fname];
+                        [surf.hdr surf.mask]=VF_load(filename);
+                        FLAG.MAP=2;
+                        delete(filename);
                     otherwise
                         [surf.hdr surf.mask]=VF_load(File.VF);
                         FLAG.MAP=2;
                 end
                 [surf.nsph surf.sphere surf.label]=NI_load(File.NI);
                 surf.net=NT_load(File.NT);
-
+        end
         FLAG.LF=1;
         close(findobj('Tag','LF_fig'));
-        end
+    end
+end
 
 
 function [hdr,mask]=VF_load(filename)
@@ -214,7 +263,13 @@ function MF_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [BrainSurfPath] = fileparts(which('BrainMesh_ICBM152.nv')); %%% Edited by Mingrui Xia, 20120412, add default template path to ICBM152.
-[filename,pathname]=uigetfile({'*.nv','NetViewer Files (*.nv)';'*.mesh','BrainVISA Mesh (*.mesh)';'*.pial','FreeSurfer Mesh (*.pial)';'*.*','All Files (*.*)'},'Select brain template',[BrainSurfPath,'\BrainMesh_ICBM152.nv']); 
+
+% Edited by Mingrui Xia, 20120918, add support for BYU '*.g' file.
+[filename,pathname]=uigetfile({'*.nv','NetViewer Files (*.nv)';'*.mesh',...
+    'BrainVISA Mesh (*.mesh)';'*.pial','FreeSurfer Mesh (*.pial)';...
+    '*.g','BYU file (*.g)';'*.*','All Files (*.*)'},...
+    'Select brain template',[BrainSurfPath,'\BrainMesh_ICBM152.nv']);
+ 
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else
@@ -344,6 +399,18 @@ switch ext
         coord(1,:)=91-coord(1,:);
         coord(2,:)=91-coord(2,:);
         coord(3,:)=109-coord(3,:);
+        
+    % Edited by Mingrui Xia, 20120918, add support for BYU '*.g' file.    
+    case '.g'
+        fid=fopen(MF);
+        fscanf(fid,'%f',1);
+        vertex_number = fscanf(fid,'%f',1);
+        ntri = fscanf(fid,'%f',1);
+        fscanf(fid,'%f',3);
+        coord = fscanf(fid,'%f',[3,vertex_number]);        
+        tri = fscanf(fid,'%d',[3,ntri])';
+        tri(:,3) = -tri(:,3);
+        fclose(fid);
 end
 
 
@@ -536,24 +603,10 @@ function VF_pushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to VF_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[filename,pathname]=uigetfile({'*.nii;*.hdr;*.img','NIFTI files (*.nii,*.hdr,*.img)';'*.txt','Text files (*.txt)';'*.*','All Files (*.*)'});
+[filename,pathname]=uigetfile({'*.nii;*.hdr;*.img;*.nii.gz','NIFTI files (*.nii,*.hdr,*.img,*.nii.gz)';'*.txt','Text files (*.txt)';'*.*','All Files (*.*)'});
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else
     fpath=fullfile(pathname,filename);
     set(handles.VF_edit,'string',fpath);
 end
-
-
-% --------------------------------------------------------------------
-function uipanel1_ButtonDownFcn(hObject, eventdata, handles)
-% hObject    handle to uipanel1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes during object creation, after setting all properties.
-function uipanel1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to uipanel1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
