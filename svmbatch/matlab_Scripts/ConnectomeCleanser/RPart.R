@@ -48,7 +48,10 @@ SiteIDS = mini$SITE_ID
 
 DesignColNames = colnames(design)
 
+# Shorten Strings so writeMat is happy
+names(mini) = strtrim(names(mini),31)
+
 ## Save the results
 
 library(R.matlab)
-writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold,SiteIDS=SiteIDS,DesignColNames = DesignColNames)
+writeMat(writepath,subs=subs,design=design,CrossValidFold=CrossValidFold,SiteIDS=SiteIDS,DesignColNames = DesignColNames,master = mini)
