@@ -68,6 +68,12 @@ NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_1
 % NetworkTemplate{1}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run05.mat';
 % NetworkTemplate{2}  = '[Exp]/FirstLevel/[Subject]/[Run]/MSIT/HRF/FixDur/Congruency_NORT_new_cppi_norm/Congruency_NORT_new_cppi_norm_correctedtscore_run06.mat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Do you want to use partial correlation instead of correlation?
+%%%   1 --- yes, 0 --- no
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+network.partial = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Required Network Options:
@@ -81,6 +87,7 @@ NetworkTemplate  = '[Exp]/FirstLevel/[Subject]/[Run]/12mmGrid_19_nogm/12mmGrid_1
 %%% network.loc(only for cPPI):  0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
 %%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% 
+%%%  
 %%% network.local:  1 - Include local measurement; 0 - Do not include local measurement
 %%%
 %%% network.iter: rewiring parameter when generating random graph (each
@@ -96,6 +103,9 @@ network.datatype   = 'r';
 network.ztransform = 1;
 network.loc        = 0;
 network.positive   = 1;
+
+
+network.partial = 1;
 
 network.local = 0;
 
