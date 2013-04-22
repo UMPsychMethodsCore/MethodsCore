@@ -45,7 +45,7 @@ for iSubject = 1:size(SubjDir,1)
             if ~isempty(Output.censorvector)
                 cv = Output.censorvector;
             else
-                cv = ones(size(FD));       % No scan excluded scenario
+                cv = zeros(size(FD));       % No scan excluded scenario
             end
             save(OutputCensorVectorFile,'cv');
         end
