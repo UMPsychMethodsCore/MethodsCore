@@ -32,7 +32,7 @@ for iSubject = 1:size(SubjDir,1)
         end
         
         Output.meanFD       = mean(FD);
-        Output.censorvector = FDjudge;
+        Output.censorvector = sum(FDjudge,2);
         Output.nonzeroFD    = nnz(FDjudge);
         
         if ~isstruct(Output) && Output == -1; return; end;
@@ -42,7 +42,11 @@ for iSubject = 1:size(SubjDir,1)
             OutputCensorVectorFile = mc_GenPath(struct('Template',OutputCensorVector,...
                 'suffix','.mat',...
                 'mode','makeparentdir'));
-            cv = Output.censorvector;
+            if ~isempty(Output.censorvector)
+                cv = Output.censorvector;
+            else
+                cv = ones(size(FD));       % No scan excluded scenario
+            end
             save(OutputCensorVectorFile,'cv');
         end
         
