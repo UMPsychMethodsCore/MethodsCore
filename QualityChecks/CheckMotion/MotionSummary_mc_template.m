@@ -51,6 +51,8 @@ MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
 
+OutputCensorVector = '[Exp]/MotionSummary/RestingState_c/CensorVector_[Subject]';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
 %%% The lever arm is used to calculate a Eudclidean displacement metric for

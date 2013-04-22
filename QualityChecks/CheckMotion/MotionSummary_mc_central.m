@@ -32,14 +32,26 @@ for iSubject = 1:size(SubjDir,1)
         end
         
         Output.meanFD       = mean(FD);
-        Output.censorvector = FDjudge;
+        Output.censorvector = sum(FDjudge,2);
         Output.nonzeroFD    = nnz(FDjudge);
         
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
         
+        if exist('OutputCensorVector','var') && (~isempty(OutputCensorVector))
+            OutputCensorVectorFile = mc_GenPath(struct('Template',OutputCensorVector,...
+                'suffix','.mat',...
+                'mode','makeparentdir'));
+            if ~isempty(Output.censorvector)
+                cv = Output.censorvector;
+            else
+                cv = zeros(size(FD));       % No scan excluded scenario
+            end
+            save(OutputCensorVectorFile,'cv');
+        end
+        
         % Write out censor regressor csv
-        [pathstr file ext] = fileparts(MotionPath);
+        [pathstr, file, ext] = fileparts(MotionPath);
         fdCsv = fullfile(pathstr, 'fdOutliers.csv');
         fdFid = fopen(fdCsv, 'w');
         if fdFid == -1
@@ -48,7 +60,7 @@ for iSubject = 1:size(SubjDir,1)
         else
             if ~isempty(FDjudge)
                 ind = find(FDjudge(:) > 0);
-                [m n] = ind2sub(size(FDjudge), ind);
+                [m, n] = ind2sub(size(FDjudge), ind);
                 for i = 1:(length(m) - 1)
                     fprintf(fdFid, 'scan%d,', m(i));
                 end
