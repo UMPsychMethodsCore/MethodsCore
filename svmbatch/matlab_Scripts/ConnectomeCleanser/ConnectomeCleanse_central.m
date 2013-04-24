@@ -58,6 +58,25 @@ switch paired
     data = data(labels==1,:); % grab only the positive delta
 end
 
+%% Write out the Overall File
+
+Overall.Design.mat = s.design;
+Overall.Design.varnames = s.DesignColNames;
+
+Overall.SiteIDs = s.SiteIDS;
+
+if numel(Overall.SiteIDs)==0
+    Overall.SiteIDs = repmat('NoSites',size(s.design,1),1);
+end
+
+Overall.CrossValidFold = s.CrossValidFold;
+
+Overall.Labels = sign(s.design(:,des.FxCol));
+
+Overall.MDF = s.master;
+
+save(fullfile(outputPath,'Overall.mat'),'Overall','-v7.3');
+
 %% Loop over different sets of cross validations
 
 % expect the CrossValidFold is a nSub x nFold matrix.
@@ -66,42 +85,94 @@ end
 % in each fold
 
 for iFold = 1:size(s.CrossValidFold,2)
-    train.data = data(~logical(s.CrossValidFold(:,iFold)),:);
-    test.data = data(logical(s.CrossValidFold(:,iFold)),:);
-    train.des = s.design(~logical(s.CrossValidFold(:,iFold)),:);
-    test.des = s.design(logical(s.CrossValidFold(:,iFold)),:);
-    train.subs = s.subs(~logical(s.CrossValidFold(:,iFold)),:);
-    test.subs = s.subs(logical(s.CrossValidFold(:,iFold)),:);
 
+    %%% Partition your data
+    train_logic = ~logical(s.CrossValidFold(:,iFold));
+    test_logic = logical(s.CrossValidFold(:,iFold));
     
+    train.data = data(train_logic,:);
+    train.des = s.design(train_logic,:);
+    train.subs = s.subs(train_logic,:);
+
+    test.data = data(test_logic,:);
+    test.des = s.design(test_logic,:);
+    test.subs = s.subs(test_logic,:);
+
+    %%% Fit the model
     [c r b i] = mc_CovariateCorrection(train.data,train.des,3,[]);
     
+    %%% Write the files for training
+    
+    %%%% Grouplevel training results
+    train_Group.SiteIDs = Overall.SiteIDs(train_logic);
+    train_Group.Labels = Overall.Labels(train_logic);
+    train_Group.BetaHat = b;
+    train_Group.Design.mat = train.des;
+    train_Group.Design.varnames = s.DesignColNames;
+    
+    des_lev0 = mean(s.design,1);
+    des_lev0(:,des.FxCol) = 0;
+    des_lev1 = mean(s.design,1);
+    des_lev1(:,des.FxCol) = 1;
+    
+    train_Group.GroupEstimates.Level0.Design = des_lev0;
+    train_Group.GroupEstimates.Level0.Estimates = des_lev0 * b;
+
+    train_Group.GroupEstimates.Level1.Design = des_lev1;
+    train_Group.GroupEstimates.Level1.Estimates = des_lev1 * b;
+
+    save(fullfile(outputPath,['TrainGroup_Fold' num2str(iFold) '.mat']),'train_Group','-v7.3')
+    %%%% Corrections for training
+    
+    train_CorrectionDesign = repmat(des_lev0,size(train.des,1),1);
+    train_CorrectionDesign(:,1:2) = train.des(:,1:2);
+    train_Corrected = train_CorrectionDesign * b + r;
+
+    save(fullfile(outputPath,['TrainCorrected_Fold' num2str(iFold) '.mat']),'train_Corrected','-v7.3')
+    %%% Test Files
+    %%%% Group Level
+    
+    test_Group.SiteIDs = Overall.SiteIDs(test_logic);
+    test_Group.Labels = Overall.Labels(test_logic);
+    test_Group.Design.mat = test.des;
+    test_Group.Design.varnames = s.DesignColNames;
+
+    save(fullfile(outputPath,['TestGroup_Fold' num2str(iFold) '.mat']),'test_Group','-v7.3')
+    %%%% Test corrections
     b_nuisance = b;
     b_nuisance([1 des.FxCol],:) = []; % only leave nuisance Fx for betas and design matrices
 
-    train.des_nuisance = train.des;
-    train.des_nuisance(:,[1 des.FxCol]) = [];
-    
     test.des_nuisance = test.des;
-    test.des_nuisance(:,[1 des.FxCol]) = [];
+    test.des_nuisance(:,[1 des.FxCol]) = []; % similarly subset
+                                             % test design matrix to only nuisance predictors
     
-    train.corrected = train.data - train.des_nuisance * b_nuisance; % subtract nuisance from observed
-    test.corrected = test.data - test.des_nuisance * b_nuisance; % subtract predicted nuisance from observed
+        
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % The logic for the following comes from this:                              %
+    % Let I denote anything relating to Fx of interest                          %
+    % Let N denote anything relating to Fx of nuiance                           %
+    % Y is our data.                                                            %
+    % We presume Y = X_I*B_I + X_N*B_N + Error                                  %
+    %                                                                           %
+    % Our goal is to estimate this as if X_N was at some reference level.       %
+    % e.g. Y(ref) = X_I*B_I + X_N(ref)*B_N + Error                              %
+    % Fortunately for us, because X_N was mean centered upstream, our reference %
+    % level is all zeros. So, X_N(ref) * B_N = 0.                               %
+    %                                                                           %
+    % Thus, all we need to do to accomplish                                     %
+    % Y(ref) = X_I*BI + X_N(ref)*B_N + Error                                    %
+    %                                                                           %
+    % is Y - X_N*B_N = X_I*B_I + Error                                          %
+    % and since X_N(ref)*B_N = 0                                                %
+    % Y - X_N*B_N = X_I * B_I + Error + X_N(ref)*B_N                            %
+    %                                                                           %
+    % so we will do this.                                                       %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
     
-    train = rmfield(train,'data');
-    test = rmfield(test,'data');
-    train.labels = sign(train.des(:,2));
-    test.labels = sign(test.des(:,2));
-    
-    Folds.labels = sign(s.design(:,2));
-    Folds.partition  = s.CrossValidFold(:,iFold);
-    Folds.train = train;
-    Folds.test = test;
-    Folds.subs = s.subs;
-    Folds.CrossValidFold = s.CrossValidFold;
-    Folds.SiteIDS = s.SiteIDS;
-    Folds.DesignColNames = s.DesignColNames;
-    
-    save(fullfile(outputPath,['Fold' num2str(iFold) '.mat']),'Folds','-v7.3')
+    test_Corrected = test.data - test.des_nuisance * b_nuisance; % subtract predicted nuisance from observed
+                                                                 
+    save(fullfile(outputPath,['TestCorrected_Fold' num2str(iFold) '.mat']),'test_Corrected','-v7.3')
+
         
 end
