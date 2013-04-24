@@ -94,6 +94,9 @@ if(FisherZ==1){
   superflatmat = fisherz(superflatmat)
 }
 
+## Clean up anything out of range
+superflatmat[abs(superflatmat) > 2] = NA
+
 ## Do the modeling
 
 ### LME Approach
