@@ -45,6 +45,8 @@ switch paired
     data = mc_connectome_clean(data);
     if ZTrans == 1
         data = mc_FisherZ(data);
+        data(abs(data) > 2) = NaN;
+        data = mc_connectome_clean(data);
     end
 % if paired, need to calculate deltas
   case 1
@@ -53,6 +55,8 @@ switch paired
     data = mc_connectome_clean(data);
     if ZTrans == 1
         data = mc_FisherZ(data);
+        data(abs(data) > 2) = NaN;
+        data = mc_connectome_clean(data);
     end
     [data labels] = mc_calc_deltas_paired(data, savail, pairedContrast);
     data = data(labels==1,:); % grab only the positive delta
