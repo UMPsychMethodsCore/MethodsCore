@@ -51,7 +51,7 @@ if(nrow(master) != sum(filecheck$exist)){
 
 
 ### Make sure all of the factors in your model are defined
-vars = switch(model.approach,lm = all.vars(model.formula)[-1], lme = c(all.vars(model.random),all.vars(model.fixed)[-1]))
+vars =  c(all.vars(model.random),all.vars(model.fixed)[-1])
 
 miniframe = master[,vars]
 
