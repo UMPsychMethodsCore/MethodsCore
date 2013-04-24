@@ -87,7 +87,7 @@ for (iSub in 1:nSub){
 
 ## Save what you've loaded so far
 
-save(superflatmat,superflatmat,file=file.path(outputPath,'superflat.RData'))
+save(superflatmat,file=file.path(outputPath,'superflat.RData'))
 
 ## Convert the R's to z's
 if(FisherZ==1){
