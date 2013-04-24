@@ -49,7 +49,9 @@ SiteIDS = mini$SITE_ID
 DesignColNames = colnames(design)
 
 # Shorten Strings so writeMat is happy
-names(mini) = strtrim(names(mini),31)
+names(mini) = strtrim(names(mini),29)
+names(mini) = make.unique(names(mini))
+names(mini) = gsub('.','_',names(mini),fixed=TRUE)
 
 ## Save the results
 
