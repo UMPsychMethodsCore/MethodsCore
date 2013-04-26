@@ -142,54 +142,15 @@ ParList = { ...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% User Specified Regressors 
-%%% The value in the first column controls the master file method
-%%% The value in the second column controls the subject-specific motion file method.
+%%% The value in the first column controls the master file method (see
+%%% advanced section).
+%%% The value in the second column controls the subject-specific regressor 
+%%% file method (see RegFileTemplates below).
 %%% 0 = don't use method
 %%% 1 = use method
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegOp = [0 1];
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Location of the regressor CSV file
-%%%  RegFile is created by /Exp/RegLevel1/RegLevel2.csv
-%%%
-%%%  Variables you can use in your template are:
-%%%       Exp         = path to your experiment directory
-%%%       RegDataName = regressor CSV file name
-%%%        *          = wildcard (can only be placed in final part of template)
-%%% Examples:
-%%% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegTemplate = '[Exp]/MasterData/[RegDataName].csv';
-RegDataName = 'MAS_motionregressors';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Number of rows and columns to skip when reading the regressor csv file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegDataSkipRows = 1;
-RegDataSkipCols = 1;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Column number in the Regressor file where your subject numbers are located
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegSubjColumn = [2];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Column number in the Regressor file where you run numbers are located
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegRunColumn = [3];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% List of regressor names, and column numbers for values from the regressor file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegList = { 
-    'x',5;
-    'y',6;
-    'z',7;
-    'r',8;
-    'p',9;
-    'y',10;
-};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of motion regressor files generated during realignment stage 
@@ -206,6 +167,14 @@ RegList = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
 MotRegName     = 'mcflirt*.dat';
+
+RegFileTemplates = {
+    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/ppi.csv',Inf;
+    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/mcflirt*.dat',Inf;
+    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/fdOutliers.csv',Inf;
+};
+
+RegDerivatives = [2]; %index of each file to calculate and include derivatives for
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Cell array specifying the motion regressor names and column numbers for
@@ -240,11 +209,6 @@ ContrastList = {
     'AllTrials'   .5 .5   [0 0 0 0 0 0];
 
 };
-
-
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -375,6 +339,48 @@ StartOp=1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastRunWeights = {
     };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Location of the regressor CSV file for Masterfile method of regressor
+%%%  loading
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp         = path to your experiment directory
+%%%       RegDataName = regressor CSV file name
+%%%        *          = wildcard (can only be placed in final part of template)
+%%% Examples:
+%%% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegTemplate = '[Exp]/MasterData/[RegDataName].csv';
+RegDataName = 'MAS_motionregressors';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Number of rows and columns to skip when reading the regressor csv file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegDataSkipRows = 1;
+RegDataSkipCols = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where your subject numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegSubjColumn = [2];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where you run numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegRunColumn = [3];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of regressor names, and column numbers for values from the regressor file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegList = { 
+    'x',5;
+    'y',6;
+    'z',7;
+    'r',8;
+    'p',9;
+    'y',10;
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SPM Default Values for First Level analysis

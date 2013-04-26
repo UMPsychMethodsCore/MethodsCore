@@ -509,33 +509,109 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         SPM.Sess(iSess).C.name = {}; 
     end
 
+    RegPresentInf = {};
+    CalcNumReg = 0;
+    CalcNumRegRun = zeros(NumRun,1);
     %% Store Motion regressors for all runs in 1 subject  
     if (RegOp(2) == 1)
-    if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
-        for iRun=1:NumRun
-            Run           = RunDir{iRun};
-            MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-            MotRegressors = load(MotRegName2);
-            mc_Logger('log',sprintf('Found %d motion regressors',size(MotRegressors,2)),3);
-            fprintf('Found %d motion regressors\n',size(MotRegressors,2));
-            if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
-                SPM.Sess(iRun).C.C    = MotRegressors(1:NumScan(iRun),:);
-                SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
-            else
-                MotReg = MotRegressors(1:NumScan(iRun),:);
-                for iMot=1:size(MotRegList,1)
-                    SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
-                    SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
+        %MotRegTemplate kept for backwards compatibility
+        if ( exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate) )
+            for iRun=1:NumRun
+                Run           = RunDir{iRun};
+                MotRegName2    = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                MotRegressors = load(MotRegName2);
+                if (iRun == 1)
+                    CalcNumReg = CalcNumReg + size(MotRegressors,2);
                 end
-            end                  
+                CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + size(MotRegressors,2);
+                for iReg = 1:size(MotRegressors,2)
+                    RegPresentInf{iRun,end+1} = 1;
+                end
+                mc_Logger('log',sprintf('Found %d motion regressors',size(MotRegressors,2)),3);
+                fprintf('Found %d motion regressors\n',size(MotRegressors,2));
+                if ( exist('MotRegList','var') ~= 1 || isempty(MotRegList) )
+                    SPM.Sess(iRun).C.C    = MotRegressors(1:NumScan(iRun),:);
+                    SPM.Sess(iRun).C.name = {'x', 'y', 'z', 'p', 'y', 'r'};
+                else
+                    MotReg = MotRegressors(1:NumScan(iRun),:);
+                    for iMot=1:size(MotRegList,1)
+                        SPM.Sess(iRun).C.C = [ SPM.Sess(iRun).C.C MotReg(:,MotRegList{iMot,2}) ];
+                        SPM.Sess(iRun).C.name{1,iMot} = MotRegList{iMot,1};
+                    end
+                end
+            end
         end
-    end
+        %new stuff to read regressors from a series of files
+        DerivFlagFile = [];
+        if (exist('RegFileTemplates','var') && ~isempty(RegFileTemplates))
+            NumRegPerFile = zeros(NumRun,size(RegFileTemplates,1));
+            for iFile = 1:size(RegFileTemplates,1)
+                DerivFlag = any(RegDerivatives==iFile);
+                for iRun = 1:NumRun
+                    Run = RunDir{iRun};
+                    File = mc_GenPath(struct('Template',RegFileTemplates{iFile,1},'mode','check'));
+                    Regressors = load(File);
+                    NumRegPerFile(iRun,iFile) = size(Regressors,2);
+                    CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + size(Regressors,2) + DerivFlag*size(Regressors,2);
+                end
+            end
+            NumRegPerFile = max(NumRegPerFile);
+            
+            for iFile = 1:size(RegFileTemplates,1)
+                DerivFlag = any(RegDerivatives==iFile);
+                DerivFlagFile(iFile) = DerivFlag;
+                DerivValue = ones(DerivFlag);
+                CurrentReg = CalcNumReg;
+                for iRun = 1:NumRun
+                    Run = RunDir{iRun};
+                    File = mc_GenPath(struct('Template',RegFileTemplates{iFile,1},'mode','check'));
+                    Regressors = load(File);
+                    rs = size(Regressors,2);
+                    if (rs<NumRegPerFile(iFile))
+                        numz = NumRegPerFile(iFile)-rs;
+                        Regressors(:,end+1:end+numz) = zeros(NumScan(iRun),numz);
+                    end
+                    RegColumns = RegFileTemplates{iFile,2};
+                    if (isinf(RegColumns))
+                        RegColumns = size(Regressors,2);
+                    end
+                    if (iRun == 1)
+                        CalcNumReg = CalcNumReg + RegColumns + RegColumns*DerivFlag;
+                    end
+                    NonZeroRegColumns = size(Regressors,2);
+                    for iReg = CurrentReg+1:CurrentReg+RegColumns
+                        tempReg = Regressors(1:NumScan(iRun),iReg-CurrentReg);
+                        tempRegD = [];
+                        if (DerivFlag)
+                            tempRegD = diff(tempReg);
+                            tempRegD = resample(tempRegD,size(tempReg,1),size(tempRegD,1));
+                        end
+                        if (any(tempReg-tempReg(1))) %regressor not constant so ok
+                            SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C tempReg tempRegD];
+                            SPM.Sess(iRun).C.name{1,end+1} = sprintf('File_%d_Reg_%d',iFile,iReg-CurrentReg);
+                            if (DerivFlag)
+                                SPM.Sess(iRun).C.name{1,end+1} = sprintf('File_%d_Reg_%d_deriv',iFile,iReg-CurrentReg);
+                            end
+                            RegPresentInf{iRun,iReg} = [1 1*DerivValue];
+                        else
+                            %adjust condpresent stuff for missing regressor
+                            RegPresentInf{iRun,iReg} = [Inf Inf*DerivValue];
+                            NonZeroRegColumns = NonZeroRegColumns - 1;
+                        end
+                    end
+                    mc_Logger('log',sprintf('Found %d non-constant regressors in file %s.  Using %d of them.',NonZeroRegColumns,File,min(NonZeroRegColumns,RegColumns)));
+                    fprintf(1,'Found %d non-constant regressors in file %s.  Using %d of them.\n',NonZeroRegColumns,File,min(NonZeroRegColumns,RegColumns));
+                end
+            end
+        end
     end
     
 
     %% case where there are regressors
     if (NumReg > 0 && RegOp(1) == 1)
-        
+        CurrentReg = CalcNumReg;
+        CalcNumReg = CalcNumReg + NumReg;
+        CalcNumRegRun(:) = CalcNumRegRun(:) + NumReg;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
         if RegOp(1) == 1 % case where you preset regressors
 
@@ -557,6 +633,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             fprintf('Loaded %d regressors from %s\n',NumReg,RegFile);
             for iRun=1:NumRun
                 for iReg = 1:NumReg
+                    RegPresentInf{iRun,iReg+CurrentReg} = 1;
                     TempRegData = RegData(find(RegData(:,RegRunColumn)==RunList(iRun)),:);
                     RegDataCol = TempRegData(1:NumScan(iRun),RegList{iReg,2}); % RegDataCol now contains the column of regressors for regressor#iReg for run#iRun
                     SPM.Sess(iRun).C.C = [SPM.Sess(iRun).C.C RegDataCol]; % assign this RegDataCol to appropriate column in the SPM variable %%Joe, needs offset
@@ -747,6 +824,9 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     end
     
     for iContrast = 1: NumContrast
+        if (size(ContrastList,2)<NumCond+2)
+            ContrastList{iContrast,NumCond+2} = [];
+        end
         if (size(ContrastRunWeights,1)<iContrast || isempty(ContrastRunWeights{iContrast}))
             ContrastRunWeights{iContrast} = ones(1,NumRun);
         end
@@ -760,7 +840,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
             end
         end
         
-        CondPresentInf = [cell2mat(CondPresentInf) ones(NumRun,size(SPM.Sess(1).C.C,2))];
+        %CondPresentInf = [cell2mat(CondPresentInf) ones(NumRun,size(SPM.Sess(1).C.C,2))]; %Fix number of regressors here
+        CondPresentInf = [cell2mat(CondPresentInf) cell2mat(RegPresentInf)];
         RunWeighting = repmat(ContrastRunWeights{iContrast}',1,size(CondPresentInf,2)).*CondPresentInf;
         RunWeighting = reshape(RunWeighting',1,prod(size(RunWeighting)));
         RunWeighting = RunWeighting(find(~isnan(RunWeighting)));
@@ -769,6 +850,27 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         ContrastName{iContrast} = ContrastList{iContrast,1};
         ContrastBase=[];
 
+        TotalReg = sum(NumRegPerFile);
+        CumReg = [0 cumsum(NumRegPerFile)];
+        %NewContrast = zeros(1,TotalReg);
+        NewContrast = [];
+        if (size(ContrastList{iContrast,NumCond+2},2) < TotalReg) 
+            %contrast values for all regressors are not specified
+            for iFile = 1:size(NumRegPerFile,2)
+                %loop over files and compare number of regressors
+                if (size(ContrastList{iContrast,NumCond+2},2) >= CumReg(iFile+1))
+                    %there are at least as many entries in contrast as
+                    %regressors from this file, so check DerivFlag
+                    if (DerivFlagFile(iFile))
+                        %double up on contrast values
+                        TempContrast = ContrastList{iContrast,NumCond+2}(CumReg(iFile)+1:CumReg(iFile+1));
+                        NewContrast(1,end+1:end+size(TempContrast,2)) = TempContrast;
+                    else 
+                        NewContrast(1,end+1:end+NumRegPerFile(iFile)) = 0;
+                    end
+                end
+            end
+        end
         for iRun=1:NumRun
             for iCond=1:NumCond-CondModifier
                 CondContrast = ContrastList{iContrast, iCond+1};
@@ -778,14 +880,20 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 end
             end % loop through conditions
             % do motion regressors from file if any
-            if (RegOp(2) == 1)
-            if exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate)
-                Run          = RunDir{iRun};
-                MotRegName2   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
-                MotReg       = load( MotRegName2 );
-                zeroPad      = zeros( 1, size(MotReg,2) );
-                ContrastBase = [ContrastBase zeroPad];
-            end
+            if (RegOp(2) == 1) %this is where we add regressor contrast values
+                if exist('MotRegTemplate','var') == 1 && ~isempty(MotRegTemplate)
+                    Run          = RunDir{iRun};
+                    MotRegName2   = mc_GenPath( struct('Template',MotRegTemplate,'mode','check') );
+                    MotReg       = load( MotRegName2 );
+                    zeroPad      = zeros( 1, size(MotReg,2) );
+                    ContrastBase = [ContrastBase zeroPad];
+                end
+                clrs = size(ContrastList{iContrast,NumCond+2},2);
+                if (clrs < CalcNumRegRun(iRun))
+                    numz = CalcNumRegRun(iRun) - clrs;
+                    tempContrast = [ContrastList{iContrast,NumCond+2} zeros(1,numz)];
+                end
+                ContrastBase = horzcat(ContrastBase,tempContrast);
             end
             % do user specified regressors
             if (NumReg > 0 && RegOp(1) == 1)
@@ -913,7 +1021,7 @@ end % loop through subjects
 
 if (UseSandbox) %should only run if sandbox is being used
 shellcommand = sprintf('rm -rf %s',Sandbox);
-[status, ~, ~] = rmdir(Sandbox,'s'); %updated to use matlab command instead of system call
+[status, ans, ans] = rmdir(Sandbox,'s'); %updated to use matlab command instead of system call
 if (status ~= 0)
     mcWarnings = mcWarnings + 1;
     mc_Logger('log','Unable to remove sandbox directory',2);
