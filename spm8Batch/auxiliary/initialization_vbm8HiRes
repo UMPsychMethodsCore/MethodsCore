@@ -15,6 +15,17 @@ coregPATH=anatomy/vbm8/
 
 outputName=vbm8_
 
+# erosion flag
+ 
+EROSIONLAST=1
+EROSIONLASTOPT=
+
+# Erosion default factors
+
+mcOPT="-s 5 -sub 0.333"
+WMEROSION=2
+CSFEROSION=1
+
 #
 # all done
 #

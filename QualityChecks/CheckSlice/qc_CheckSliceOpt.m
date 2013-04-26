@@ -57,7 +57,6 @@ for i = 1:nsubjects
 end
 
 outlierTextFile.Template = Opt.OutlierText;
-outlierTextFile.mode = 'makeparentdir';
 outlierTextFile = mc_GenPath(outlierTextFile);
 fid = fopen(outlierTextFile,'w');
 if fid == -1

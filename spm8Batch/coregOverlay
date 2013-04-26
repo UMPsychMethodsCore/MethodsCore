@@ -43,7 +43,7 @@ thisDir=`dirname $theCommand`
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
 #allowedOptions="aDdfMnOoRrstUvw"
-allowedOptions="aDdfMnOorstUvw"
+allowedOptions="aBDdfMnOorstUvw"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -149,7 +149,8 @@ do
 	echo 
 	echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
 	echo
-	exit 1
+	SPM8BATCH_ERORR_CODE=65
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
     #
     # Find the first run to coregister to. It can be either nii or nii_gz

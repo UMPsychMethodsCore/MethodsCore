@@ -71,18 +71,18 @@ FDLeverArm = 50;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FDcritera is a threshold value.  A censor vector is created for each
-%%% scan that exceeds the FDcriteria.  
+%%% frame that exceeds the FDcriteria.  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FDcriteria = 0.2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Other scans to exclude.
-%%% ScansBefore is the number of scans before a censored scan to create
-%%% sensor vectors as well.  ScansAfter is the number of scans after a
-%%% censored scan to create sensor vectors as well.
+%%% Other frames to exclude.
+%%% FramesBefore is the number of frames before a censored frame to create
+%%% sensor vectors as well.  FramesAfter is the number of frames after a
+%%% censored frame to create sensor vectors as well.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ScansBefore = 2;
-ScansAfter = 1;
+FramesBefore = 2;
+FramesAfter = 1;
 
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
