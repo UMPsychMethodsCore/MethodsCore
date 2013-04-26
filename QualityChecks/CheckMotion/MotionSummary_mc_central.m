@@ -59,13 +59,6 @@ for iSubject = 1:size(SubjDir,1)
             fprintf(1, 'Check permissions for path: %s\n', pathstr);
         else
             if ~isempty(FDjudge)
-                ind = find(FDjudge(:) > 0);
-                [m, n] = ind2sub(size(FDjudge), ind);
-                for i = 1:(length(m) - 1)
-                    fprintf(fdFid, 'frame%d,', m(i));
-                end
-                fprintf(fdFid, 'frame%d\n', m(end));
-
                 for i = 1:size(FDjudge, 1)
                     for k = 1:(size(FDjudge, 2) - 1)
                         fprintf(fdFid, '%d,', FDjudge(i, k));
