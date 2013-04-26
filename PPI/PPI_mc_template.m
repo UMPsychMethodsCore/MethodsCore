@@ -5,26 +5,68 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS/';
+Exp = '/data/testdata/PPI/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path where your logfiles will be stored
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LogTemplate = '[Exp]/Logs';
 
-ModelTemplate = '[Exp]/FirstLevel/[Subject]/[Model]/SPM.mat';
-Model = 'HARIRI';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where the original First Level model resides.  This model will be
+%%% used to extract the VOI data to calculate the PPI regressors.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ModelTemplate = '[Exp]/FirstLevel/[Subject]/MV/SPM.mat';
 
-OutputTemplate = '[Exp]/PPI/[Model]/[ROI].csv';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Optional output path for a CSV file collating all subjects/runs into a
+%%% single file. If left blank it will only write out CSV files in each
+%%% individual run folder within each subject.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+OutputTemplate = '[Exp]/PPI/HARIRI/[ROI].csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-      '5001/Tx1',50011,[1 2];
-      '5028/Tx1',50281,[2];
-      '5029/Tx1',50291,[1 2];
+      'subject01',1,[1 2];
+};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% A list of run folders where the script can find the images to use
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RunDir = {
+	'run_01/';
+	'run_02/';
+};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Path where your images are located
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp      = path to your experiment directory
+%%%       iSubject = index for subject
+%%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%%       Run      = name of run from RunDir (using iRun as index of row)
+%%%        *       = wildcard (can only be placed in final part of template)
+%%% Examples:
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of conditions in your model
+%%% NOTE: These names MUST match the condition names used in your original
+%%% first level model.  In the event of missing conditions, the script will
+%%% attempt to determine which conditions are present in each subjects 
+%%% model based on condition name.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ConditionName = {
+    'check1';
+    'check2';
+    'check3';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,16 +82,19 @@ ContrastNum = 1;
 %%% include all voxels in your ROI (unthresholded) this should be set to 1
 %%% Similarly, ContrastExtent is a minimum cluster size extent threshold.
 %%% When extracting unthresholded data, this should be 0.
+%%% ContrastCorrection sets the correction level of the contrast threshold.
+%%% Allowed values are 'none' and 'FWE'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastThresh = 1;
 ContrastExtent = 0;
+ContrastCorrection = 'none';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PPIType is the type of the analysis to perform. Valid settings are:
 %%%	'standard'	this is a standard SPM PPI (contrast of conditions)
 %%%	'gPPI'		this is a generalized PPI (each condition seperate)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PPIType = 'standard';
+PPIType = 'gPPI';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ROIs is a list of different ROIs that you would like to extract from
@@ -58,13 +103,14 @@ PPIType = 'standard';
 %%% field is either the path to an ROI image file (for images) or coordinates
 %%% of the center of your ROI (for sphere or cluster). The next field is
 %%% blank for images or clusters, but should be the radius of your ROI for
-%%% spheres. The final field defines the contrast of conditions for your
-%%% PPI (in standard mode) or should be blank for generalized mode.
+%%% spheres. 
+%%% The final field defines your contrast of conditions (in standard mode)
+%%% by using values of 0, 1, and -1.  In gPPI mode, this field should
+%%% contain only 0s and 1s and determines which conditions to include.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIs = {
-	'ROI1',['/path/to/ROI.img'],[],[0 1 -1];
-	'ROI2',[-2 20 8],[5],[0 1 -1];
-}
+	'scripttest_pmp_condpresent',[8 42 -12],[5],[1 1 0];
+};
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -87,19 +133,7 @@ EOIAdjust = 0;
 %%% spm_defaults.m for a list of possible fields to set.  The second
 %%% element is the value you want to set for that default.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The main default that impacts first level analysis is the implicit 
-%%% masking threshold. The default is 0.8 which means that voxels that have
-%%% a value of less than 80% of the grand mean will be masked out of the
-%%% analysis.  This default value can be problematic in some susceptibility
-%%% prone areas like OFC.  A more liberal value like 0.5 can help to keep
-%%% these regions in the analysis.  If you set this value very low, you'll
-%%% want to use an explicit mask to exclude non-brain regions from
-%%% analysis.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 spmdefaults = {
-    'mask.thresh'   0.8;
 };
 
 global mcRoot;
