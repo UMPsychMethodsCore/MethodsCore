@@ -56,7 +56,12 @@ end
 % Prepare the batch processes
 %
 
-UMBatchPrep
+results = UMBatchPrep;
+
+if UMCheckFailure(results)
+  exit(abs(results));
+end
+
 
 % - - - - - - - END OF PART I - - - - - - - - - - - - - - - - -
 

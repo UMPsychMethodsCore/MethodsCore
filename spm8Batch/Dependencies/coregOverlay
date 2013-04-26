@@ -1,0 +1,17 @@
+coregOverlay
+auxiliary/commonCode_CoReg_01
+auxiliary/coregResliceStatusMsg
+auxiliary/coregPart_01
+auxiliary/coregPart_02
+auxiliary/checkCoRegParts
+auxiliary/coregDirectoryErrorCheck
+auxiliary/coregFindSourceAndMove
+auxiliary/coregPrepOtherImages
+auxiliary/initialization_coregOverlay
+auxiliary/setCoRegPath
+parts/coreg_part_1.m
+parts/coreg_part_2.m
+auxiliary/help/coregOverlay_Help
+auxiliary/help/help_coregOverlay_Options
+auxiliary/help/help_case_coreg_path
+matlabScripts/UMBatchCoReg.m

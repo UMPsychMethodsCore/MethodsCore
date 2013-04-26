@@ -21,7 +21,6 @@ if isempty(checkedFiles)
 end
 
 outlierTextFile.Template = Opt.OutlierText;
-outlierTextFile.mode = 'makeparentdir';
 outlierTextFile = mc_GenPath(outlierTextFile);
 fid = fopen(outlierTextFile,'w');
 fprintf(fid,'SLICE WALL OF SHAME\n');

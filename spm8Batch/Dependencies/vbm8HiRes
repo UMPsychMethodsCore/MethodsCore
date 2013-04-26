@@ -1,0 +1,11 @@
+vbm8HiRes
+auxiliary/commonCode_VBM8_01
+auxiliary/vbm8_part_01
+auxiliary/coregDirectoryErrorCheck
+auxiliary/vbm8FindSourceAndMove
+auxiliary/help/help_vbm8HiRes_Options
+auxiliary/initialization_vbm8HiRes
+auxiliary/help/vbm8HiRes_Help
+parts/vbm8_part_01.m
+parts/vbm8_part_02.m
+matlabScripts/UMBatchVBM8.m

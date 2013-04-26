@@ -1,10 +1,8 @@
-subject,path,image,image,image,image,factor,factor,factor,cov,factor,cov,cov
-pre,post,HiA,HiF,LoA,LoF,Patient,Control,Patient Control,age,LL SS,stai_drug,stai_placebo
-sub1A/drug,sub1A/placebo,1,2,3,4,1,0,1,21,1,24,69
-sub2A/drug,sub2A/placebo,1,2,3,4,1,0,1,29,2,29,9
-sub3A/drug,sub3A/placebo,1,2,3,4,1,0,1,24,2,17,42
-sub4A/drug,sub4A/placebo,1,2,3,4,1,0,1,30,1,17,68
-sub5A/drug,sub5A/placebo,1,2,3,4,0,1,2,38,2,76,23
-sub6A/drug,sub6A/placebo,1,2,3,4,0,1,2,18,1,63,26
-sub7A/drug,sub7A/placebo,1,2,3,4,0,1,2,34,1,37,28
-sub8A/drug,sub8A/placebo,1,2,3,4,0,1,2,28,2,44,62
+path,path,factor,factor,factor,factor,cov,cov,cov
+Pre,Post,Patient,Control,Patient Control,LL SS,age,stai_pre,stai_post
+C001_scan1,C001_scan2,0,1,2,1,21,24,69
+C002_scan1,C002_scan2,0,1,2,2,29,29,9
+C003_scan1,C003_scan2,0,1,2,2,24,17,42
+P001_scan1,P001_scan2,1,0,1,1,30,17,68
+P002_scan1,P002_scan2,1,0,1,2,38,76,23
+P003_scan1,P003_scan2,1,0,1,1,18,63,26
