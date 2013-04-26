@@ -11,17 +11,36 @@
 %
 % function UMCheckFailure(results)
 %
+% Input:
+% 
+%    results < 0 then error, else not.
+% 
+% Output (using logical output essentially)
+% 
+%    errorresults  = 0, success
+%                  = 1, failure 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-function UMCheckFailure(results)
+function errorresults = UMCheckFailure(results)
 
 global UMBatchProcessName
 
-if results == -1
-  fprintf('* * * * * FAILURE * * * *\n')
-  fprintf('     %s failed.\n',UMBatchProcessName);
-  fprintf('* * * * * FAILURE * * * *\n')
+% All error code will return negative numbers.
+
+[dbStruct] = dbstack;
+
+if results < 0
+  fprintf('* * * * * FAILURE * * * *\n\n')
+  fprintf('     %s failed in %s.\n\n',UMBatchProcessName,dbStruct(min([2 length(dbStruct)])).name);
+  fprintf('* * * * * FAILURE * * * *\n\n       EXIT MATLAB\n\n')
+  errorresults = 1;
+  UMBatchAbort;
+  exit(abs(results));
 end
+
+% no error
+
+errorresults = 0;
 
 return
 

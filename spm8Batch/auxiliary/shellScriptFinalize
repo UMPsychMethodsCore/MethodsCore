@@ -1,8 +1,27 @@
+#
+# Check the status of MATLAB if we were calling matlab
+#
+
+echo "JOBSTATUS=\"SUCCESS\""                                 >> ${FULLSCRIPTNAME}.sh
+echo                                                         >> ${FULLSCRIPTNAME}.sh
+echo "if [ \"\${MATLAB_BASED_PROCESS}\" == \"1\" ]"          >> ${FULLSCRIPTNAME}.sh
+echo "then"                                                  >> ${FULLSCRIPTNAME}.sh
+echo "    if [ \"\${MATLAB_RETURN_CODE}\" != \"0\" ] "       >> ${FULLSCRIPTNAME}.sh
+echo "    then"                                              >> ${FULLSCRIPTNAME}.sh
+echo "	JOBSTATUS=\"MATLAB_FAILED:\${MATLAB_RETURN_CODE}\""  >> ${FULLSCRIPTNAME}.sh
+echo "    fi"                                                >> ${FULLSCRIPTNAME}.sh
+echo "fi"                                                    >> ${FULLSCRIPTNAME}.sh
+
+echo "if [ ! -z \"${UMSTREAM_STATUS_FILE}\" ] "              >> ${FULLSCRIPTNAME}.sh
+echo "then"                                                  >> ${FULLSCRIPTNAME}.sh
+echo "   echo \"${thisCommand} \${JOBSTATUS}, attempted at : ${theDate}\" >> \${UMSTREAM_STATUS_FILE}" >> ${FULLSCRIPTNAME}.sh
+echo "fi"                                                    >> ${FULLSCRIPTNAME}.sh
+
 # Automatic emailer.
 
 if [ "${USEREMAIL}" != "NOMAIL" ]
 then
-  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh ${USEREMAIL}
+  mailJob.sh ${SCRIPTNAME} ${FULLSCRIPTNAME}.sh "\${JOBSTATUS}" ${USEREMAIL}
 fi
 
 echo                                                                                   >> ${FULLSCRIPTNAME}.sh
@@ -33,8 +52,12 @@ echo "# ${execDIR}"                                                             
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 
 BATCHVERSION=`cat ${thisDir}/.spm8BatchVersion`
+[[ -f ${thisDir}/../.local/CurrentVersionSHA ]] && mcSHA=`cat ${thisDir}/../.local/CurrentVersionSHA`
+[[ -f ${thisDir}/../.local/mc_releasetag ]] && mc_releasetag=`cat ${thisDir}/../.local/mc_releasetag`
 
 echo "# spm8Batch Version : ${BATCHVERSION}"                                           >> ${FULLSCRIPTNAME}.sh
+echo "# MethodsCore Release Tag : ${mc_releasetag}"                                    >> ${FULLSCRIPTNAME}.sh
+echo "# MethodsCore Repository SHA-ID: $mcSHA"                                         >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh
 echo "# All done"                                                                      >> ${FULLSCRIPTNAME}.sh
 echo "#"                                                                               >> ${FULLSCRIPTNAME}.sh

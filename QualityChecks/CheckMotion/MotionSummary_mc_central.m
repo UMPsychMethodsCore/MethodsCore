@@ -25,10 +25,10 @@ for iSubject = 1:size(SubjDir,1)
         [pathstr,name,ext] = fileparts(MotionPath);
         if any(strcmp(ext,{'.par','.dat'}))
             Output = euclideanDisplacement(MotionParameters,LeverArm);
-            [FD FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, ScansBefore, ScansAfter);
+            [FD FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         else
             Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
-            [FD FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, ScansBefore, ScansAfter);
+            [FD FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         end
         
         Output.meanFD       = mean(FD);
@@ -59,13 +59,6 @@ for iSubject = 1:size(SubjDir,1)
             fprintf(1, 'Check permissions for path: %s\n', pathstr);
         else
             if ~isempty(FDjudge)
-                ind = find(FDjudge(:) > 0);
-                [m, n] = ind2sub(size(FDjudge), ind);
-                for i = 1:(length(m) - 1)
-                    fprintf(fdFid, 'scan%d,', m(i));
-                end
-                fprintf(fdFid, 'scan%d\n', m(end));
-
                 for i = 1:size(FDjudge, 1)
                     for k = 1:(size(FDjudge, 2) - 1)
                         fprintf(fdFid, '%d,', FDjudge(i, k));
