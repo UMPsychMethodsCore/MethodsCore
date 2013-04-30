@@ -125,6 +125,16 @@ design=model.matrix(rhs,master)
 
 ## Write out the results
 
+varnames = colnames(design)
+
+varnames = strtrim(varnames,29)
+varnames = make.unique(varnames)
+varnames = gsub('.','_',varnames,fixed=TRUE)
+
+names(master) = strtrim(names(master),29)
+names(master) = make.unique(names(master))
+names(master) = gsub('.','_',names(master),fixed=TRUE)
+
 
 
 res = writeMat(file.path(outputPath,'Results.mat'),
@@ -132,7 +142,7 @@ res = writeMat(file.path(outputPath,'Results.mat'),
   typical_Lev1 = typical.Lev1,
   design = design,
   master = master,
-  varnames = colnames(design))
+  varnames = varnames)
 
 chunk = 100
 
