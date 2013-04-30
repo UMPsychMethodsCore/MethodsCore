@@ -51,6 +51,7 @@ if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
+NV_m_LF_Callback;
 end
 % End initialization code - DO NOT EDIT
 
@@ -3478,6 +3479,7 @@ function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uitoggletool5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+<<<<<<< HEAD
 
 
 % --- Executes during object deletion, before destroying properties.
@@ -3512,3 +3514,5 @@ else
     fprintf(fid,'%f %f %f]',Colormap(end,:));
     fclose(fid);
 end
+=======
+>>>>>>> parent of 389e75b... Commit
