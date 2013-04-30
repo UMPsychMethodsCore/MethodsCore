@@ -130,11 +130,23 @@ switch network.datatype
                                 
                 NetworkParameters = load(NetworkPath,'rMatrix');
                 NetworkRvalue     = NetworkParameters.rMatrix;
-                if (network.ztransform == 1)
-                    NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
-                else
-                    NetworkValue  = NetworkRvalue;
+                
+                                
+                NetworkRvalue(isnan(NetworkRvalue))=0;     % Exclude the NaN elments
+                
+                switch network.partial
+                    case 0
+                        if (network.ztransform == 1)
+                            NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
+                        else
+                            NetworkValue  = NetworkRvalue;
+                        end
+                        
+                    case 1                  % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
+                        NetworkValue = pinv(NetworkRvalue);
+           
                 end
+                
                 
                 if (network.positive == 1)
                     NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
@@ -142,9 +154,8 @@ switch network.datatype
                     NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
                 end
                 
-                NetworkValue(isnan(NetworkValue))=0;     % Exclude the NaN elments
                 
-                if (network.netinclude == -1)
+                if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                     NetworkConnectRaw{iSubject,jRun,1} = NetworkValue;
                 else
                     for kNetwork = 1:length(network.netinclude)
