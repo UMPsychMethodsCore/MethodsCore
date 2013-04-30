@@ -33,7 +33,7 @@ function varargout = BrainNet(varargin)
 
 % Edit the above text to modify the response to help BrainNet
 
-% Last Modified by GUIDE v2.5 31-Jul-2012 12:57:12
+% Last Modified by GUIDE v2.5 01-Apr-2013 11:42:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -3487,6 +3487,7 @@ function NV_fig_DeleteFcn(hObject, eventdata, handles)
 % hObject    handle to NV_fig (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+<<<<<<< HEAD
 clear global EC
 clear global a
 clear global FLAG
@@ -3516,3 +3517,5 @@ else
 end
 =======
 >>>>>>> parent of 389e75b... Commit
+=======
+>>>>>>> parent of d14db47... Working on handles
