@@ -57,7 +57,7 @@ Opt.OutlierText = '[Exp]/TestDir/outlier.txt';
 %%% Z score threshold; slices with absolute z scores greater than this 
 %%% value will be considered as outliers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Opt.Thresh = 4;
+Opt.Thresh = 6;
 
 global mcRoot;
 %DEVSTART
