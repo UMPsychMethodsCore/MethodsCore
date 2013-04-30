@@ -37,7 +37,7 @@ function M = mc_CsvRead(fileName, delimiter)
     line = fgetl(fid);
     lineNum = 1;
     while ischar(line)
-        if line(1) ~= '#'
+        if length(line) > 0 && line(1) ~= '#'
             tmpRow = parseLine(line, delimiter);
             if isempty(tmpRow)
                 mc_Error(['MC_CSVREAD ERROR\n'...
