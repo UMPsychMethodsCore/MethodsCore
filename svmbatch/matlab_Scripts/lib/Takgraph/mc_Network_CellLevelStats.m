@@ -25,6 +25,7 @@ function [ a ] = mc_Network_CellLevelStats( a )
 %                                    is always appropriate to use but is less powerful than 'pdep.
 %                                    Default 'pdep'.
 %         a.stats.FDR.CalcP    -     0 or 1. If set to 1, it will actually calculate adjusted p values. Defaults to 1.
+%         a.stats.FDR.UseRawp  -     If you are supplying values in a.stats.rawp that you just want FDR corrected, set this field to 1
 % OUTPUT
 %         a.stats.rawp         -     Raw one-sided p-values arrived at by comparing each cell's total to the empirical distribution from the permutation
 %   FDR ONLY
@@ -61,6 +62,9 @@ thresh     = a.stats.FDR.rate;
 FDRmode    = a.stats.FDR.mode;
 CalcP      = a.stats.FDR.CalcP;
 
+if isfield(a,'stats') && isfield(a.stats,'FDR') && isfield(a.stats.FDR,'UseRawp') && a.stats.FDR.UseRawp==1 && isfield(a.stats.rawp)
+    epval.full = a.stats.rawp;
+else
 for i = 1:size(celltot,1)
     for j = i:size(celltot,2)
         epval.full(i,j) = sum(celltot(i,j) <= squeeze(permstot(i,j,:)))/size(permstot,3);
@@ -68,6 +72,8 @@ for i = 1:size(celltot,1)
 end
 
 a.stats.rawp = epval.full;
+end
+
 
 if a.stats.FDR.Enable == 1 % only if asked to do FDR Correction
 
