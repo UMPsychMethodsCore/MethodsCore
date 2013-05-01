@@ -51,7 +51,6 @@ if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
-NV_m_LF_Callback;
 end
 % End initialization code - DO NOT EDIT
 
@@ -3513,4 +3512,3 @@ else
     fprintf(fid,'%f %f %f]',Colormap(end,:));
     fclose(fid);
 end
-
