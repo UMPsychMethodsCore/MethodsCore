@@ -1,16 +1,76 @@
-% condition: net_1 < net_2
-ind.label1=[4];  
-ind.label2=[7];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Where do all of the edge and node files live? %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp=['/net/data4/ADHD/UnivariateConnectomics/Results/1166_CensorZ/'];
+Exp=['/net/data4/Schiz_COBRE/UnivariateConnectomics/CensorZ_FDpoint5_0f0bExclude_50good/'];
 
-BrainVol=['/home/slab/users/krishan/repos/MethodsCore/svmbatch/lib/BrainNetViewer/Data/SurfTemplate/BrainMesh_Ch2withCerebellum.nv'];
-CfgFile=['/net/data4/ADHD/UnivariateConnectomics/Results/1166_CensorZ/Brain_AAL_Nodes_Edges_edited.mat'];
-NodeFile=sprintf('%s%d-%d.node',Exp,ind.label1,ind.label2);
-EdgeFile=sprintf('%s%d-%d.edge',Exp,ind.label1,ind.label2);
-OutputPath=sprintf('%s%d-%d.bmp',Exp,ind.label1,ind.label2); 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% What network intersections are you interested in drawing?         %
+% Provide a 2D matrix for this, where rows index "cells",           %
+% and column 1 is the first network, column 2 is the second network %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%superior view
+Nets = [
+    1 12
+    12 12
+    7 12
+    6 12
+    4 12
+    3 12
+    1 12
+    6 7
+    7 7
+    5 7
+    4 7
+    1 7
+    6 6
+    4 6
+    3 6
+    1 6
+    3 5
+    4 5
+    1 5
+    4 4
+    3 4
+    2 4
+    1 4
+    3 3
+    ];
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Which Brain Surface should BNV use? If you give an empty string, it will use %
+% BrainMesh_Ch2withCerebellum by default.                                      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+BrainVol='';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do you have a BNV config file you'd like to use? If so, point to it here.                %
+% If you supply an empty string, it will use a default configuration included in the repo. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+CfgFile='';
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sometimes, nodes end up appearing outside of the brain. You can "nudge" them %
+% back inside the surface using the following options. In all cases, you will  %
+% specify the "out of brain" coordinates by view. You will provide a set of    %
+% the original "bad" coordinates, and then a corresponding list of where they  %
+% should be "nudged".                                                          %
+%                                                                              %
+% Since each view is parallel to one of the axes, that axis doesn't matter     %
+% (e.g. for the superior view, you only have to specify x and y, since you are %
+% looking along z.                                                             %
+%                                                                              %
+% Here is the mapping of columns to dimensions                                 %
+%                                                                              %
+% Superior - X, Y                                                              %
+% Lateral  - Y, Z                                                              %
+% Anterior - X, Z                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Superior Original
 ind.orig.sup=[-66, 24;
      66,  24;
      -66, -60;
@@ -18,6 +78,7 @@ ind.orig.sup=[-66, 24;
      6, -108;
      -42, -96;];
 
+% Superior Corrected
 ind.edit.sup=[-64, 24;
      64,  24;
      -64, -60;
@@ -25,53 +86,59 @@ ind.edit.sup=[-64, 24;
      8, -105;
      -42, -93;];
  
- %lateral view
- %index of outliers in lateral view
+% Lateral View Original
 ind.orig.lat=[24,  72;
     -12,  84;
-    %     -48, -36; %cerebellum
-    %     -60, -36;
-    %     -72, -36;
-    %     -84, -36;
     -96, -24;
     -96,  36;
     -108,  0;
     -108, 12;];
 
+% Lateral View Corrected
 ind.edit.lat=[24,  69;
     -12,  81;
-    %     -48, -36; %cerebellum
-    %     -60, -36;
-    %     -72, -36;
-    %     -84, -36;
     -96, -21;
     -94,  36;
     -105,  0;
     -105, 12;];
  
-%anterior view
+% Anterior View Original
 ind.orig.ant=[-66, 48;
      66,  48;];
 
+% Anterior View Corrected
 ind.edit.ant=[-63, 48;
      63,  48;];
  
-% for i=1:length(ind_lat)
-% rois=[find(surf.sphere(:,2)==ind_lat(i,1)&surf.sphere(:,3)==ind_lat(i,2)); rois];
-% end
-% outlier_rois=rois(find(surf.sphere(rois,4)==net_1|surf.sphere(rois,4)==net_2))
-% outlier_coord=unique(surf.sphere(outlier_rois,2:3),'rows')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DO NOT EDIT BELOW THIS LINE %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Displays the co-ordinates of outliers and expects input co-ordinates for nudging nodes
-% if ~isempty(outlier_coord)
-%     printmat(outliers,'Outliers detected - lateral view',num2str([1:length(outliers)]),'Y Z');
-%     data=input('Select the co-ordinates that require nudging : \n')
-%     if ~isempty(data)
-%         for i=1:size(data,1)
-%             surf.sphere(outlier_rois(data(i,1)),2:3)=data(i,2:3)
-%         end
-%     end
-% end
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..','..');
+%DEVSTOP
 
-%Central Script
-BrainNet_MapCfg(BrainVol,NodeFile,EdgeFile,CfgFile,OutputPath,ind);
+%[DEVmcRootAssign]
+
+addpath(genpath(fullfile(mcRoot,'matlabScripts')))
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+
+
+if strcmp(BrainVol,'')
+    BrainVol = fullfile(mcRoot,'svmbatch','lib','BrainNetViewer','Data','SurfTemplate','BrainMesh_Ch2withCerebellum.nv');
+end
+
+if strcmp(CfgFile,'')
+    CfgFile = fullfile(mcRoot,'svmbatch','lib','BrainNetViewer','Data','Brain_AAL_Nodes_Edges_edited.mat');
+end
+
+for iC = 1:size(Nets,1)
+    ind.label1 = Nets(iC,1);
+    ind.label2 = Nets(iC,2);
+    
+    NodeFile=sprintf('%s%d-%d.node',Exp,ind.label1,ind.label2);
+    EdgeFile=sprintf('%s%d-%d.edge',Exp,ind.label1,ind.label2);
+    OutputPath=sprintf('%s%d-%d.bmp',Exp,ind.label1,ind.label2); 
+
+    BrainNet_MapCfg(BrainVol,NodeFile,EdgeFile,CfgFile,OutputPath,ind);
+end
