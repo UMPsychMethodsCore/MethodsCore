@@ -34,7 +34,7 @@ function M = mc_CsvRead(fileName, delimiter)
     end
 
     M = [];
-    line = fgetl(fid);
+    line = strtrim(fgetl(fid));
     lineNum = 1;
     while ischar(line)
         if length(line) > 0 && line(1) ~= '#'
