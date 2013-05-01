@@ -3479,7 +3479,6 @@ function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uitoggletool5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-<<<<<<< HEAD
 
 
 % --- Executes during object deletion, before destroying properties.
@@ -3487,7 +3486,6 @@ function NV_fig_DeleteFcn(hObject, eventdata, handles)
 % hObject    handle to NV_fig (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-<<<<<<< HEAD
 clear global EC
 clear global a
 clear global FLAG
@@ -3515,7 +3513,4 @@ else
     fprintf(fid,'%f %f %f]',Colormap(end,:));
     fclose(fid);
 end
-=======
->>>>>>> parent of 389e75b... Commit
-=======
->>>>>>> parent of d14db47... Working on handles
+
