@@ -113,11 +113,14 @@ end
 surf.hdr=BrainHeader;
 surf.mask=BrainVolume;
 
+EC.vol.display = 2;
 % Adjust the colormap to leave blank to values under threshold, the orginal color map with be set into [NMax NMin] and [PMin PMax].
-EC.vol.CM=AdjustColorMap(ColorMap,EC.vol.null,NMax,NMin,PMin,PMax);
-% EC.vol.CMt = ColorMap; %%% Edited by Mingrui Xia 20111026, The AdjustColorMap function is integrated in BrainNet.m.
+% EC.vol.CM=AdjustColorMap(ColorMap,EC.vol.null,NMax,NMin,PMin,PMax);
+
+EC.vol.CM = ColorMap; %%% Edited by Mingrui Xia 20111026, The AdjustColorMap function is integrated in BrainNet.m.
 EC.vol.px=PMax;
 EC.vol.nx=NMax;
+
 
 % Set up other parameters
 EC.msh.alpha=1;

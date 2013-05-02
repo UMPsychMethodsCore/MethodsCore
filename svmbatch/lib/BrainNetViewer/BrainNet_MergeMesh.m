@@ -152,6 +152,15 @@ if nargin<3
 else
     [pathstr,name,ext] = fileparts(filename1);
     switch ext
+        % Edited by Mingrui 20120930, add support for nv file.
+        case '.nv'
+            fid = fopen(filename1);
+            vertex_number1 = fscanf(fid,'%f',1);
+            vertex1 = fscanf(fid,'%f',[3,vertex_number1]);
+            vertex1 = vertex1';
+            faces_number1 = fscanf(fid,'%f',1);
+            faces1 = fscanf(fid,'%d',[3,faces_number1])';
+            fclose(fid);        
         case '.mesh'
             [vertex1, faces1, vertex_number1, faces_number1] = loadmesh(filename1);
             vertex1(:,1)=91-vertex1(:,1);
@@ -164,6 +173,15 @@ else
     end
     [pathstr,name,ext] = fileparts(filename2);
     switch ext
+        % Edited by Mingrui 20120930, add support for nv file.
+        case '.nv'
+            fid = fopen(filename2);
+            vertex_number2 = fscanf(fid,'%f',1);
+            vertex2 = fscanf(fid,'%f',[3,vertex_number2]);
+            vertex2 = vertex2';
+            faces_number2 = fscanf(fid,'%f',1);
+            faces2 = fscanf(fid,'%d',[3,faces_number2])';
+            fclose(fid);
         case '.mesh'
             [vertex2, faces2, vertex_number2, faces_number2] = loadmesh(filename2);
             vertex2(:,1)=91-vertex2(:,1);
@@ -199,7 +217,11 @@ function ML_button_Callback(hObject, eventdata, handles)
 % hObject    handle to ML_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[filename,pathname]=uigetfile({'*.mesh','BrainVISA Mesh (*.mesh)';'*.pial','FreeSurfer Mesh (*.pial)';'*.*','All Files (*.*)'});
+
+% Edited by Mingrui 20120930, add support for nv file.
+[filename,pathname]=uigetfile({'*.nv','BrainNet Surface (*.nv)';...
+    '*.mesh','BrainVISA Mesh (*.mesh)';...
+    '*.pial','FreeSurfer Mesh (*.pial)';'*.*','All Files (*.*)'});
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else
@@ -360,7 +382,11 @@ function MR_button_Callback(hObject, eventdata, handles)
 % hObject    handle to MR_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[filename,pathname]=uigetfile({'*.mesh','BrainVISA Mesh (*.mesh)';'*.pial','FreeSurfer Mesh (*.pial)';'*.*','All Files (*.*)'});
+
+% Edited by Mingrui 20120930, add support for nv file.
+[filename,pathname]=uigetfile({'*.nv','BrainNet Surface (*.nv)';...
+    '*.mesh','BrainVISA Mesh (*.mesh)';...
+    '*.pial','FreeSurfer Mesh (*.pial)';'*.*','All Files (*.*)'});
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else

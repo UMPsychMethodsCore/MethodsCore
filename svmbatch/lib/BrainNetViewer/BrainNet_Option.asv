@@ -1094,7 +1094,7 @@ elseif get(handles.NodCC_radiobutton,'Value')==1
         case 3
             EC.nod.CM=hot;
         case 4
-            EC.nod.CM=cooler;
+            EC.nod.CM=cool;
         case 5
             EC.nod.CM=spring;
         case 6
@@ -1172,7 +1172,7 @@ elseif get(handles.EdgCC_radiobutton,'Value')==1
         case 3
             EC.edg.CM=hot;
         case 4
-            EC.edg.CM=cooler;
+            EC.edg.CM=cool;
         case 5
             EC.edg.CM=spring;
         case 6
