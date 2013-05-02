@@ -115,7 +115,7 @@ ind.edit.ant=[-63, 48;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..','..');
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
