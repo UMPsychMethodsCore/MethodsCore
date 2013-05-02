@@ -32,7 +32,7 @@ end
 if local                                %local efficiency
     N=length(G);                        %number of nodes
     E=zeros(N,1);                       %local efficiency
-    G(eye(size(G))~=0)=0;                %@Yu: set self connection to zero, avoid counting itself as a neighbor
+    G(eye(N)~=0)=0;                     %@Yu: set self connection to zero, avoid counting itself as a neighbor
     for u=1:N
         V=find(G(u,:));                 %neighbors
         k=length(V);                    %degree

@@ -109,9 +109,8 @@ switch network.datatype
             for jRun = 1:size(SubjDir{iSubject,3},2)   % Loop over runs
                 RunNum = SubjDir{iSubject,3}(jRun);
                 Run    = RunDir{RunNum};
-                display(sprintf('Now loading files in %s',Run));
-                display(sprintf('of %s',Subject));
-                
+                display(sprintf('Now loading files in %s of %s',Run,Subject));
+                                
                 switch TemplateType                    
                     case 'single'                        
                         NetworkPathCheck  = struct('Template',NetworkTemplate,'mode','check');
@@ -182,8 +181,7 @@ for iSubject = 1:size(SubjDir,1)    % Loop over subjects
     for jRun = 1:size(SubjDir{iSubject,3},2)   % Loop over runs
         RunNum = SubjDir{iSubject,3}(jRun);
         Run    = RunDir{RunNum};
-        display(sprintf('Now computing %s',Run));
-        display(sprintf('of %s',Subject));
+        display(sprintf('Now computing %s of %s',Run,Subject));
         
         for kNetwork = 1:length(network.netinclude)  
             display(sprintf('in network %d',network.netinclude(kNetwork)));

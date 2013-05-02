@@ -30,17 +30,15 @@ Flag.lefficiency = any(strfind(upper(measures),'L'));
 Flag.modularity = any(strfind(upper(measures),'M'));
 Flag.assortativity = any(strfind(upper(measures),'A'));
 Flag.pathlength = any(strfind(upper(measures),'P'));
-Flag.motif = any(strfind(upper(measures),'F'));
 Flag.degree = any(strfind(upper(measures),'E'));
 Flag.clustering = any(strfind(upper(measures),'C'));
 Flag.betweenness = any(strfind(upper(measures),'B'));
 
 
-
 %%%%%%%%%%%%%%%%%% Global Measurements (Networkwise) %%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Density- 
+% -Density-
 % The fraction of present connections to possible connections
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.density
@@ -54,16 +52,18 @@ if Flag.density
     Output.density = kden;
 end
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Clustering coefficient- 
+% -Clustering coefficient-
 % One node and its two neighbors which also have connections composes a
-% triangle. 
+% triangle.
 % Clustering coefficient is the fraction of triangles around a
 % node, equivalent to the fraction of node's neighbors that are neighbors
-% of each other. 
+% of each other.
 % Clustering coefficient of a network is the average of the
-% clustering coefficients over all nodes   
+% clustering coefficients over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if Flag.clustering
     if directed
         cluster = clustering_coef_bd(mtrx);
@@ -181,93 +181,72 @@ if Flag.pathlength
     Output.ecc.diameter = diameter;
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Structural Motif and Functional Motif
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.motif
-    if directed
-        make_motif34lib;
-        
-        [f3, F3]=motif3struct_bin(mtrx);
-        [f4, F4]=motif4struct_bin(mtrx);
-        Output.smotif.f3 = f3;
-        Output.smotif.F3 = F3;
-        Output.smotif.f4 = f4;
-        Output.smotif.F4 = F4;
-        
-        [f3, F3]=motif3funct_bin(mtrx);
-        [f4, F4]=motif4funct_bin(mtrx);
-        Output.fmotif.f3 = f3;
-        Output.fmotif.F3 = F3;
-        Output.fmotif.f4 = f4;
-        Output.fmotif.F4 = F4;
-        
-    end
-end
+
 
 
 %%%%%%%%%%%%%%%%%% Local Measurements (Nodewise) %%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Node Degree-
-% The number of edges connected to the node
-% -Network Degree-
-% The average degree over all nodes
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.degree
-    if directed
-        deg = degrees_dir(mtrx);
-    else
-        if weighted
-            [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
-            Output.strength = strength;
-            Output.glostr   = glostr;
+if network.local==1
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % -Node Degree-
+    % The number of edges connected to the node
+    % -Network Degree-
+    % The average degree over all nodes
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if Flag.degree
+        if directed
+            deg = degrees_dir(mtrx);
         else
-        [deg,glodeg] = degrees_und(mtrx);  
+            if weighted
+                [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
+                Output.strength = strength;
+                Output.glostr   = glostr;
+            else
+                [deg,glodeg] = degrees_und(mtrx);
+            end
         end
+        Output.deg    = deg;
+        Output.glodeg = glodeg;
     end
-    Output.deg    = deg;
-    Output.glodeg = glodeg;
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Local Efficiency-
-% The global efficiency of the neighborhood of a node
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.lefficiency
-    if directed
-        eloc = 0; % no code for directed matrix
-    else
-        if weighted
-            eloc = efficiency_wei(mtrx,1); 
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % -Local Efficiency-
+    % The global efficiency of the neighborhood of a node
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if Flag.lefficiency
+        if directed
+            eloc = 0; % no code for directed matrix
         else
-            eloc = efficiency_bin(mtrx,1);
+            if weighted
+                eloc = efficiency_wei(mtrx,1);
+            else
+                eloc = efficiency_bin(mtrx,1);
+            end
         end
+        Output.eloc = eloc;
     end
-    Output.eloc = eloc;
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Node Betweenness-
-% The fraction of all shortest paths in the network that contain a given
-% node. Nodes with high values of betweenness centrality participate in a
-% large number of shortest paths.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.betweenness
-    if weighted
-        % betweenness_wei function asks for connection-length matrix, as in a
-        % weighted correlation network, typically higher correlations are
-        % interpreted as shorter distances, here we use the inverse of the
-        % weighted connection matrix as the connection-length matrix,
-        % except for that at the diagonal the lengths are set to 0.
-        lengthmtrx                = 1./mtrx;  
-        nmtrx                     = size(mtrx);
-        lengthmtrx(1:nmtrx+1:end) = 0;
-        bc = betweenness_wei(lengthmtrx);
-    else
-        bc = betweenness_bin(mtrx);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % -Node Betweenness-
+    % The fraction of all shortest paths in the network that contain a given
+    % node. Nodes with high values of betweenness centrality participate in a
+    % large number of shortest paths.
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if Flag.betweenness
+        if weighted
+            % betweenness_wei function asks for connection-length matrix, as in a
+            % weighted correlation network, typically higher correlations are
+            % interpreted as shorter distances, here we use the inverse of the
+            % weighted connection matrix as the connection-length matrix,
+            % except for that at the diagonal the lengths are set to 0.
+            lengthmtrx                = 1./mtrx;
+            nmtrx                     = size(mtrx);
+            lengthmtrx(1:nmtrx+1:end) = 0;
+            bc = betweenness_wei(lengthmtrx);
+        else
+            bc = betweenness_bin(mtrx);
+        end
+        Output.btwn = bc;
     end
-    Output.btwn = bc;
 end
 
 
