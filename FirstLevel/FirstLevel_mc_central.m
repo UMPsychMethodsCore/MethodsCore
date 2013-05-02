@@ -555,7 +555,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                     CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + size(Regressors,2) + DerivFlag*size(Regressors,2);
                 end
             end
-            NumRegPerFile = max(NumRegPerFile);
+            NumRegPerFile = max(NumRegPerFile,2);
             
             for iFile = 1:size(RegFileTemplates,1)
                 DerivFlag = any(RegDerivatives==iFile);
