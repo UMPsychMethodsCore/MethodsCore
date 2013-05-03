@@ -555,7 +555,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                     CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + size(Regressors,2) + DerivFlag*size(Regressors,2);
                 end
             end
-            NumRegPerFile = max(NumRegPerFile);
+            NumRegPerFile = max(NumRegPerFile,2);
             
             for iFile = 1:size(RegFileTemplates,1)
                 DerivFlag = any(RegDerivatives==iFile);
@@ -1004,7 +1004,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     if (UseSandbox)
-        shellcommand = sprintf('cp -af %s %s',SandboxOutputDir,OutputDir);
+        shellcommand = sprintf('cp -rf %s %s',SandboxOutputDir,OutputDir);
         [status result] = system(shellcommand);
         if (status ~= 0)
             mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);
