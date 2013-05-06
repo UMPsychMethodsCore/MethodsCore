@@ -41,7 +41,7 @@ function [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLever
 % Check the data
 if exist('FDcriteria') == 0
    fprintf('Assuming "FDcriteria=2mm"\n');
-   FDcriteria = 2;
+   FDcriteria = 0.2;
 end
 
 if exist('FDLeverArm') == 0
