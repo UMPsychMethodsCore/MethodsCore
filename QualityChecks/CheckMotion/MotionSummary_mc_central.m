@@ -25,16 +25,26 @@ for iSubject = 1:size(SubjDir,1)
         [pathstr,name,ext] = fileparts(MotionPath);
         if any(strcmp(ext,{'.par','.dat'}))
             Output = euclideanDisplacement(MotionParameters,LeverArm);
-            [FD FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
+            [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         else
             Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
-            [FD FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
+            [FD, FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         end
         
+        % Pre-Scrubbing Summary of FD
         Output.meanFD       = mean(FD);
+        Output.maxFD        = max(FD);
+        Output.stdFD        = std(FD);
         Output.censorvector = sum(FDjudge,2);
         Output.nonzeroFD    = nnz(FDjudge);
         
+        % Post-Scrubbing Summary of FD
+        FD_post = FD;
+        FD_post(Output.censorvector==1) = [];
+        Output.meanFDpost   = mean(FD_post);
+        Output.maxFDpost    = max(FD_post);
+        Output.stdFDpost    = std(FD_post);
+                
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
         
@@ -78,7 +88,7 @@ if theFID < 0
     return;
 end
 
-fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,meanFD,SupraThresholdFD\n'); %header
+fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
     for jRun = 1:size(SubjDir{iSubject,3},2)
@@ -100,7 +110,12 @@ for iSubject = 1:size(SubjDir,1)
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxAngle);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanAngle);
         fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.sumAngle);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFD);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanFD);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFD);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFDpost);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.meanFDpost);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFDpost);
         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.nonzeroFD);
     end
 end
