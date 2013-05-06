@@ -62,7 +62,7 @@ thresh     = a.stats.FDR.rate;
 FDRmode    = a.stats.FDR.mode;
 CalcP      = a.stats.FDR.CalcP;
 
-if isfield(a,'stats') && isfield(a.stats,'FDR') && isfield(a.stats.FDR,'UseRawp') && a.stats.FDR.UseRawp==1 && isfield(a.stats.rawp)
+if isfield(a,'stats') && isfield(a.stats,'FDR') && isfield(a.stats.FDR,'UseRawp') && a.stats.FDR.UseRawp==1 && isfield(a.stats,'rawp')
     epval.full = a.stats.rawp;
 else
     for i = 1:size(celltot,1)
