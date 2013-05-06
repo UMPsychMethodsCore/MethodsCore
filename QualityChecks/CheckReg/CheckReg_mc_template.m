@@ -60,7 +60,7 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 %% Set the file prefix for the file that you want displayed. In most cases this
 %% will be 'ra' for file that has gone through realignment.
 %%
-%% The program will display the first five scans in the .nii file with this
+%% The program will display the first three scans in the .nii file with this
 %% file prefix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FilePrefix = 'ra';
@@ -73,7 +73,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
-addpath(fullfile(mcRoot,'QualityChecks','CheckWarp'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 CheckReg_mc_central

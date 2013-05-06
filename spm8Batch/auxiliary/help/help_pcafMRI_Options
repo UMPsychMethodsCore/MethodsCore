@@ -1,0 +1,25 @@
+    echo "${helpComment} directory to coreg       : ${fmriPATH}/$coregPATH/"
+    echo "${helpComment} name of the high res     : $HIRESNAME"
+    echo "${helpComment} WM Mask Wild             : $WM_MASKWILD"
+    if [ "${WM_MASKWILD}" != "NONE" ]
+    then
+       echo "${helpComment}         WM Search        : $WM_MASKWILD*${HIRESNAME}"
+    fi
+    echo "${helpComment} CSF Mask Wild            : $CSF_MASKWILD"
+    if [ "${CSF_MASKWILD}" != "NONE" ]
+    then
+       echo "${helpComment}         CSF Search       : $CSF_MASKWILD*${HIRESNAME}"
+    fi
+    echo "${helpComment} volumeWILD               : $volumeWILD"
+    echo "${helpComment} functional sub-dir       : $subPATH"
+    echo "${helpComment} Number of PCA components : $NPCACOMP"
+    echo "${helpComment} Data fraction for PCA    : $DATAFRACTION"
+    if [ ${PCADETREND} -ge 0 ]
+    then
+        echo "${helpComment} Detrend polynomial order : $PCADETREND"
+    else
+        echo "${helpComment} Detrending               : OFF"
+    fi
+    echo
+
+    . ${thisDir}/auxiliary/help/help_options_end

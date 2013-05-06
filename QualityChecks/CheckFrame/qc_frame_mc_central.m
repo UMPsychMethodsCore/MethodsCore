@@ -24,7 +24,6 @@ end
 
 Exp = Opt.Exp;
 OutlierText.Template = Opt.OutlierText;
-OutlierText.mode = 'makeparentdir';
 fid = fopen(mc_GenPath(OutlierText),'w');
 fprintf(fid,'FRAME WALL OF SHAME\n');
 
@@ -37,10 +36,12 @@ for i = 1:size(checkedFiles,1)
         [pathstr file ext] = fileparts(checkedFiles{i,1});
         qc_FrameReport(out,fullfile(pathstr,'frameReport.ps'),Opt.Thresh);
         
+        % wriate out csv file for the run
         t = find(abs(out{3}) > Opt.Thresh);
+        qc_WriteFrameCsv(fullfile(pathstr,'frameOutliers.csv'),t,length(out{3}));
+        
+        % append to FRAME WALL OF SHAME file
         if ~isempty(t)
-            qc_WriteFrameCsv(fullfile(pathstr,'frameOutliers.csv'),t,length(out{3}));
-            
             fprintf(fid,'Image:\n');
             fprintf(fid,'%s\n',checkedFiles{i,1});
             fprintf(fid,'{\n');

@@ -21,33 +21,64 @@ if isempty(checkedFiles)
 end
 
 outlierTextFile.Template = Opt.OutlierText;
-outlierTextFile.mode = 'makeparentdir';
 outlierTextFile = mc_GenPath(outlierTextFile);
-fid = fopen(outlierTextFile,'w');
-fprintf(fid,'SLICE WALL OF SHAME\n');
+
+metricsList = cell(size(checkedFiles, 1), 1);
 
 % Perform calculations
 fprintf(1,'Calculating metrics...\n');
 for i = 1:size(checkedFiles,1)
     fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
-    metrics = qc_CalcSliceMetrics(checkedFiles{i,1});
-    if ~isempty(metrics)
-        [pathstr file ext] = fileparts(checkedFiles{i,1});
+    metricsList{i} = qc_CalcSliceMetrics(checkedFiles{i,1});
+     
+    if ~isempty(metricsList{i})
+        [pathstr file ext] = fileparts(metricsList{i}.Fname);
+        metrics = metricsList{i};
         save(fullfile(pathstr,'sliceMetrics.mat'),'metrics');
         qc_SliceReport(metrics,fullfile(pathstr,'sliceMetrics.ps'));
-        
-        [z t] = find(metrics.SliceZScore > Opt.Thresh);
-        if ~isempty(z)
-            fprintf(fid,'Image:\n');
-            fprintf(fid,'%s\n',metrics.Fname);
-            fprintf(fid,'{\n');
-            for l = 1:length(z)
-                fprintf(fid,'\tslice: %3d timepoint: %3d z-score: %2.3f mse: %3.3f\n',z(l)-1,t(l)-1,metrics.SliceZScore(z(l),t(l)),metrics.SliceTmse(z(l),t(l)));
-            end
-            fprintf(fid,'}\n');
-        end
     end
 end
+
+% Now write wall of shame and csv files
+wosFid = fopen(outlierTextFile, 'w');
+fprintf(wosFid, 'SLICE WALL OF SHAME\n');
+for i = 1:size(metricsList, 1)
+    [pathstr file ext] = fileparts(metricsList{i}.Fname);
+    sliceFid = fopen(fullfile(pathstr,'sliceOutliers.csv'), 'w');
+
+    if isempty(metricsList{i}) == 0
+        [z t] = find(metricsList{i}.SliceZScore > Opt.Thresh);
+
+        if ~isempty(z)
+            % append to wall of shame
+            fprintf(wosFid,'Image:\n');
+            fprintf(wosFid,'%s\n',metricsList{i}.Fname);
+            fprintf(wosFid,'{\n');
+            for l = 1:length(z)
+                fprintf(wosFid,'\tslice: %3d timepoint: %3d z-score: %2.3f mse: %3.3f\n',z(l)-1,t(l)-1, metricsList{i}.SliceZScore(z(l),t(l)), metricsList{i}.SliceTmse(z(l),t(l)));
+            end
+            fprintf(wosFid,'}\n');
+
+            % write csv file
+            if sliceFid ~= -1
+                frames = unique(t);
+                censorMatrix = zeros(metricsList{i}.Dimensions(4), length(frames));
+                censorIndex = sub2ind(size(censorMatrix), frames, [1:length(frames)]');
+                censorMatrix(censorIndex) = 1;
+                for k = 1:size(censorMatrix, 1)
+                    for l = 1:(size(censorMatrix, 2) - 1)
+                        fprintf(sliceFid, '%f,', censorMatrix(k, l));
+                    end
+                    fprintf(sliceFid, '%f\n', censorMatrix(k, end));
+                end
+            else
+                fprintf(1, 'WARNING: Cannot write csv file for %s\n', metricsList{i}.Fname);
+            end
+        end
+    end
+    fclose(sliceFid);
+end
+   
         
 fclose('all');
 fprintf(1,'All done!\n');

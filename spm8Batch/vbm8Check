@@ -91,7 +91,7 @@ do
 	    ;;
 	*)
 	    echo "Impossible error in vbm8Check, VBM8CHECKOPT=${VBM8CHECK}"
-	    exit 0
+	    exit 1
     esac
 
     if [ -z "${IMG1}" ]
@@ -107,6 +107,7 @@ do
 	    fslview ${IMG2} ${FSLVIEWOPT2} ${IMG1} ${FSLVIEWOPT1}
 	    cd $LOGDIR
 	    logTheUMProcess vbm8Check vbm8Check ${VBM8CHECKOPT} ${IMG1} ${IMG2}
+	    cd ${thisDir}
 	fi
     fi
 done

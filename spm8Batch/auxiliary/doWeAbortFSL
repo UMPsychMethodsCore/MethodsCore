@@ -1,0 +1,19 @@
+#
+# Code added to shell script.
+#
+
+echo "            RETURNVALUE=\$?"                                                                    >> ${FULLSCRIPTNAME}.sh
+echo "            if [ \"\${RETURNVALUE}\" != \"0\" ]"                                                >> ${FULLSCRIPTNAME}.sh
+echo "            then"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "              echo ${FSL_COMMAND} failed!!!"                                                    >> ${FULLSCRIPTNAME}.sh
+echo "              logUMSTREAMSTATUS ABORT ${thisCommand} ${UMSTREAM_STATUS_FILE}"                   >> ${FULLSCRIPTNAME}.sh
+echo "              if [ \"${BACKGROUNDJOBFLAG}\" == \"0\" ] "                                        >> ${FULLSCRIPTNAME}.sh
+echo "              then"                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "                exit 1"                                                                         >> ${FULLSCRIPTNAME}.sh
+echo "              fi"                                                                               >> ${FULLSCRIPTNAME}.sh
+echo "            fi"                                                                                 >> ${FULLSCRIPTNAME}.sh
+
+
+# This little bit of code will check the return status of the command that was just run
+# and then determine if we abort. We only abort the command if running in the foreground.
+
