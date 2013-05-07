@@ -8,9 +8,8 @@ end
 
 for iC = 1:size(Files,1)
     
-    NodeFile = fullfile(Exp,Files{iC},'.node');
-    EdgeFile = fullfile(Exp,Files{iC},'.edge');
-    OutputPath = fullfile(Exp,Files{iC},'.bmp');
-
+    NodeFile = fullfile(Exp,[Files{iC} '.node']);
+    EdgeFile = fullfile(Exp,[Files{iC} '.edge']);
+    OutputPath = fullfile(Exp,[Files{iC} '.bmp']);
     BrainNet_MapCfg(BrainVol,NodeFile,EdgeFile,CfgFile,OutputPath,ind);
 end
