@@ -10,6 +10,7 @@ function M = mc_CsvRead(fileName, delimiter)
 %   of assuming a comma as a delimiter.
 %
 %
+    assumedDelimiters = sprintf(' \t\b');
     if exist('delimiter','var') == 1
         if ischar(delimiter) == 0
             mc_Error(['MC_CSVREAD ERROR\n'...
@@ -21,8 +22,9 @@ function M = mc_CsvRead(fileName, delimiter)
             mc_Error(['MC_CSVREAD ERROR\n'...
                       'Invalid delimiter: expected a nonnumeric value of length 1.\n%s'], '');
         end
+        delimiter = strcat(assumedDelimiters,delimiter);
     else
-        delimiter = ',';
+        delimiter = strcat(assumedDelimiters,',');
     end
 
     fid = fopen(fileName, 'r');
@@ -34,8 +36,9 @@ function M = mc_CsvRead(fileName, delimiter)
     M = [];
     line = fgetl(fid);
     lineNum = 1;
-    while ischar(line)
-        if line(1) ~= '#'
+    while ischar(line) == 1
+        line = strtrim(line);
+        if length(line) > 0 && line(1) ~= '#'
             tmpRow = parseLine(line, delimiter);
             if isempty(tmpRow)
                 mc_Error(['MC_CSVREAD ERROR\n'...
@@ -53,7 +56,6 @@ function M = mc_CsvRead(fileName, delimiter)
         line = fgetl(fid);
         lineNum = lineNum + 1;
     end
-   
 end
 
 function isValid = validDelimiter(delimiter)
@@ -67,24 +69,16 @@ end
 
 function values = parseLine(line, delimiter)
     values = [];
-
-    index = 1;
-    delimLoc = regexp(line, delimiter);
-    for i = 1:length(delimLoc)
-        substr = lower( line(index:delimLoc(i)-1) );
+    line = lower(line);
+    
+    while isempty(line) == 0
+        [substr line] = strtok(line, delimiter);
         substrValue = str2double(substr);
-        if isnan(substrValue) && strcmp(substr, 'nan') == 0 
+        if isnan(substrValue) && strcmp(substrValue, 'nan') == 0
             values = [];
             return;
         end
         values = [values substrValue];
-        index = delimLoc(i) + 1;
     end
-    substr = strtrim(lower( line(index:end) ));
-    substrValue = str2double(substr);
-    if isnan(substrValue) && strcmp(substr, 'nan') == 0
-        values = [];
-        return;
-    end
-    values = [values substrValue];
 end
+
