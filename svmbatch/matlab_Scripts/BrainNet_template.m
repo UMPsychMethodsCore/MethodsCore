@@ -2,7 +2,7 @@
 % Where do all of the edge and node files live? %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp=['/net/data4/Schiz_COBRE/UnivariateConnectomics/CensorZ_FDpoint5_0f0bExclude_50good/'];
+Exp = '/home/slab/mnt/psyche/net/data4/slab/MAS_Resting/SVM/ReviewReply/NoBinZ_500';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,7 +14,8 @@ Exp=['/net/data4/Schiz_COBRE/UnivariateConnectomics/CensorZ_FDpoint5_0f0bExclude
 
 
 Files = {
-
+    'Default-Somatomotor';
+    'Somatomotor-VentralAttnStriatumDefaultVisual';
     };
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
