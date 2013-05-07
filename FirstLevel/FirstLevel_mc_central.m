@@ -550,7 +550,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 for iRun = 1:NumRun
                     Run = RunDir{iRun};
                     File = mc_GenPath(struct('Template',RegFileTemplates{iFile,1},'mode','check'));
-                    Regressors = load(File);
+                    Regressors = mc_CsvRead(File);
                     if (size(Regressors,2)>0)
                         Regressors = Regressors(1:NumScan(iRun),:);
                     end
@@ -568,7 +568,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 for iRun = 1:NumRun
                     Run = RunDir{iRun};
                     File = mc_GenPath(struct('Template',RegFileTemplates{iFile,1},'mode','check'));
-                    Regressors = load(File);
+                    Regressors = mc_CsvRead(File);
                     rs = size(Regressors,2);
                     if (rs<NumRegPerFile(iFile))
                         numz = NumRegPerFile(iFile)-rs;
