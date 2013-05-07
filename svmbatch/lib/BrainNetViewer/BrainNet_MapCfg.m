@@ -173,7 +173,7 @@ end
 
 for i=1:length(ind.orig.sup)
 rois=find(surf.sphere(:,1)==ind.orig.sup(i,1)&surf.sphere(:,2)==ind.orig.sup(i,2));
-outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
+outlier_rois = rois;
 if ~isempty(outlier_rois)
 surf.sphere(outlier_rois,1:2)=repmat(ind.edit.sup(i,:),length(outlier_rois),1);
 end
@@ -184,7 +184,7 @@ end
 % Here I find ROIs and co-ordinates of outliers
 for i=1:length(ind.orig.lat)
     rois=find(surf.sphere(:,2)==ind.orig.lat(i,1)&surf.sphere(:,3)==ind.orig.lat(i,2));
-    outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
+    outlier_rois = rois;
     if ~isempty(outlier_rois)
         surf.sphere(outlier_rois,2:3)=repmat(ind.edit.lat(i,:),length(outlier_rois),1);
     end
@@ -194,7 +194,7 @@ end
 
 for i=1:length(ind.orig.ant)
 rois=find(surf.sphere(:,1)==ind.orig.ant(i,1)&surf.sphere(:,3)==ind.orig.ant(i,2));
-outlier_rois=rois(find(surf.sphere(rois,4)==ind.label1|surf.sphere(rois,4)==ind.label2));
+outlier_rois = rois;
 if ~isempty(outlier_rois)
 surf.sphere(outlier_rois,[1 3])=repmat(ind.edit.ant(i,:),length(outlier_rois),1);
 end
