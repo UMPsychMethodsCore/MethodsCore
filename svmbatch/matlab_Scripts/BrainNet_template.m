@@ -1,3 +1,30 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This script helps to automate renderings of BrainNetViewer 3D Visualizations. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% IMPORTANT NOTE ABOUT VALUES OF EDGES in .edge FILE                               %
+% By default, it will use the "cooler" colormap that Krishan wrote.                %
+% This colormap uses increasing green values for higher numbers                    %
+% and decreasing red values for higher numbers.                                    %
+% Blue is always present in the colormap.                                          %
+%                                                                                  %
+% So high values -> greenish blue                                                  %
+%     low values -> reddish blue                                                   %
+%                                                                                  %
+% This is consistent with the mc_TakGraph suite convention of                      %
+% 1 = NonSignificant                                                               %
+% 2 = Positive Sig Effect (Typically Dx > HC)                                      %
+% 3 = Negative Sig Effect (Typically Dx < HC)                                      %
+%                                                                                  %
+% Although for things to work well, we recode NonSig to 0, so it will not be drawn %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Where do all of the edge and node files live? %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
