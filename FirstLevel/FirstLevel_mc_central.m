@@ -551,11 +551,14 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                     Run = RunDir{iRun};
                     File = mc_GenPath(struct('Template',RegFileTemplates{iFile,1},'mode','check'));
                     Regressors = load(File);
+                    if (size(Regressors,2)>0)
+                        Regressors = Regressors(1:NumScan(iRun),:);
+                    end
                     NumRegPerFile(iRun,iFile) = size(Regressors,2);
-                    CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + size(Regressors,2) + DerivFlag*size(Regressors,2);
+                    CalcNumRegRun(iRun) = CalcNumRegRun(iRun) + sum(any(Regressors)) + DerivFlag*sum(any(Regressors));
                 end
             end
-            NumRegPerFile = max(NumRegPerFile,2);
+            NumRegPerFile = max(NumRegPerFile,[],1);
             
             for iFile = 1:size(RegFileTemplates,1)
                 DerivFlag = any(RegDerivatives==iFile);
@@ -1004,7 +1007,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     if (UseSandbox)
-        shellcommand = sprintf('cp -af %s %s',SandboxOutputDir,OutputDir);
+        shellcommand = sprintf('cp -rf %s %s',SandboxOutputDir,OutputDir);
         [status result] = system(shellcommand);
         if (status ~= 0)
             mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.',SandboxOutputDir,OutputDir);

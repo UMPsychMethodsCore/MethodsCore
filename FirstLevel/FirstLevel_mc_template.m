@@ -151,44 +151,27 @@ ParList = { ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegOp = [0 1];
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Location of motion regressor files generated during realignment stage 
-%%%  in preprocessing.  To use these make sure column 2 of RegOp is set to
-%%%  1 above.
+%%%  Location of user specified regressor files. To use these make sure 
+%%%  column 2 of RegOp is set to 1 above.
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp         = path to your experiment directory
-%%%       MotRegName  = motion parameter name
+%%%       Subject     = folder name of current subject
+%%%       Run         = folder name of current run
 %%%        *          = wildcard (can only be placed in final part of template)
-%%% Examples:
-%%% RegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/MotRegName.csv';
-%%% RegTemplate = '';  % In this case, one will not be used
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MotRegTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/[MotRegName]';
-MotRegName     = 'mcflirt*.dat';
-
 RegFileTemplates = {
-    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/ppi.csv',Inf;
-    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/mcflirt*.dat',Inf;
-    '[Exp]/Subjects/[Subject]/TASK/func/[Run]/fdOutliers.csv',Inf;
+    '[Exp]/Subjects/[Subject]/func/[Run]/mcflirt*.dat',Inf;
+    '[Exp]/Subjects/[Subject]/func/[Run]/fdOutliers.csv',Inf;
+    '[Exp]/Subjects/[Subject]/func/[Run]/frameOutliers.csv',Inf;
 };
 
-RegDerivatives = [2]; %index of each file to calculate and include derivatives for
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Cell array specifying the motion regressor names and column numbers for
-%%% the motion regressor files in MotRegTemplate.  If left empty, the
-%%% motion regressor files are assumed to have six motion parameters which
-%%% are {'x','y','z','r','p','y'}.
-%%%
-%%% Example: MotRegList = {
-%%%                         'x',1;
-%%%                         'r',4;
-%%%                       };
+%%% Indices from RegFileTemplates for which regressor files should have
+%%% automatic first derivatives calculated and also included
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MotRegList = { 
-};
+RegDerivatives = [1];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -415,6 +398,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 FirstLevel_mc_central
