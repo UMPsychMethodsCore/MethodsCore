@@ -6,6 +6,8 @@ FSL_COMMENT_B="bestBETing subject"
 HIRESNAME=ht1spgr
 HIRESEXT=
 
+FSL_COMMAND=bet
+
 #
 # all done
 #

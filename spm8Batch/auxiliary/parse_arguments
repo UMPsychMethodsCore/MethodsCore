@@ -4,12 +4,18 @@
 
 # permitted arguments
 # 
-# AabDdFfghiMmnOopPRrSsTtUuVvwZ#
+# AabDdEeFfghiMmnOopPRrSsTtUuVvwZ#
 #
 #
 
 echo "Parsing commands:"
 echo
+
+#
+# Set the error code to bad input parameter.
+#
+SPM8BATCH_ERROR_CODE=64
+#
 
 while (( $argn < $args ))
 do
@@ -41,7 +47,16 @@ do
 	    if [ -z "${ALLOWED}" ]
 	    then 
 		echo 
-		echo "Option : $curParam : is not allowed for ${thisCommand}"
+		echo "     * * * * * * * * * * * * * * * * * * * * * * * * * * *"
+		echo "     * * * *"
+		echo "     * * * * Option : $curParam : is not allowed for ${thisCommand}"
+		echo "     * * * *"
+		echo "     * * * *"
+		echo "     * * * * To learn more about this command, type"
+		echo "     * * * *"
+       		echo "     * * * *      ${thisCommand} <CR>"
+		echo "     * * * *"
+		echo "     * * * * * * * * * * * * * * * * * * * * * * * * * * *"
 		echo
 	        . ${thisDir}/auxiliary/exit_w_removal
             fi
@@ -65,6 +80,15 @@ do
 	      #
 		"a")
 		    . ${thisDir}/auxiliary/setAnatomyPath
+		    ;;
+
+              # case_no_background_job
+              #
+              # don't launch the job into the background, but run in the foreground, 
+              # this will facilitate daisy-chaining jobs.
+              #
+                "B")
+                    . ${thisDir}/auxiliary/setNoBackgroundJob
 		    ;;
 
               # case_bet_best_flag 
@@ -91,6 +115,19 @@ do
 		    . ${thisDir}/auxiliary/setDebugFlag
 		    ;;
 
+              # case_erosion_settings
+	      #
+	      # set the amount to erode the WM and CSF segments.
+	        "E")
+		    . ${thisDir}/auxiliary/setErosion
+		    ;;
+              # case_file_extension
+	      #
+	      # set the file extension to use with findVols.sh
+	      # this is needed for smoothing of img/hdr
+	        "e")
+		    . ${thisDir}/auxiliary/setVolExtension
+		    ;;
               # case_fmri_tr 
 	      #
 	      # Set the TR
@@ -107,6 +144,14 @@ do
 		    . ${thisDir}/auxiliary/setFunctionalPath
 		    ;;
 		
+              # case_set_TGLOBAL
+              #
+              # Set the TGLOBAL value for slice time for FSL
+	      # Or set the reference slice for SPM8
+              #
+		"G")
+                    . ${thisDir}/auxiliary/setTGlobalValue
+                    ;;
               # case_set_BET_gradient
               #
               # Set the gradient scale for bestBET
@@ -114,6 +159,14 @@ do
 		"g")
                     . ${thisDir}/auxiliary/setGradientValue
                     ;;
+              # case_homogeniety
+ 	      # 
+	      # homogeniety correction flag
+	      #
+		"H")
+		    . ${thisDir}/auxiliary/setBiasFieldFLAG
+		    ;;
+
               # case_hires_name 
  	      # 
 	      # SPGR (hiRES) name to use 
@@ -137,6 +190,19 @@ do
 		    . ${thisDir}/auxiliary/setRunList
 		    ;;
 		
+	      # case_do_erosion_last
+              #
+              # a flag to tell vbm8HiRes to do erosion as last step
+              #
+                "L")
+                   . ${thisDir}/auxiliary/setErosionLast
+                   ;;
+              #
+              # do NOT use the sandbox even if possible
+              #
+                "l")
+                   . ${thisDir}/auxiliary/setNoSandBox
+                   ;;
               # case_subject_dir 
 	      # 
 	      # subject directory name to use
@@ -147,10 +213,19 @@ do
 		
               # case_flirt_options 
 	      # 
-	      # find the flirt options
+	      # find the flirt options,
+              # also options for "vbm8HiRes erosion phase"
 	      #
 		"m")
 		    . ${thisDir}/auxiliary/setMCFlirtOptions
+		    ;;
+		
+              # case_set_run_number
+	      #
+	      # Set the run number to start the recon.
+	      #
+		"N")
+		    . ${thisDir}/auxiliary/setReconRunNumber
 		    ;;
 		
               # case_output_name 
@@ -163,7 +238,7 @@ do
 		
               # case_other_names 
 	      #
-	      # Simliar Other images
+	      # Simliar Other images or the slice order in sliceTime8
 	      # 
 		"O")
 		    . ${thisDir}/auxiliary/setOtherNames
@@ -192,7 +267,13 @@ do
 		"P")
 		    . ${thisDir}/auxiliary/setPhysioOptions
 		    ;;
-
+		
+              # case_qualitycheck
+	      #
+	      #
+                "q")
+                    . ${thisDir}/auxiliary/setQualityCheckFlag
+                    ;;
               # case_reslice_2 
 	      #
 	      # reslice the geometry only with no estimation?
@@ -312,7 +393,12 @@ do
 			let nRUN++
 		    fi
 		    ;;
-
+             # 
+             # Override needed to get sliceTime (the FSL based one to run)
+             #
+                "!")
+                    RUNSLICETIMEFSL=1
+                    ;;
              # case_0 for vbm8Check
              #
 		"0")
@@ -366,3 +452,8 @@ do
     shift
     let argn++
 done
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0
