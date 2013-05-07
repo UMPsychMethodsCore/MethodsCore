@@ -4,38 +4,18 @@
 
 Exp=['/net/data4/Schiz_COBRE/UnivariateConnectomics/CensorZ_FDpoint5_0f0bExclude_50good/'];
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% What network intersections are you interested in drawing?         %
-% Provide a 2D matrix for this, where rows index "cells",           %
-% and column 1 is the first network, column 2 is the second network %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Nets = [
-    1 12
-    12 12
-    7 12
-    6 12
-    4 12
-    3 12
-    1 12
-    6 7
-    7 7
-    5 7
-    4 7
-    1 7
-    6 6
-    4 6
-    3 6
-    1 6
-    3 5
-    4 5
-    1 5
-    4 4
-    3 4
-    2 4
-    1 4
-    3 3
-    ];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Which node/edge files do you want to draw? Provide a cell %
+% array of strings which will serve as the base file names  %
+% (this program will automatically append .edge and .node   %
+% for you)                                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+Files = {
+
+    };
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Which Brain Surface should BNV use? If you give an empty string, it will use %
@@ -132,13 +112,11 @@ if strcmp(CfgFile,'')
     CfgFile = fullfile(mcRoot,'svmbatch','lib','BrainNetViewer','Data','Brain_AAL_Nodes_Edges_edited.mat');
 end
 
-for iC = 1:size(Nets,1)
-    ind.label1 = Nets(iC,1);
-    ind.label2 = Nets(iC,2);
+for iC = 1:size(Files,1)
     
-    NodeFile=sprintf('%s%d-%d.node',Exp,ind.label1,ind.label2);
-    EdgeFile=sprintf('%s%d-%d.edge',Exp,ind.label1,ind.label2);
-    OutputPath=sprintf('%s%d-%d.bmp',Exp,ind.label1,ind.label2); 
+    NodeFile = fullfile(Exp,Files{iC},'.node');
+    EdgeFile = fullfile(Exp,Files{iC},'.edge');
+    OutputPath = fullfile(Exp,Files{iC},'.bmp');
 
     BrainNet_MapCfg(BrainVol,NodeFile,EdgeFile,CfgFile,OutputPath,ind);
 end
