@@ -19,13 +19,6 @@ LogTemplate = '[Exp]/Logs';
 ModelTemplate = '[Exp]/FirstLevel/[Subject]/MV/SPM.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Optional output path for a CSV file collating all subjects/runs into a
-%%% single file. If left blank it will only write out CSV files in each
-%%% individual run folder within each subject.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputTemplate = '[Exp]/PPI/HARIRI/[ROI].csv';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,7 +70,7 @@ ConditionName = {
 ContrastNum = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% ContrastThesh is the p-value threshold to use on ContrastNum to 
+%%% ContrastThresh is the p-value threshold to use on ContrastNum to 
 %%% identify super-threshold voxels for the extraction.  If you'd like to 
 %%% include all voxels in your ROI (unthresholded) this should be set to 1
 %%% Similarly, ContrastExtent is a minimum cluster size extent threshold.
@@ -92,7 +85,7 @@ ContrastCorrection = 'none';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PPIType is the type of the analysis to perform. Valid settings are:
 %%%	'standard'	this is a standard SPM PPI (contrast of conditions)
-%%%	'gPPI'		this is a generalized PPI (each condition seperate)
+%%%	'gPPI'		this is a generalized PPI (each condition separate)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PPIType = 'gPPI';
 
