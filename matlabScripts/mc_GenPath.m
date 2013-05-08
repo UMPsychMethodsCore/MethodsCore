@@ -312,7 +312,7 @@ if(strcmpi('makedir',mode))
 end
 %% Make parent path if it doesn't exist (if supposed to)
 if(strcmpi('makeparentdir',mode))
-    [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
+    [templatepath, templatename, templatext] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
             mkdir(templatepath);

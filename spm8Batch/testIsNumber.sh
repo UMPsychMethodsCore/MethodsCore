@@ -25,3 +25,15 @@ do
     fi
 done
     
+for THING in  1 2 1.1 1.1.1 0.1 4
+do
+    isinteger $THING
+    retVal=$?
+    if [ "$retVal" == "0" ]
+	then
+	echo $retVal INTEGER $THING
+    else
+	echo $retVal FLOAT $THING 
+    fi
+done
+

@@ -1,0 +1,60 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for WM erosion iteration."
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      WMEROSION=$1
+		      shift
+		      let argn++
+		      if (( $argn >= $args ))
+		         then
+		         echo "Missing parameter for CSF erosion iteration."
+	                 . ${thisDir}/auxiliary/exit_w_removal
+		      else
+		         CSFEROSION=$1
+		      fi
+                  fi
+		  # Now make sure they are numbers
+                  # WMEROSION FIRST
+		  isnumber ${WMEROSION}
+		  retValN=$?
+		  isinteger ${WMEROSION}
+		  retValI=$?
+		  let retVal=${retValN}+${retValI}
+		  if [ "${retVal}" != "0" ]
+		  then
+		     echo "WM Erosion must be an integer"
+		     . ${thisDir}/auxiliary/exit_w_removal
+		  fi
+                  if [ ${WMEROSION} -lt 0 ]
+		  then
+		     echo "WM Erosion must be positive"
+		     . ${thisDir}/auxiliary/exit_w_removal
+		  fi
+                  # CSFEROSION FIRST
+		  isnumber ${CSFEROSION}
+		  retValN=$?
+		  isinteger ${CSFEROSION}
+		  retValI=$?
+		  let retVal=${retValN}+${retValI}
+		  if [ "${retVal}" != "0" ]
+		  then
+		     echo "CSF Erosion must be an integer"
+		     . ${thisDir}/auxiliary/exit_w_removal
+		  fi
+                  if [ ${CSFEROSION} -lt 0 ]
+		  then
+		     echo "CSF Erosion must be positive"
+		     . ${thisDir}/auxiliary/exit_w_removal
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

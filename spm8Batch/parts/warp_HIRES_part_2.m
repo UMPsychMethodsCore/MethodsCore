@@ -36,10 +36,14 @@ for iSub = 1:length(UMBatchSubjs)
       end
       % Force the warping method to be the standard SPM8
       results = UMBatchWarp(TemplateImage,ParamImage,[],Img2Write,UMTestFlag,VoxelSize,OutputName,0);
-      UMCheckFailure(results);
+      if UMCheckFailure(results)
+	exit(abs(results))
+      end
     else
       fprintf('FATAL ERROR : Image to warp does not exist: %s\n',ParamImage)
-      break
+      results = -65;
+      UMCheckFailure(results);
+      exit(abs(results));
     end
 end
 
