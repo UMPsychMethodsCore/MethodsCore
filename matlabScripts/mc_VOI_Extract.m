@@ -84,7 +84,7 @@ if (ischar(ROI))
     if (~exist(ROI,'file'))
         mc_Error(sprintf('ROI file %s does not exist. Please check your paths.',ROI));
     end
-    roi.mask.image = ROI;
+    roi.mask.image = {ROI};
     roi.mask.threshold = 0.5;
     [p f e] = fileparts(ROI);
     if (isempty(outputname))
