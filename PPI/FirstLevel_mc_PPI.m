@@ -219,7 +219,7 @@ OutputName     = 'MV_motion_deriv_ppi_woCond_fd_frame_allderiv';
 %%% 2 = Contrast add on
 %%% 3 = test without running anything
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mode = 2;
+Mode = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Analyze data on a local drive on the machine you run the script on
@@ -229,7 +229,7 @@ Mode = 2;
 %%% OVERWRITE existing results without prompting you, so please be sure
 %%% your paths are all correct before running.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-UseSandbox = 0;
+UseSandbox = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ref point for data out of 16, use same fraction as ref slice for slice timing
@@ -374,14 +374,13 @@ RegList = {
 %%% analysis.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 spmdefaults = {
-    'mask.thresh'   0.5;
+    'mask.thresh'   0.8;
 };
 
 
 global mcRoot;
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
-mcRoot = '/home/mangstad/repos/MethodsCore/';
 %DEVSTOP
 
 %[DEVmcRootAssign]
