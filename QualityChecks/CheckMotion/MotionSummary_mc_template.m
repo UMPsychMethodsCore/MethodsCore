@@ -76,6 +76,14 @@ FDLeverArm = 50;
 FDcriteria = 0.2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% How do you want to report the results 
+%%% OutputMode
+%%%                  1   ----  report results for each run
+%%%                  2   ----  report average results over runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+OutputMode = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Other frames to exclude.
 %%% FramesBefore is the number of frames before a censored frame to create
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
