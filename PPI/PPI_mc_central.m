@@ -53,6 +53,12 @@ if (strcmp(spmver,'SPM8')==1)
     end
 end
 
+RunNamesTotal = RunDir;
+if (~exist('NumScan','var'))
+    NumScan = [];
+end
+NumScanTotal = NumScan;
+
 spm('defaults','fmri');
 global defaults;
 warning off all
@@ -66,7 +72,25 @@ for iSubject = 1:size(SubjDir,1)
     SPMmat = mc_GenPath(ModelTemplate);
     SPM = load(SPMmat);
     SPM = SPM.SPM;
-    NumRun = size(SPM.Sess,2);
+    
+    RunList = SubjDir{iSubject,3};
+    NumRun = size(RunList,2);
+        %%%%% This code cuts RunDir and NumScan based which Image Runs are present  
+    clear RunDir;
+    NumScan = [];
+    for iRun=1:NumRun
+        RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
+        if (~isempty(NumScanTotal))
+            NumScan(1,iRun) = NumScanTotal(1,RunList(1,iRun));
+        end
+    end
+
+    NumRun = size(RunDir,1); % number of runs    
+    
+    if (NumRun ~= size(SPM.Sess,2))
+        mc_Error(sprintf('You have specified %d runs, but the SPM ModelTemplate %s has %d',NumRun,SPMmat,size(SPM.Sess,2)));
+    end    
+
     [SubjFolder f e] = fileparts(SPMmat);
     
     for iROI = 1:size(ROIs,1)
