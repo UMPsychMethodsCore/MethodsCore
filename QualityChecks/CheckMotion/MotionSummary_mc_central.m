@@ -25,21 +25,43 @@ for iSubject = 1:size(SubjDir,1)
         [pathstr,name,ext] = fileparts(MotionPath);
         if any(strcmp(ext,{'.par','.dat'}))
             Output = euclideanDisplacement(MotionParameters,LeverArm);
-            [FD FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
+            [FD, FDjudge] = mc_FD_calculation(MotionParameters, FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         else
             Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
-            [FD FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
+            [FD, FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
         end
         
+        % Pre-Scrubbing Summary of FD
         Output.meanFD       = mean(FD);
-        Output.censorvector = FDjudge;
+        Output.maxFD        = max(FD);
+        Output.stdFD        = std(FD);
+        Output.censorvector = sum(FDjudge,2);
         Output.nonzeroFD    = nnz(FDjudge);
         
+        % Post-Scrubbing Summary of FD
+        FD_post = FD;
+        FD_post(Output.censorvector==1) = [];
+        Output.meanFDpost   = mean(FD_post);
+        Output.maxFDpost    = max(FD_post);
+        Output.stdFDpost    = std(FD_post);
+                
         if ~isstruct(Output) && Output == -1; return; end;
         CombinedOutput{iSubject,jRun} = Output;
         
+        if exist('OutputCensorVector','var') && (~isempty(OutputCensorVector))
+            OutputCensorVectorFile = mc_GenPath(struct('Template',OutputCensorVector,...
+                'suffix','.mat',...
+                'mode','makeparentdir'));
+            if ~isempty(Output.censorvector)
+                cv = Output.censorvector;
+            else
+                cv = zeros(size(FD));       % No scan excluded scenario
+            end
+            save(OutputCensorVectorFile,'cv');
+        end
+        
         % Write out censor regressor csv
-        [pathstr file ext] = fileparts(MotionPath);
+        [pathstr, file, ext] = fileparts(MotionPath);
         fdCsv = fullfile(pathstr, 'fdOutliers.csv');
         fdFid = fopen(fdCsv, 'w');
         if fdFid == -1
@@ -47,13 +69,6 @@ for iSubject = 1:size(SubjDir,1)
             fprintf(1, 'Check permissions for path: %s\n', pathstr);
         else
             if ~isempty(FDjudge)
-                ind = find(FDjudge(:) > 0);
-                [m n] = ind2sub(size(FDjudge), ind);
-                for i = 1:(length(m) - 1)
-                    fprintf(fdFid, 'frame%d,', m(i));
-                end
-                fprintf(fdFid, 'frame%d\n', m(end));
-
                 for i = 1:size(FDjudge, 1)
                     for k = 1:(size(FDjudge, 2) - 1)
                         fprintf(fdFid, '%d,', FDjudge(i, k));
@@ -73,7 +88,7 @@ if theFID < 0
     return;
 end
 
-fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,meanFD,SupraThresholdFD\n'); %header
+fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD\n'); %header
 for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
     for jRun = 1:size(SubjDir{iSubject,3},2)
@@ -95,7 +110,12 @@ for iSubject = 1:size(SubjDir,1)
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxAngle);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanAngle);
         fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.sumAngle);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFD);
         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanFD);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFD);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFDpost);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.meanFDpost);
+        fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFDpost);
         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.nonzeroFD);
     end
 end

@@ -51,13 +51,15 @@ MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputPathTemplate = '[Exp]/MotionSummary/RestingState_c';
 
+OutputCensorVector = '[Exp]/MotionSummary/RestingState_c/CensorVector_[Subject]';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Lever arm (typically between 50-100mm)
 %%% The lever arm is used to calculate a Eudclidean displacement metric for
 %%% both the rotational and translational motion parameters.  It defines
 %%% the distance from fulcrum of head to furthest edge.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LeverArm = 75;
+LeverArm = 50;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FD Lever arm (typically between 50-100mm) for FD calculation
@@ -79,8 +81,8 @@ FDcriteria = 0.2;
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
 %%% censored frame to create sensor vectors as well.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FramesBefore = 2;
-FramesAfter = 1;
+FramesBefore = 1;
+FramesAfter = 2;
 
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
