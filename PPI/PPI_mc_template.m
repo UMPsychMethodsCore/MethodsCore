@@ -13,17 +13,12 @@ Exp = '/data/testdata/PPI/';
 LogTemplate = '[Exp]/Logs';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path where the original First Level model resides.  This model will be
-%%% used to extract the VOI data to calculate the PPI regressors.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ModelTemplate = '[Exp]/FirstLevel/[Subject]/MV/SPM.mat';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
       'subject01',1,[1 2];
+      'subject02',2,[1 2];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,10 +52,16 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
 %%% model based on condition name.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ConditionName = {
-    'check1';
-    'check2';
-    'check3';
+    'cond1';
+    'cond2';
+    'cond3';
 };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where the original First Level model resides.  This model will be
+%%% used to extract the VOI data to calculate the PPI regressors.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ModelTemplate = '[Exp]/FirstLevel/[Subject]/MV/SPM.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ContrastNum is the index of the contrast you're using to identify
@@ -87,7 +88,7 @@ ContrastCorrection = 'none';
 %%%	'standard'	this is a standard SPM PPI (contrast of conditions)
 %%%	'gPPI'		this is a generalized PPI (each condition separate)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PPIType = 'gPPI';
+PPIType = 'standard';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ROIs is a list of different ROIs that you would like to extract from
@@ -102,7 +103,7 @@ PPIType = 'gPPI';
 %%% contain only 0s and 1s and determines which conditions to include.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIs = {
-	'scripttest_pmp_condpresent',[8 42 -12],[5],[1 1 0];
+	'vmPFC',[8 42 -12],[5],[1 1 0];
 };
 
 
@@ -134,6 +135,8 @@ global mcRoot;
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
+
+%[DEVmcRootAssign]
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'PPI'))
