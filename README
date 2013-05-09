@@ -14,15 +14,6 @@ Specialists).  An Executive Committee consisting of five PIs from the
 department sets the Core's agenda and oversees activities. They are Jon-Kar 
 Zubieta, Steve Taylor, Israel Liberzon, Mary Heitzeg, and James Swain.
 
-The current (tentative) schedule for upcoming releases is as follows: 
-August 1st               Preprocessing, Registration Checks
-September 5th            First-Level Script
-October 3rd              Second-Level Script
-November 7th             Companion Scripts (PPI, Physio Correction, 
-                         Motion Regressor Statistics, ROI Scripts, power 
-                         analysis, and others)
-December 5th             Repeated Measures ANOVA
-
 Our goal is to make sure Methods Core tools are:
     *User-friendly including extensive commenting and informative error 
     messages.
@@ -44,6 +35,21 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+
+5/8/2013   - Release 1.5
+             This release adds tools to support both standard and generalized
+             PPI. These scripts can be found in the PPI directory.
+             They include batched and automated VOI extration, automated
+             generation of PPI regressors for multiple ROIs, and modifications
+             to FirstLevel template script for easier loading of multiple
+             subject-specific regressor files at the first level.
+
+4/8/2013   - Release 1.4
+             This release adds scripts for quality checking during preprocessing.
+             These can be found in the QualityChecks folder.
+             Minor revisions were made to spm8Batch including the ability to use 
+             SPMs New Segment instead of VBM, as well as extracting principle 
+             components from white matter and CSF segments.
 
 2/13/2013  - Release 1.3
              This release adds scripts to extract betas from SPM designs in the

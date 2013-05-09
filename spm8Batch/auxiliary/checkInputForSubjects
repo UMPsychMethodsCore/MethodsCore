@@ -1,6 +1,16 @@
+#
+# Set the error code to bad data.
+#
+SPM8BATCH_ERROR_CODE=65
+#
+
 if (( ${#subjects[@]} < 1 ))
     then
     . ${thisDir}/auxiliary/noSubjectsErrorMsg
     . ${thisDir}/auxiliary/exit_w_removal
 fi
 
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0
