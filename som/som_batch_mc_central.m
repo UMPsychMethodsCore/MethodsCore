@@ -115,7 +115,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     cv = load(CensorFile);
                 end
                 if (size(cv,1) ~= NumScan(iRun))
-                    mc_Error('Your censor vector is %g elements, but you have %g scans in run %g',size(cv,1),NumScan(iRun),iRun);
+                    mc_Error('Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject));
                 end
                 parameters.data.run(iRun).censorVector = ~cv;
             end
