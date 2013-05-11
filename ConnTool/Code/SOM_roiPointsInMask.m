@@ -12,7 +12,7 @@
 % 
 % function inOutMask = roiPointsInMask(PMask,ROICoords)
 %
-%    PMask     = masking image
+%    PMask     = masking image, name of the file that it.
 %    ROICoords = coordinates of the ROI in MNI to be checked.
 %
 % Return an array of indices that point to the coordinates in ROICoords

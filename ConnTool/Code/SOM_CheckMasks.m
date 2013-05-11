@@ -19,7 +19,7 @@ global SOM
 % Does 'masks' field exist?
 
 if isfield(parameters,'masks') == 0
-  SOM_LOG('WARNING : You have not specified a ".masks" structure. Using defaults');
+  SOM_LOG('WARNING : You have not specified a ".masks" structure. Using defaults, which is all empty');
   masks.epi   = [];
   masks.grey  = [];
   masks.csf   = [];
@@ -38,6 +38,9 @@ if isfield(masks,'grey') == 0
     masks.grey = [];
 end
 
+SOM_LOG('STATUS : Checking for grey matter mask.');
+masks.grey.name = 'grey';
+
 masks.grey = SOM_ParseFileParam(masks.grey);
 
 if masks.grey.OK == -1
@@ -51,6 +54,8 @@ if isfield(masks,'white') == 0
     masks.white = [];
 end
 
+SOM_LOG('STATUS : Checking for white matter mask.');
+masks.white.name = 'white';
 masks.white = SOM_ParseFileParam(masks.white);
 
 if masks.white.OK == -1
@@ -64,6 +69,8 @@ if isfield(masks,'csf') == 0
     masks.csf = [];
 end
 
+SOM_LOG('STATUS : Checking for CSF matter mask.');
+masks.csf.name = 'csf';
 masks.csf = SOM_ParseFileParam(masks.csf);
 
 if masks.csf.OK == -1
@@ -76,6 +83,8 @@ end
 if isfield(masks,'epi') == 0 
     masks.epi = [];
 else
+    SOM_LOG('STATUS : Checking for EPI matter mask.');
+    masks.epi.name = 'epi';
     masks.epi = SOM_ParseFileParam(masks.epi);
     if masks.epi.OK == -1
         SOM_LOG('FATAL ERROR : You specified an epi mask that doesn''t exist');

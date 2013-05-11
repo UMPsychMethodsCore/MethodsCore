@@ -6,6 +6,10 @@
 % Ann Arbor, MI
 %
 % Calculate correlation matrix.
+% 
+% 2013-02-06
+%
+%   Added ability to calculate the partial correlation.
 %
 % INPUT
 %
@@ -33,7 +37,7 @@ global SOM
 SOM_LOG('STATUS : Entering CorrCoeff Map Calculation');
 
 rMatrix  = zeros(parameters.rois.nroisRequested,parameters.rois.nroisRequested);
-pMatrix  = ones(parameters.rois.nroisRequested,parameters.rois.nroisRequested);
+pMatrix  =  ones(parameters.rois.nroisRequested,parameters.rois.nroisRequested);
 
 % Array of ROI time courses.
 
@@ -48,7 +52,20 @@ end
 % Corr wants data as NxP1 and NxP2 and returns the correlation
 % matrix of P1 x P2.
 
-[rMatrix pMatrix] = corr(roiTC,roiTC);
+% N is time and P is voxel
+
+% 2013-02-06 Change the call to just be a single parameter of the data array
+% And put in hook for partial correlation versus full correlation.
+
+if strcmp(parameters.Output.correlationType,'full');
+  % Full correlation
+  [rMatrix pMatrix] = corr(roiTC);
+  nameOption = '_corr';
+else
+  % Partial correlation
+  [rMatrix pMatrix] = partialcorr(roiTC);
+  nameOption = '_paritalcorr';
+end
 
 % It is quite possible that some of the ROI's are messed up? That
 % is they don't really exist, even though specified. We can easily 
@@ -66,13 +83,31 @@ for iROI = 1 : parameters.rois.nroisRequested
   end
 end
 
+% 
+% Did they ask for power spectrum of each ROI?
+%
+
+% We make the assumption about only a single run! 
+
+if parameters.Output.power
+  [power.spectrum power.parameters] = SOM_PowerSpect(roiTC',parameters.TIME.run(1).TR);
+end
+
 %
 % Now save the matrix and parameters.
 %
 
-corrName = fullfile(parameters.Output.directory,[parameters.Output.name '_corr']);
+corrName = fullfile(parameters.Output.directory,[parameters.Output.name nameOption]);
 
-save(corrName,'rMatrix','pMatrix');
+%
+% Now recalculate the p-values based on fewer degrees of freedom.
+%
+
+if parameters.Output.power
+  save(corrName,'rMatrix','pMatrix','power');
+else
+  save(corrName,'rMatrix','pMatrix');
+end
 
 results = corrName;
 

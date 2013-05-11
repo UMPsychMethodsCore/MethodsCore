@@ -109,6 +109,7 @@ if isfield(rois,'mask') == 0
     rois.mask = [];
 end
 
+rois.mask.name = 'mask';
 rois.mask = SOM_ParseFileParam(rois.mask);
 
 if rois.mask.OK == -1

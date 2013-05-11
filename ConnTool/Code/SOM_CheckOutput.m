@@ -12,13 +12,17 @@
 %
 %      .rois
 %      .Output
-%               .correlation  - 'maps'    - save a single correlation matrix
-%                               'images'  - save a single correlation image
+%               .correlation  - 'maps'     - save a single correlation matrix
+%                               'images'   - save a single correlation image
 %                                           per ROI
+%                               'variance' - save a single variance map.
+%               .correlationType  - partial (maps), or full (maps and images)
 %               .directory    - full directory path to output
 %               .name         - name of output file (generic)
 %               .description  - comment to add to image files.
 %               .saveroiTC    - save roi time-courses when using 'maps'.
+%               .power        - write out the power spectrum of ROIs
+%                               THIS IS AN OPTIONAL FLAG.
 %
 %
 % OUTPUT
@@ -42,7 +46,6 @@ if isfield(parameters,'Output') == 0
     return
 end
 
-
 Output = parameters.Output;
 
 if ~isfield(Output,'saveroiTC')
@@ -56,7 +59,8 @@ Output.OK = -1;
 %
 % Make sure they have asked for "maps" or "images".
 %
-
+% images have to be full correlation, but maps can be partial.
+%
 if isfield(Output,'correlation')
     if ischar(Output.correlation)
         Output.correlation = lower(Output.correlation);
@@ -65,7 +69,11 @@ if isfield(Output,'correlation')
                 Output.type = 0;   % Correlation map/mat file. This require more than 1 ROI!
             case 'i'
                 Output.type = 1;   % r-image and z-image.
-            otherwise
+		Output.correlationType = 'full';
+		SOM_LOG('WARNING : Output correlation type being forced to "full"');
+	 case 'v'
+	        Output.type = 2; % variance map.
+	 otherwise
                 SOM_LOG('FATAL ERROR : Output type no specified');
                 return
         end
@@ -76,6 +84,28 @@ if isfield(Output,'correlation')
 else
     SOM_LOG('FATAL ERROR : Correlation output type is missing');
     return
+end
+
+% Check for partial correlation, added 2013-02-06 RCWelsh
+
+if isfield(Output,'correlationType')
+  if ischar(Output.correlationType)
+    Output.correlationtype = lower(Output.correlationType);
+    switch Output.correlationType(1)
+     case 'p'
+      Output.correlationType = 'partial';
+     otherwise
+      Output.correlationType = 'full';
+    end
+  else
+    Output.correlationType = 'full';
+    SOM_LOG('WARNING : Output correlation type being forced to "full"');
+  end
+else
+  Output.correlationType = 'full';
+  if Output.type < 2
+    SOM_LOG('WARNING : Output correlation type being forced to "full"');
+  end 
 end
 
 % 
@@ -120,9 +150,30 @@ for iCHAR = 1:length(CHAROK)
 end
 
 if isfield(Output,'description') == 0
+  switch Output.type
+   case 0
     Output.description = 'Correlaton map';
+   case 1
+    Output.description = 'Correlation image';
+   case 2
+    Output.description = 'Variance image';    
+   otherwise
     SOM_LOG('STATUS : Using generic file comment description.');
+  end
 end
+
+% What about power spectrum
+
+if isfield(Output,'power') == 0
+  Output.power = 0;
+else
+  if Output.power ~= 0 
+    Output.power = 1;
+    SOM_LOG('WARNING : You have enabled power spectrum saving of ROIs. Be aware that assumptions of a single run are made.');
+  end
+end
+
+%
 
 Output.OK = 1;
 

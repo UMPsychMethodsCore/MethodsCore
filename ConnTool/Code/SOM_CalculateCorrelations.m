@@ -68,21 +68,16 @@ global SOM
 
 results = -1;
 
+% Which output types require an ROI as input.
+
+outputTypesRequireROI = [0 1];
+
+% Track the time we spend here.
+
 parameters.startCPU.corr = cputime;
 
 %
-% Check the roi parameters
-%
-
-parameters.rois = SOM_CheckROIParameters(parameters);
-
-if parameters.rois.OK == -1
-    SOM_LOG('FATAL ERROR : parameters.rois failed to meet criteria');
-    return
-end
-    
-%
-% Check the output information
+% Check the output information, this is first because variance maps do not require ROIs.
 %
 
 parameters.Output = SOM_CheckOutput(parameters);
@@ -93,25 +88,35 @@ if parameters.Output.OK == -1
 end
 
 %
-% Sanity check, if Output.type = 0, which is a correlation map, then you
-% need at least 2 ROIs that survived any cleaning up.
+% Check the roi parameters, only if needed.
 %
 
-if parameters.Output.type == 0 & parameters.rois.nrois < 2
+if ismember(parameters.Output.type,outputTypesRequireROI)
+  parameters.rois = SOM_CheckROIParameters(parameters);
+  
+  if parameters.rois.OK == -1
+    SOM_LOG('FATAL ERROR : parameters.rois failed to meet criteria');
+    return
+  end  
+  %
+  % Sanity check, if Output.type = 0, which is a correlation map, then you
+  % need at least 2 ROIs that survived any cleaning up.
+  %  
+  if parameters.Output.type == 0 & parameters.rois.nrois < 2
     SOM_LOG('FATAL ERROR : You specified output to be a correlation matrix, but insufficient number of ROIS');
     return
+  end
+  % Take the ROI definitions and turn them into linear indices for
+  % calculations.
+  parameters.rois = SOM_BuildROILinearIDX(parameters);
 end
 
 %
 % Okay - we can do the work now.
 %
 
-% Take the ROI definitions and turn them into linear indices for
-% calculations.
 
-parameters.rois = SOM_BuildROILinearIDX(parameters);
-
-% Now do the correlation work, either making maps or images.
+% Now do the correlation work, either making (corr or partialcorr) maps or (corr or variance) images.
 
 switch parameters.Output.type
     
@@ -129,11 +134,20 @@ switch parameters.Output.type
         SOM_LOG('STATUS : Calling SOM_CalculateCorrelationImages');
         results = SOM_CalculateCorrelationImages(D0,parameters);
         
+    case 2
+        %
+        % Variance image.
+        %
+        SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
+        results = SOM_CalculateVarianceImage(D0,parameters);
+        
     otherwise
         %
-        % Error case
+        % Error case, go ahead and save the parameter file, maybe will help with debug.
         %
         SOM_LOG('FATAL ERROR : Somehow we are not doing correlation map or image output');
+	paraName = fullfile(parameters.Output.directory,[parameters.Output.name '_FATALERROR_parameters']);
+	results  = strvcat(results,paraName);
 	return
 end
 
