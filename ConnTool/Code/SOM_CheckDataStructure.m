@@ -17,6 +17,8 @@
 %
 %        P                 = full directory path to time-series data.
 %
+%        cP                = full directory path to confound time-series data.
+%
 %        MotionParameters  = array of motion parameters
 %
 %        MaskFLAG          = 0 don't do any masking and grab all of the data
@@ -29,6 +31,9 @@
 %        censorVector      = vector of 0's and 1's on which
 %                            specific TR's to include in the analysis, this is after
 %                            the nTIME has trimmed the data. NOT REQUIRED.
+%
+%  I DO NOT RECOMMEND DOING CENSORING UNTIL THE FILTER METHOD HAS BEEN OPTIONED.
+%  RCWelsh - 2013-05-01
 %
 %   OK                = -1 returned if bad
 %                        1 if things are okay.
@@ -65,21 +70,40 @@ for iRUN = 1:length(data.run)
     return
   end
 
+  if isfield(data.run(iRUN),'cP') == 0
+    SOM_LOG(sprintf('WARNING : Missing cP variable in parameters.data, will use P for run %d'iRUN));
+    data.run(iRUN).cP = P;
+  end
+
   if ischar(data.run(iRUN).P) == 0
     SOM_LOG('FATAL ERROR : You need to specify a character array of files');
+    return
+  end
+
+  if ischar(data.run(iRUN).cP) == 0
+    SOM_LOG('FATAL ERROR : You need to specify a character array of cP files');
     return
   end
 
   % Now check to see if the input files actually exist.
   
   if exist(data.run(iRUN).P(1,:),'file') == 0
-    SOM_LOG(sprintf('FATAL ERROR : File %s does not exist',data.run(iRUN).P(1,:)));
+    SOM_LOG(sprintf('FATAL ERROR : P File %s does not exist',data.run(iRUN).P(1,:)));
+    return
+  end
+  
+  if exist(data.run(iRUN).cP(1,:),'file') == 0
+    SOM_LOG(sprintf('FATAL ERROR : cP File %s does not exist',data.run(iRUN).cP(1,:)));
     return
   end
   
   % Read in a single header for this run from the first file.
   
-  data.run(iRUN).hdr = spm_vol(data.run(iRUN).P(1,:));
+  data.run(iRUN).hdr  = spm_vol(data.run(iRUN).P(1,:));
+
+  % Get the confound header as well.
+  
+  data.run(iRUN).chdr = spm_vol(data.run(iRUN).cP(1,:));
   
   % How many points in this run? If the hdr is multi-dimensional
   % than most likely a nifti file, and if P has more than one line
@@ -93,6 +117,7 @@ for iRUN = 1:length(data.run)
   end
   
   if isfield(data.run(iRUN),'censorVector')
+    SOM_LOG('WARNING : Robert does NOT recommend doing censoring in this package');
     if length(data.run(iRUN).censorVector) ~= data.run(iRUN).nTIME
       SOM_LOG(sprintf('FATAL : Specified censorVector of length %d for run %d does not match %d'),iRUN,data.run(iRUN).nTIME)
       return
@@ -118,10 +143,25 @@ for iRUN = 1:length(data.run)
   
   for iFILE = 2:size(data.run(iRUN).P,1)
     if exist(data.run(iRUN).P(iFILE,:),'file') == 0
-      SOM_LOG(sprintf('FATAL ERROR : File %s does not exist',data.run(iRUN).P(iFILE,:)));
+      SOM_LOG(sprintf('FATAL ERROR : P File %s does not exist',data.run(iRUN).P(iFILE,:)));
       return
     else
       thisHDR = spm_vol(data.run(iRUN).P(iFILE,:));     % fixed on 5/2/2012
+      if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) ~= 1
+	SOM_LOG('FATAL ERROR : Error with consistent in-run image space definition.');
+	return
+      end
+    end
+  end
+  
+  % Check the confound files.
+  
+  for iFILE = 1:size(data.run(iRUN).cP,1)
+    if exist(data.run(iRUN).cP(iFILE,:),'file') == 0
+      SOM_LOG(sprintf('FATAL ERROR : cP File %s does not exist',data.run(iRUN).cP(iFILE,:)));
+      return
+    else
+      thisHDR = spm_vol(data.run(iRUN).cP(iFILE,:));     % fixed on 5/2/2012
       if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) ~= 1
 	SOM_LOG('FATAL ERROR : Error with consistent in-run image space definition.');
 	return
@@ -135,7 +175,12 @@ end
 
 for iRUN = 2:length(data.run)
   if SOM_SpaceVerify(data.run(1).hdr,data.run(iRUN).hdr) ~= 1
-    SOM_LOG('FATAL ERROR : Error with consistent cross-run image space definition.');
+    SOM_LOG('FATAL ERROR : P Error with consistent cross-run image space definition.');
+    return
+  end
+  % And check the confound headers as well.
+  if SOM_SpaceVerify(data.run(1).hdr,data.run(iRUN).chdr) ~= 1
+    SOM_LOG('FATAL ERROR : cP Error with consistent cross-run image space definition.');
     return
   end
 end

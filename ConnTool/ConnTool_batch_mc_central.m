@@ -1,18 +1,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if (alreadydone(1))
-    basefile = [stp basefile];
-end
-if (alreadydone(2))
-    basefile = [rep basefile];
-end
-if (alreadydone(3))
-    basefile = [nop basefile];
-end
-if (alreadydone(4))
-    basefile = [smp basefile];
-end
+%if (alreadydone(1))
+%    basefile = [stp basefile];
+%end
+%if (alreadydone(2))
+%    basefile = [rep basefile];
+%end
+%if (alreadydone(3))
+%    basefile = [nop basefile];
+%end
+%if (alreadydone(4))
+%    basefile = [smp basefile];
+%end
 
 
 RunMode = [0 0];
@@ -33,29 +33,41 @@ if (strcmp(spmver,'SPM8')==1)
     spm_get_defaults('cmdline',true);
 end
 
+if GrayUse
+  GreyMatterTemplate = [AnatomyMaskPath '/w3mm_vbm8_p0ht1spgr.nii']
+end
+
+if WhiteUse
+  WhiteMatterTemplate = [AnatomyMaskPath  '/WM_ero*.nii'];
+end
+
+if CSFUse
+  CSFTemplate = [AnatomyMaskPath  '/CSF_ero*.nii'];
+end
+
 if (RunMode(1) | sum(RunMode) == 0)
     RunNamesTotal = RunDir;
-    NumScanTotal = NumScan;
+    NumScanTotal  = NumScan;
 
     MaskBrain = 1;
 
-    RegressGlobal = any(strfind(upper(RegressOrder),'G'));
-    RegressWhite = any(strfind(upper(RegressOrder),'W'));
-    RegressCSF = any(strfind(upper(RegressOrder),'C'));
+    RegressGlobal    = any(strfind(upper(RegressOrder),'G'));
+    RegressWhite     = any(strfind(upper(RegressOrder),'W'));
+    RegressCSF       = any(strfind(upper(RegressOrder),'C'));
     DoBandpassFilter = any(strfind(upper(RegressOrder),'B'));
-    RegressMotion = any(strfind(upper(RegressOrder),'M'));
-    DoLinearDetrend = any(strfind(upper(RegressOrder),'D'));
+    RegressMotion    = any(strfind(upper(RegressOrder),'M'));
+    DoLinearDetrend  = any(strfind(upper(RegressOrder),'D'));
 
     for iSubject = 1:size(SubjDir,1)
         clear parameters;
         clear global SOM;
         
         parameters.RegressFLAGS.prinComp = PrincipalComponents;
-        parameters.RegressFLAGS.global = RegressGlobal;
-        parameters.RegressFLAGS.csf = RegressCSF;
-        parameters.RegressFLAGS.white = RegressWhite;
-        parameters.RegressFLAGS.motion = RegressMotion;
-        parameters.RegressFLAGS.order = RegressOrder;  
+        parameters.RegressFLAGS.global   = RegressGlobal;
+        parameters.RegressFLAGS.csf      = RegressCSF;
+        parameters.RegressFLAGS.white    = RegressWhite;
+        parameters.RegressFLAGS.motion   = RegressMotion;
+        parameters.RegressFLAGS.order    = RegressOrder;  
     
         Subject=SubjDir{iSubject,1};
         RunList=SubjDir{iSubject,3};
@@ -75,35 +87,45 @@ if (RunMode(1) | sum(RunMode) == 0)
         NumRun= size(NumScan,2); % number of runs
         ImageNumRun=size(RunDir,1); %number of image folders
 
-        GreyPath = mc_GenPath(GreyMatterTemplate);
+        GreyPath  = mc_GenPath(GreyMatterTemplate);
         WhitePath = mc_GenPath(WhiteMatterTemplate);
-        CSFPath = mc_GenPath(CSFTemplate);
+        CSFPath   = mc_GenPath(CSFTemplate);
         BrainPath = mc_GenPath(BrainMaskTemplate);
 
-        parameters.grey.File = GreyPath;
-        parameters.grey.ImgThreshold = GreyThreshold;
-        parameters.masks.white.File = WhitePath;
-        parameters.masks.csf.File = CSFPath;
-        parameters.masks.epi.File = BrainPath;
+        parameters.grey.File          = GreyPath;
+        parameters.grey.ImgThreshold  = GreyThreshold;
+        parameters.masks.white.File   = WhitePath;
+        parameters.masks.csf.File     = CSFPath;
+        parameters.masks.epi.File     = BrainPath;
         parameters.rois.mask.MaskFLAG = MaskBrain;
 
         for iRun = 1:ImageNumRun
             Run = RunDir{iRun};
 
-            ImagePath = mc_GenPath(ImageTemplate);
-            ImageFiles = spm_select('FPList',ImagePath, ['^' basefile '.*.' imagetype]);
+            ImagePath   = mc_GenPath(ImageTemplate);
+            ImageFiles  = spm_select('FPList',ImagePath, ['^' connectFile '.*.' imagetype]);
+            parameters.data.run(iRun).P     = ImageFiles;
+	    if ~isempty(confoundFile)
+	      cImageFiles = spm_select('FPList',ImagePath, ['^' confoundFile '.*.' imagetype]);
+              parameters.data.run(iRun).cP  = cImageFiles;
+	    end
+
             RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
             parameters.data.run(iRun).P = ImageFiles;
 
-            RealignmentParameters = load(RealignmentParametersFile);
-            RealignmentParametersDeriv = diff(RealignmentParameters);
+            RealignmentParameters       = load(RealignmentParametersFile);
+            RealignmentParametersDeriv  = diff(RealignmentParameters);
             RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
 
             parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-            parameters.data.run(iRun).nTIME = NumScan(iRun);
+            parameters.data.run(iRun).nTIME            = NumScan(iRun);
             
             %%%added code to handle censorVectors
+	    %
+	    % ROBERT DOES NOT RECOMMEND THE CURRENT IMPLEMENTATION OF CENSORING.
+	    % USE AT YOUR OWN STATISTICAL RISK
+	    %
             if (exist('CensorTemplate','var') && ~isempty(CensorTemplate))
                 CensorFile = mc_GenPath(struct('Template',CensorTemplate,'mode','check'));
                 [p f e] = fileparts(CensorFile);
@@ -123,20 +145,20 @@ if (RunMode(1) | sum(RunMode) == 0)
             
             parameters.data.MaskFLAG = MaskBrain;
 
-            parameters.TIME.run(iRun).TR = TR;
-            parameters.TIME.run(iRun).BandFLAG = DoBandpassFilter;
-            parameters.TIME.run(iRun).TrendFLAG = DoLinearDetrend;
-            parameters.TIME.run(iRun).LowF = LowFrequency;
-            parameters.TIME.run(iRun).HiF = HighFrequency;
-            parameters.TIME.run(iRun).gentle = Gentle;
-            parameters.TIME.run(iRun).padding = Padding;
-            parameters.TIME.run(iRun).whichFilter = BandpassFilter;
-            parameters.TIME.run(iRun).fraction = Fraction;
+            parameters.TIME.run(iRun).TR            = TR;
+            parameters.TIME.run(iRun).BandFLAG      = DoBandpassFilter;
+            parameters.TIME.run(iRun).TrendFLAG     = DoLinearDetrend;
+            parameters.TIME.run(iRun).LowF          = LowFrequency;
+            parameters.TIME.run(iRun).HiF           = HighFrequency;
+            parameters.TIME.run(iRun).gentle        = Gentle;
+            parameters.TIME.run(iRun).padding       = Padding;
+            parameters.TIME.run(iRun).whichFilter   = BandpassFilter;
+            parameters.TIME.run(iRun).fraction      = Fraction;
         end
 
         Run = RunDir{1};
         ImagePath = mc_GenPath(ImageTemplate);
-        SOM_Mask = mc_GenPath(fullfile(ImagePath,'som_mask.img'));
+        SOM_Mask  = mc_GenPath(fullfile(ImagePath,'som_mask.img'));
 
         if (isempty(BrainMaskTemplate))
             parameters.rois.mask.File = SOM_Mask;
@@ -173,12 +195,12 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
             case 'grid'
-                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
-                ROIGridMaskHdr = spm_vol(ROIGridMask);
-                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr  = spm_vol(ROIGridMask);
+                ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                grid_coord = grid_coord_cand(inOutIDX,:);
+                inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord      = grid_coord_cand(inOutIDX,:);
                 parameters.rois.mni.coordinates = grid_coord;
                 if (iscell(ROIGridSize))
                     parameters.rois.mni.size = ROIGridSize{1};
@@ -189,14 +211,14 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(2,:);
                 end
             case 'gridplus'
-                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
-                ROIGridMaskHdr = spm_vol(ROIGridMask);
-                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr  = spm_vol(ROIGridMask);
+                ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                grid_coord = grid_coord_cand(inOutIDX,:);
+                inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord      = grid_coord_cand(inOutIDX,:);
                 
-                grid_coord = [grid_coord; ROIGridCenters];
+                grid_coord      = [grid_coord; ROIGridCenters];
                 
                 parameters.rois.mni.coordinates = grid_coord;
                 if (iscell(ROIGridSize))
@@ -209,13 +231,13 @@ if (RunMode(1) | sum(RunMode) == 0)
                 end
         end
 
-        parameters.Output.correlation = ROIOutput;
-        parameters.Output.saveroiTC = saveroiTC;
+        parameters.Output.correlation  = ROIOutput;
+        parameters.Output.saveroiTC    = saveroiTC;
         %parameters.Output.description = 'description of output';
-        parameters.Output.directory = OutputPath;
-        parameters.Output.name = OutputName;
-        ParameterFilename = [OutputName '_parameters'];
-        ParameterPath = mc_GenPath(fullfile(OutputPath,ParameterFilename));
+        parameters.Output.directory    = OutputPath;
+        parameters.Output.name         = OutputName;
+        ParameterFilename              = [OutputName '_parameters'];
+        ParameterPath                  = mc_GenPath(fullfile(OutputPath,ParameterFilename));
         save(ParameterPath,'parameters');
         
     end

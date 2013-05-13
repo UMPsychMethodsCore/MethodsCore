@@ -51,6 +51,8 @@
 %
 %        P                 = full directory path to time-series data.
 %
+%        cP                = full directory path to the confound time-series data.
+%
 %        MotionParameters  = array of motion parameters
 %
 %        nTIME             = number of time points to test.
@@ -245,13 +247,14 @@ if parameters.data.MaskFLAG == 1
         parameters.maskHdr = spm_vol(parameters.masks.epi.File);
     end
     % store temp
-    fileINDEXTemp = fileINDEXTemp + 1;
+    fileINDEXTemp                    = fileINDEXTemp + 1;
     filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
 else
     % changed this on 2012-03-29 (RCWelsh), this will force some sort of masking, but that is okay.
     % This will prevent SOM_CalculateCorrelationImages from failing if no mask is indicated at all
-    parameters.maskHdr = SOM_CreateMask(parameters.data.run(1).P);
-    %parameters.maskHdr.fname = [];   % If no name then SOM_PrepData can deal.
+    parameters.maskHdr               = SOM_CreateMask(parameters.data.run(1).P);
+    fileINDEXTemp                    = fileINDEXTemp + 1;
+    filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
 end
 
 %
@@ -280,11 +283,16 @@ D0RUN  = [];
 for iRUN = 1:length(parameters.data.run)
     
     [D0RUN(iRUN).D0 parameters.maskInfo] = SOM_PrepData(parameters.data.run(iRUN).P,parameters.maskHdr.fname,[]);
+
+    % Read in the confound data
+    
+    [D0RUN(iRUN).cD0, ~]                 = SOM_PrepData(parameters.data.run(iRUN).cP,parameters.maskHdr.fname,[]);
     
     % Trim the data as needed.
     
     if size(D0RUN(iRUN).D0,2) > parameters.data.run(iRUN).nTIME;
-        D0RUN(iRUN).D0 = D0RUN(iRUN).D0(:,1:parameters.data.run(iRUN).nTIME);
+        D0RUN(iRUN).D0  = D0RUN(iRUN).D0(:,1:parameters.data.run(iRUN).nTIME);
+        D0RUN(iRUN).cD0 = D0RUN(iRUN).cD0(:,1:parameters.data.run(iRUN).nTIME);
         SOM_LOG(sprintf('WARNING : Trimming data to adhere to length specified in parameters.data.run.nTIME : %d',parameters.data.run(iRUN).nTIME));
     end
     
@@ -322,7 +330,10 @@ for iRUN = 1:length(parameters.data.run)
                 parameters.startCPU.run(iRUN).detrend = cputime;
                 
                 if parameters.TIME.run(iRUN).TrendFLAG > 0
+		    % Detrend time-series data
                     D0RUN(iRUN).D0 = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).TrendFLAG)';
+		    % Detrend confound as well
+                    D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN.cD0',parameters.TIME.run(iRUN).TrendFLAG)';
                 end
                 
                 parameters.stopCPU.run(iRUN).detrend = cputime;
@@ -339,7 +350,8 @@ for iRUN = 1:length(parameters.data.run)
                 parameters.TIME.run(iRUN).GS = SOM_GlobalCalc(D0RUN(iRUN).D0);
                 
                 SOM_LOG('STATUS : Doing global regression');
-                D0RUN(iRUN).D0 = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
+                D0RUN(iRUN).D0  = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
+                D0RUN(iRUN).cD0 = SOM_RemoveConfound(D0RUN(iRUN).cD0,parameters.TIME.run(iRUN).GS);
                 
                 parameters.stopCPU.run(iRUN).global = cputime;
                 
@@ -369,17 +381,19 @@ for iRUN = 1:length(parameters.data.run)
                         % Are we doing principle components are we taking the mean of the ROI?
                         %
                         if parameters.RegressFLAGS.prinComp > 0
-                            parameters.masks.csf.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.masks.csf.IDX,:),parameters.TIME.run(iRUN).fraction);
+                            parameters.masks.csf.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).cD0(parameters.masks.csf.IDX,:),parameters.TIME.run(iRUN).fraction);
                             % How many components are we to use?
                             parameters.masks.csf.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.csf.run(iRUN).PRINCOMP.TC,2)]);
                             parameters.masks.csf.run(iRUN).regressors = (parameters.masks.csf.run(iRUN).PRINCOMP.TC(:,1:parameters.masks.csf.run(iRUN).nComp));
                         else
-                            parameters.masks.csf.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.masks.csf.IDX,:))';
+                            parameters.masks.csf.run(iRUN).regressors = mean(D0RUN(iRUN).cD0(parameters.masks.csf.IDX,:))';
                         end
                         
                         % Now remove them.
-                        
-                        D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.csf.run(iRUN).regressors);
+                        % From the time-series data
+                        D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.csf.run(iRUN).regressors);
+			% And from the confound data
+                        D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.masks.csf.run(iRUN).regressors);
                     end
                 else
                     parameters.masks.csf.run(iRUN).regressors = [];
@@ -407,32 +421,39 @@ for iRUN = 1:length(parameters.data.run)
                     
                     parameters.masks.white.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.white.ROIIDX);
                     
-                    SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
+                    if length(parameters.masks.white.IDX) < 1
+		      SOM_LOG(sprintf('STATUS : Not enough voxels to determine White time course'))
+                    else
+		      SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
                     
-                    % Are we regressing out the principle components or the mean.
-                    
-                    parameters.masks.white.run(iRUN).PRINCOMP = [];
-                    
-                    %
-                    % Are we doing principle components are we taking the mean of the ROI?
-                    %
-                    if parameters.RegressFLAGS.prinComp > 0
-                        parameters.masks.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).D0(parameters.masks.white.IDX,:),parameters.TIME.run(iRUN).fraction);
+		      % Are we regressing out the principle components or the mean.
+		      
+		      parameters.masks.white.run(iRUN).PRINCOMP = [];
+		      
+		      %
+		      % Are we doing principle components are we taking the mean of the ROI?
+		      %
+		      if parameters.RegressFLAGS.prinComp > 0
+                        parameters.masks.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:),parameters.TIME.run(iRUN).fraction);
                         % How many components are we to use?
                         parameters.masks.white.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.white.run(iRUN).PRINCOMP.TC,2)]);
                         parameters.masks.white.run(iRUN).regressors = (parameters.masks.white.run(iRUN).PRINCOMP.TC(:,1:parameters.masks.white.run(iRUN).nComp));
-                    else
-                        parameters.masks.white.run(iRUN).regressors = mean(D0RUN(iRUN).D0(parameters.masks.white.IDX,:))';
-                    end
-                    
-                    % Now remove them.
-                    
-                    D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
+		      else
+                        parameters.masks.white.run(iRUN).regressors = mean(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:))';
+		      end
+		      
+		      % Now remove them.
+		      
+		      % From the time-series data
+		      D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
+		      % And from the confound data
+		      D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.masks.white.run(iRUN).regressors);
+		    end
                 else
-                    parameters.masks.white.run(iRUN).regressors = [];
-                    SOM_LOG('WARNING : * * * * * * * * * * * *');
-                    SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
-                    SOM_LOG('WARNING : * * * * * * * * * * * *');
+		  parameters.masks.white.run(iRUN).regressors = [];
+		  SOM_LOG('WARNING : * * * * * * * * * * * *');
+		  SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
+		  SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
                 parameters.stopCPU.run(iRUN).white = cputime;
@@ -447,7 +468,8 @@ for iRUN = 1:length(parameters.data.run)
                 parameters.startCPU.run(iRUN).motion = cputime;
                 
                 if parameters.RegressFLAGS.motion > 0
-                    D0RUN(iRUN).D0 = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
+                    D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
+                    D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
                     SOM_LOG('STATUS : Motion Correction Implemented');
                 else
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
@@ -477,6 +499,14 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.TIME.run(iRUN).b = b(1,:);
                     parameters.TIME.run(iRUN).filtParams = filtParams;   % Number of degrees of freedom.
                     SOM_LOG('STATUS : Band Pass Filter Implemented.');
+		    % And now the confound series.
+                    [D0RUN(iRUN).cD0 b filtParams] = SOM_Filter(D0RUN(iRUN).cD0,...
+                        parameters.TIME.run(iRUN).TR,...
+                        parameters.TIME.run(iRUN).LowF,...
+                        parameters.TIME.run(iRUN).HiF,...
+                        parameters.TIME.run(iRUN).gentle,...
+                        parameters.TIME.run(iRUN).padding,...
+                        parameters.TIME.run(iRUN).whichFilter);
                 else
                     parameters.TIME.run(iRUN).b = [];
                     parameters.TIME.run(iRUN).nDF = size(D0RUN(iRUN).D0,2);
@@ -489,8 +519,10 @@ for iRUN = 1:length(parameters.data.run)
                 % Major error.
                 %
             otherwise
-                D0RUN(iRUN).D0 = -1;
-                D0 = -1;
+                D0RUN(iRUN).D0  = -1;
+                D0  = -1;
+                D0RUN(iRUN).cD0 = -1;
+                cD0 = -1;
                 SOM_LOG(sprintf('FATAL : regression step not recongnized : %s',parameters.RegressFLAGS.order));
                 return
         end
@@ -509,7 +541,20 @@ if length(nSPACE>1)
     end
 end
 
+% * * * * * * * * CENSORING OF DATA * * * * * * *
+%
+%   WARNING - ROBERT DOES NOT RECOMMEND USING THIS OPTION
+%             IT INTERACTS WITH FILTERING IN A MANNER THAT
+%             CAN INTRODUCE CORRELATIONS.
+%
 % Number of time points before editing
+%
+%
+% This is very controversial. Editing a bad volume will not fully removing its influence on the 
+% time series and will have ripple effects.
+%
+% We use a FFT bandpass which will introduce Ripples.
+%
 
 cnTIME = [0 cumsum(nTIME)];
 
@@ -527,7 +572,8 @@ enTIME = [];
 
 for iRUN = 1:length(parameters.data.run)
     if isfield(parameters.data.run(iRUN),'censorVector')
-        D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
+      SOM_LOG('WARNING : You are editing a time-series post filtering, this is controversial and not 100% recommended.')
+      D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
         if D0RUN(iRUN).D0 == -1
             SOM_LOG('FATAL : SOM_editTimeSeries failed.');
             exit

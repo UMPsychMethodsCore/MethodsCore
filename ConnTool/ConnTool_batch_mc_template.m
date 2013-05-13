@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/ADHD/';
+Exp = '/Volumes/ALS/ALS2008/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
@@ -22,14 +22,13 @@ Exp = '/net/data4/ADHD/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/[Run]/';
+ImageTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
 	'run_01';
-    'run_02';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,8 +36,7 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'9907452',9907452,[1 2];
-'9750701',9750701,[2];
+'111129eb',1,[1];
           };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,13 +44,13 @@ SubjDir = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 TR = 2;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, normalization, and smoothing
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-stp = 'a';
-rep = 'r';
-nop = 'w';
-smp = 's';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Prefixes for slicetiming, realignment, normalization, and smoothing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%stp = 'a';
+%rep = 'r';
+%nop = 'w';
+%smp = 's';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing that has already been completed on images
@@ -60,12 +58,16 @@ smp = 's';
 %%% If you are only running First Level (i.e. Preprocessing is already done)
 %%% setting these will add the appropriate prefix to the basefile
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alreadydone = [1 1 1 1];
+%alreadydone = [1 1 1 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The  prefix of each functional file
+%%% The file to extract the confounds from
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-basefile = 'rest';
+confoundFile = 'vbm8_ra8_run';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The file to run the connectivity on
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+connectFile  = 'sw5mm_vbm8_ra8_run';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -76,7 +78,7 @@ imagetype = 'nii';
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [176 176]; 
+NumScan = [240]; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,37 +104,59 @@ NumScan = [176 176];
 Mode = 'full';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Paths to your anatomical images
+%%%  Flag to for anatomic images.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyMatterTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/rgrey.img';
-WhiteMatterTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/wm_mask.nii';
-CSFTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/coReg/VBM8/csf_mask.nii';
+AnatomyMaskPath = '[Exp]/Subjects/[Subject]/connect/func/coRegRARUN/VBM8/'
+
+GrayUse  = false;
+WhiteUse = true;
+CSFUse   = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputTemplate = '[Exp]/FirstLevel/NYU/[Subject]/[OutputName]/';
-OutputName = 'censortest';
+OutputTemplate  = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
+OutputName      = 'censortest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leaving this blank ('') will use a subject-specific mask
 %%% NOTE: Subject-specific masks are not recommended for grid usage below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[Exp]/Subjects/NYU/ROIS/rs_rEPI_MASK_NOEYES.img';
+BrainMaskTemplate = '/Volumes/ALS/Software/SPM8/spm8_with_R4667/templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/[Run]/mcflirt*.dat';
+RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcflirt*a8*.dat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for file containing timepoints to censor from the data
 %%% This file should either be a simple text file containing a column of
 %%% 1s and 0s, or a saved MATLAB .mat file with a cv variable containing a
 %%% column of 1s and 0s
+%%%
+%%% Robert DOES NOT RECOMMEND CENSORING YOUR DATA.
+%%%
+%%%     This ConnTool Toolbox users an FFT filter with a little 
+%%%     but of smoothing. If you want to censor you take the risk of
+%%%     created artifactual correlations across the whole brain
+%%%
+%%%     See the following three papers:
+%%%
+%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE. 
+%%%     Spurious but Systematic Correlations in Functional Connectivity 
+%%%     MRI Networks Arise From Subject Motion. NeuroImage 2012;59:2142–2154.
+%%%
+%%%	Carp J. Optimizing the Order of Operations for Movement Scrubbing: 
+%%%     Comment on Power Et Al. NeuroImage 2012:1–3.
+%%%
+%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE. 
+%%%     Steps Toward Optimizing Motion Artifact Removal in Functional 
+%%%     Connectivity MRI; a Reply to Carp. NeuroImage 2012:1–3.
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CensorTemplate = '[Exp]/MotionSummary/NYU/CensorVector_[Subject]_[Run].mat';
+CensorTemplate = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Constrain results to only regions in GreyMatterTemplate (1=yes, 0=no)
@@ -142,10 +166,10 @@ MaskGrey = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Value threshold to use for each mask.  If left as [] use default 0.75
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyThreshold = [];
+GreyThreshold  = [];
 WhiteThreshold = [];
-CSFThreshold = [];
-EPIThreshold = [];
+CSFThreshold   = [];
+EPIThreshold   = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% the order to perform the regressions etc
@@ -169,17 +193,17 @@ PrincipalComponents = 5;
 %%% Bandpass Filter Settings
 %%%        LowFrequency - low frequency cutoff
 %%%        HighFrequency - high frequency cutoff
-%%%        Gentle - 0 = no rolling, 1 = rolling
+%%%        Gentle - 0 = no rolling, 1 = rolling, 2 = extra rolling
 %%%        Padding - number of timepoints to pad on beginning/end
 %%%        BandpassFilter - 0 = Matlab filter, 1 = SOM_Filter_FFT
 %%%        Fraction - fraction of variance for principle components
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LowFrequency = 0.01;
-HighFrequency = 0.1;
-Gentle = 1;
-Padding = 10;
+LowFrequency   = 0.01;
+HighFrequency  = 0.1;
+Gentle         = 1;
+Padding        = 10;
 BandpassFilter = 1;
-Fraction = 1;
+Fraction       = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of input
@@ -194,7 +218,7 @@ Fraction = 1;
 %%%                       by provided mask, as above.  Additionally, add
 %%%                       the extra ROI points specified in ROIGridCenters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'grid';
+ROIInput = 'coordinates';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If specifying ROI coordinates you need to provide a list of centers in 
@@ -203,21 +227,25 @@ ROIInput = 'grid';
 %%% you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will 
 %%% need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROICenters = [
-    %0 -53 26; %pcc seed
-    9 9 -8; %VSi right
-    -9 9 -8; %VSi left
-    10 15 0; %VSs right
-    -10 15 0; %VSs left
-    13 15 9; %DC right
-    -13 15 9; %DC left
-    28 1 3; %DCP right
-    -28 1 3; %DCP left
-    25 8 6; %DRP right
-    -25 8 6; %DRP left
-    20 12 -3; %VRP right
-    -20 12 -3; %VRP left
-    ];
+load(fullfile('/Volumes/ALS/ALS2008/matlabScripts/fcMRI/fcMRI_Network','V_MNI_12mmgrid.mat'));
+
+ROICenters = mni_coords;
+
+%ROICenters = [
+%    %0 -53 26; %pcc seed
+%    9 9 -8; %VSi right
+%    -9 9 -8; %VSi left
+%    10 15 0; %VSs right
+%    -10 15 0; %VSs left
+%    13 15 9; %DC right
+%    -13 15 9; %DC left
+%    28 1 3; %DCP right
+%    -28 1 3; %DCP left
+%    25 8 6; %DRP right
+%    -25 8 6; %DRP left
+%    20 12 -3; %VRP right
+%    -20 12 -3; %VRP left
+%    ];
 ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -241,9 +269,9 @@ ROIImages = {
 %%% point.  If you'd prefer to use the predefined 1,7,19, or 27 voxel sizes
 %%% you will need to specify the size as a cell (i.e. {19})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIGridSpacing = 12;
-ROIGridSize = {19};
-ROIGridMaskTemplate = '[Exp]/Subjects/NYU/ROIS/rs_rEPI_MASK_NOEYES.img';
+ROIGridSpacing      = 12;
+ROIGridSize         = {19};
+ROIGridMaskTemplate = '/Volumes/ALS/Software/SPM8/spm8_with_R4667/templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
@@ -256,8 +284,7 @@ ROIGridCenters = [
     -10 10 10;
     -22 0 -22;
     22 0 -22;
-    
-];
+    ];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output
@@ -272,7 +299,7 @@ ROIOutput = 'maps';
 %%% 1 - save ROI time courses to same location as R and P matrices
 %%% 0 - do not save ROI time courses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-saveroiTC = 1;
+saveroiTC = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -280,7 +307,7 @@ saveroiTC = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
+mcRoot = '/Volumes/ALS/Software/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
