@@ -28,16 +28,16 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/';
 %%% A list of run folders where the script can find functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_01';
-};
+    'run_01';
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'111129eb',1,[1];
-          };
+    '111129eb',1,[1];
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The TR your data was collected at
@@ -46,9 +46,9 @@ TR = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file to extract the CSF and WM confounds from
-%%% 
+%%%
 %%% It usually the run file that is in MNI space but prior
-%%% to smoothing. The idea is that you don't want gray 
+%%% to smoothing. The idea is that you don't want gray
 %%% smoothed into the CSF or WM regions.
 %%%
 %%% This can be the same file as the 'connectFile', but not ideal.
@@ -74,11 +74,11 @@ imagetype = 'nii';
 %%% (if you have more than 1 run, there should be more than 1 value here)
 %%%
 %%% If you have subjects with varying number of time points you can pick
-%%% the smallest, that will edit them down so they all have the 
+%%% the smallest, that will edit them down so they all have the
 %%% same effective statistical power.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [240]; 
+NumScan = [240];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,7 +115,7 @@ Mode = 'full';
 %%%
 %%%     CSFFile   --- name of the CSV image produced by VBM8
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-AnatomyMaskPath = '[Exp]/Subjects/[Subject]/connect/func/coRegRARUN/VBM8/'
+AnatomyMaskPath = '[Exp]/Subjects/[Subject]/connect/func/coRegRARUN/VBM8/';
 
 GreyFile  = [];
 WhiteFile = 'WM_ero*.nii';
@@ -149,21 +149,21 @@ RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcf
 %%%
 %%% Robert DOES NOT RECOMMEND CENSORING YOUR DATA.
 %%%
-%%%     This ConnTool Toolbox users an FFT filter with a little 
+%%%     This ConnTool Toolbox users an FFT filter with a little
 %%%     but of smoothing. If you want to censor you take the risk of
 %%%     created artifactual correlations across the whole brain
 %%%
 %%%     See the following three papers:
 %%%
-%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE. 
-%%%     Spurious but Systematic Correlations in Functional Connectivity 
+%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE.
+%%%     Spurious but Systematic Correlations in Functional Connectivity
 %%%     MRI Networks Arise From Subject Motion. NeuroImage 2012;59:2142–2154.
 %%%
-%%%	Carp J. Optimizing the Order of Operations for Movement Scrubbing: 
+%%%	Carp J. Optimizing the Order of Operations for Movement Scrubbing:
 %%%     Comment on Power Et Al. NeuroImage 2012:1–3.
 %%%
-%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE. 
-%%%     Steps Toward Optimizing Motion Artifact Removal in Functional 
+%%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE.
+%%%     Steps Toward Optimizing Motion Artifact Removal in Functional
 %%%     Connectivity MRI; a Reply to Carp. NeuroImage 2012:1–3.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -190,18 +190,18 @@ EPIThreshold   = [];
 %%%         C = csf
 %%%         M = motion
 %%%         B = bandpass
-%%% 
+%%%
 %%%         Suggested order is "DM[G]CWB"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegressOrder = 'DMCWB';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The code users COMPCOR. 
+%%% The code users COMPCOR.
 %%% Use this many principle components for regression
 %%% for the CSF and WM
 %%%
-%%% Behzadi Y, Restom K, Liau J, Liu TT. 
-%%% A Component Based Noise Correction Method (CompCor) for BOLD and 
+%%% Behzadi Y, Restom K, Liau J, Liu TT.
+%%% A Component Based Noise Correction Method (CompCor) for BOLD and
 %%% Perfusion Based fMRI. NeuroImage 2007;37:90–101.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,28 +226,47 @@ Fraction       = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of input
 %%%         coordinates - provide the center of each seed and a radius
+%%%
+%%%         coordload   - load corridnate from the specified file
+%%%
 %%%         files       - provide a list of ROI files
+%%%
 %%%         directory   - provide a directory containing ROI files and the
-%%%                       script will load all images in that directory to 
+%%%                       script will load all images in that directory to
 %%%                       use as ROIs
+%%%
 %%%         grid        - make a grid based on provided spacing and masked
 %%%                       by provided mask
+%%%
 %%%         gridplus    - make a grid based on provided spacing and masked
 %%%                       by provided mask, as above.  Additionally, add
 %%%                       the extra ROI points specified in ROIGridCenters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'coordinates';
+ROIInput = 'coordload';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% If specifying ROI coordinates you need to provide a list of centers in 
+%%%
+%%% coordinates method
+%%%
+%%% If specifying ROI coordinates you need to provide a list of centers in
 %%% MNI coordinates (mm) and a radius in voxels.
-%%% NOTE: ROISize will be used as the radius of a sphere at each point. If 
-%%% you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will 
+%%% NOTE: ROISize will be used as the radius of a sphere at each point. If
+%%% you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will
 %%% need to specify the size as a cell (i.e. {19})
 %%%
 %%% See the MethodsCore/ConnTool/Documentation for more help on ROI size.
 %%%
-%%% You can load a file into the array ROICenters. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+ROICenters = [0 -5 10];
+ROISize    = {19};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% coordload method
+%%%
+%%% You can load a file into the array ROICenters.
 %%%
 %%% If a ".csv" file you would do:
 %%%
@@ -255,14 +274,14 @@ ROIInput = 'coordinates';
 %%%
 %%% If a '.mat" file you need to load the file and the assign the variable.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-load(fullfile('/Volumes/ALS/ALS2008/matlabScripts/fcMRI/fcMRI_Network','V_MNI_12mmgrid.mat'));
-
-ROICenters = mni_coords;
-
+ROIFile = '[mcRoot]/ConnTool/Templates/V_MNI_12mmgrid.mat'
 ROISize = {19};
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% files and directory method
+%%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
 %%% cell array list of ROI images.  If specifying an ROI directory, you only
 %%% need to specify an ROITemplate.  The script will then load all images
@@ -275,8 +294,11 @@ ROIImages = {
     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% grid and gridplus method
+%%%
 %%% If specifying ROI grid you need to provide a spacing and ROI size as
-%%% well as an optional mask for grid point inclusion (a mask is strongly 
+%%% well as an optional mask for grid point inclusion (a mask is strongly
 %%% encouraged as not using one will return coordinates from across the entire
 %%% bounding box).
 %%% NOTE: ROIGridSize will be used as the radius of a sphere at each grid
@@ -288,6 +310,9 @@ ROIGridSize         = {19};
 ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% gridplus extra
+%%%
 %%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
 %%% that you would like to include in addition to the regular grid.  They
 %%% will be added to the end of the list of ROIs and will use ROIGridSize
@@ -315,7 +340,7 @@ OutputType     = 'maps';
 %%%         correlation type can be 'full' or 'partial'
 %%%
 %%%         You can also save the power spectrum of the ROIS when running
-%%%         in 'maps' mode. This will only save the power spectrum of 
+%%%         in 'maps' mode. This will only save the power spectrum of
 %%%         single run.
 %%%            1 - save power spectrum
 %%%            0 - do not save power spectrum
