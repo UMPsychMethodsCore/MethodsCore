@@ -44,30 +44,25 @@ SubjDir = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 TR = 2;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Prefixes for slicetiming, realignment, normalization, and smoothing
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%stp = 'a';
-%rep = 'r';
-%nop = 'w';
-%smp = 's';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The file to extract the CSF and WM confounds from
+%%% 
+%%% It usually the run file that is in MNI space but prior
+%%% to smoothing. The idea is that you don't want gray 
+%%% smoothed into the CSF or WM regions.
+%%%
+%%% This can be the same file as the 'connectFile', but not ideal.
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+confoundFile = 'w3mm_vbm8_ra8_run';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Preprocessing that has already been completed on images
-%%% [slicetime realign normalize smooth]
-%%% If you are only running First Level (i.e. Preprocessing is already done)
-%%% setting these will add the appropriate prefix to the basefile
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%alreadydone = [1 1 1 1];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The file to extract the confounds from
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-confoundFile = 'vbm8_ra8_run';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The file to run the connectivity on
+%%%
+%%% This will be the smoothed and warped to MNI file.
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-connectFile  = 'sw5mm_vbm8_ra8_run';
+connectFile  = 's5mm_w3mm_vbm8_ra8_run';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
@@ -77,6 +72,11 @@ imagetype = 'nii';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Number of Functional scans per run
 %%% (if you have more than 1 run, there should be more than 1 value here)
+%%%
+%%% If you have subjects with varying number of time points you can pick
+%%% the smallest, that will edit them down so they all have the 
+%%% same effective statistical power.
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NumScan = [240]; 
 
@@ -104,13 +104,22 @@ NumScan = [240];
 Mode = 'full';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Flag to for anatomic images.
+%%%  Pointers to for anatomic images.
+%%%
+%%%     AnatomyMaskPath --- this should point to the VBM8 processed data
+%%%
+%%%     GreyFile  --- name of a grey matter image from VBM8 -- Just leave
+%%%                  blank, in general don't use this option.
+%%%
+%%%     WhiteFile --- name of the WM image produced by VBM8
+%%%
+%%%     CSFFile   --- name of the CSV image produced by VBM8
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 AnatomyMaskPath = '[Exp]/Subjects/[Subject]/connect/func/coRegRARUN/VBM8/'
 
-GrayUse  = false;
-WhiteUse = true;
-CSFUse   = true;
+GreyFile  = [];
+WhiteFile = 'WM_ero*.nii';
+CSFFile   = 'CSF_ero*.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Where to output the data
@@ -119,11 +128,13 @@ OutputTemplate  = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
 OutputName      = 'censortest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path and name of explicit mask to use at first level.
+%%% Path and name of explicit mask to use at subject level.
 %%% Leaving this blank ('') will use a subject-specific mask
-%%% NOTE: Subject-specific masks are not recommended for grid usage below.
+%%%
+%%% NOTE: Subject-specific masks are NOT recommended at all.
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '/Volumes/ALS/Software/SPM8/spm8_with_R4667/templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
+BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
@@ -180,12 +191,19 @@ EPIThreshold   = [];
 %%%         M = motion
 %%%         B = bandpass
 %%% 
-%%%         Suggested order is "D[G]CWMB"
+%%%         Suggested order is "DM[G]CWB"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegressOrder = 'DCWMB';
+RegressOrder = 'DMCWB';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The code users COMPCOR. 
 %%% Use this many principle components for regression
+%%% for the CSF and WM
+%%%
+%%% Behzadi Y, Restom K, Liau J, Liu TT. 
+%%% A Component Based Noise Correction Method (CompCor) for BOLD and 
+%%% Perfusion Based fMRI. NeuroImage 2007;37:90–101.
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PrincipalComponents = 5;
 
@@ -226,26 +244,22 @@ ROIInput = 'coordinates';
 %%% NOTE: ROISize will be used as the radius of a sphere at each point. If 
 %%% you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will 
 %%% need to specify the size as a cell (i.e. {19})
+%%%
+%%% See the MethodsCore/ConnTool/Documentation for more help on ROI size.
+%%%
+%%% You can load a file into the array ROICenters. 
+%%%
+%%% If a ".csv" file you would do:
+%%%
+%%%    ROICenters = load('myROIs.csv');
+%%%
+%%% If a '.mat" file you need to load the file and the assign the variable.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 load(fullfile('/Volumes/ALS/ALS2008/matlabScripts/fcMRI/fcMRI_Network','V_MNI_12mmgrid.mat'));
 
 ROICenters = mni_coords;
 
-%ROICenters = [
-%    %0 -53 26; %pcc seed
-%    9 9 -8; %VSi right
-%    -9 9 -8; %VSi left
-%    10 15 0; %VSs right
-%    -10 15 0; %VSs left
-%    13 15 9; %DC right
-%    -13 15 9; %DC left
-%    28 1 3; %DCP right
-%    -28 1 3; %DCP left
-%    25 8 6; %DRP right
-%    -25 8 6; %DRP left
-%    20 12 -3; %VRP right
-%    -20 12 -3; %VRP left
-%    ];
 ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -271,7 +285,7 @@ ROIImages = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing      = 12;
 ROIGridSize         = {19};
-ROIGridMaskTemplate = '/Volumes/ALS/Software/SPM8/spm8_with_R4667/templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
+ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
@@ -290,17 +304,29 @@ ROIGridCenters = [
 %%% Type of output
 %%%         images - output R and Z images of correlation with each seed
 %%%         maps   - output R and P matrix of correlations between seeds
+%%%
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIOutput = 'maps';
-
+OutputType     = 'maps';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% "maps" output mode only - save ROI time courses
-%%% 1 - save ROI time courses to same location as R and P matrices
-%%% 0 - do not save ROI time courses
+%%% Options for 'maps'
+%%%
+%%%         correlation type can be 'full' or 'partial'
+%%%
+%%%         You can also save the power spectrum of the ROIS when running
+%%%         in 'maps' mode. This will only save the power spectrum of 
+%%%         single run.
+%%%            1 - save power spectrum
+%%%            0 - do not save power spectrum
+%%%
+%%%         save ROI time courses
+%%%            1 - save ROI time courses to same location as R and P matrices
+%%%            0 - do not save ROI time courses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-saveroiTC = 0;
-
+OutputCorrType = 'full';
+OutputPower    = 0;
+saveroiTC      = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Do not edit below this line

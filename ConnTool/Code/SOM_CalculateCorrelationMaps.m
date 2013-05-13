@@ -30,6 +30,22 @@ function results = SOM_CalculateCorrelationMaps(D0,parameters)
 
 global SOM
 
+results = -1;
+
+%
+% Figure out if stats toolbox present.
+%
+
+MatlabVer = ver;
+
+SOM.StatsToolBox = any(strcmp('Statistics Toolbox',{MatlabVer.Name}));
+
+if SOM.StatsToolBox
+  SOM_LOG('INFO : Statistics Toolbox Ppresent');
+else
+  SOM_LOG('INFO : Statistics Toolbox NOT present, this will take longer.');
+end
+
 %
 % Initialize the output matrix.
 %
@@ -59,11 +75,20 @@ end
 
 if strcmp(parameters.Output.correlationType,'full');
   % Full correlation
-  [rMatrix pMatrix] = corr(roiTC);
+  if SOM.StatsToolBox
+    [rMatrix pMatrix] = corr(roiTC);
+  else
+    [rMatrix pMatrix] = corrcoef(roiTC);
+  end
   nameOption = '_corr';
 else
   % Partial correlation
-  [rMatrix pMatrix] = partialcorr(roiTC);
+  if SOM.StatsToolBox
+    [rMatrix pMatrix] = partialcorr(roiTC);
+  else
+    SOM_LOG('FATAL ERROR : The partialcorr function is part of the statistics toolbox.');
+    return
+  end    
   nameOption = '_paritalcorr';
 end
 

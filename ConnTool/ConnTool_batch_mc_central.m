@@ -1,19 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%if (alreadydone(1))
-%    basefile = [stp basefile];
-%end
-%if (alreadydone(2))
-%    basefile = [rep basefile];
-%end
-%if (alreadydone(3))
-%    basefile = [nop basefile];
-%end
-%if (alreadydone(4))
-%    basefile = [smp basefile];
-%end
-
 
 RunMode = [0 0];
 if (strcmpi(Mode,'full'))
@@ -29,20 +16,19 @@ warning off all
 
 spmver = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
-    spm_jobman('initcfg');
     spm_get_defaults('cmdline',true);
 end
 
-if GrayUse
-  GreyMatterTemplate = [AnatomyMaskPath '/w3mm_vbm8_p0ht1spgr.nii']
+if ~isempty(GreyFile)
+  GreyMatterTemplate  = [AnatomyMaskPath '/' GreyFile]
 end
 
-if WhiteUse
-  WhiteMatterTemplate = [AnatomyMaskPath  '/WM_ero*.nii'];
+if ~isempty(WhiteFile)
+  WhiteMatterTemplate = [AnatomyMaskPath '/' WhiteFile];
 end
 
-if CSFUse
-  CSFTemplate = [AnatomyMaskPath  '/CSF_ero*.nii'];
+if ~isempty(CSFFile)
+  CSFTemplate         = [AnatomyMaskPath '/' CSFFile];
 end
 
 if (RunMode(1) | sum(RunMode) == 0)
@@ -72,6 +58,7 @@ if (RunMode(1) | sum(RunMode) == 0)
         Subject=SubjDir{iSubject,1};
         RunList=SubjDir{iSubject,3};
 
+        SOM_LOG(sprintf('STATUS : Working on Subject : %s',Subject));
         NumRun = size(RunList,2);
 
         TotalNumRun = size(NumScanTotal,2);  %%% number of image runs if every run were present
@@ -80,22 +67,35 @@ if (RunMode(1) | sum(RunMode) == 0)
         NumScan=[];
         clear RunDir;
         for iRun=1:NumRun
-            RunDir{iRun,1}=RunNamesTotal{RunList(1,iRun)};
-            NumScan=horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
+            RunDir{iRun,1} = RunNamesTotal{RunList(1,iRun)};
+            NumScan        = horzcat(NumScan,NumScanTotal(1,RunList(1,iRun)));
         end
 
         NumRun= size(NumScan,2); % number of runs
         ImageNumRun=size(RunDir,1); %number of image folders
 
-        GreyPath  = mc_GenPath(GreyMatterTemplate);
-        WhitePath = mc_GenPath(WhiteMatterTemplate);
-        CSFPath   = mc_GenPath(CSFTemplate);
+	if ~isempty(GreyFile)
+	  GreyPath  = mc_GenPath(GreyMatterTemplate);
+	end
+	if ~isempty(WhiteFile)
+	  WhitePath = mc_GenPath(WhiteMatterTemplate);
+	end
+	if ~isempty(CSFFile)
+	  CSFPath   = mc_GenPath(CSFTemplate);
+	end
         BrainPath = mc_GenPath(BrainMaskTemplate);
-
-        parameters.grey.File          = GreyPath;
-        parameters.grey.ImgThreshold  = GreyThreshold;
-        parameters.masks.white.File   = WhitePath;
-        parameters.masks.csf.File     = CSFPath;
+	
+	if ~isempty(GreyFile)
+	  parameters.masks.grey.File          = GreyPath;
+	  parameters.masks.grey.ImgThreshold  = GreyThreshold;
+	end
+	
+	if ~isempty(WhiteFile)
+	  parameters.masks.white.File   = WhitePath;
+	end
+	if ~isempty(CSFFile)
+	  parameters.masks.csf.File     = CSFPath;
+	end
         parameters.masks.epi.File     = BrainPath;
         parameters.rois.mask.MaskFLAG = MaskBrain;
 
@@ -105,11 +105,19 @@ if (RunMode(1) | sum(RunMode) == 0)
             ImagePath   = mc_GenPath(ImageTemplate);
             ImageFiles  = spm_select('FPList',ImagePath, ['^' connectFile '.*.' imagetype]);
             parameters.data.run(iRun).P     = ImageFiles;
+	    if isempty(ImageFiles)
+	      SOM_LOG(sprintf('FATAL ERROR : P spm_select returned nothing for %s/^%s.*.%s',ImagePath,connectFile,imagetype));
+	      return
+	    end
 	    if ~isempty(confoundFile)
 	      cImageFiles = spm_select('FPList',ImagePath, ['^' confoundFile '.*.' imagetype]);
+	      if isempty(cImageFiles)
+		SOM_LOG(sprintf('FATAL ERROR : cP spm_select returned nothing for %s/^%s.*.%s',ImagePath,confoundFile,imagetype));
+		return
+	      end
               parameters.data.run(iRun).cP  = cImageFiles;
 	    end
-
+	    
             RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
             parameters.data.run(iRun).P = ImageFiles;
@@ -166,8 +174,8 @@ if (RunMode(1) | sum(RunMode) == 0)
             parameters.rois.mask.File = BrainPath;
         end
         output.Template = OutputTemplate;
-        output.type = 1;
-        output.mode = 'makedir';
+        output.type     = 1;
+        output.mode     = 'makedir';
         if (RunMode(1))
             OutputPath = mc_GenPath(output);
         else
@@ -231,7 +239,8 @@ if (RunMode(1) | sum(RunMode) == 0)
                 end
         end
 
-        parameters.Output.correlation  = ROIOutput;
+        parameters.Output.correlation  = OutputType;
+	parameters.Output.power        = OutputPower;
         parameters.Output.saveroiTC    = saveroiTC;
         %parameters.Output.description = 'description of output';
         parameters.Output.directory    = OutputPath;

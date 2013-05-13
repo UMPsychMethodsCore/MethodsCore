@@ -331,9 +331,9 @@ for iRUN = 1:length(parameters.data.run)
                 
                 if parameters.TIME.run(iRUN).TrendFLAG > 0
 		    % Detrend time-series data
-                    D0RUN(iRUN).D0 = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).TrendFLAG)';
+                    D0RUN(iRUN).D0  = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).TrendFLAG)';
 		    % Detrend confound as well
-                    D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN.cD0',parameters.TIME.run(iRUN).TrendFLAG)';
+                    D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN).cD0',parameters.TIME.run(iRUN).TrendFLAG)';
                 end
                 
                 parameters.stopCPU.run(iRUN).detrend = cputime;

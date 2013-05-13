@@ -105,7 +105,8 @@ if isfield(SOM,'LOG') == 0
     SOM.silent = tmp;
 end
 
-inputLog = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLog);
+inputLogFATAL = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,'* * * * * FATAL * * * *');
+inputLog      = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLog);
 
 THISLEVEL = 1;
 
@@ -120,7 +121,13 @@ SOM.LOG = strvcat(SOM.LOG,inputLog);
 % If the combination indicates writting out then we do.
 
 if ~SOM.silentiBit(THISLEVEL)
+  if THISLEVEL == 4
+    fprintf(inputLogFATAL);
+  end
   fprintf(inputLog);
+  if THISLEVEL == 4
+    fprintf(inputLogFATAL);
+  end
 end
 
 logStr = SOM.LOG;

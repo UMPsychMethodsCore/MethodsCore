@@ -27,6 +27,20 @@ function results = SOM_CalculateCorrelationImages(D0,parameters)
 global SOM
 
 %
+% Figure out if stats toolbox present.
+%
+
+MatlabVer = ver;
+
+SOM.StatsToolBox = any(strcmp('Statistics Toolbox',{MatlabVer.Name}));
+
+if SOM.StatsToolBox
+  SOM_LOG('INFO : Statistics Toolbox Ppresent');
+else
+  SOM_LOG('INFO : Statistics Toolbox NOT present, this will take longer.');
+end
+
+%
 % Initialize the output matrix.
 %
 
@@ -45,15 +59,21 @@ for iROI = 1 : parameters.rois.nroisRequested
         rMap = 0*rMap;
         pMap = 0*rMap;
         
-        %for iV = 1:size(D0,1);
-        %    [rMap(iV) pMap(iV)] = corr(D0(iV,:)',roiTC');
-        %end
-        
-	% Much faster!
+	if SOM.StatsToolBox
+	  % Much faster!
+	  [rMap pMap] = corr(D0',roiTC');
+	else
+	  % 
+	  % Have to use corrcoef which is slower
+	  %
+	  for iV = 1:size(D0,1);
+	    [rTmp pTmp]         = corrcoef(D0(iV,:)',roiTC');
+	    rMap(iV)            = rTmp(1,2);
+	    pMap(iV)            = pTmp(1,2);
+	  end
+        end
 	
-	[rMap pMap] = corr(D0',roiTC');
-	
-        % Now turn into maps (r and p) and write out.
+	% Now turn into maps (r and p) and write out.
         
         rMapVol                            = 0*rMapVol;
         pMapVol                            = ones(size(rMapVol));
@@ -68,8 +88,8 @@ for iROI = 1 : parameters.rois.nroisRequested
         
         % Make sure we write out float32.....
         
-        rMapHdr.dim   = parameters.maskHdr.dim(1:3);
-        rMapHdr.dt    = [16 0];
+        rMapHdr.dim     = parameters.maskHdr.dim(1:3);
+        rMapHdr.dt      = [16 0];
         rMapHdr.descrip = sprintf('%s : %d',parameters.Output.description,iROI);
 
 	% Now the probability map.

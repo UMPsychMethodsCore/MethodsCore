@@ -71,7 +71,7 @@ for iRUN = 1:length(data.run)
   end
 
   if isfield(data.run(iRUN),'cP') == 0
-    SOM_LOG(sprintf('WARNING : Missing cP variable in parameters.data, will use P for run %d'iRUN));
+    SOM_LOG(sprintf('WARNING : Missing cP variable in parameters.data, will use P for run %d',iRUN));
     data.run(iRUN).cP = P;
   end
 
