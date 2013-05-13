@@ -134,7 +134,7 @@ OutputName      = 'censortest';
 %%% NOTE: Subject-specific masks are NOT recommended at all.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
+BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
@@ -285,7 +285,7 @@ ROIImages = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing      = 12;
 ROIGridSize         = {19};
-ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_rr3mm_EPI_MASK_NOEYES.nii';
+ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
