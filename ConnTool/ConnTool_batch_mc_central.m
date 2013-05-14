@@ -56,6 +56,9 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.RegressFLAGS.order    = RegressOrder;
         
         Subject=SubjDir{iSubject,1};
+	
+	% This suggests that SubjDir{:,2} is useless information.
+	
         RunList=SubjDir{iSubject,3};
         
         SOM_LOG(sprintf('STATUS : Working on Subject : %s',Subject));
@@ -145,7 +148,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     cv = load(CensorFile);
                 end
                 if (size(cv,1) ~= NumScan(iRun))
-                    mc_Error('Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject));
+                    SOM_LOG(sprintf('Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
                 end
                 parameters.data.run(iRun).censorVector = ~cv;
             end
@@ -217,6 +220,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                         parameters.rois.mni.coordinates = getfield(tmpArray,tmpArrayFields{1});
                     catch
                         SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
+			return
                     end
                     if (iscell(ROISize))
                         parameters.rois.mni.size = ROISize{1};
@@ -267,7 +271,6 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.Output.correlation  = OutputType;
         parameters.Output.power        = OutputPower;
         parameters.Output.saveroiTC    = saveroiTC;
-        %parameters.Output.description = 'description of output';
         parameters.Output.directory    = OutputPath;
         parameters.Output.name         = OutputName;
         ParameterFilename              = [OutputName '_parameters'];
@@ -292,12 +295,14 @@ if (RunMode(2))
         [D0 parameters] = SOM_PreProcessData(parameters);
         if D0 == -1
             SOM_LOG('FATAL ERROR : No data returned');
-            mc_Error('There is something wrong with your template or your data.\nNo data was returned from SOM_PreProcessData\n');
+            SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo data was returned from SOM_PreProcessData\n');
+	    return
         else
             results = SOM_CalculateCorrelations(D0,parameters);
             if isnumeric(results)
                 SOM_LOG('FATAL ERROR : ');
-                mc_Error('There is something wrong with your template or your data.\nNo results were returned from SOM_CalculateCorrelations\n');
+                SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo results were returned from SOM_CalculateCorrelations\n');
+		return
             else
                 for iR = 1:size(results,1)
                     SOM_LOG(results(iR,:))

@@ -11,11 +11,11 @@
 %
 % logStr = SOM_LOG('literal string');
 %
-% If you want to access the log put the following code into your 
+% If you want to access the log put the following code into your
 % own function
 %
 %    global SOM
-% 
+%
 % the log is then accessible via
 %
 %    SOM.LOG
@@ -29,7 +29,7 @@
 %  1st bit is for INFO
 %  2nd bit is for STATUS
 %  3rd bit is for WARNING
-%  
+%
 % We always write out FATAL messages.
 %
 % Val  Bits
@@ -42,7 +42,7 @@
 %  5   1 0 1   -- no info or warning messages out
 %  6   1 1 0   -- no status or warning messages out
 %  7   1 1 1   -- only fatal messages out.
-%   
+%
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function logStr = SOM_LOG(inputLog)
@@ -55,7 +55,7 @@ LOGLEVELS = {'INFO','STATUS','WARN','FATAL'};
 
 % The logic of the combination of log type and logging level.
 
-LOGOUTMATRIX = [ 
+LOGOUTMATRIX = [
     1 1 1 1 1;
     1 0 1 1 1;
     1 0 0 1 1;
@@ -72,7 +72,7 @@ end
 SOM.silent = round(SOM.silent);
 
 if SOM.silent < 0
-    SOM.silent = 0 
+    SOM.silent = 0
 end
 
 if SOM.silent > 7
@@ -90,8 +90,8 @@ SOM.silentiBit = [0 0 0 0];
 
 iBit = 0;
 for jBit = length(SOM.silentBit):-1:1
-  iBit = iBit + 1;
-  SOM.silentiBit(iBit) = str2num(SOM.silentBit(jBit));
+    iBit = iBit + 1;
+    SOM.silentiBit(iBit) = str2num(SOM.silentBit(jBit));
 end
 
 % Always at the beginning of the log we write out that we are beginning the
@@ -105,8 +105,7 @@ if isfield(SOM,'LOG') == 0
     SOM.silent = tmp;
 end
 
-inputLogFATAL = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,'* * * * * FATAL * * * *');
-inputLog      = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLog);
+% Find out what error level.
 
 THISLEVEL = 1;
 
@@ -116,18 +115,53 @@ for iLEVEL = 1:4
     end
 end
 
+inputLogFATAL = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,'* * * * * FATAL * * * *');
+
+if THISLEVEL == 4
+    fprintf(inputLogFATAL);
+end
+
+nReturn = strfind(inputLog,'\n');
+if length(inputLog) == nReturn(end)+1
+    inputLog = inputLog(1:nReturn(end)-1);
+    nReturn(end) = [];
+end
+
+if length(nReturn) == 0
+    inputLogT = inputLog;
+else
+    inputLogT = inputLog(1:nReturn(1)-1);
+end
+inputLogT = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLogT);
+if ~SOM.silentiBit(THISLEVEL)
+    fprintf(inputLogT);
+end
+
 SOM.LOG = strvcat(SOM.LOG,inputLog);
+
+for iReturn = 2:length(nReturn)-1
+    inputLogT = inputLog(nReturn(iReturn-1)+1:nReturn(iReturn));
+    inputLogT      = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLogT);
+    SOM.LOG = strvcat(SOM.LOG,inputLog);
+    if ~SOM.silentiBit(THISLEVEL)
+        fprintf(inputLogT);
+    end
+end
+
+if length(nReturn) > 0
+    inputLogT = inputLog(nReturn(end)+2:end);
+    inputLogT = sprintf('%d:%02d:%02d:%02d:%02d:%02d : %30s/%04d : %s\n',fix(clock),ST(min([2 length(ST)])).name,ST(min([2 length(ST)])).line,inputLogT);
+    if ~SOM.silentiBit(THISLEVEL)
+        fprintf(inputLogT);
+    end
+    
+    SOM.LOG = strvcat(SOM.LOG,inputLog);
+end
 
 % If the combination indicates writting out then we do.
 
-if ~SOM.silentiBit(THISLEVEL)
-  if THISLEVEL == 4
+if THISLEVEL == 4
     fprintf(inputLogFATAL);
-  end
-  fprintf(inputLog);
-  if THISLEVEL == 4
-    fprintf(inputLogFATAL);
-  end
 end
 
 logStr = SOM.LOG;

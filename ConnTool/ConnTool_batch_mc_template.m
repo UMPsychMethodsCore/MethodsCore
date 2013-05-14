@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The folder that contains your subject folders
+%%% The folder that contains your Subjects folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/Volumes/ALS/ALS2008/';
 
@@ -33,10 +33,10 @@ RunDir = {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
-%%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
+%%% The format is 'subjectfolder',[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-    '111129eb',1,[1];
+    '111129eb',[1];
     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,6 +66,9 @@ connectFile  = 's5mm_w3mm_vbm8_ra8_run';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Image Type should be either 'nii' or 'img'
+%%%
+%%% Where possible please use "nii" files types. Eventually img/hdr 
+%%% will be depricated.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 imagetype = 'nii';
 
@@ -124,7 +127,7 @@ CSFFile   = 'CSF_ero*.nii';
 %%% Where to output the data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate  = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName      = 'censortest';
+OutputName      = 'ConnToolTest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at subject level.
@@ -133,7 +136,7 @@ OutputName      = 'censortest';
 %%% NOTE: Subject-specific masks are NOT recommended at all.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYES.nii';
+BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
@@ -146,7 +149,8 @@ RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcf
 %%% 1s and 0s, or a saved MATLAB .mat file with a cv variable containing a
 %%% column of 1s and 0s
 %%%
-%%% Robert DOES NOT RECOMMEND CENSORING YOUR DATA.
+%%% Robert DOES NOT RECOMMEND CENSORING YOUR DATA AFTER FFT. YOU SHOULD
+%%%        CLEAN YOUR DATA PRIOR TO USINg WITH THIS TOOLBOX.
 %%%
 %%%     This ConnTool Toolbox users an FFT filter with a little
 %%%     but of smoothing. If you want to censor you take the risk of
@@ -245,7 +249,7 @@ ROIInput = 'coordload';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
-%%% coordinates method
+%%% 'coordinates' method
 %%%
 %%% If specifying ROI coordinates you need to provide a list of centers in
 %%% MNI coordinates (mm) and a radius in voxels.
@@ -256,14 +260,12 @@ ROIInput = 'coordload';
 %%% See the MethodsCore/ConnTool/Documentation for more help on ROI size.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 ROICenters = [0 -5 10];
 ROISize    = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
-%%% coordload method
+%%% 'coordload' method
 %%%
 %%% You can load a file into the array ROICenters.
 %%%
@@ -279,7 +281,7 @@ ROISize = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
-%%% files and directory method
+%%% 'files' and 'directory' methods
 %%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
 %%% cell array list of ROI images.  If specifying an ROI directory, you only
@@ -294,7 +296,7 @@ ROIImages = {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
-%%% grid and gridplus method
+%%% 'grid' and 'gridplus' methods
 %%%
 %%% If specifying ROI grid you need to provide a spacing and ROI size as
 %%% well as an optional mask for grid point inclusion (a mask is strongly
@@ -306,11 +308,11 @@ ROIImages = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing      = 12;
 ROIGridSize         = {19};
-ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYES.nii';
+ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
-%%% gridplus extra
+%%% 'gridplus' extra
 %%%
 %%% ROIGridCenters is used in 'gridplus' mode to specify additional ROIs
 %%% that you would like to include in addition to the regular grid.  They
@@ -318,10 +320,10 @@ ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_r3mm_EPI_MASK_NOEYE
 %%% for sizing.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridCenters = [
-    10 10 10;
-    -10 10 10;
-    -22 0 -22;
-    22 0 -22;
+     10 10  10;
+    -10 10  10;
+    -22  0 -22;
+     22  0 -22;
     ];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
