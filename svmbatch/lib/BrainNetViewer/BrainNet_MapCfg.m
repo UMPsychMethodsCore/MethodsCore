@@ -126,10 +126,6 @@ if ~isempty(EdgeFileName)
     FLAG.Loadfile = FLAG.Loadfile + 4;
 end
 
-% Make sure edges range from 2 to 3
-zeds = find(triu(surf.net==0,1));
-surf.net(zeds(1))=2;
-surf.net(zeds(2))=3;
 
 % Load Volume file
 if ~isempty(VolFileName)
@@ -208,6 +204,8 @@ end
 save_view={'lateral','superior','anterior'};
 for i=1:3
     EC.lot.view_direction=i;
+    EC.edg.CM=zeros(max(ind.CM(:,1)),3);
+    EC.edg.CM(ind.CM(:,1),:)=ind.CM(:,2:4);
     % Draw
     set(H_BrainNet,'handlevisib','on');
     BrainNet('NV_m_nm_Callback',H_BrainNet);

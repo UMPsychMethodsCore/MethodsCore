@@ -2095,7 +2095,8 @@ switch EC.edg.color
                 %                     ci=64;
                 %                 end
             case 1
-                ci=int8(105*surf.cylinder3(i,3)-41);
+                %                 ci=int8(105*surf.cylinder3(i,3)-41);
+                ci=surf.cylinder2(i,3);
                 %                 ci=int32(45*surf.cylinder3(i,3)-3.5);
                 %                 if ci<1
                 %                     ci=1;

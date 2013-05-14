@@ -36,7 +36,16 @@ Nets = [
     1 4
     3 3
     ];
-    
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Specify labels and colormap to be used for the it                                       %
+% Column 1 is the label and Columns 2, 3 and 4 are the values of R,G & B respectively     %
+% The labels have to be positive integers                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ind.CM=[2, 1, 0, 1;
+    3, 0, 1, 1];
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Which Brain Surface should BNV use? If you give an empty string, it will use %
 % BrainMesh_Ch2withCerebellum by default.                                      %
