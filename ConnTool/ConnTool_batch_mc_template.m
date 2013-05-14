@@ -278,7 +278,7 @@ ROISize    = {19};
 %%%
 %%% If a '.mat" file you need to load the file and the assign the variable.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIFile = '[mcRoot]/ConnTool/Templates/V_MNI_12mmgrid.mat'
+ROIFile = '[mcRoot]/ConnTool/Templates/V_MNI_12mmgrid.mat';
 ROISize = {19};
 
 
