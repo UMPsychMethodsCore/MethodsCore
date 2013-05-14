@@ -137,12 +137,14 @@ OutputName      = 'ConnToolTest';
 %%% NOTE: Subject-specific masks are NOT recommended at all.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
+BrainMaskTemplate = ...
+    '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RealignmentParametersTemplate = '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcflirt*a8*.dat';
+RealignmentParametersTemplate = ...
+    '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcflirt*a8*.dat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for file containing timepoints to censor from the data
@@ -309,7 +311,8 @@ ROIImages = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIGridSpacing      = 12;
 ROIGridSize         = {19};
-ROIGridMaskTemplate = '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
+ROIGridMaskTemplate = ...
+    '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
