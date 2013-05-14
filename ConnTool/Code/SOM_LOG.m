@@ -122,7 +122,8 @@ if THISLEVEL == 4
 end
 
 nReturn = strfind(inputLog,'\n');
-if length(inputLog) == nReturn(end)+1
+
+if ~isempty(nReturn) && length(inputLog) == nReturn(end)+1
     inputLog = inputLog(1:nReturn(end)-1);
     nReturn(end) = [];
 end

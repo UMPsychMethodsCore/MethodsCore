@@ -57,9 +57,9 @@ if (RunMode(1) | sum(RunMode) == 0)
         
         Subject=SubjDir{iSubject,1};
 	
-	% This suggests that SubjDir{:,2} is useless information.
+	% This SubjDir{:,2} previous was useless, so discard to remove confusion.
 	
-        RunList=SubjDir{iSubject,3};
+        RunList=SubjDir{iSubject,2};
         
         SOM_LOG(sprintf('STATUS : Working on Subject : %s',Subject));
         NumRun = size(RunList,2);
@@ -208,7 +208,7 @@ if (RunMode(1) | sum(RunMode) == 0)
             case 'coordload'
                 tmpArray = load(mc_GenPath(ROIFile));
                 if isstruct(tmpArray)
-                    tmpArrayFields = fieldnames(tmpArray);
+                    tmpArrayField = fieldnames(tmpArray);
                     %
                     % Now we only expect one field, else throw an error
                     %
@@ -305,7 +305,7 @@ if (RunMode(2))
 		return
             else
                 for iR = 1:size(results,1)
-                    SOM_LOG(results(iR,:))
+                    SOM_LOG(results(iR,:));
                 end
                 SOM_LOG(sprintf('STATUS : Calculation done for Subject : %s',Subject));
             end
