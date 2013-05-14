@@ -86,7 +86,6 @@ NumScan = [240];
 %%%	These options are only used for Connectivity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Mode to run som_batch_mc_central in
 %%%        'test'       = test script but do not save parameters or run any
