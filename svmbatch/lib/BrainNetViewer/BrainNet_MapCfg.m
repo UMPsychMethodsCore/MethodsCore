@@ -126,6 +126,11 @@ if ~isempty(EdgeFileName)
     FLAG.Loadfile = FLAG.Loadfile + 4;
 end
 
+% Make sure edges range from 2 to 3
+zeds = find(triu(surf.net==0,1));
+surf.net(zeds(1))=2;
+surf.net(zeds(2))=3;
+
 % Load Volume file
 if ~isempty(VolFileName)
     [path, fname, ext] = fileparts(VolFileName);
