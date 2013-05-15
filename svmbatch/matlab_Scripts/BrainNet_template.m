@@ -43,14 +43,24 @@ Files = {
     'Somatomotor-VentralAttnStriatumDefaultVisual';
     };
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Specify labels and colormap to be used for the it                                       %
-% Column 1 is the label and Columns 2, 3 and 4 are the values of R,G & B respectively     %
-% The labels have to be positive integers                                                 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Specify the colors that you want used for your edge values.             %
+% By default, 2 indicates a "positive" edge and                           %
+% 3 indicates a "negative" edge (see above). Provide a N * 4              %
+% matrix, where N is the number of nonzero edge values you have.          %
+%                                                                         %
+% This requires that all of your edge values in the .edge file            %
+% be positive integers. The first column of this matrix will be your      %
+% edge value, and the following 3 values will be the RGB values           %
+% associated with that edge value.                                        %
+%                                                                         %
+% For example, if you had values of 2 that you wanted to be drawn as red, %
+% you would include a row like this [2 1 0 0]                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ind.CM=[2, 1, 0, 1;
-    3, 0, 1, 1];
+ind.CM = [
+    2, 1, 0, 1; % Map 2's (positive) to [1 0 1] RGB (reddish blue)
+    3, 0, 1, 1];% Map 3's (negative) to [0 1 1] RGB (greenish blue)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Which Brain Surface should BNV use? If you give an empty string, it will use %
