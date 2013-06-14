@@ -15,7 +15,10 @@ function subjectInfo = getSubjectImages(opt)
 %
 %   OPTIONAL INPUT
 %   
-%       NONE :)           
+%           VolumeSpecifier     - matrix(2, M)
+%                                 row1 = start volume for run
+%                                 row2 = end volume for run
+%           
 %
 %   OUTPUT
 %
@@ -33,7 +36,38 @@ function subjectInfo = getSubjectImages(opt)
 %   If not using optional input, input value as an empty matrix.
 %
 
+    if isfield(opt, 'VolumeSpecifier') == 0
+        opt.VolumeSpecifier = [];
+    end            
 
+    % handle VolumeSpecifier
+    if ~isempty(opt.VolumeSpecifier) == 1
+    
+        [r c] = size(opt.VolumeSpecifier);
+        NumRuns = size(opt.RunDir, 1);
+
+        % make sure has correct number of runs (columns)
+        if c ~= NumRuns
+            error('VolumeSpecifier has %d columns.  Expected %d columns (equal to number of runs in RunDir)\n', c, NumRuns);
+        end
+
+        % make sure has 2 rows
+        if r ~= 2
+            error('VolumeSpecifier has %d rows.  Expected 2 rows\n', r);
+        end
+
+        % make sure both are postive and startIndex < endIndex
+        for i = 1:c
+            if opt.VolumeSpecifier(1, i) <= 0  || opt.VolumeSpecifier(2, i) <= 0
+                error('VolumeSpecifier can only have positive values');
+            end
+            
+            if opt.VolumeSpecifier(1, i) >= opt.VolumeSpecifier(2, i)
+                error('The start index in the VolumeSpecifier matrix must be strictly less than the end index.');
+            end
+        end
+    end
+        
     Exp = opt.Exp;
     NumSubjects = size(opt.SubjDir, 1);
     subjectInfo(NumSubjects) = struct();
@@ -58,6 +92,16 @@ function subjectInfo = getSubjectImages(opt)
             if isempty(runImages) == 1
                 error(['No images found in directory : %s\n'...
                        'Check your BaseFileSpmFilter : %s'], RunDir, opt.BaseFileSpmFilter);
+            end
+
+            if ~isempty(opt.VolumeSpecifier) == 1
+                NumImages = size(runImages, 1);
+                vsRun = opt.VolumeSpecifier(:, RunVector(k));
+                if NumImages < vsRun(2)
+                    error('End index in VolumeSpecifier is greater than the number of images found for subject %s in run %s\n', subjectInfo(1, i).name, Run);
+                end
+
+                runImages = runImages(vsRun(1):vsRun(2), :);
             end
 
             % trim white space and insert into cell array
