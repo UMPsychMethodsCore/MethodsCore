@@ -895,6 +895,8 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                 if (clrs < CalcNumRegRun(iRun))
                     numz = CalcNumRegRun(iRun) - clrs;
                     tempContrast = [ContrastList{iContrast,NumCond+2} zeros(1,numz)];
+                else
+                    tempContrast = [ContrastList{iContrast,NumCond+2}];
                 end
                 ContrastBase = horzcat(ContrastBase,tempContrast);
             end
