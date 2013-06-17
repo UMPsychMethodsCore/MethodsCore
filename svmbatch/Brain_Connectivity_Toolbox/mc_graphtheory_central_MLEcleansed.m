@@ -257,9 +257,10 @@ for iSubject = 1:Sub
         end
     end
 end
-    
 
 
+
+%%
 %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
 
 save(OutputMatPath,'CombinedOutput','-v7.3');
@@ -421,8 +422,7 @@ end
 fclose(theFID);
 
 switch network.stream
-    case 'm'
-        
+    case 'm'        
         display('Global Measures All Done')
     case 't'
         display('Threshold Test All Done')
@@ -675,6 +675,43 @@ if ~isempty(network.AUC)
     
     
 end
+
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Permutation Test
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if ~permDone
+        perm = zeros(nNet,nNet,nRep);
+        if permCores ~= 1
+            try
+                matlabpool('open',permCores)
+                parfor i = 1:nRep
+                    perm(:,:,i) = mc_graphtheory_permutation(Types,ReadPath);
+                    fprintf(1,'%g\n',i);
+                end
+                matlabpool('close')
+            catch
+                matlabpool('close')
+                for i = 1:nRep
+                    perm(:,:,i) = mc_graphtheory_permutation(Types,ReadPath);
+                    fprintf(1,'%g\n',i);
+                end
+            end
+        else
+            for i = 1:nRep
+                perm = mc_graphtheory_permutation(Types,ReadPath);
+                fprintf(1,'%g\n',i);
+            end
+        end
+        permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','makeparentdir'));
+        save(permLoc,'perm','-v7.3');
+    else
+        permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','check'));
+        load(permLoc);
+    end
+    
+    
 
 
     
