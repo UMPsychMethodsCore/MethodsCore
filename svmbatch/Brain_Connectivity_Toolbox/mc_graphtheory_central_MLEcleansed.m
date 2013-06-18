@@ -64,11 +64,13 @@ Types = ResultsFile.master.TYPE;
 clear CombinedOutput
 clear NetworkPath
 
-NetworkConnectRaw = cell(length(Names), length(network.netinclude));
+nNet = length(network.netinclude);
 
-NetworkConnectSub = cell(length(network.netinclude),1);
+NetworkConnectRaw = cell(length(Names), nNet);
 
-CombinedOutput    = cell(length(Names),length(network.netinclude),length(network.sparsity));
+NetworkConnectSub = cell(nNet,1);
+
+CombinedOutput    = cell(length(Names),nNet,length(network.sparsity));
 
 OutputMatPath = mc_GenPath( struct('Template',network.save,...
         'suffix','.mat',...
@@ -266,16 +268,21 @@ end
 save(OutputMatPath,'CombinedOutput','-v7.3');
 
 
+
+
+%%
 %%%%%%% Save the global results to CSV file %%%%%%%%%%
 
 switch network.stream
     case 'm'
+        ReadPath = OutputPathFile1; % For t-test R script use
         theFID = fopen(OutputPathFile1,'w');
         if theFID < 0
             fprintf(1,'Error opening the csv file!\n');
             return;
         end
     case 't'
+        ReadPath = OutputPathFile; % For t-test R script use
         theFID = fopen(OutputPathFile,'w');
         if theFID < 0
             fprintf(1,'Error opening the csv file!\n');
@@ -671,45 +678,131 @@ if ~isempty(network.AUC)
     end
     
     display('AUC results saved.')
-    
+ 
     
     
 end
 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% re-arrangement of the data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  Average Over Sparsities %%%%%%%%%%%%%%%%%%
+    if SparAve
+        AveCluster    = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        AvePathLength = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        AveTrans      = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        AveEglob      = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        AveModu       = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        AveAssort     = zeros(length(CombinedOutput),size(CombinedOutput,2));
+        n = length(network.sparsity);
+        for iSub = 1:length(CombinedOutput)
+            for jNet = 1:size(CombinedOutput,2)
+                %Clustering
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.cluster;
+                end
+                AveCluster(iSub,jNet) = sub/n;
+                
+                %CharacteristicPathLength
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.pathlength;
+                end
+                AvePathLength(iSub,jNet) = sub/n;
+                
+                %Transitivity
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.trans;
+                end
+                AveTrans(iSub,jNet) = sub/n;
+                
+                %GlobalEfficiency
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.eglob;
+                end
+                AveEglob(iSub,jNet) = sub/n;
+                
+                %Modularity
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.modu;
+                end
+                AveModu(iSub,jNet) = sub/n;
+                
+                %Assortativity
+                sub = 0;
+                for kSpar = 1:n
+                    sub = sub+CombinedOutput{iSub,jNet,kSpar}.assort;
+                end
+                AveAssort(iSub,jNet) = sub/n;
+                
+            end
+        end
+    end
+    %%%%%%%%%%%%%% Rearrange the data %%%%%%%%%%%%%%%%%%
+    % Transfer matrix to vector (order: network1 for all subs, network2 for all subs....)
+    ColCluster    = AveCluster(:);
+    ColPathLength = AvePathLength(:);
+    ColTrans      = AveTrans(:);
+    ColEglob      = AveEglob(:);
+    ColModu       = AveModu(:);
+    ColAssort     = AveAssort(:);
+    % Column of network
+    MatNet        = repmat(network.netinclude,length(CombinedOutput),1);
+    ColNet        = MatNet(:);
+    % Combine to matrix
+    data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort];
+    header   = {'Network','Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity'};
+    
+    nMetric = size(data,2)-1;
+    types   = cell2mat(Types);
+    unitype = unique(types);
+    
+%%   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% t-test for real label
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+result = zeros(
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Permutation Test
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~permDone
-        perm = zeros(nNet,nNet,nRep);
-        if permCores ~= 1
-            try
-                matlabpool('open',permCores)
-                parfor i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(Types,ReadPath);
-                    fprintf(1,'%g\n',i);
-                end
-                matlabpool('close')
-            catch
-                matlabpool('close')
-                for i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(Types,ReadPath);
-                    fprintf(1,'%g\n',i);
-                end
+     
+    perm = zeros(nRep,nNet,nMetric);
+    if permCores ~= 1
+        try
+            matlabpool('open',permCores)
+            parfor i = 1:nRep
+                perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
+                fprintf(1,'%g\n',i);
             end
-        else
+            matlabpool('close')
+        catch
+            matlabpool('close')
             for i = 1:nRep
-                perm = mc_graphtheory_permutation(Types,ReadPath);
+                perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
                 fprintf(1,'%g\n',i);
             end
         end
-        permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','makeparentdir'));
-        save(permLoc,'perm','-v7.3');
     else
-        permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','check'));
-        load(permLoc);
+        for i = 1:nRep
+            perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
+            fprintf(1,'%g\n',i);
+        end
     end
+    permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','makeparentdir'));
+    save(permLoc,'perm','-v7.3');
+else
+    permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','check'));
+    load(permLoc);
+end
+
     
     
 
