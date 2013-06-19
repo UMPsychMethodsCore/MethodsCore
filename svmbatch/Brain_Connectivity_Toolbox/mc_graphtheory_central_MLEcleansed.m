@@ -200,7 +200,7 @@ for iSubject = 1:Sub
             
             if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                 
-                [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network.directed,network.weighted,network.measures);
+                [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);
                 Output                   = NetworkMeasures;
                 if network.stream == 't'
                     Output.degreeLine = 2*log10(size(NetworkConnect,1));
@@ -756,52 +756,90 @@ end
     ColNet        = MatNet(:);
     % Combine to matrix
     data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort];
-    header   = {'Network','Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity'};
+    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity'};
     
-    nMetric = size(data,2)-1;
+    nMetric = length(Metrics);
     types   = cell2mat(Types);
     unitype = unique(types);
     
-%%   
+%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% t-test for real label
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-result = zeros(
+
+[p,stats,meanhc,meands,sdhc,sdds]=mc_graphtheory_ttest(types,unitype,covtype,data,network.netinclude,nNet,nMetric); 
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Permutation Test
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%% Permutation %%%%%%%%%%%%%%%%%%%%%%%
 if ~permDone
      
-    perm = zeros(nRep,nNet,nMetric);
+    perm = zeros(nNet,nMetric,nRep);
     if permCores ~= 1
         try
             matlabpool('open',permCores)
             parfor i = 1:nRep
-                perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
+                perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric); 
                 fprintf(1,'%g\n',i);
             end
             matlabpool('close')
         catch
             matlabpool('close')
             for i = 1:nRep
-                perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
+                perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric); 
                 fprintf(1,'%g\n',i);
             end
         end
     else
         for i = 1:nRep
-            perm(i,:,:) = mc_graphtheory_permutation(Types,ReadPath,mcRoot);
+            perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric); 
             fprintf(1,'%g\n',i);
         end
     end
-    permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','makeparentdir'));
+    permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','makeparentdir'));
     save(permLoc,'perm','-v7.3');
 else
-    permLoc = mc_GenPath(struct('Template',fullfile(Output,permSave),'mode','check'));
+    permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','check'));
     load(permLoc);
 end
+
+%%
+%%%%%%%%%%%%%% Computation %%%%%%%%%%%%%%%%%%%%%%%
+[sigindx,sigindy] = find(p<siglevel);
+realn=0;
+for i = 1:length(sigindx)
+    
+        vector = sort(abs(squeeze(perm(sigindx(i),sigindy(i),:))),'descend');
+        pval   = stats(sigindx(i),sigindy(i));
+        N      = length(vector);
+        pos    = floor(permlevel*N)+1;
+        if abs(pval)>vector(pos)
+            realn = realn+1;
+            RealSigNet(realn)=sigindx(i);
+            RealSigMetric(realn)=sigindy(i);
+        end
+    
+end
+
+%% Output 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Output result
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+disp(sprintf('The significant differences happens in:\n'));
+for i = 1:realn
+    disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
+    disp(sprintf('t = %.2f, p = %.5f',stats(RealSigNet(i),RealSigMetric(i)),p(RealSigNet(i),RealSigMetric(i))));
+    disp(sprintf('Mean of control group: %.2f +/- %.2f',meanhc(RealSigNet(i),RealSigMetric(i)),sdhc(RealSigNet(i),RealSigMetric(i))));
+    disp(sprintf('Mean of disease group: %.2f +/- %.2f \n',meands(RealSigNet(i),RealSigMetric(i)),sdds(RealSigNet(i),RealSigMetric(i))));
+end
+
+
+
+
 
     
     

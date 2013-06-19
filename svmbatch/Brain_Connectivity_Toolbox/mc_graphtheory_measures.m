@@ -1,4 +1,4 @@
-function [Output,Flag] = mc_graphtheory_measures(mtrx,directed,weighted,measures)
+function [Output,Flag] = mc_graphtheory_measures(mtrx,network)
 % mc_graphtheory_measures: Do the computation of graph theory measurements
 % INPUT:
 %         mtrx         - A binary 2D network that undergoes the computation
@@ -17,6 +17,13 @@ function [Output,Flag] = mc_graphtheory_measures(mtrx,directed,weighted,measures
 %
 % Yu Fang 2013/01
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Convert input
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+directed = network.directed;
+weighted = network.weighted;
+measures = network.measures;
+local    = network.local;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Measurement Flags
@@ -33,6 +40,7 @@ Flag.pathlength = any(strfind(upper(measures),'P'));
 Flag.degree = any(strfind(upper(measures),'E'));
 Flag.clustering = any(strfind(upper(measures),'C'));
 Flag.betweenness = any(strfind(upper(measures),'B'));
+
 
 
 %%%%%%%%%%%%%%%%%% Global Measurements (Networkwise) %%%%%%%%%%%%%%%%%%%%%%%
@@ -185,7 +193,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%% Local Measurements (Nodewise) %%%%%%%%%%%%%%%%%%%%%%%
-if network.local==1
+if local==1
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % -Node Degree-
     % The number of edges connected to the node

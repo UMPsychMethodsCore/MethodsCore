@@ -6,6 +6,8 @@
 %                                                                      %
 % Yu Fang 2013/01                                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all;
@@ -23,13 +25,19 @@ CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
 
 ResultTemp = '[Pxe]/Results.mat';
      
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path where the mni coordinates of each node are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166rois_Censor_parameters.mat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Subject type order
+% 0 -- alphabetically, control group name in the front
+% 1 -- alphabetically, disease group name in the front
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+covtype = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Do you want to use partial correlation instead of correlation?
@@ -38,6 +46,7 @@ NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166ro
 
 network.partial = 0;
 
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Required Network Options:
 %%% network.directed:    0 - undirected matrix; 1 - directed matrix
@@ -93,12 +102,28 @@ NodeList = [
 %                               value in permSave                                             %
 %       permCores       -       How many CPU cores to use for permutations. We will try,      %
 %                               but it often fails with big data, in which case we will       %
-%                               fall back to just one core.                                   %
+%                               fall back to just one core. 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nRep     = 10;
+PermOutput = '[Exp]/GraphTheory/0619/';
 permSave = 'ADHD_GT.mat';  
 permDone = 0;
 permCores = 2;
+
+%% Statistics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  siglevel  ---        significant level of  t-test                        
+%  permlevel ---        significant level of permutation test
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+siglevel  = 0.05;
+permlevel = 0.05;
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Average over sparsities
+% 1 -- Do; 2 -- Don't
+%%%%%%%%%%%%%%%%%%%%%%
+SparAve=1;
 
 
 %% Output
@@ -107,8 +132,8 @@ permCores = 2;
 % local measures (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OutputPathTemplate1 = '[Exp]/GraphTheory/0423/MotionScrubbed/Measure_global';
-OutputPathTemplate2 = '[Exp]/GraphTheory/0423/MotionScrubbed/Measure_local';
+OutputPathTemplate1 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_global';
+OutputPathTemplate2 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_local';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -116,7 +141,7 @@ OutputPathTemplate2 = '[Exp]/GraphTheory/0423/MotionScrubbed/Measure_local';
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.save = '[Exp]/GraphTheory/0423/MotionScrubbed/CombinedOutput.mat';
+network.save = '[Exp]/GraphTheory/0619/MotionScrubbed/CombinedOutput.mat';
 
 %% Sparsity, Measures, Stream, AUC
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -195,6 +220,7 @@ addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
+%%
 mc_graphtheory_central_MLEcleansed
 
 
