@@ -32,8 +32,7 @@ voxel    = network.voxel;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Flag.density       = any(strfind(upper(measures),'D'));
 Flag.transitivity  = any(strfind(upper(measures),'T'));
-Flag.gefficiency   = any(strfind(upper(measures),'G'));
-Flag.lefficiency   = any(strfind(upper(measures),'L'));
+Flag.efficiency    = any(strfind(upper(measures),'F'));
 Flag.modularity    = any(strfind(upper(measures),'M'));
 Flag.assortativity = any(strfind(upper(measures),'A'));
 Flag.pathlength    = any(strfind(upper(measures),'P'));
@@ -41,6 +40,9 @@ Flag.degree        = any(strfind(upper(measures),'E'));
 Flag.clustering    = any(strfind(upper(measures),'C'));
 Flag.betweenness   = any(strfind(upper(measures),'B'));
 Flag.entropy       = any(strfind(upper(measures),'Y'));
+
+
+
 
 
 
@@ -112,19 +114,31 @@ end
 % -Global Efficiency-
 % It is the average inverse shortest path length in the network, and it is
 % inversely related to the characeristic path length
+% -Local Efficiency-
+% The global efficiency of the neighborhood of a node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.gefficiency
+if Flag.efficiency
     if directed
         eglob = 0; % no code for directed matrix
+        if voxel
+            eloc = [];
+        end
     else
         if weighted
             eglob = efficiency_wei(mtrx,0); 
+            if voxel
+                eloc = efficiency_bin(mtrx,1);
+            end
         else
             eglob = efficiency_bin(mtrx,0);
+            if voxel
+                eloc = efficiency_bin(mtrx,1);
+            end
         end
     end
     
     Output.eglob = eglob;
+    Output.eloc  = eloc;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,11 +197,9 @@ if Flag.pathlength
     else
         D = distance_bin(mtrx);
     end
-    [lambda,~,ecc,radius,diameter] = charpath(D); % same code for weighted and unweighted matrix
+    [lambda,~,~,~,~] = charpath(D); % same code for weighted and unweighted matrix
     Output.pathlength = lambda;
-%     Output.ecc.nodes = ecc;
-%     Output.ecc.radius = radius;
-%     Output.ecc.diameter = diameter;
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,7 +223,11 @@ if Flag.betweenness
     else
         bc = betweenness_bin(mtrx);
     end
-    Output.btwn = mean(bc);
+    
+    Output.btwn     = mean(bc);
+    if voxel
+        Output.nodebtwn = bc;
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,46 +241,32 @@ end
 
 
 
-%%%%%%%%%%%%%%%%%% Local Measurements (Nodewise) %%%%%%%%%%%%%%%%%%%%%%%
-if voxel
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % -Node Degree-
-    % The number of edges connected to the node
-    % -Network Degree-
-    % The average degree over all nodes
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Flag.degree
-        if directed
-            deg = degrees_dir(mtrx);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Node Degree-
+% The number of edges connected to the node
+% -Network Degree-
+% The average degree over all nodes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.degree
+    if directed
+        deg = degrees_dir(mtrx);
+    else
+        if weighted
+            [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
+            Output.strength = strength;
+            Output.glostr   = glostr;
         else
-            if weighted
-                [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
-                Output.strength = strength;
-                Output.glostr   = glostr;
-            else
-                [deg,glodeg] = degrees_und(mtrx);
-            end
+            [deg,glodeg] = degrees_und(mtrx);
         end
+    end
+    if voxel
         Output.deg    = deg;
-        Output.glodeg = glodeg;
     end
+    Output.glodeg = glodeg;
+end
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % -Local Efficiency-
-    % The global efficiency of the neighborhood of a node
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Flag.lefficiency
-        if directed
-            eloc = 0; % no code for directed matrix
-        else
-            if weighted
-                eloc = efficiency_wei(mtrx,1);
-            else
-                eloc = efficiency_bin(mtrx,1);
-            end
-        end
-        Output.eloc = eloc;
-    end
+
     
     
 end

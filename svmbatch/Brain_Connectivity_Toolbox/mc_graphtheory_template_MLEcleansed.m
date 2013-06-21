@@ -173,12 +173,11 @@ network.sparsity = [0.1,0.15,0.2,0.25,0.3,0.35];
 %%% ( Detailed explanation of the measurements is in mc_graphtheory_measures.m)
 %%% 
 %%%         A = assortativity
-%%%         B = betweenness
-%%%         C = clustering coefficient
+%%%         B = betweenness [global/local]
+%%%         C = clustering coefficient [global/local]
 %%%         D = density
-%%%         E = degree
-%%%         G = global efficiency
-%%%         L = local efficiency
+%%%         E = degree [global/local]
+%%%         F = efficiency [global/local]
 %%%         M = modularity
 %%%         P = characteristic path length
 %%%         S = small-worldness
@@ -188,7 +187,7 @@ network.sparsity = [0.1,0.15,0.2,0.25,0.3,0.35];
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.measures = 'ABCGMPTY';
+network.measures = 'ABCDEFMPTY';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The stream you are at

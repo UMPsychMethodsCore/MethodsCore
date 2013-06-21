@@ -257,10 +257,11 @@ for iSubject = 1:Sub
                 Output.assort     = 0;
                 Output.btwn       = 0;
                 Output.etpy       = 0;
+                Output.glodeg     = 0;
                 
-                Output.degree     = [];
+                Output.deg        = [];
                 Output.nodebtwn   = [];
-                Output.elocal     = [];
+                Output.eloc       = [];
                            
             end
                 
@@ -737,6 +738,13 @@ if ~isempty(network.AUC)
     
 end
 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% re-arrangement of voxel-wise measurements results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for iSub = 1:length(CombinedOutput)
+    
+end
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% re-arrangement of the data
@@ -814,9 +822,18 @@ end
         OutAssort     = zeros(length(CombinedOutput),nNet);
         OutBtwn       = zeros(length(CombinedOutput),nNet);
         OutEtpy       = zeros(length(CombinedOutput),nNet);
+        OutDegree     = zeros(length(CombinedOutput),nNet);
+        OutDensity    = zeros(length(CombinedOutput),nNet);
         
         for iSub = 1:length(CombinedOutput)
             for jNet = 1:size(CombinedOutput,2)
+                
+                %Degree
+                OutDegree(iSub,jNet) = CombinedOutput{iSub,jNet}.glodeg;
+                
+                %Density
+                OutDensity(iSub,jNet) = CombinedOutput{iSub,jNet}.density;
+                
                 %Clustering
                 OutCluster(iSub,jNet) = CombinedOutput{iSub,jNet}.cluster;
                                 
@@ -862,13 +879,15 @@ end
     ColAssort     = OutAssort(:);
     ColBtwn       = OutBtwn(:);
     ColEtpy       = OutEtpy(:);
+    ColDeg        = OutDegree(:);
+    ColDens       = OutDensity(:);
     
     % Column of network
     MatNet        = repmat(network.netinclude,length(CombinedOutput),1);
     ColNet        = MatNet(:);
     % Combine to matrix
-    data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy];
-    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy'};
+    data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
+    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density'};
     
     nMetric = length(Metrics);
     types   = cell2mat(Types);
