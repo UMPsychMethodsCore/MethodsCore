@@ -1,10 +1,9 @@
-function [ p,stats,meanhc,meands,sdhc,sdds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,nNet,nMetric)
-%MC_GRAPHTHEORY_TTEST Summary of this function goes here
+function [ meandiff,meanhc,meands,sdhc,sdds ] = mc_graphtheory_meandiff( Label,unitype,covtype,data,netinclude,nNet,nMetric )
+%MC_GRAPHTHEORY_MEANDIFF Summary of this function goes here
 %   Detailed explanation goes here
 
-stats  = zeros(nNet,nMetric);
-p      = zeros(nNet,nMetric);
-meanhc = zeros(nNet,nMetric);
+meandiff  = zeros(nNet,nMetric);
+meanhc    = zeros(nNet,nMetric);
 meands = zeros(nNet,nMetric);
 sdhc   = zeros(nNet,nMetric);
 sdds   = zeros(nNet,nMetric);
@@ -23,9 +22,9 @@ for iNet = 1:nNet
         meands(iNet,jMetric) = mean(testds);
         sdhc(iNet,jMetric)   = std(testhc);
         sdds(iNet,jMetric)   = std(testds);
-%         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds,[],[],'unequal');
-        [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds);
-        stats(iNet,jMetric)=tval.tstat;
+
+        meandiff(iNet,jMetric) = mean(testhc)-mean(testds);
+
     end
 end
 

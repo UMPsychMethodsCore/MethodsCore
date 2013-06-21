@@ -23,23 +23,24 @@ function [Output,Flag] = mc_graphtheory_measures(mtrx,network)
 directed = network.directed;
 weighted = network.weighted;
 measures = network.measures;
-local    = network.local;
+voxel    = network.voxel;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Measurement Flags
 % 1 - include this measure
 % 0 - do not include this measure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Flag.density = any(strfind(upper(measures),'D'));
-Flag.transitivity = any(strfind(upper(measures),'T'));
-Flag.gefficiency = any(strfind(upper(measures),'G'));
-Flag.lefficiency = any(strfind(upper(measures),'L'));
-Flag.modularity = any(strfind(upper(measures),'M'));
+Flag.density       = any(strfind(upper(measures),'D'));
+Flag.transitivity  = any(strfind(upper(measures),'T'));
+Flag.gefficiency   = any(strfind(upper(measures),'G'));
+Flag.lefficiency   = any(strfind(upper(measures),'L'));
+Flag.modularity    = any(strfind(upper(measures),'M'));
 Flag.assortativity = any(strfind(upper(measures),'A'));
-Flag.pathlength = any(strfind(upper(measures),'P'));
-Flag.degree = any(strfind(upper(measures),'E'));
-Flag.clustering = any(strfind(upper(measures),'C'));
-Flag.betweenness = any(strfind(upper(measures),'B'));
+Flag.pathlength    = any(strfind(upper(measures),'P'));
+Flag.degree        = any(strfind(upper(measures),'E'));
+Flag.clustering    = any(strfind(upper(measures),'C'));
+Flag.betweenness   = any(strfind(upper(measures),'B'));
+Flag.entropy       = any(strfind(upper(measures),'Y'));
 
 
 
@@ -184,16 +185,48 @@ if Flag.pathlength
     end
     [lambda,~,ecc,radius,diameter] = charpath(D); % same code for weighted and unweighted matrix
     Output.pathlength = lambda;
-    Output.ecc.nodes = ecc;
-    Output.ecc.radius = radius;
-    Output.ecc.diameter = diameter;
+%     Output.ecc.nodes = ecc;
+%     Output.ecc.radius = radius;
+%     Output.ecc.diameter = diameter;
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Betweenness Centrality-
+% The fraction of all shortest paths in the network that contain a given
+% node. Nodes with high values of betweenness centrality participate in a
+% large number of shortest paths.
+% The global betweenness centrality is the average of centralities of all nodes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.betweenness
+    if weighted
+        % betweenness_wei function asks for connection-length matrix, as in a
+        % weighted correlation network, typically higher correlations are
+        % interpreted as shorter distances, here we use the inverse of the
+        % weighted connection matrix as the connection-length matrix,
+        % except for that at the diagonal the lengths are set to 0.
+        lengthmtrx                = 1./mtrx;
+        nmtrx                     = size(mtrx);
+        lengthmtrx(1:nmtrx+1:end) = 0;
+        bc = betweenness_wei(lengthmtrx);
+    else
+        bc = betweenness_bin(mtrx);
+    end
+    Output.btwn = mean(bc);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Spectral Entropy -
+% Spectral Entropy is a measure of the 'uncertainty' of the graph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.entropy
+    Output.etpy = mc_spectral_entropy(mtrx);
+end
+    
 
 
 
 %%%%%%%%%%%%%%%%%% Local Measurements (Nodewise) %%%%%%%%%%%%%%%%%%%%%%%
-if local==1
+if voxel
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % -Node Degree-
     % The number of edges connected to the node
@@ -233,28 +266,7 @@ if local==1
         Output.eloc = eloc;
     end
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % -Node Betweenness-
-    % The fraction of all shortest paths in the network that contain a given
-    % node. Nodes with high values of betweenness centrality participate in a
-    % large number of shortest paths.
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Flag.betweenness
-        if weighted
-            % betweenness_wei function asks for connection-length matrix, as in a
-            % weighted correlation network, typically higher correlations are
-            % interpreted as shorter distances, here we use the inverse of the
-            % weighted connection matrix as the connection-length matrix,
-            % except for that at the diagonal the lengths are set to 0.
-            lengthmtrx                = 1./mtrx;
-            nmtrx                     = size(mtrx);
-            lengthmtrx(1:nmtrx+1:end) = 0;
-            bc = betweenness_wei(lengthmtrx);
-        else
-            bc = betweenness_bin(mtrx);
-        end
-        Output.btwn = bc;
-    end
+    
 end
 
 

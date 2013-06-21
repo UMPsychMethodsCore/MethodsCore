@@ -66,6 +66,7 @@ network.partial = 0;
 %%% network.netinclude:  Any network number in the array will be treated separately and 
 %%%                      for now the number is in the range of 0 to 12. We are usually interested
 %%%                      in network 1:7. If set to -1, than treat the whole brain(include all 13 networks).
+%%% network.rthresh: The single r threshold to create the adjacency matrix when single r threhsold method is used. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 network.directed   = 0;
@@ -76,20 +77,29 @@ network.loc        = 0;
 network.positive   = 1;
 
 network.local = 0;
+network.voxel = 1;
 
 network.iter       = 5;
 network.netinclude = [1:7]; 
+
+network.rthresh  = 0.25;
+network.zthresh  = 0.5*log((1+network.rthresh)/(1-network.rthresh));
+
+network.perm     = 1;
+network.ttest    = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Nodes of interest (Please input the coordinates that are contained in the
 % parameters file)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NodeList = [
-    -18 0 72;
-     6 12 72;
-    -6 12 72;
-    ];  
+if network.local
+    NodeList = [
+        -18 0 72;
+        6 12 72;
+        -6 12 72;
+        ];
+end
 
 %% Permutation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,21 +113,26 @@ NodeList = [
 %       permCores       -       How many CPU cores to use for permutations. We will try,      %
 %                               but it often fails with big data, in which case we will       %
 %                               fall back to just one core. 
+%       permlevel       -       significant level of permutation test
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nRep     = 10;
-PermOutput = '[Exp]/GraphTheory/0619/';
-permSave = 'ADHD_GT.mat';  
-permDone = 0;
-permCores = 2;
-
-%% Statistics
+if network.perm
+    nRep     = 10000;
+    PermOutput = '[Exp]/GraphTheory/0619/';
+    permSave = 'ADHD_GT.mat';
+    permDone = 0;
+    permCores = 1;
+    permlevel = 0.05;
+end
+%% t statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  siglevel  ---        significant level of  t-test                        
-%  permlevel ---        significant level of permutation test
+%  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-siglevel  = 0.05;
-permlevel = 0.05;
+if network.ttest
+    siglevel  = 0.05;
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Average over sparsities
@@ -134,6 +149,7 @@ SparAve=1;
 
 OutputPathTemplate1 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_global';
 OutputPathTemplate2 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_local';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -167,11 +183,12 @@ network.sparsity = [0.1,0.15,0.2,0.25,0.3,0.35];
 %%%         P = characteristic path length
 %%%         S = small-worldness
 %%%         T = transitivity
+%%%         Y = entropy
 %%%
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.measures = 'ACGMPT';
+network.measures = 'ABCGMPTY';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The stream you are at
