@@ -1,45 +1,58 @@
-clear
-%%%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~   Basic   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/zubdata/oracle1/Eureka';
+Exp = '/net/data4/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path where your logfiles will be stored
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LogTemplate = fullfile(pwd, 'Logs');
+LogTemplate = '[Exp]/Logs';
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Image and subject information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp      = path to your experiment directory
+%%%       iSubject = index for subject
 %%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
 %%%       Run      = name of run from RunDir (using iRun as index of row)
+%%%        *       = wildcard (can only be placed in final part of template)
 %%% Examples:
-%%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
+%%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImagePathTemplate = '[Exp]/[Subject]/dm_func/[Run]/';
+ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% spm_select filter used to collect subject images
-%%% Type help regexp and spm_filter for description how to create filters
-%%% generally it will always be something like '^sw3mm_ra_spm8_run.*nii'
+%%% The  prefix of each functional file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BaseFileSpmFilter = '^sw3mmVBM8_rarun.*nii';
+basefile = 'swra_MSITrun';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Image Type should be either 'nii' or 'img'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+imagetype = 'nii';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The TR your data was collected at
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+TR = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find the images to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_01';
-    'run_02';
-    'run_03';
-    'run_04';
-    'run_05';
-	'run_06';
+	'run_05/';
+	'run_06/';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,22 +60,28 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-     'PM103_EUR/Active',1301,[1 2 3 4 5 6];
-     'PM103_EUR/Inactive',1032,[1 2 3 4 5];
-     'PF104_EUR/Active',1041,[1 2 3 4 5 6];
+      '5001/Tx1',50011,[1 2];
+      '5028/Tx1',50281,[2];
+      '5029/Tx1',50291,[1 2];
 };
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MasterData File and Condition information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of masterdata CSV file
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp            = path to your experiment directory
+%%%       MasterDataName = master data file name
 %%%        *             = wildcard (can only be placed in final part of template)
 %%% Examples:
-%%% MasterTemplate='[Exp]/Scripts/MasterData/EurekaDM_Master.csv';
+%%% MasterTemplate='[Exp]/Scripts/MasterData/[MasterDataName].csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/MasterDataFiles/EurekaDM_Master.csv';
+MasterTemplate ='[Exp]/Scripts/MasterData/[MasterDataName].csv';
+MasterDataName ='MSIT_Master_methodscore';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Number of rows and columns to skip when reading the MasterData csv file
@@ -73,65 +92,68 @@ MasterDataSkipCols = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Column number in the MasterData file where subject numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjColumn = 1;
+SubjColumn = [1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Column number in the MasterData file where run numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RunColumn = 2;
+RunColumn = [2];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number(s) in the MasterData file where conditions numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CondColumn = 5;
+CondColumn = [5];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Onset times are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TimeColumn = 11;
+TimColumn = [4];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Durations are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-DurationColumn = 10;
-
+DurColumn = [6];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of conditions in your model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ConditionName = {
-    'Draws1234_UncertDecks';
-    'Draws1234_Cont';
-    'Pick_UncertDecks';
-    'Pick_Cont';
-    'Feedback_All';
+    'Congruent';
+    'Incongruent';
 };
 
-
-% name column condition order
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% If you are including any Parametric regressors in your model
-%%% syntax: 'Parameter Name', Master Data File column, Condition Number as listed
-%%%         in ConditionName for parametric regressor, polynomial order
-%%%
-%%% If using multiple condition columns above, the parametric regressor
-%%% will be used with every condition number as given in the third column.
-%%%
+%%% syntax: 'Parameter Name', column number in MasterData file that contains
+%%% the parameter value. If using multiple condition columns above, you must
+%%% provide a third entry that indicates with which condition column the 
+%%% parametric regressor is associated.
 %%% NOTE: If you want to include parametric regressors for a condition, the 
 %%% values of your regressor MUST change over trials.  SPM can not include
 %%% a constant parametric regressor and it will cause problems with contrasts.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ParametricList = {
-    'Cov_PostProb_JNeuroModel1',12,1,2;
+ParList = { ...
 };
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% User specified regressor information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% User Specified Regressors 
+%%% The value in the first column controls the master file method (see
+%%% advanced section).
+%%% The value in the second column controls the subject-specific regressor 
+%%% file method (see RegFileTemplates below).
+%%% 0 = don't use method
+%%% 1 = use method
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegOp = [0 1];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Location of user specified regressor files. To use these make sure 
 %%%  column 2 of RegOp is set to 1 above.
-%%%
-%%%  syntac: File location, number of regressors to use, derivative order
-%%%          to include for regressor
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp         = path to your experiment directory
@@ -139,22 +161,42 @@ ParametricList = {
 %%%       Run         = folder name of current run
 %%%        *          = wildcard (can only be placed in final part of template)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegFilesTemplate = {
-'[Exp]/[Subject]/dm_func/[Run]/mcflirt*.dat', Inf, 0;
+RegFileTemplates = {
+    '[Exp]/Subjects/[Subject]/func/[Run]/mcflirt*.dat',Inf;
+    '[Exp]/Subjects/[Subject]/func/[Run]/fdOutliers.csv',Inf;
+    '[Exp]/Subjects/[Subject]/func/[Run]/frameOutliers.csv',Inf;
 };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Indices from RegFileTemplates for which regressor files should have
+%%% automatic first derivatives calculated and also included
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegDerivatives = [1];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Contrast information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of contrasts to add to the estimated model
 %%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
 %%% You need to properly balance/weight your contrasts below as if it was just one run/session
 %%% The script will handle balancing it across runs
-%%% If using fir basis functions, condition vectors must be at least as
-%%% long as the number of bins being used.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ContrastList = {
-'UncertDraw_PostProb_Pos' [0 1 0] 0 0 0 0 [0 0 0 0 0 0];
-'UncertDraw_PostProb_Neg' [0 -1 0] 0 0 0 0 [0 0 0 0 0 0];
+ContrastList = {    
+    'C'            1  0   [0 0 0 0 0 0];
+    'I'            0  1   [0 0 0 0 0 0];         
+    'C-I'          1 -1   [0 0 0 0 0 0];             
+    'I-C'         -1  1   [0 0 0 0 0 0];                   
+    'AllTrials'   .5 .5   [0 0 0 0 0 0];
+
 };
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Output path information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path for output images
@@ -163,16 +205,19 @@ ContrastList = {
 %%%       Exp        = path to your experiment directory
 %%%       Subject    = name of subject from SubjDir (using iSubject as index of row)
 %%%       Run        = name of run from RunDir (using iRun as index of row)
+%%%        *         = wildcard (can only be placed in final part of template)
+%%%       OutputName = output directory
 %%% Examples:
-%%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
+%%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputDir = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/FirstLevelTests/OneParametric/[Subject]';
+OutputTemplate = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
+OutputName     = 'MSITtest1';
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The TR your data was collected at
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TR = 2;
+
+
+
+
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -186,13 +231,6 @@ TR = 2;
 %%% 3 = test without running anything
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Mode = 1;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Set the contrast start point, used only if Mode = 2
-%%% 1 = Overwrite Previous Contrasts
-%%% 2 = Append new contrasts to previous ones 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-StartOp=1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Analyze data on a local drive on the machine you run the script on
@@ -212,7 +250,7 @@ fMRI_T0 = 8;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CondModifier - Remove the last n conditions from the model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ConditionModifier = 0;
+CondModifier = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CondThreshold
@@ -220,7 +258,7 @@ ConditionModifier = 0;
 %%% 1 = remove singleton conditions (useful b/c SPM won't estimate a beta for
 %%% parameters that modulate a singleton condition)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ConditionThreshold = 0;
+CondThreshold = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This sets whether the models are the same for everyone or subject-specific
@@ -233,33 +271,40 @@ IdenticalModels = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Total number of trials in your experiment for a subject (only used if IdenticalModels = 1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TotalTrials = 0;
+TotalTrials = 9;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Basis function to use in model.  Valid options are 'hrf' or 'fir'.
+%%% Number of Functional scans per run
+%%% This should be a vector of size 1xNumRun
+%%% This value is only used to trim the end of runs when there are
+%%% undesired scans there.  If you want to use all the scans in each run
+%%% then this should be left blank ([]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Basis = 'hrf';
+NumScan = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Only used if Basis = 'hrf'
-%%% Indicates wheter to model the derivates of the canonical hrf function.
-%%% 0 - none
-%%% 1 - derivative
-%%% 2 = derivative and dispersion
+%%% Use AR(1) auto-regression correction or not
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HrfDerivative = 0;
+usear1 = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Only used if Basis = 'fir'
-%%% Indicates the poststimulus duration for the hemodynamic response
+%%%ScaleOp - 'Scaling' = do proportonal scaling
+%%%          'none' = do standard grand mean scaling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FirDuration = 0;
+ScaleOp = 'none';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Only used if Basis = 'fir'
-%%% Indicates the bins to use
+%%% Path and name of explicit mask to use at first level.
+%%% Leave this blank ('') to turn off explicit masking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FirBins = 0;
+explicitmask = '';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Set the contrast start point
+%%% 1 = Overwrite Previous Contrasts
+%%% 2 = Append new contrasts to previous ones 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+StartOp=1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
@@ -276,37 +321,58 @@ FirBins = 0;
 %%% either to [] or [1 1 1 1].
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastRunWeights = {
+    };
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Location of the regressor CSV file for Masterfile method of regressor
+%%%  loading
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp         = path to your experiment directory
+%%%       RegDataName = regressor CSV file name
+%%%        *          = wildcard (can only be placed in final part of template)
+%%% Examples:
+%%% RegTemplate='[Exp]/MasterData/[RegDataName].csv';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegTemplate = '[Exp]/MasterData/[RegDataName].csv';
+RegDataName = 'MAS_motionregressors';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Number of rows and columns to skip when reading the regressor csv file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegDataSkipRows = 1;
+RegDataSkipCols = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where your subject numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegSubjColumn = [2];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Column number in the Regressor file where you run numbers are located
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegRunColumn = [3];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% List of regressor names, and column numbers for values from the regressor file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegList = { 
+    'x',5;
+    'y',6;
+    'z',7;
+    'r',8;
+    'p',9;
+    'y',10;
 };
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Volumespecifier specifies the number of volumes to use for each run.
-%%% The number of columns must equal the number of runs specified in 
-%%% RunDir.  The top rows indicate from which volume to start and the 
-%%% bottom row indicates which volume to stop.  For instance,
-%%% VolumeSpecifier = [10 20; 130 150] will start from the 10th volume
-%%% and stop at the 130th volume for the first run in RunDir.  The second
-%%% run in RunDir will start at the 20th volume and stop at the 150th
-%%% volume.
+%%% SPM Default Values for First Level analysis
+%%% this is set up as a cell array where each row corresponds to a default
+%%% value in SPM.  The first element is a string with the name of the
+%%% default field (without defaults. at the beginning).  You can view
+%%% spm_defaults.m for a list of possible fields to set.  The second
+%%% element is the value you want to set for that default.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-VolumeSpecifier = [];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%ScaleOp - 'Scaling' = do proportonal scaling
-%%%          'none' = do standard grand mean scaling
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ScaleOp = 'none';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path and name of explicit mask to use at first level.
-%%% Leave this blank ('') to turn off explicit masking
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ExplicitMask = '';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Use AR(1) auto-regression correction or not
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-usear1 = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The main default that impacts first level analysis is the implicit 
@@ -322,16 +388,16 @@ spmdefaults = {
     'mask.thresh'   0.8;
 };
 
+
 global mcRoot;
 %DEVSTART
-mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
-addpath(fullfile(mcRoot,'FirstLevel','functions'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 FirstLevel_mc_central
