@@ -267,6 +267,11 @@ function opt = CheckOpt(opt)
         mc_Logger('log', 2, msg);
     end
 
+    % check if explicit mask exists
+    if ~isempty(opt.explicitmask) == 1 && exist(opt.explicitmask, 'file') ~= 2
+        error('explicitmask %s does not exist.\n', opt.explicitmask);
+    end
+
     % check mode
     if opt.Mode == 2
         opt.UseSandbox = 0;
