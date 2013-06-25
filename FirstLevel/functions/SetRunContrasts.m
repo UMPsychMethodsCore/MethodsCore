@@ -1,7 +1,10 @@
-function RunContrasts = SetRunContrasts(SubjectNumber, RunNumber, opt, sess)
+function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
 %   RunContrasts = SetRunContrasts(SubjectNumber, SubjectRun, opt, sess)
 %
 %   REQUIRED INPUT
+%       Subject                 - string, subject name
+%
+%       NumBases                - scalar, number of bases function used in model
 %
 %       opt.
 %           ConditionName       - cell(C, 1) list of conditions as strings
@@ -47,47 +50,72 @@ function RunContrasts = SetRunContrasts(SubjectNumber, RunNumber, opt, sess)
 %
 %   This function assumes all contrasts have the same vector lengths for a condition.
 %
-    Subject = opt.SubjDir{SubjectNumber, 1};
-    Run = opt.RunDir{RunNumber};
+    Run = sess.name;
 
     NumContrasts = size(opt.ContrastList, 1);
     NumConditions = size(opt.ConditionName, 1);
     
-    ConditionsModeled = [];
-    ContrastColumns = 0;
-
-    % check which conditions are being modeled
+    % trim contrast list based on wheter conditions and parametric regressors are being used
     for i = 1:NumConditions
-        
+
         if sess.cond(i).use == 0
 
-            msg = sprintf('For subject %s run %s condtion %s will not be modeled.\n\n', Subject, Run, sess.cond(i).name);
+            msg = sprintf(['SUBJCT %s RUN %s :\n' ...
+                           ' Condition %s and any parametric regressors will be omitted from the model.\n\n'], Subject, Run, sess.cond(i).name);
             fprintf(1, msg);
             mc_Logger('log', msg, 2);
 
-        else
+            % remove condition from each contrast vector
+            for k = 1:NumContrasts
+                opt.ContrastList{k, i + 1} = [];
+            end
 
-            ConditionsModeled(end+1) = i;
-            ContrastColumns = ContrastColumns + length(opt.ContrastList{1, 1+i});
+        % check for parametric regressors
+        elseif sess.cond(i).usePMod > 0
 
+            NumPara = size(sess.cond(i).pmod, 2);
+
+            for k = 1:NumPara
+
+                if isempty(sess.cond(i).pmod(k).param) == 1
+                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                                   ' Condition %s, the parametric regressor %s will be omitted from the model.\n\n'], ...
+                                   Subject, Run, sess.cond(i).name, sess.cond(i).pmod(NumPara).name);
+                    fprintf(1, msg);
+                    mc_Logger('log', msg, 2);
+
+                    % assume the condition contrast vector is the same length for all contrast
+                    % vectors; otherwise this breaks, but assumption should be valid
+                    tmpConVec = opt.ContrastList{1, i + 1};
+                    ColumnsRemoved = sess.cond(i).pmod(k).poly * NumBases;
+                    tmpConVec(NumBases+1:ColumnsRemoved-1) = [];
+
+                    for iCon = 1:NumContrasts
+                        opt.ContrastList{iCon, i + 1} = tmpConVec;
+                    end
+
+                end
+            end
         end
-
     end
 
-    % create contrast matrix whether or not any condtions are being modeled
-    if isempty(ConditionsModeled) == 1
+    % count number of columns by using first contrast
+    tmp = [ opt.ContrastList{1, [2:(NumConditions+1)]} ];
+    ContrastColumns = length(tmp);
 
-        msg = sprintf('For subject %s run %s no conditions are being modeled.\n\n', Subject, Run);
+    % create RunContrasts now and fill it in
+    RunContrasts = zeros(NumContrasts, ContrastColumns);
+    for i = 1:NumContrasts
+        RunContrasts(i, :) = [ opt.ContrastList{i, [2:(NumConditions+1)]} ];
+    end
+
+    % give feedback if no conditions are being modeled this run
+    if isempty(RunContrasts) == 1
+
+        msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                       ' No conditions are being modeled.\n\n'], Subject, Run);
         fprintf(1, msg);
         mc_Logger('log', msg, 2);
-        RunContrasts = [];
-
-    else
-
-        RunContrasts = zeros(NumContrasts, ContrastColumns);
-        for i = 1:NumContrasts
-            RunContrasts(i, :) = [ opt.ContrastList{i, ConditionsModeled + 1} ];
-        end
 
     end
 
@@ -104,7 +132,11 @@ function RunContrasts = SetRunContrasts(SubjectNumber, RunNumber, opt, sess)
 
             if UserRegConLength > NumRegressors
 
-                 msg = sprintf('The regressor contrast vector is greater than the number of regressors found for subject %s for run %s for contrast number %d.\n  The number of regressors found are %d.  The length of the input regressor contrast vector is %d.\n  Trimming the regressor contrast vector to the number of regressors found.  Contrast may not be valid.\n\n');
+                msg = sprintf(['SUBJECT %s RUN %S' ...
+                               ' The regressor contrast vector is greater than the number of regressors found contrast number %d.\n' ...
+                               ' The number of regressors found are %d.  The length of the input regressor contrast vector is %d.\n' ...
+                               ' Trimming the regressor contrast vector to the number of regressors found.  Contrast may not be valid.\n\n'], ...
+                               Subject, Run, i, NumRegressors, UserRegConLegnth);
                 fprintf(1, msg);
                 mc_Logger('log', msg, 2);
                 UserRegContrast = UserRegContrast(1:NumRegressors);
@@ -124,7 +156,8 @@ function RunContrasts = SetRunContrasts(SubjectNumber, RunNumber, opt, sess)
         AllUserRegressors = [ opt.ContrastList{:, end} ];
         if ~isempty(AllUserRegressors) == 1
 
-            msg = sprintf('For subject %s run %r no regressors were found.  User has specified contrasts for regressors.  No contrasts for regressors will be created.\n\n', Subject, Run);
+            msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                          ' No regressors were found.  User has specified contrasts for regressors.  No contrasts for regressors will be created.\n\n'], Subject, Run);
             mc_Logger('log', msg, 2);
 
         end
