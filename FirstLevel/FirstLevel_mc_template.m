@@ -324,14 +324,14 @@ spmdefaults = {
 
 global mcRoot;
 %DEVSTART
-mcRoot = '/oracle7/Researchers/heffjos/MethodCore';
+mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
-addpath(fullfile(mcRoot,'FirstLevel','functions');
+addpath(fullfile(mcRoot,'FirstLevel','functions'));
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 FirstLevel_mc_central
