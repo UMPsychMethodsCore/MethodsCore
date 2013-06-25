@@ -80,7 +80,7 @@ network.local = 0;
 network.voxel = 1;
 
 network.iter       = 5;
-network.netinclude = [1:7]; 
+network.netinclude = -1; 
 
 network.rthresh  = 0.25;
 network.zthresh  = 0.5*log((1+network.rthresh)/(1-network.rthresh));
@@ -118,11 +118,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.perm
     nRep     = 10000;
-    PermOutput = '[Exp]/GraphTheory/0619/';
+    PermOutput = '[Exp]/GraphTheory/0625/';
     permSave = 'ADHD_GT.mat';
     permDone = 0;
     permCores = 1;
-    permlevel = 0.05;
+    permlevel = 0.01;
 end
 %% t statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,8 +147,8 @@ SparAve=1;
 % local measures (leave off the .csv)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OutputPathTemplate1 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_global';
-OutputPathTemplate2 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_local';
+OutputPathTemplate1 = '[Exp]/GraphTheory/0625/MotionScrubbed/Measure_global';
+OutputPathTemplate2 = '[Exp]/GraphTheory/0625/MotionScrubbed/Measure_local';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -157,8 +157,17 @@ OutputPathTemplate2 = '[Exp]/GraphTheory/0619/MotionScrubbed/Measure_local';
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.save = '[Exp]/GraphTheory/0619/MotionScrubbed/CombinedOutput.mat';
+network.save = '[Exp]/GraphTheory/0625/MotionScrubbed/CombinedOutput.mat';
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%%  Save the first level voxel-wise measurement results
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+network.flsave = '[Exp]/GraphTheory/0625/FirstLevel/[Netname]/[Metricname].mat';
+network.typesave = '[Exp]/GraphTheory/0625/FirstLevel/type.mat';
 %% Sparsity, Measures, Stream, AUC
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Sparsity threshold for the P-value / t-score correlation matrix (to create 

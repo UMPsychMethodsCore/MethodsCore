@@ -262,6 +262,7 @@ for iSubject = 1:Sub
                 Output.deg        = [];
                 Output.nodebtwn   = [];
                 Output.eloc       = [];
+                Output.nodecluster= [];
                            
             end
                 
@@ -272,7 +273,7 @@ for iSubject = 1:Sub
             
                 
             
-            save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
+%             save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
             
             toc
 %         end
@@ -402,7 +403,7 @@ for iSubject = 1:Sub
                     fprintf(theFID,'%s,','NA');
                 end
                 
-                if Flag.gefficiency
+                if Flag.efficiency
                     %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.eglob);
                     fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.eglob);
                 else
@@ -742,8 +743,111 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % re-arrangement of voxel-wise measurements results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for iSub = 1:length(CombinedOutput)
+if network.netinclude==-1
+        
+        Netname = ['network' num2str(Netnum)];
+        % Degree
+        Metricname = 'degree';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.deg;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Betweenness
+        Metricname = 'betweenness';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.nodebtwn;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Efficiency
+        Metricname = 'efficiency';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.eloc;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Clustering Coefficient
+        Metricname = 'clustering';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.nodecluster;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
     
+else
+    for kNet=1:nNet
+        
+        Netnum  = network.netinclude(kNet);
+        Netname = ['network' num2str(Netnum)];
+        
+        % Degree
+        Metricname = 'degree';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.deg;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Betweenness
+        Metricname = 'betweenness';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.nodebtwn;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Efficiency
+        Metricname = 'efficiency';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.eloc;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+        
+        % Clustering Coefficient
+        Metricname = 'clustering';
+        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        for iSub = 1:length(CombinedOutput)
+            OutData = CombinedOutput{iSub,kNet}.nodecluster;
+            SaveData(iSub,:)=OutData;
+        end
+        save(OutflPath,'SaveData','-v7.3');
+    end
 end
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -892,12 +996,18 @@ end
     nMetric = length(Metrics);
     types   = cell2mat(Types);
     unitype = unique(types);
+    
+    TypePath = mc_GenPath( struct('Template',network.typesave,...
+        'suffix','.mat',...
+        'mode','makeparentdir'));
+    save(TypePath,'types','-v7.3');
 
 %% 2 Sample t-test Stream
 if network.ttest
     [p,t,meanhc,meands,sdhc,sdds]=mc_graphtheory_ttest(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
 end
-    
+
+ %%   
 %% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% mean difference for real label
@@ -979,7 +1089,7 @@ if network.perm
         end
     end
     
-    
+    %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Output result
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
