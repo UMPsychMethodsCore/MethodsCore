@@ -268,8 +268,8 @@ function opt = CheckOpt(opt)
     end
 
     % check if explicit mask exists
-    if ~isempty(opt.explicitmask) == 1 && exist(opt.explicitmask, 'file') ~= 2
-        error('explicitmask %s does not exist.\n', opt.explicitmask);
+    if ~isempty(opt.ExplicitMask) == 1 && exist(opt.ExplicitMask, 'file') ~= 2
+        error('ExplicitMask %s does not exist.\n', opt.ExplicitMask);
     end
 
     % check mode
