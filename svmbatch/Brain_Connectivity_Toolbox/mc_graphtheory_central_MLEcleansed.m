@@ -8,6 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Display infomation
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -29,7 +30,7 @@ switch network.stream
     case 't'
     
         display('I am going to test the threshold values');
-        OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
+        OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate1,...
             'suffix','.csv',...
             'mode','makeparentdir') );
         display(sprintf('The output will be stored here: %s', OutputPathFile));
@@ -51,6 +52,8 @@ tempflag = any(strfind(upper(network.measures),'S'));
 %%% Load Name and Type Info %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if network.MLEcleansed
+
 ResultsCheck = struct('Template',ResultTemp,'mode','check');
 ResultsPath  = mc_GenPath(ResultsCheck);
 ResultsFile  = load(ResultsPath);
@@ -58,6 +61,13 @@ ResultsFile  = load(ResultsPath);
 Names = ResultsFile.master.Subject;
 Types = ResultsFile.master.TYPE;
 
+else
+    Names = SubjDir(:,1);
+    Types = SubjDir(:,2);
+
+end
+  
+%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -95,29 +105,77 @@ if (network.netinclude~=-1)  % If the netinclude is set to -1, then means whole 
     nets = mc_NearestNetworkNode(roiMNI,5);
     
 end
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Load Files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Sub = 0;
 
-for i = 1:5
-    m = num2str(i);
-    CleansedCheck = struct('Template',CleansedTemp,'mode','check');
-    CleansedPath  = mc_GenPath(CleansedCheck);
-    CleansedFile  = load(CleansedPath);
-    Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
-    eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
-    
-    for j = 1:size(CleansedCorr,1)
-        Sub           = Sub+1;
-        flat          = CleansedCorr(j,:);
-        upper         = mc_unflatten_upper_triangle(flat);
-        NetworkRvalue = upper + upper';
+
+if network.MLEcleansed
+    Sub = 0;
+    for i = 1:5
+        m = num2str(i);
+        CleansedCheck = struct('Template',CleansedTemp,'mode','check');
+        CleansedPath  = mc_GenPath(CleansedCheck);
+        CleansedFile  = load(CleansedPath);
+        Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
+        eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
         
-        NetworkRvalue(isnan(NetworkRvalue)) = 0;     % Exclude the NaN elments
+        for j = 1:size(CleansedCorr,1)
+            Sub           = Sub+1;
+            flat          = CleansedCorr(j,:);
+            upper         = mc_unflatten_upper_triangle(flat);
+            NetworkRvalue = upper + upper';
+            
+            NetworkRvalue(isnan(NetworkRvalue)) = 0;     % Exclude the NaN elments
+            
+            switch network.partial
+                case 0
+                    if (network.ztransform == 1)
+                        NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
+                    else
+                        NetworkValue  = NetworkRvalue;
+                    end
+                    
+                case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
+                    NetworkValue = pinv(NetworkRvalue);
+                    
+            end
+            
+            
+            if (network.positive == 1)
+                NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+            else
+                NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+            end
+            
+            
+            if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
+                NetworkConnectRaw{Sub,1} = NetworkValue;
+            else
+                for kNetwork = 1:length(network.netinclude)
+                    networklabel = network.netinclude(kNetwork);
+                    NetworkConnectRaw{Sub,kNetwork} = NetworkValue(nets==networklabel,nets==networklabel);
+                end
                 
+            end
+            
+        end
+        
+        
+    end
+else
+    
+    for Sub = 1:length(SubjDir)
+        Subject = SubjDir{Sub};
+        NonCleansedCheck = struct('Template',NonCleansedTemp,'mode','check');
+        NonCleansedPath  = mc_GenPath(NonCleansedCheck);
+        NonCleansedFile  = load(NonCleansedPath);
+        NonCleansed      = NonCleansedFile.rMatrix;
+        
+        NetworkRvalue    = NonCleansed;
+        NetworkRvalue(isnan(NonCleansed)) = 0;           % Exclude the NaN elements
         switch network.partial
             case 0
                 if (network.ztransform == 1)
@@ -128,17 +186,14 @@ for i = 1:5
                 
             case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                 NetworkValue = pinv(NetworkRvalue);
-                
-        end
+        end        
         
-                
         if (network.positive == 1)
             NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
         else
             NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
-        end
-                
-                
+        end        
+        
         if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
             NetworkConnectRaw{Sub,1} = NetworkValue;
         else
@@ -148,12 +203,11 @@ for i = 1:5
             end
             
         end
-        
     end
     
-    
 end
-
+        
+       
 
 
 
@@ -161,6 +215,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Network-wise Measurements
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. 
+                                  % If NetworkConnect of one subject is all zeros, will mark it as 0.
+                                  % Then the data won't be selected in the following stats analysis.
 
 for iSubject = 1:Sub
     for kNetwork = 1:length(network.netinclude)  
@@ -210,40 +268,39 @@ for iSubject = 1:Sub
                 [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);
                 Output                   = NetworkMeasures;
                 
-                if network.voxel 
+                
+                if network.stream == 't'
+                    Output.degreeLine = 2*log10(size(NetworkConnect,1));
                 end
-%                 if network.stream == 't'
-%                     Output.degreeLine = 2*log10(size(NetworkConnect,1));
-%                 end
                 
                 % Comupte the smallworldness
                 Flag.smallworld    = tempflag;
-%                 if Flag.smallworld
-%                     randcluster    = zeros(100,1);
-%                     randpathlength = zeros(100,1);
-%                     % Compute the averaged clustering coefficient and characteristic path length
-%                     % of 100 randomized version of the tested network with the
-%                     % preserved degree distribution, which is used in the
-%                     % smallworldness computing.
-%                     for k = 1:100
-%                         display(sprintf('loop %d',k));
-%                         [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
-%                         drand         = distance_bin(NetworkRandom);
-%                         [lrand,~]     = charpath(drand);
-%                         if network.directed
-%                             crand = clustering_coef_bd(NetworkRandom);
-%                         else
-%                             crand = clustering_coef_bu(NetworkRandom);
-%                         end
-%                         randcluster(k)    = mean(crand);
-%                         randpathlength(k) = lrand;
-%                     end
-%                     RandomMeasures.cluster    = mean(randcluster);
-%                     RandomMeasures.pathlength = mean(randpathlength);
-%                     gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
-%                     lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
-%                     Output.smallworld         = gamma / lambda;
-%                 end
+                if Flag.smallworld
+                    randcluster    = zeros(100,1);
+                    randpathlength = zeros(100,1);
+                    % Compute the averaged clustering coefficient and characteristic path length
+                    % of 100 randomized version of the tested network with the
+                    % preserved degree distribution, which is used in the
+                    % smallworldness computing.
+                    for k = 1:100
+                        display(sprintf('loop %d',k));
+                        [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
+                        drand         = distance_bin(NetworkRandom);
+                        [lrand,~]     = charpath(drand);
+                        if network.directed
+                            crand = clustering_coef_bd(NetworkRandom);
+                        else
+                            crand = clustering_coef_bu(NetworkRandom);
+                        end
+                        randcluster(k)    = mean(crand);
+                        randpathlength(k) = lrand;
+                    end
+                    RandomMeasures.cluster    = mean(randcluster);
+                    RandomMeasures.pathlength = mean(randpathlength);
+                    gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
+                    lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+                    Output.smallworld         = gamma / lambda;
+                end
             else
                 Output.smallworld = 0;
                 Output.cluster    = 0;
@@ -263,6 +320,8 @@ for iSubject = 1:Sub
                 Output.nodebtwn   = [];
                 Output.eloc       = [];
                 Output.nodecluster= [];
+                
+                SubUseMark(iSubject) = 0;
                            
             end
                 
@@ -279,6 +338,8 @@ for iSubject = 1:Sub
 %         end
     end
 end
+
+SubUse = repmat(SubUseMark,1,length(network.netinclude));
 
 
 
@@ -344,8 +405,13 @@ end
 
 for iSubject = 1:Sub
     
-    Subject = Names{iSubject};
-    Type    = Types{iSubject};
+    if network.MLEcleansed
+        Subject = Names{iSubject};
+        Type    = Types{iSubject};
+    else
+        Subject = SubjDir{iSubject};
+        Type    = SubjDir{iSubject,2};
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for kNetwork = 1:length(network.netinclude);
@@ -421,19 +487,19 @@ for iSubject = 1:Sub
                     %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.assort);
                     fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.assort);
                 else
-                    fprintf(theFID,'%s\n','NA');
+                    fprintf(theFID,'%s,','NA');
                 end
                 
                 if Flag.betweenness
                     %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.btwn);
                     fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.btwn);
                 else
-                    fprintf(theFID,'%s\n','NA');
+                    fprintf(theFID,'%s,','NA');
                 end
                 
                 if Flag.entropy
                     %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.etpy);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.etpy);
+                    fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork}.etpy);
                 else
                     fprintf(theFID,'%s\n','NA');
                 end
@@ -743,8 +809,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % re-arrangement of voxel-wise measurements results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 if network.netinclude==-1
-        
+        Netnum = -1;
         Netname = ['network' num2str(Netnum)];
         % Degree
         Metricname = 'degree';
@@ -753,8 +821,10 @@ if network.netinclude==-1
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.deg;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,1}.deg;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -765,8 +835,10 @@ if network.netinclude==-1
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.nodebtwn;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,1}.nodebtwn;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -777,8 +849,10 @@ if network.netinclude==-1
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.eloc;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,1}.eloc;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -789,8 +863,10 @@ if network.netinclude==-1
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.nodecluster;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,1}.nodecluster;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
     
@@ -807,8 +883,10 @@ else
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.deg;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,kNet}.deg;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -819,8 +897,10 @@ else
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.nodebtwn;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,kNet}.nodebtwn;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -831,8 +911,10 @@ else
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.eloc;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,kNet}.eloc;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
         
@@ -843,8 +925,10 @@ else
             'mode','makeparentdir'));
         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
         for iSub = 1:length(CombinedOutput)
-            OutData = CombinedOutput{iSub,kNet}.nodecluster;
-            SaveData(iSub,:)=OutData;
+            if SubUse(iSub)
+                OutData = CombinedOutput{iSub,kNet}.nodecluster;
+                SaveData(iSub,:)=OutData;
+            end
         end
         save(OutflPath,'SaveData','-v7.3');
     end
@@ -975,26 +1059,27 @@ end
 %     ColModu       = AveModu(:);
 %     ColAssort     = AveAssort(:);
 % %     ColBtwn       = AveBtwn(:);
-    ColCluster    = OutCluster(:);
-    ColPathLength = OutPathLength(:);
-    ColTrans      = OutTrans(:);
-    ColEglob      = OutEglob(:);
-    ColModu       = OutModu(:);
-    ColAssort     = OutAssort(:);
-    ColBtwn       = OutBtwn(:);
-    ColEtpy       = OutEtpy(:);
-    ColDeg        = OutDegree(:);
-    ColDens       = OutDensity(:);
+    ColCluster    = OutCluster(:);     ColCluster    = ColCluster(SubUse==1);
+    ColPathLength = OutPathLength(:);  ColPathLength = ColPathLength(SubUse==1);
+    ColTrans      = OutTrans(:);       ColTrans      = ColTrans(SubUse==1);
+    ColEglob      = OutEglob(:);       ColEglob      = ColEglob(SubUse==1);
+    ColModu       = OutModu(:);        ColModu       = ColModu(SubUse==1);
+    ColAssort     = OutAssort(:);      ColAssort     = ColAssort(SubUse==1);
+    ColBtwn       = OutBtwn(:);        ColBtwn       = ColBtwn(SubUse==1);
+    ColEtpy       = OutEtpy(:);        ColEtpy       = ColEtpy(SubUse==1);
+    ColDeg        = OutDegree(:);      ColDeg        = ColDeg(SubUse==1);
+    ColDens       = OutDensity(:);     ColDens       = ColDens(SubUse==1);
     
     % Column of network
     MatNet        = repmat(network.netinclude,length(CombinedOutput),1);
     ColNet        = MatNet(:);
+    ColNet        = ColNet(SubUse==1);
     % Combine to matrix
     data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
     Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density'};
     
     nMetric = length(Metrics);
-    types   = cell2mat(Types);
+    types   = cell2mat(Types); types = types(SubUseMark==1);
     unitype = unique(types);
     
     TypePath = mc_GenPath( struct('Template',network.typesave,...
@@ -1007,7 +1092,7 @@ if network.ttest
     [p,t,meanhc,meands,sdhc,sdds]=mc_graphtheory_ttest(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
 end
 
- %%   
+ 
 %% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% mean difference for real label
@@ -1103,6 +1188,35 @@ if network.perm
     end
 end
 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Plot Over thresholds
+% For each metric in each network that has been selected,
+% the plot part expects vectors with the size of 1xnThresh:
+%   meanhc, meands, sdhc, sdds, pval
+%   nNet x nMetric x nThresh
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n     = length(network.plotNet)*length(network.plotMetric);
+plotorder = 0;
+
+if network.plot
+    for iNet = 1:length(network.plotNet)
+        for jMetric = 1:length(network.plotMetric)
+            plotorder = plotorder+1;
+            hcline = meanhc(iNet,jMetric,:);
+            dsline = meands(iNet,iMetric,:);
+            hcbar  = sdhc(iNet,jMetric,:);
+            dsbar  = sdds(iNet,jMetric,:);
+            subplot(2,ceil(n/2),plotorder);
+            title(['network ' num2str(network.plotNet(iNet)) network.plotMetric{jMetric}])
+            errorbar(hcline,hcbar);
+            hold on;
+            errorbar(dsline,dsbar);
+        end
+    end
+    
+end
 
 
 

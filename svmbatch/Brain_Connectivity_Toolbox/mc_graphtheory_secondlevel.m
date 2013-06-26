@@ -2,14 +2,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % File path
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/ADHD/GraphTheory/';
-SubFolder = '0624';
-Network = '7';
+Exp = '/net/data4/slab_OCD/GraphTheory/';
+SubFolder = '0626';
+Network = '-1';
 Metric = 'degree';
 
 plevel = 0.05;
 permlevel = 0.05;
 nRep = 10000;
+
+covtype = 0;
 
 
 
@@ -35,13 +37,15 @@ Typefile     = load(TypePath);
 Type         = Typefile.types;
 
 unitype = unique(Type);
-covtype = 1;
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % t-test for each ROI
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tmark = zeros(1,nROI);
+tmark    = zeros(1,nROI);
 meandiff = zeros(1,nROI);
+p        = zeros(1,nROI);
+t        = zeros(1,nROI);
 for iCol = 1:nROI
     testmetric = Fldata(:,iCol);
     if covtype % like 'A' and 'H'
@@ -54,10 +58,12 @@ for iCol = 1:nROI
     meanhc = mean(testhc);
     meands = mean(testds);
     meandiff(iCol) = meanhc - meands;
-    [~,p,~,tval]=ttest2(testhc,testds);
-    if p<plevel
+    [~,pval,~,tval]=ttest2(testhc,testds);
+    if pval<plevel
         tmark(iCol)=1;
     end
+    p(iCol) = pval;
+    t(iCol) = tval.tstat;
 end
 
 %%
