@@ -28,7 +28,7 @@ CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
 
 ResultTemp = '[Pxe]/Results.mat';
 
-SubFolder = '0627';
+SubFolder = '0627_multipleThresh_PandN';
 
 
 
@@ -90,13 +90,13 @@ network.weighted   = 0;
 network.datatype   = 'r';
 network.ztransform = 1;
 network.loc        = 0;
-network.positive   = 1;
+network.positive   = 0;
 
 network.local = 0;
 network.voxel = 1;
 
 network.iter       = 5;
-network.netinclude = [1:7]; 
+network.netinclude = [4]; 
 
 network.rthresh  = [0.25:0.01:0.3];
 network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
@@ -242,12 +242,12 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.perm
-    nRep     = 10000;
-    PermOutput = '[Exp]/GraphTheory/[SubFolder]/';
-    permSave = 'OCD_GT.mat';
+    nRep     = 100;
+    PermOutput = '[Exp]/GraphTheory/[SubFolder]/permutation/[ThreshValue]/';
+    permSave = 'OCD_100perm.mat';
     permDone = 0;
     permCores = 1;
-    permlevel = 0.01;
+    permlevel = 0.05;
 end
 %% t statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -305,8 +305,8 @@ network.typesave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/type.mat';
 %%%                    'Betweenness','Entropy','GlobalDegree','Density'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 network.plot = 1;
-network.plotNet = -1;
-network.plotMetric = {'Clustering'};
+network.plotNet = 4;
+network.plotMetric = {'CharPathLength','GlobEfficiency','Betweenness','GlobalDegree'};
 
 
 %% Sparsity, Measures, Stream, AUC

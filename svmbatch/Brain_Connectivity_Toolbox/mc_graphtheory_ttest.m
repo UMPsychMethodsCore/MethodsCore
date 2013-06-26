@@ -10,7 +10,7 @@ sdhc   = zeros(nNet,nMetric);
 sdds   = zeros(nNet,nMetric);
 for iNet = 1:nNet
     for jMetric = 1:nMetric
-        testdata = data(data(:,1)==netinclude(iNet),:); % certain network
+        testdata = data(data(:,2)==netinclude(iNet),:); % certain network
         testmetric = testdata(:,jMetric+1); % certain metric
         if covtype % like 'A' and 'H'
             testhc = testmetric(Label==unitype(2));

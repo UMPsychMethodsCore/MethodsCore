@@ -76,12 +76,14 @@ clear NetworkPath
 
 nNet = length(network.netinclude);
 
+nThresh = length(network.rthresh);
+
 NetworkConnectRaw = cell(length(Names), nNet);
 
 NetworkConnectSub = cell(nNet,1);
 
 % CombinedOutput    = cell(length(Names),nNet,length(network.sparsity));
-CombinedOutput    = cell(length(Names),nNet);
+CombinedOutput    = cell(nThresh,length(Names),nNet);
 
 OutputMatPath = mc_GenPath( struct('Template',network.save,...
         'suffix','.mat',...
@@ -217,20 +219,24 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. 
-                                  % If NetworkConnect of one subject is all zeros, will mark it as 0.
-                                  % Then the data won't be selected in the following stats analysis.
+% If NetworkConnect of one subject is all zeros, will mark it as 0.
+% Then the data won't be selected in the following stats analysis.
 
-for iSubject = 1:Sub
-    for kNetwork = 1:length(network.netinclude)  
+
+
+for tThresh = 1:nThresh
+    for iSubject = 1:Sub
+        for kNetwork = 1:length(network.netinclude)
             
-        display(sprintf('Now computing Number %s Subject',num2str(iSubject)));
             
-        display(sprintf('in network %d',network.netinclude(kNetwork)));
-        
-%         for mThresh = 1:length(network.sparsity)
+            display(sprintf('Now computing Number %s Subject',num2str(iSubject)));
+            display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
+            display(sprintf('in network %d',network.netinclude(kNetwork)));
+            
+            %         for mThresh = 1:length(network.sparsity)
             
             % Generate the binary adjacency matrix, do the computation
-%             display(sprintf('with sparsity %.2g',network.sparsity(mThresh)));
+            %             display(sprintf('with sparsity %.2g',network.sparsity(mThresh)));
             tic
             
             
@@ -238,30 +244,30 @@ for iSubject = 1:Sub
             NetworkConnectInt   = NetworkConnectRaw{iSubject,kNetwork};
             NetworkConnect      = zeros(size(NetworkConnectInt));
             if (network.ztransform == 1)
-                NetworkConnect(NetworkConnectInt>network.zthresh)=1;
+                NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
             else
-                NetworkConnect(NetworkConnectInt>network.rthresh)=1;
+                NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
             end
             
-%             keep                = round(network.sparsity(mThresh) * numel(NetworkConnectInt));
+            %             keep                = round(network.sparsity(mThresh) * numel(NetworkConnectInt));
             
-%             NetworkValue_flat   = reshape(NetworkConnectInt,[],1);
+            %             NetworkValue_flat   = reshape(NetworkConnectInt,[],1);
             
-%             [~,index]           = sort(NetworkValue_flat,'descend');
+            %             [~,index]           = sort(NetworkValue_flat,'descend');
             
-%             NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
+            %             NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
             
-%             NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
+            %             NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
             
-%             NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkConnectInt,1),size(NetworkConnectInt,2));
-                      
+            %             NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkConnectInt,1),size(NetworkConnectInt,2));
+            
             
             % Create binary matrix if being set so
             
             if ~network.weighted
                 NetworkConnect(NetworkConnect>0) = 1;
             end
-                        
+            
             
             if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                 
@@ -322,24 +328,25 @@ for iSubject = 1:Sub
                 Output.nodecluster= [];
                 
                 SubUseMark(iSubject) = 0;
-                           
+                
             end
-                
-                
-%                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
-                CombinedOutput{iSubject,kNetwork} = Output; % saved variables each time
             
             
-                
+            %                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
+            CombinedOutput{tThresh,iSubject,kNetwork} = Output; % saved variables each time
             
-%             save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
+            
+            
+            
+            %             save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
             
             toc
-%         end
+            %         end
+        end
     end
 end
 
-SubUse = repmat(SubUseMark,1,length(network.netinclude));
+SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
 
 
 
@@ -392,153 +399,158 @@ switch network.stream
         %         end
         if network.weighted
             fprintf(theFID,...
-                'Subject,Type,Network,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
+                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
         else
             fprintf(theFID,...
-                'Subject,Type,Network,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
+                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
         end
     otherwise
         error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
 end
 
 
-
-for iSubject = 1:Sub
-    
-    if network.MLEcleansed
-        Subject = Names{iSubject};
-        Type    = Types{iSubject};
-    else
-        Subject = SubjDir{iSubject};
-        Type    = SubjDir{iSubject,2};
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for kNetwork = 1:length(network.netinclude);
-        %         for mThresh = 1:length(network.sparsity)
-        %             fprintf(theFID,'%s,%s,%s,%s,',Subject,Type,num2str(network.netinclude(kNetwork)),num2str(network.sparsity(mThresh)));
-        fprintf(theFID,'%s,%s,%s,%s,',Subject,Type,num2str(network.netinclude(kNetwork)));
+for tThresh = 1:length(network.rthresh)
+    for iSubject = 1:Sub
         
-        switch network.stream
-            case 'm'
-                if Flag.smallworld
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.smallworld);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.clustering
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.cluster);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.cluster);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.pathlength
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.pathlength);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.pathlength);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.degree
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.glodeg);
-                    if network.weighted
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
-                    end
-                else
-                    fprintf(theFID,'%s,','NA');
-                    if network.weighted
-                        fprintf(theFID,'%s,','NA');
-                    end
-                end
-                
-                if Flag.density
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.density);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.transitivity
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.trans);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.trans);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.efficiency
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.eglob);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.eglob);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.modularity
-                    %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.modu);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.modu);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.assortativity
-                    %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.assort);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.assort);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.betweenness
-                    %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.btwn);
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.btwn);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.entropy
-                    %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.etpy);
-                    fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork}.etpy);
-                else
-                    fprintf(theFID,'%s\n','NA');
-                end
-                
-            case 't'
-                
-                if Flag.smallworld
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                if Flag.degree
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
-                    if network.weighted
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
-                    end
-                else
-                    fprintf(theFID,'%s,','NA');
-                    if network.weighted
-                        fprintf(theFID,'%s,','NA');
-                    end
-                end
-                
-                if Flag.density
-                    fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
-                else
-                    fprintf(theFID,'%s,','NA');
-                end
-                
-                fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.degreeLine);
-                
-            otherwise
-                error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
+        if network.MLEcleansed
+            Subject = Names{iSubject};
+            Type    = Types{iSubject};
+        else
+            Subject = SubjDir{iSubject};
+            Type    = SubjDir{iSubject,2};
         end
-        %         end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        for kNetwork = 1:length(network.netinclude);
+            %         for mThresh = 1:length(network.sparsity)
+            %             fprintf(theFID,'%s,%s,%s,%s,',Subject,Type,num2str(network.netinclude(kNetwork)),num2str(network.sparsity(mThresh)));
+            if network.ztransform
+                fprintf(theFID,'%s,%s,%s,%s,',Subject,Type,num2str(network.netinclude(kNetwork)),num2str(network.zthresh(tThresh)));
+            else
+                fprintf(theFID,'%s,%s,%s,%s,',Subject,Type,num2str(network.netinclude(kNetwork)),num2str(network.rthresh(tThresh)));
+            end
+            
+            switch network.stream
+                case 'm'
+                    if Flag.smallworld
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.smallworld);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.clustering
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.cluster);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.cluster);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.pathlength
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.pathlength);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.pathlength);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.degree
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.glodeg);
+                        if network.weighted
+                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
+                        end
+                    else
+                        fprintf(theFID,'%s,','NA');
+                        if network.weighted
+                            fprintf(theFID,'%s,','NA');
+                        end
+                    end
+                    
+                    if Flag.density
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.density);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.transitivity
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.trans);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.trans);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.efficiency
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.eglob);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.eglob);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.modularity
+                        %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.modu);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.modu);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.assortativity
+                        %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.assort);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.assort);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.betweenness
+                        %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.btwn);
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.btwn);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.entropy
+                        %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.etpy);
+                        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork}.etpy);
+                    else
+                        fprintf(theFID,'%s\n','NA');
+                    end
+                    
+                case 't'
+                    
+                    if Flag.smallworld
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.degree
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
+                        if network.weighted
+                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
+                        end
+                    else
+                        fprintf(theFID,'%s,','NA');
+                        if network.weighted
+                            fprintf(theFID,'%s,','NA');
+                        end
+                    end
+                    
+                    if Flag.density
+                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.degreeLine);
+                    
+                otherwise
+                    error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
+            end
+            %         end
+        end
+        
+        
     end
-    
-    
 end
 
 fclose(theFID);
@@ -810,6 +822,7 @@ end
 % re-arrangement of voxel-wise measurements results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%% for now only do this under single threshold %%%%%%%%%%%
 
 if network.netinclude==-1
         Netnum = -1;
@@ -1002,50 +1015,52 @@ end
 %         end
 %     end
 
-        OutCluster    = zeros(length(CombinedOutput),nNet);
-        OutPathLength = zeros(length(CombinedOutput),nNet);
-        OutTrans      = zeros(length(CombinedOutput),nNet);
-        OutEglob      = zeros(length(CombinedOutput),nNet);
-        OutModu       = zeros(length(CombinedOutput),nNet);
-        OutAssort     = zeros(length(CombinedOutput),nNet);
-        OutBtwn       = zeros(length(CombinedOutput),nNet);
-        OutEtpy       = zeros(length(CombinedOutput),nNet);
-        OutDegree     = zeros(length(CombinedOutput),nNet);
-        OutDensity    = zeros(length(CombinedOutput),nNet);
+        OutCluster    = zeros(nThresh,length(CombinedOutput),nNet);
+        OutPathLength = zeros(nThresh,length(CombinedOutput),nNet);
+        OutTrans      = zeros(nThresh,length(CombinedOutput),nNet);
+        OutEglob      = zeros(nThresh,length(CombinedOutput),nNet);
+        OutModu       = zeros(nThresh,length(CombinedOutput),nNet);
+        OutAssort     = zeros(nThresh,length(CombinedOutput),nNet);
+        OutBtwn       = zeros(nThresh,length(CombinedOutput),nNet);
+        OutEtpy       = zeros(nThresh,length(CombinedOutput),nNet);
+        OutDegree     = zeros(nThresh,length(CombinedOutput),nNet);
+        OutDensity    = zeros(nThresh,length(CombinedOutput),nNet);
         
-        for iSub = 1:length(CombinedOutput)
-            for jNet = 1:size(CombinedOutput,2)
-                
-                %Degree
-                OutDegree(iSub,jNet) = CombinedOutput{iSub,jNet}.glodeg;
-                
-                %Density
-                OutDensity(iSub,jNet) = CombinedOutput{iSub,jNet}.density;
-                
-                %Clustering
-                OutCluster(iSub,jNet) = CombinedOutput{iSub,jNet}.cluster;
-                                
-                %CharacteristicPathLength
-                OutPathLength(iSub,jNet) = CombinedOutput{iSub,jNet}.pathlength;
-                                
-                %Transitivity
-                OutTrans(iSub,jNet) = CombinedOutput{iSub,jNet}.trans;
-                                
-                %GlobalEfficiency
-                OutEglob(iSub,jNet) = CombinedOutput{iSub,jNet}.eglob;
-                               
-                %Modularity
-                OutModu(iSub,jNet) = CombinedOutput{iSub,jNet}.modu;
-                               
-                %Assortativity
-                OutAssort(iSub,jNet) = CombinedOutput{iSub,jNet}.assort;
-                             
-                %Betweenness
-                OutBtwn(iSub,jNet) = CombinedOutput{iSub,jNet}.btwn;
-                
-                %Entropy
-                OutEtpy(iSub,jNet) = CombinedOutput{iSub,jNet}.etpy;
-                
+        for iThresh = 1:nThresh
+            for iSub = 1:length(CombinedOutput)
+                for jNet = 1:nNet
+                    
+                    %Degree
+                    OutDegree(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glodeg;
+                    
+                    %Density
+                    OutDensity(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.density;
+                    
+                    %Clustering
+                    OutCluster(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.cluster;
+                    
+                    %CharacteristicPathLength
+                    OutPathLength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.pathlength;
+                    
+                    %Transitivity
+                    OutTrans(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.trans;
+                    
+                    %GlobalEfficiency
+                    OutEglob(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eglob;
+                    
+                    %Modularity
+                    OutModu(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.modu;
+                    
+                    %Assortativity
+                    OutAssort(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.assort;
+                    
+                    %Betweenness
+                    OutBtwn(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.btwn;
+                    
+                    %Entropy
+                    OutEtpy(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.etpy;
+                    
+                end
             end
         end
     
@@ -1071,11 +1086,20 @@ end
     ColDens       = OutDensity(:);     ColDens       = ColDens(SubUse==1);
     
     % Column of network
-    MatNet        = repmat(network.netinclude,length(CombinedOutput),1);
+    MatNet        = repmat(network.netinclude,length(CombinedOutput)*nThresh,1);
     ColNet        = MatNet(:);
     ColNet        = ColNet(SubUse==1);
-    % Combine to matrix
-    data     = [ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
+    
+    % Column of threshold
+    if network.ztransform
+        ColThresh     = repmat(network.zthresh,1,length(CombinedOutput)*nNet)';
+    else
+        ColThresh     = repmat(network.rthresh,1,length(CombinedOutput)*nNet)';
+    end
+    ColThresh     = ColThresh(SubUse==1);
+    
+    % Combine to 2d matrix (column is thresh label, net label and metrics, row is each subject/thresh/net subset)
+    data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
     Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density'};
     
     nMetric = length(Metrics);
@@ -1089,7 +1113,26 @@ end
 
 %% 2 Sample t-test Stream
 if network.ttest
-    [p,t,meanhc,meands,sdhc,sdds]=mc_graphtheory_ttest(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
+    p      = zeros(nThresh,nNet,nMetric);
+    t      = zeros(nThresh,nNet,nMetric);
+    meanhc = zeros(nThresh,nNet,nMetric);
+    meands = zeros(nThresh,nNet,nMetric);
+    sdhc   = zeros(nThresh,nNet,nMetric);
+    sdds   = zeros(nThresh,nNet,nMetric);
+    for iThresh = 1:nThresh
+        if network.ztransform
+            subdata = data(data(:,1)==network.zthresh(iThresh),:);
+        else
+            subdata = data(data(:,1)==network.rthresh(iThresh),:);
+        end
+        [subp,subt,submeanhc,submeands,subsdhc,subsdds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+         p(iThresh,:,:)      = subp;
+         t(iThresh,:,:)      = subt;
+         meanhc(iThresh,:,:) = submeanhc;
+         meands(iThresh,:,:) = submeands;
+         sdhc(iThresh,:,:)   = subsdhc;
+         sdds(iThresh,:,:)   = subsdds;
+    end
 end
 
  
@@ -1098,95 +1141,122 @@ end
 %%% mean difference for real label
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.perm
-    [meandiff,meanhc,meands,sdhc,sdds]=mc_graphtheory_meandiff(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Permutation Test
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%% Permutation %%%%%%%%%%%%%%%%%%%%%%%
-    if ~permDone
+    for iThresh = 1:nThresh
         
-        perm = zeros(nNet,nMetric,nRep);
-        if permCores ~= 1
-            try
-                matlabpool('open',permCores)
-                parfor i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
-                    fprintf(1,'%g\n',i);
-                end
-                matlabpool('close')
-            catch
-                matlabpool('close')
-                for i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
-                    fprintf(1,'%g\n',i);
-                end
-            end
+        ThreshValue = num2str(network.rthresh(iThresh));
+        
+        meandiff = zeros(nThresh,nNet,nMetric);
+        meanhc   = zeros(nThresh,nNet,nMetric);
+        meands   = zeros(nThresh,nNet,nMetric);
+        sdhc     = zeros(nThresh,nNet,nMetric);
+        sdds     = zeros(nThresh,nNet,nMetric);
+        if network.ztransform
+            subdata = data(data(1,:)==network.zthresh(iThresh),:);
         else
-            for i = 1:nRep
-                perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,data,network.netinclude,nNet,nMetric);
-                fprintf(1,'%g\n',i);
-            end
+            subdata = data(data(1,:)==network.rthresh(iThresh),:);
         end
-        permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','makeparentdir'));
-        save(permLoc,'perm','-v7.3');
-    else
-        permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','check'));
-        load(permLoc);
-    end
-    
-    
-    
-    %%%%%%%%%%%%%% Computation %%%%%%%%%%%%%%%%%%%%%%%
-    
-    realn=0;
-    for i = 1:nNet
-        for j = 1:nMetric
+        [submeandiff,submeanhc,submeands,subsdhc,subsdds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+        meandiff(iThresh,:,:) = submeandiff;
+        meanhc(iThresh,:,:)   = submeanhc;
+        meands(iThresh,:,:)   = submeands;
+        sdhc(iThresh,:,:)     = subsdhc;
+        sdds(iThresh,:,:)     = subsdds;
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% Permutation Test
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        %%%%%%%%%%%%%%%% Permutation %%%%%%%%%%%%%%%%%%%%%%%
+        if ~permDone
             
-            vector = sort(squeeze(perm(i,j,:)),'descend');
-            N      = length(vector);
-            pos    = floor(permlevel*N)+1;
-            if abs(meandiff(i,j))>abs(vector(pos))
-                realn = realn+1;
-                RealSigNet(realn)=i;
-                RealSigMetric(realn)=j;
+            perm = zeros(nNet,nMetric,nRep);
+            if permCores ~= 1
+                try
+                    matlabpool('open',permCores)
+                    parfor i = 1:nRep
+                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                        fprintf(1,'%g\n',i);
+                    end
+                    matlabpool('close')
+                catch
+                    matlabpool('close')
+                    for i = 1:nRep
+                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                        fprintf(1,'%g\n',i);
+                    end
+                end
+            else
+                for i = 1:nRep
+                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                    fprintf(1,'%g\n',i);
+                end
             end
+            permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','makeparentdir'));
+            save(permLoc,'perm','-v7.3');
+        else
+            permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','check'));
+            load(permLoc);
         end
         
-    end
-    
-    
-    %%%%%%%%%%%%%%%%%% See the order %%%%%%%%%%%%%%%%%%
-    RealOrder = zeros(nNet,nMetric);
-    RealLevel = zeros(nNet,nMetric);
-    for i = 1:nNet
-        for j = 1:nMetric
-            vector = sort(abs(squeeze(perm(i,j,:))),'descend');
-            N      = length(vector);
-            for k = 1:N
-                if abs(meandiff(i,j))>vector(k)
-                    RealOrder(i,j)=k;
-                    RealLevel(i,j)=k/N;
-                    break
+        
+        
+        %%%%%%%%%%%%%% Computation %%%%%%%%%%%%%%%%%%%%%%%
+        
+        realn=0;
+        for i = 1:nNet
+            for j = 1:nMetric
+                
+                vector = sort(squeeze(perm(i,j,:)),'descend');
+                N      = length(vector);
+                pos    = floor(permlevel*N)+1;
+                if abs(meandiff(i,j))>abs(vector(pos))
+                    realn = realn+1;
+                    RealSigNet(realn)=i;
+                    RealSigMetric(realn)=j;
+                end
+            end
+            
+        end
+        
+        
+        %%%%%%%%%%%%%%%%%% See the order %%%%%%%%%%%%%%%%%%
+        RealOrder = zeros(nThresh,nNet,nMetric);
+        RealLevel = zeros(nThresh,nNet,nMetric);
+        for i = 1:nNet
+            for j = 1:nMetric
+                vector = sort(abs(squeeze(perm(i,j,:))),'descend');
+                N      = length(vector);
+                for k = 1:N
+                    if abs(meandiff(i,j))>vector(k)
+                        RealOrder(iThresh,i,j)=k;
+                        RealLevel(iThresh,i,j)=k/N;
+                        break
+                    end
                 end
             end
         end
-    end
-    
-    %%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Output result
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    disp(sprintf('The significant differences from permutation test happens in:\n'));
-    for i = 1:realn
-        disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
-        disp(sprintf('meanhc - meands: %.5f',meandiff(RealSigNet(i),RealSigMetric(i))));
-        disp(sprintf('Mean of control group: %.5f +/- %.5f',meanhc(RealSigNet(i),RealSigMetric(i)),sdhc(RealSigNet(i),RealSigMetric(i))));
-        disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meands(RealSigNet(i),RealSigMetric(i)),sdds(RealSigNet(i),RealSigMetric(i))));
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Output result
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if network.ztransform
+            disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.zthresh(iThresh)));
+        else
+            disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.rthresh(iThresh)));
+        end
+        
+        for i = 1:realn
+            disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
+            disp(sprintf('meanhc - meands: %.5f',meandiff(iThresh,RealSigNet(i),RealSigMetric(i))));
+            disp(sprintf('Mean of control group: %.5f +/- %.5f',meanhc(iThresh,RealSigNet(i),RealSigMetric(i)),sdhc(iThresh,RealSigNet(i),RealSigMetric(i))));
+            disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meands(iThresh,RealSigNet(i),RealSigMetric(i)),sdds(iThresh,RealSigNet(i),RealSigMetric(i))));
+        end
     end
 end
+
+
 
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1200,17 +1270,24 @@ end
 n     = length(network.plotNet)*length(network.plotMetric);
 plotorder = 0;
 
+
+figure;
 if network.plot
     for iNet = 1:length(network.plotNet)
         for jMetric = 1:length(network.plotMetric)
+            
+            NetNum    = find(network.netinclude==network.plotNet(iNet));
+            MetricNum = find(strcmp(network.plotMetric{jMetric},Metrics));
+            
             plotorder = plotorder+1;
-            hcline = meanhc(iNet,jMetric,:);
-            dsline = meands(iNet,iMetric,:);
-            hcbar  = sdhc(iNet,jMetric,:);
-            dsbar  = sdds(iNet,jMetric,:);
+            hcline = meanhc(:,NetNum,MetricNum);
+            dsline = meands(:,NetNum,MetricNum);
+            hcbar  = sdhc(:,NetNum,MetricNum);
+            dsbar  = sdds(:,NetNum,MetricNum);
             subplot(2,ceil(n/2),plotorder);
             title(['network ' num2str(network.plotNet(iNet)) network.plotMetric{jMetric}])
-            errorbar(hcline,hcbar);
+            hold on;
+            errorbar(hcline,hcbar,'r');
             hold on;
             errorbar(dsline,dsbar);
         end
