@@ -1,5 +1,5 @@
 function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
-%   RunContrasts = SetRunContrasts(SubjectNumber, SubjectRun, opt, sess)
+%   RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
 %
 %   REQUIRED INPUT
 %       Subject                 - string, subject name
@@ -102,21 +102,24 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
     % count number of columns by using first contrast
     tmp = [ opt.ContrastList{1, [2:(NumConditions+1)]} ];
     ContrastColumns = length(tmp);
-
-    % create RunContrasts now and fill it in
-    RunContrasts = zeros(NumContrasts, ContrastColumns);
-    for i = 1:NumContrasts
-        RunContrasts(i, :) = [ opt.ContrastList{i, [2:(NumConditions+1)]} ];
-    end
-
-    % give feedback if no conditions are being modeled this run
-    if isempty(RunContrasts) == 1
+    RunContrasts = [];
+    
+    % give feedback if no conditions are being modeld this run
+    if isempty(tmp) == 1
 
         msg = sprintf(['SUBJECT %s RUN %s :\n' ...
                        ' No conditions are being modeled.\n\n'], Subject, Run);
         fprintf(1, msg);
         mc_Logger('log', msg, 2);
 
+    else       
+
+        % create RunContrasts now and fill it in
+        RunContrasts = zeros(NumContrasts, ContrastColumns);
+        for i = 1:NumContrasts
+            RunContrasts(i, :) = [ opt.ContrastList{i, [2:(NumConditions+1)]} ];
+        end
+    
     end
 
     % now create regressor contrasts
