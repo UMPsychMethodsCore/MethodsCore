@@ -54,7 +54,7 @@ function opt = CheckOpt(opt)
     opt.TimeColumn = opt.TimeColumn - opt.MasterDataSkipCols;
     opt.DurationColumn = opt.DurationColumn - opt.MasterDataSkipCols;
 
-    if any([opt.SubjColumn opt.RunColumn opt.CondColumn opt.TimeColumn opt.DurationColumn]) <= 0
+    if any([opt.SubjColumn opt.RunColumn opt.CondColumn opt.TimeColumn opt.DurationColumn] <= 0) == 1
         error('SubjColumn RunColumn CondColumn TimeColumn or DurationColumn are less than zero after correcting for MasterDataSkipCols');
     end
 
