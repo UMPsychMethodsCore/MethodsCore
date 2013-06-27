@@ -16,8 +16,8 @@ clear all;
 %%% Experiment Directory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Exp = '/net/data4/ADHD/';
-Exp = '/net/data4/slab_OCD/';
+Exp = '/net/data4/ADHD/';
+% Exp = '/net/data4/slab_OCD/';
 
 NonCleansedTemp = '[Exp]/FirstLevel/[Subject]/Grid_Censor/Grid_Censor_corr.mat';
 
@@ -26,9 +26,11 @@ Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_
 
 CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
 
+PartNum = 5;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)
+
 ResultTemp = '[Pxe]/Results.mat';
 
-SubFolder = '0627_multipleThresh_PandN';
+SubFolder = '0627';
 
 
 
@@ -38,15 +40,15 @@ SubFolder = '0627_multipleThresh_PandN';
 % Path where the mni coordinates of each node are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166rois_Censor_parameters.mat';
-NetworkParameter = '[Exp]/FirstLevel/080516dw/Grid_Censor/Grid_Censor_parameters.mat';
+NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166rois_Censor_parameters.mat';
+% NetworkParameter = '[Exp]/FirstLevel/080516dw/Grid_Censor/Grid_Censor_parameters.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Subject type order
-% 0 -- alphabetically, control group name in the front
-% 1 -- alphabetically, disease group name in the front
+% 0 -- alphabetically, control group name in the front, like 'H' and 'O'
+% 1 -- alphabetically, disease group name in the front, like 'A' and 'H'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-covtype = 0;
+covtype = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Do you want to use partial correlation instead of correlation?
@@ -90,13 +92,13 @@ network.weighted   = 0;
 network.datatype   = 'r';
 network.ztransform = 1;
 network.loc        = 0;
-network.positive   = 0;
+network.positive   = 1;
 
 network.local = 0;
 network.voxel = 1;
 
 network.iter       = 5;
-network.netinclude = [4]; 
+network.netinclude = [1:7]; 
 
 network.rthresh  = [0.25:0.01:0.3];
 network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
@@ -104,7 +106,7 @@ network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
 network.perm     = 1;
 network.ttest    = 1;
 
-network.MLEcleansed = 0;
+network.MLEcleansed = 1;
 
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -242,12 +244,12 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.perm
-    nRep     = 100;
+    nRep     = 10000;
     PermOutput = '[Exp]/GraphTheory/[SubFolder]/permutation/[ThreshValue]/';
-    permSave = 'OCD_100perm.mat';
+    permSave = 'ADHD_10000perm.mat';
     permDone = 0;
     permCores = 1;
-    permlevel = 0.05;
+    permlevel = 0.005;
 end
 %% t statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -255,7 +257,7 @@ end
 %  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.ttest
-    siglevel  = 0.05;
+    siglevel  = 0.005;
 end
 
 
@@ -305,8 +307,8 @@ network.typesave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/type.mat';
 %%%                    'Betweenness','Entropy','GlobalDegree','Density'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 network.plot = 1;
-network.plotNet = 4;
-network.plotMetric = {'CharPathLength','GlobEfficiency','Betweenness','GlobalDegree'};
+network.plotNet = [3,4,6,7];
+network.plotMetric = {'CharPathLength','Betweenness','Entropy','GlobalDegree'};
 
 
 %% Sparsity, Measures, Stream, AUC

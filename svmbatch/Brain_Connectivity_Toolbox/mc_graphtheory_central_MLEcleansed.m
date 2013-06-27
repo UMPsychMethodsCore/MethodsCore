@@ -116,7 +116,7 @@ end
 
 if network.MLEcleansed
     Sub = 0;
-    for i = 1:5
+    for i = 1:PartNum
         m = num2str(i);
         CleansedCheck = struct('Template',CleansedTemp,'mode','check');
         CleansedPath  = mc_GenPath(CleansedCheck);
@@ -1117,21 +1117,21 @@ if network.ttest
     t      = zeros(nThresh,nNet,nMetric);
     meanhc = zeros(nThresh,nNet,nMetric);
     meands = zeros(nThresh,nNet,nMetric);
-    sdhc   = zeros(nThresh,nNet,nMetric);
-    sdds   = zeros(nThresh,nNet,nMetric);
+    sehc   = zeros(nThresh,nNet,nMetric);
+    seds   = zeros(nThresh,nNet,nMetric);
     for iThresh = 1:nThresh
         if network.ztransform
             subdata = data(data(:,1)==network.zthresh(iThresh),:);
         else
             subdata = data(data(:,1)==network.rthresh(iThresh),:);
         end
-        [subp,subt,submeanhc,submeands,subsdhc,subsdds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+        [subp,subt,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
          p(iThresh,:,:)      = subp;
          t(iThresh,:,:)      = subt;
          meanhc(iThresh,:,:) = submeanhc;
          meands(iThresh,:,:) = submeands;
-         sdhc(iThresh,:,:)   = subsdhc;
-         sdds(iThresh,:,:)   = subsdds;
+         sehc(iThresh,:,:)   = subsehc;
+         seds(iThresh,:,:)   = subseds;
     end
 end
 
@@ -1148,19 +1148,19 @@ if network.perm
         meandiff = zeros(nThresh,nNet,nMetric);
         meanhc   = zeros(nThresh,nNet,nMetric);
         meands   = zeros(nThresh,nNet,nMetric);
-        sdhc     = zeros(nThresh,nNet,nMetric);
-        sdds     = zeros(nThresh,nNet,nMetric);
+        sehc     = zeros(nThresh,nNet,nMetric);
+        seds     = zeros(nThresh,nNet,nMetric);
         if network.ztransform
             subdata = data(data(1,:)==network.zthresh(iThresh),:);
         else
             subdata = data(data(1,:)==network.rthresh(iThresh),:);
         end
-        [submeandiff,submeanhc,submeands,subsdhc,subsdds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+        [submeandiff,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
         meandiff(iThresh,:,:) = submeandiff;
         meanhc(iThresh,:,:)   = submeanhc;
         meands(iThresh,:,:)   = submeands;
-        sdhc(iThresh,:,:)     = subsdhc;
-        sdds(iThresh,:,:)     = subsdds;
+        sehc(iThresh,:,:)     = subsehc;
+        seds(iThresh,:,:)     = subseds;
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1250,8 +1250,8 @@ if network.perm
         for i = 1:realn
             disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
             disp(sprintf('meanhc - meands: %.5f',meandiff(iThresh,RealSigNet(i),RealSigMetric(i))));
-            disp(sprintf('Mean of control group: %.5f +/- %.5f',meanhc(iThresh,RealSigNet(i),RealSigMetric(i)),sdhc(iThresh,RealSigNet(i),RealSigMetric(i))));
-            disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meands(iThresh,RealSigNet(i),RealSigMetric(i)),sdds(iThresh,RealSigNet(i),RealSigMetric(i))));
+            disp(sprintf('Mean of control group: %.5f +/- %.5f',meanhc(iThresh,RealSigNet(i),RealSigMetric(i)),sehc(iThresh,RealSigNet(i),RealSigMetric(i))));
+            disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meands(iThresh,RealSigNet(i),RealSigMetric(i)),seds(iThresh,RealSigNet(i),RealSigMetric(i))));
         end
     end
 end
@@ -1282,8 +1282,8 @@ if network.plot
             plotorder = plotorder+1;
             hcline = meanhc(:,NetNum,MetricNum);
             dsline = meands(:,NetNum,MetricNum);
-            hcbar  = sdhc(:,NetNum,MetricNum);
-            dsbar  = sdds(:,NetNum,MetricNum);
+            hcbar  = sehc(:,NetNum,MetricNum);
+            dsbar  = seds(:,NetNum,MetricNum);
             subplot(2,ceil(n/2),plotorder);
             title(['network ' num2str(network.plotNet(iNet)) network.plotMetric{jMetric}])
             hold on;

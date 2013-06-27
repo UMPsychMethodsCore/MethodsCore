@@ -1,4 +1,4 @@
-function [ p,stats,meanhc,meands,sdhc,sdds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,nNet,nMetric)
+function [ p,stats,meanhc,meands,sehc,seds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,nNet,nMetric)
 %MC_GRAPHTHEORY_TTEST Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -21,8 +21,12 @@ for iNet = 1:nNet
         end
         meanhc(iNet,jMetric) = mean(testhc);
         meands(iNet,jMetric) = mean(testds);
-        sdhc(iNet,jMetric)   = std(testhc);
-        sdds(iNet,jMetric)   = std(testds);
+                         nhc = length(testhc);
+                         nds = length(testds);
+                        sdhc = std(testhc);
+                        sdds = std(testds);                        
+          sehc(iNet,jMetric) = sdhc/(sqrt(nhc));
+          seds(iNet,jMetric) = sdds/(sqrt(nds));
 %         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds,[],[],'unequal');
         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds);
         stats(iNet,jMetric)=tval.tstat;
