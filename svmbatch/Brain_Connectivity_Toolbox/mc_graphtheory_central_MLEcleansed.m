@@ -146,11 +146,17 @@ if network.MLEcleansed
             end
             
             
-            if (network.positive == 1)
-                NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
-            else
-                NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
+            switch network.positive
+                case 0
+                    NetworkValue = abs(NetworkValue);  % Take absolute value of correlations
+                case 1
+                    NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+                case 2
+                    NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
+                    NetworkValue = abs(NetworkValue);     % Then take the absolute value
             end
+            
+           
             
             
             if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
@@ -434,30 +440,30 @@ for tThresh = 1:length(network.rthresh)
                 case 'm'
                     if Flag.smallworld
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.smallworld);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.smallworld);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.clustering
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.cluster);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.cluster);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.cluster);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.pathlength
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.pathlength);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.pathlength);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.pathlength);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.degree
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.glodeg);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.glodeg);
                         if network.weighted
-                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
+                            fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.glostr);
                         end
                     else
                         fprintf(theFID,'%s,','NA');
@@ -468,49 +474,49 @@ for tThresh = 1:length(network.rthresh)
                     
                     if Flag.density
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.density);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.density);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.transitivity
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.trans);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.trans);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.trans);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.efficiency
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.eglob);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.eglob);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.eglob);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.modularity
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.modu);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.modu);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.modu);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.assortativity
                         %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.assort);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.assort);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.assort);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.betweenness
                         %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.btwn);
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork}.btwn);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.btwn);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.entropy
                         %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.etpy);
-                        fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork}.etpy);
+                        fprintf(theFID,'%.4f\n',CombinedOutput{tThresh,iSubject,kNetwork}.etpy);
                     else
                         fprintf(theFID,'%s\n','NA');
                     end
@@ -518,15 +524,15 @@ for tThresh = 1:length(network.rthresh)
                 case 't'
                     
                     if Flag.smallworld
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.smallworld);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.smallworld);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
                     if Flag.degree
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.glodeg);
                         if network.weighted
-                            fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glostr);
+                            fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.glostr);
                         end
                     else
                         fprintf(theFID,'%s,','NA');
@@ -536,12 +542,12 @@ for tThresh = 1:length(network.rthresh)
                     end
                     
                     if Flag.density
-                        fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.density);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.density);
                     else
                         fprintf(theFID,'%s,','NA');
                     end
                     
-                    fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.degreeLine);
+                    fprintf(theFID,'%.4f\n',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.degreeLine);
                     
                 otherwise
                     error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
@@ -835,7 +841,7 @@ if network.netinclude==-1
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
-                OutData = CombinedOutput{iSub,1}.deg;
+                OutData = CombinedOutput{1,iSub,1}.deg;
                 SaveData(iSub,:)=OutData;
             end
         end
@@ -849,7 +855,7 @@ if network.netinclude==-1
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
-                OutData = CombinedOutput{iSub,1}.nodebtwn;
+                OutData = CombinedOutput{1,iSub,1}.nodebtwn;
                 SaveData(iSub,:)=OutData;
             end
         end
@@ -863,7 +869,7 @@ if network.netinclude==-1
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
-                OutData = CombinedOutput{iSub,1}.eloc;
+                OutData = CombinedOutput{1,iSub,1}.eloc;
                 SaveData(iSub,:)=OutData;
             end
         end
@@ -877,7 +883,7 @@ if network.netinclude==-1
         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
-                OutData = CombinedOutput{iSub,1}.nodecluster;
+                OutData = CombinedOutput{1,iSub,1}.nodecluster;
                 SaveData(iSub,:)=OutData;
             end
         end
@@ -1101,6 +1107,7 @@ end
     % Combine to 2d matrix (column is thresh label, net label and metrics, row is each subject/thresh/net subset)
     data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
     Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density'};
+    netcol = 2;
     
     nMetric = length(Metrics);
     types   = cell2mat(Types); types = types(SubUseMark==1);
@@ -1125,7 +1132,7 @@ if network.ttest
         else
             subdata = data(data(:,1)==network.rthresh(iThresh),:);
         end
-        [subp,subt,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+        [subp,subt,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
          p(iThresh,:,:)      = subp;
          t(iThresh,:,:)      = subt;
          meanhc(iThresh,:,:) = submeanhc;
@@ -1151,11 +1158,11 @@ if network.perm
         sehc     = zeros(nThresh,nNet,nMetric);
         seds     = zeros(nThresh,nNet,nMetric);
         if network.ztransform
-            subdata = data(data(1,:)==network.zthresh(iThresh),:);
+            subdata = data(data(:,1)==network.zthresh(iThresh),:);
         else
-            subdata = data(data(1,:)==network.rthresh(iThresh),:);
+            subdata = data(data(:,1)==network.rthresh(iThresh),:);
         end
-        [submeandiff,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+        [submeandiff,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
         meandiff(iThresh,:,:) = submeandiff;
         meanhc(iThresh,:,:)   = submeanhc;
         meands(iThresh,:,:)   = submeands;
@@ -1175,20 +1182,20 @@ if network.perm
                 try
                     matlabpool('open',permCores)
                     parfor i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
                     matlabpool('close')
                 catch
                     matlabpool('close')
                     for i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
                 end
             else
                 for i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,nNet,nMetric);
+                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
                     fprintf(1,'%g\n',i);
                 end
             end
@@ -1285,6 +1292,7 @@ if network.plot
             hcbar  = sehc(:,NetNum,MetricNum);
             dsbar  = seds(:,NetNum,MetricNum);
             subplot(2,ceil(n/2),plotorder);
+            hold on;
             title(['network ' num2str(network.plotNet(iNet)) network.plotMetric{jMetric}])
             hold on;
             errorbar(hcline,hcbar,'r');

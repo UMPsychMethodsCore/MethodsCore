@@ -1,4 +1,4 @@
-function [ p,stats,meanhc,meands,sehc,seds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,nNet,nMetric)
+function [ p,stats,meanhc,meands,sehc,seds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,netcol,nNet,nMetric)
 %MC_GRAPHTHEORY_TTEST Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,12 +6,12 @@ stats  = zeros(nNet,nMetric);
 p      = zeros(nNet,nMetric);
 meanhc = zeros(nNet,nMetric);
 meands = zeros(nNet,nMetric);
-sdhc   = zeros(nNet,nMetric);
-sdds   = zeros(nNet,nMetric);
+sehc   = zeros(nNet,nMetric);
+seds   = zeros(nNet,nMetric);
 for iNet = 1:nNet
     for jMetric = 1:nMetric
-        testdata = data(data(:,2)==netinclude(iNet),:); % certain network
-        testmetric = testdata(:,jMetric+1); % certain metric
+        testdata = data(data(:,netcol)==netinclude(iNet),:); % certain network
+        testmetric = testdata(:,jMetric+netcol); % certain metric
         if covtype % like 'A' and 'H'
             testhc = testmetric(Label==unitype(2));
             testds = testmetric(Label==unitype(1));

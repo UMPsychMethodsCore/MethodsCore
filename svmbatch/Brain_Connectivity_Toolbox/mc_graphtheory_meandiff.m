@@ -1,4 +1,4 @@
-function [ meandiff,meanhc,meands,sehc,seds ] = mc_graphtheory_meandiff( Label,unitype,covtype,data,netinclude,nNet,nMetric )
+function [ meandiff,meanhc,meands,sehc,seds ] = mc_graphtheory_meandiff( Label,unitype,covtype,data,netinclude,netcol,nNet,nMetric )
 %MC_GRAPHTHEORY_MEANDIFF Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,8 +9,8 @@ sehc   = zeros(nNet,nMetric);
 seds   = zeros(nNet,nMetric);
 for iNet = 1:nNet
     for jMetric = 1:nMetric
-        testdata = data(data(:,1)==netinclude(iNet),:); % certain network
-        testmetric = testdata(:,jMetric+1); % certain metric
+        testdata = data(data(:,netcol)==netinclude(iNet),:); % certain network
+        testmetric = testdata(:,jMetric+netcol); % certain metric
         if covtype % like 'A' and 'H'
             testhc = testmetric(Label==unitype(2));
             testds = testmetric(Label==unitype(1));
