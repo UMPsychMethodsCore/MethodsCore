@@ -78,7 +78,7 @@ nNet = length(network.netinclude);
 
 nThresh = length(network.rthresh);
 
-NetworkConnectRaw = cell(length(Names), nNet);
+% NetworkConnectRaw = cell(length(Names), nNet); #####
 
 NetworkConnectSub = cell(nNet,1);
 
@@ -108,14 +108,16 @@ if (network.netinclude~=-1)  % If the netinclude is set to -1, then means whole 
     
 end
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Load Files
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Load Files one by one and do the calculation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 if network.MLEcleansed
     Sub = 0;
+    SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. If NetworkConnect of one subject is all zeros, will mark it as 0.
+                                            % Then the data won't be selected in the following stats analysis.
     for i = 1:PartNum
         m = num2str(i);
         CleansedCheck = struct('Template',CleansedTemp,'mode','check');
@@ -125,6 +127,7 @@ if network.MLEcleansed
         eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
         
         for j = 1:size(CleansedCorr,1)
+            
             Sub           = Sub+1;
             flat          = CleansedCorr(j,:);
             upper         = mc_unflatten_upper_triangle(flat);
@@ -143,8 +146,7 @@ if network.MLEcleansed
                 case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                     NetworkValue = pinv(NetworkRvalue);
                     
-            end
-            
+            end           
             
             switch network.positive
                 case 0
@@ -154,27 +156,104 @@ if network.MLEcleansed
                 case 2
                     NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
                     NetworkValue = abs(NetworkValue);     % Then take the absolute value
-            end
-            
-           
-            
-            
-            if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
-                NetworkConnectRaw{Sub,1} = NetworkValue;
-            else
-                for kNetwork = 1:length(network.netinclude)
+            end         
+                     
+            for kNetwork = 1:length(network.netinclude)
+                if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
+                    %                 NetworkConnectRaw{Sub,1} = NetworkValue;
+                    NetworkConnectRaw = NetworkValue;
+                else
                     networklabel = network.netinclude(kNetwork);
-                    NetworkConnectRaw{Sub,kNetwork} = NetworkValue(nets==networklabel,nets==networklabel);
+                    NetworkConnectRaw = NetworkValue(nets==networklabel,nets==networklabel);
                 end
-                
+                for tThresh = 1:nThresh
+                    display(sprintf('Now computing Number %s Subject',num2str(Sub)));
+                    display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
+                    display(sprintf('in network %d',network.netinclude(kNetwork)));
+                    tic
+                    NetworkConnectInt   = NetworkConnectRaw;
+                    NetworkConnect      = zeros(size(NetworkConnectInt));
+                    if (network.ztransform == 1)
+                        NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
+                    else
+                        NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
+                    end
+                    % Create binary matrix if being set so
+                    if ~network.weighted
+                        NetworkConnect(NetworkConnect>0) = 1;
+                    end
+                    if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
+                        
+                        [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);   %%%% MAIN MEASURE PART %%%
+                        Output                   = NetworkMeasures;
+                        
+                        if network.stream == 't'
+                            Output.degreeLine = 2*log10(size(NetworkConnect,1));
+                        end
+                        
+                        % Comupte the smallworldness
+                        Flag.smallworld    = tempflag;
+                        if Flag.smallworld
+                            randcluster    = zeros(100,1);
+                            randpathlength = zeros(100,1);
+                            % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested network with the
+                            % preserved degree distribution, which is used in the smallworldness computing.
+                            for k = 1:100
+                                display(sprintf('loop %d',k));
+                                [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
+                                drand         = distance_bin(NetworkRandom);
+                                [lrand,~]     = charpath(drand);
+                                if network.directed
+                                    crand = clustering_coef_bd(NetworkRandom);
+                                else
+                                    crand = clustering_coef_bu(NetworkRandom);
+                                end
+                                randcluster(k)    = mean(crand);
+                                randpathlength(k) = lrand;
+                            end
+                            RandomMeasures.cluster    = mean(randcluster);
+                            RandomMeasures.pathlength = mean(randpathlength);
+                            gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
+                            lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+                            Output.smallworld         = gamma / lambda;
+                        end
+                    else
+                        Output.smallworld = 0;
+                        Output.cluster    = 0;
+                        Output.pathlength = 0;
+                        Output.glodeg     = 0;
+                        Output.glostr     = 0;
+                        Output.density    = 0;
+                        Output.trans      = 0;
+                        Output.eglob      = 0;
+                        Output.modu       = 0;
+                        Output.assort     = 0;
+                        Output.btwn       = 0;
+                        Output.etpy       = 0;
+                        Output.glodeg     = 0;
+                        
+                        Output.deg        = [];
+                        Output.nodebtwn   = [];
+                        Output.eloc       = [];
+                        Output.nodecluster= [];
+                        SubUseMark(Sub) = 0;
+                    end
+                    
+                    %                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
+                    CombinedOutput{tThresh,Sub,kNetwork} = Output;
+                    toc
+                end
+                clear NetworkConnectRaw
             end
-            
+                
+                
+              
         end
         
-        
     end
-else
     
+else
+    SubUseMark = ones(1,length(SubjDir));
     for Sub = 1:length(SubjDir)
         Subject = SubjDir{Sub};
         NonCleansedCheck = struct('Template',NonCleansedTemp,'mode','check');
@@ -196,164 +275,109 @@ else
                 NetworkValue = pinv(NetworkRvalue);
         end        
         
-        if (network.positive == 1)
-            NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
-        else
-            NetworkValue = abs(NetworkValue);     % Take absolute value of correlations
-        end        
+        switch network.positive
+            case 0
+                NetworkValue = abs(NetworkValue);  % Take absolute value of correlations
+            case 1
+                NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
+            case 2
+                NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
+                NetworkValue = abs(NetworkValue);     % Then take the absolute value
+        end
         
-        if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
-            NetworkConnectRaw{Sub,1} = NetworkValue;
-        else
-            for kNetwork = 1:length(network.netinclude)
+        for kNetwork = 1:length(network.netinclude)
+            if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
+                %                 NetworkConnectRaw{Sub,1} = NetworkValue;
+                NetworkConnectRaw = NetworkValue;
+            else
                 networklabel = network.netinclude(kNetwork);
-                NetworkConnectRaw{Sub,kNetwork} = NetworkValue(nets==networklabel,nets==networklabel);
+                NetworkConnectRaw = NetworkValue(nets==networklabel,nets==networklabel);
             end
-            
+            for tThresh = 1:nThresh
+                display(sprintf('Now computing Number %s Subject',num2str(Sub)));
+                display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
+                display(sprintf('in network %d',network.netinclude(kNetwork)));
+                tic
+                NetworkConnectInt   = NetworkConnectRaw;
+                NetworkConnect      = zeros(size(NetworkConnectInt));
+                if (network.ztransform == 1)
+                    NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
+                else
+                    NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
+                end
+                % Create binary matrix if being set so
+                if ~network.weighted
+                    NetworkConnect(NetworkConnect>0) = 1;
+                end
+                if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
+                    
+                    [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);   %%%% MAIN MEASURE PART %%%
+                    Output                   = NetworkMeasures;
+                    
+                    if network.stream == 't'
+                        Output.degreeLine = 2*log10(size(NetworkConnect,1));
+                    end
+                    
+                    % Comupte the smallworldness
+                    Flag.smallworld    = tempflag;
+                    if Flag.smallworld
+                        randcluster    = zeros(100,1);
+                        randpathlength = zeros(100,1);
+                        % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested network with the
+                        % preserved degree distribution, which is used in the smallworldness computing.
+                        for k = 1:100
+                            display(sprintf('loop %d',k));
+                            [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
+                            drand         = distance_bin(NetworkRandom);
+                            [lrand,~]     = charpath(drand);
+                            if network.directed
+                                crand = clustering_coef_bd(NetworkRandom);
+                            else
+                                crand = clustering_coef_bu(NetworkRandom);
+                            end
+                            randcluster(k)    = mean(crand);
+                            randpathlength(k) = lrand;
+                        end
+                        RandomMeasures.cluster    = mean(randcluster);
+                        RandomMeasures.pathlength = mean(randpathlength);
+                        gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
+                        lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+                        Output.smallworld         = gamma / lambda;
+                    end
+                else
+                    Output.smallworld = 0;
+                    Output.cluster    = 0;
+                    Output.pathlength = 0;
+                    Output.glodeg     = 0;
+                    Output.glostr     = 0;
+                    Output.density    = 0;
+                    Output.trans      = 0;
+                    Output.eglob      = 0;
+                    Output.modu       = 0;
+                    Output.assort     = 0;
+                    Output.btwn       = 0;
+                    Output.etpy       = 0;
+                    Output.glodeg     = 0;
+                    
+                    Output.deg        = [];
+                    Output.nodebtwn   = [];
+                    Output.eloc       = [];
+                    Output.nodecluster= [];
+                    SubUseMark(Sub) = 0;
+                end
+                
+                %                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
+                CombinedOutput{tThresh,Sub,kNetwork} = Output;
+                toc
+            end
+            clear NetworkConnectRaw
         end
     end
     
 end
         
        
-
-
-
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Network-wise Measurements
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. 
-% If NetworkConnect of one subject is all zeros, will mark it as 0.
-% Then the data won't be selected in the following stats analysis.
-
-
-
-for tThresh = 1:nThresh
-    for iSubject = 1:Sub
-        for kNetwork = 1:length(network.netinclude)
-            
-            
-            display(sprintf('Now computing Number %s Subject',num2str(iSubject)));
-            display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
-            display(sprintf('in network %d',network.netinclude(kNetwork)));
-            
-            %         for mThresh = 1:length(network.sparsity)
-            
-            % Generate the binary adjacency matrix, do the computation
-            %             display(sprintf('with sparsity %.2g',network.sparsity(mThresh)));
-            tic
-            
-            
-            % Keep most siginificant connections based on sparsity
-            NetworkConnectInt   = NetworkConnectRaw{iSubject,kNetwork};
-            NetworkConnect      = zeros(size(NetworkConnectInt));
-            if (network.ztransform == 1)
-                NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
-            else
-                NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
-            end
-            
-            %             keep                = round(network.sparsity(mThresh) * numel(NetworkConnectInt));
-            
-            %             NetworkValue_flat   = reshape(NetworkConnectInt,[],1);
-            
-            %             [~,index]           = sort(NetworkValue_flat,'descend');
-            
-            %             NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
-            
-            %             NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
-            
-            %             NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkConnectInt,1),size(NetworkConnectInt,2));
-            
-            
-            % Create binary matrix if being set so
-            
-            if ~network.weighted
-                NetworkConnect(NetworkConnect>0) = 1;
-            end
-            
-            
-            if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
-                
-                [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);
-                Output                   = NetworkMeasures;
-                
-                
-                if network.stream == 't'
-                    Output.degreeLine = 2*log10(size(NetworkConnect,1));
-                end
-                
-                % Comupte the smallworldness
-                Flag.smallworld    = tempflag;
-                if Flag.smallworld
-                    randcluster    = zeros(100,1);
-                    randpathlength = zeros(100,1);
-                    % Compute the averaged clustering coefficient and characteristic path length
-                    % of 100 randomized version of the tested network with the
-                    % preserved degree distribution, which is used in the
-                    % smallworldness computing.
-                    for k = 1:100
-                        display(sprintf('loop %d',k));
-                        [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
-                        drand         = distance_bin(NetworkRandom);
-                        [lrand,~]     = charpath(drand);
-                        if network.directed
-                            crand = clustering_coef_bd(NetworkRandom);
-                        else
-                            crand = clustering_coef_bu(NetworkRandom);
-                        end
-                        randcluster(k)    = mean(crand);
-                        randpathlength(k) = lrand;
-                    end
-                    RandomMeasures.cluster    = mean(randcluster);
-                    RandomMeasures.pathlength = mean(randpathlength);
-                    gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
-                    lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
-                    Output.smallworld         = gamma / lambda;
-                end
-            else
-                Output.smallworld = 0;
-                Output.cluster    = 0;
-                Output.pathlength = 0;
-                Output.glodeg     = 0;
-                Output.glostr     = 0;
-                Output.density    = 0;
-                Output.trans      = 0;
-                Output.eglob      = 0;
-                Output.modu       = 0;
-                Output.assort     = 0;
-                Output.btwn       = 0;
-                Output.etpy       = 0;
-                Output.glodeg     = 0;
-                
-                Output.deg        = [];
-                Output.nodebtwn   = [];
-                Output.eloc       = [];
-                Output.nodecluster= [];
-                
-                SubUseMark(iSubject) = 0;
-                
-            end
-            
-            
-            %                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
-            CombinedOutput{tThresh,iSubject,kNetwork} = Output; % saved variables each time
-            
-            
-            
-            
-            %             save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
-            
-            toc
-            %         end
-        end
-    end
-end
-
 SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
-
 
 
 %%
@@ -710,118 +734,6 @@ if (network.stream =='m' && network.local==1)
     
 end
 
-%% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% AUC of Metric - Threshold curve  
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if ~isempty(network.AUC)
-    
-    aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
-    aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
-    aucflag.modularity = any(strfind(upper(network.AUC),'M'));
-    aucflag.assortativity = any(strfind(upper(network.AUC),'A'));
-    aucflag.pathlength = any(strfind(upper(network.AUC),'P'));
-    aucflag.degree = any(strfind(upper(network.AUC),'E'));
-    aucflag.clustering = any(strfind(upper(network.AUC),'C'));
-    aucflag.betweenness = any(strfind(upper(network.AUC),'B'));
-    aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
-    
-    
-    if aucflag.transitivity
-        for kNetwork = 1:length(network.netinclude)
-            auc.trans(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'trans');
-        end
-    end
-    
-    if aucflag.gefficiency
-        for kNetwork = 1:length(network.netinclude)
-            auc.eglob(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'eglob');
-        end
-    end
-    
-    if aucflag.modularity
-        for kNetwork = 1:length(network.netinclude)
-            auc.modu(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'modu');
-        end
-    end
-    
-    if aucflag.assortativity
-        for kNetwork = 1:length(network.netinclude)
-            auc.assort(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'assort');
-        end
-    end
-    
-    if aucflag.pathlength
-        for kNetwork = 1:length(network.netinclude)
-            auc.pathlength(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'pathlength');
-        end
-    end
-    
-    if aucflag.degree
-        if network.weighted
-            for kNetwork = 1:length(network.netinclude)
-                auc.glostr(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glostr');
-            end
-        else
-            for kNetwork = 1:length(network.netinclude)
-                auc.glodeg(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glodeg');
-            end
-        end
-    end
-    
-    if aucflag.clustering
-        for kNetwork = 1:length(network.netinclude)
-            auc.cluster(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
-        end
-    end
-    
-    if aucflag.betweenness
-        for kNetwork = 1:length(network.netinclude)
-            auc.btwn(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
-        end
-    end
-    
-    if aucflag.smallworldness
-        for kNetwork = 1:length(network.netinclude)
-            auc.smallworld(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'smallworld');
-        end
-    end
-    
-   
-    
-    save(AUCMatFile,'auc','-v7.3');
-       
-    
-    theFID = fopen(AUCPathFile,'w');
-    if theFID < 0
-        fprintf(1,'Error opening the csv file!\n');
-        return;
-    end
-    
-    fprintf(theFID,...
-        'metric');
-    for kNetwork = 1:length(network.netinclude)
-        fprintf(theFID,...
-            [',Network',num2str(network.netinclude(kNetwork))]);
-    end
-    fprintf(theFID,'\n');
-    
-    names = fieldnames(auc);
-    for nMetric = 1:length(names)
-        subname = names{nMetric};
-        fprintf(theFID,subname);
-        for kNetwork = 1:length(network.netinclude)
-            fprintf(theFID,[',',num2str(auc.(subname)(kNetwork))]);
-        end
-        fprintf(theFID,'\n');
-    end
-    
-    display('AUC results saved.')
- 
-    
-    
-end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -842,9 +754,17 @@ if network.netinclude==-1
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{1,iSub,1}.deg;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
+        
         save(OutflPath,'SaveData','-v7.3');
         
         % Betweenness
@@ -856,7 +776,14 @@ if network.netinclude==-1
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{1,iSub,1}.nodebtwn;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -870,7 +797,14 @@ if network.netinclude==-1
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{1,iSub,1}.eloc;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -884,7 +818,14 @@ if network.netinclude==-1
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{1,iSub,1}.nodecluster;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -904,7 +845,14 @@ else
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{iSub,kNet}.deg;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -918,7 +866,14 @@ else
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{iSub,kNet}.nodebtwn;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -932,7 +887,14 @@ else
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{iSub,kNet}.eloc;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -946,7 +908,14 @@ else
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 OutData = CombinedOutput{iSub,kNet}.nodecluster;
-                SaveData(iSub,:)=OutData;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+                SaveData(iSub,:)=OutSave;
             end
         end
         save(OutflPath,'SaveData','-v7.3');
@@ -1217,7 +1186,7 @@ if network.perm
                 vector = sort(squeeze(perm(i,j,:)),'descend');
                 N      = length(vector);
                 pos    = floor(permlevel*N)+1;
-                if abs(meandiff(i,j))>abs(vector(pos))
+                if abs(meandiff(iThresh,i,j))>abs(vector(pos))
                     realn = realn+1;
                     RealSigNet(realn)=i;
                     RealSigMetric(realn)=j;
@@ -1235,7 +1204,7 @@ if network.perm
                 vector = sort(abs(squeeze(perm(i,j,:))),'descend');
                 N      = length(vector);
                 for k = 1:N
-                    if abs(meandiff(i,j))>vector(k)
+                    if abs(meandiff(iThresh,i,j))>vector(k)
                         RealOrder(iThresh,i,j)=k;
                         RealLevel(iThresh,i,j)=k/N;
                         break
@@ -1262,6 +1231,7 @@ if network.perm
         end
     end
 end
+
 
 
 
@@ -1303,6 +1273,254 @@ if network.plot
     
 end
 
+
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AUC of Metric - Threshold curve  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% if ~isempty(network.AUC)
+%     
+%     aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
+%     aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
+%     aucflag.modularity = any(strfind(upper(network.AUC),'M'));
+%     aucflag.assortativity = any(strfind(upper(network.AUC),'A'));
+%     aucflag.pathlength = any(strfind(upper(network.AUC),'P'));
+%     aucflag.degree = any(strfind(upper(network.AUC),'E'));
+%     aucflag.clustering = any(strfind(upper(network.AUC),'C'));
+%     aucflag.betweenness = any(strfind(upper(network.AUC),'B'));
+%     aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
+%     
+%     
+%     if aucflag.transitivity
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.trans(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'trans');
+%         end
+%     end
+%     
+%     if aucflag.gefficiency
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.eglob(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'eglob');
+%         end
+%     end
+%     
+%     if aucflag.modularity
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.modu(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'modu');
+%         end
+%     end
+%     
+%     if aucflag.assortativity
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.assort(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'assort');
+%         end
+%     end
+%     
+%     if aucflag.pathlength
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.pathlength(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'pathlength');
+%         end
+%     end
+%     
+%     if aucflag.degree
+%         if network.weighted
+%             for kNetwork = 1:length(network.netinclude)
+%                 auc.glostr(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glostr');
+%             end
+%         else
+%             for kNetwork = 1:length(network.netinclude)
+%                 auc.glodeg(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glodeg');
+%             end
+%         end
+%     end
+%     
+%     if aucflag.clustering
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.cluster(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
+%         end
+%     end
+%     
+%     if aucflag.betweenness
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.btwn(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
+%         end
+%     end
+%     
+%     if aucflag.smallworldness
+%         for kNetwork = 1:length(network.netinclude)
+%             auc.smallworld(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'smallworld');
+%         end
+%     end
+%     
+%     
+%     
+%     save(AUCMatFile,'auc','-v7.3');
+%     
+%     
+%     theFID = fopen(AUCPathFile,'w');
+%     if theFID < 0
+%         fprintf(1,'Error opening the csv file!\n');
+%         return;
+%     end
+%     
+%     fprintf(theFID,...
+%         'metric');
+%     for kNetwork = 1:length(network.netinclude)
+%         fprintf(theFID,...
+%             [',Network',num2str(network.netinclude(kNetwork))]);
+%     end
+%     fprintf(theFID,'\n');
+%     
+%     names = fieldnames(auc);
+%     for nMetric = 1:length(names)
+%         subname = names{nMetric};
+%         fprintf(theFID,subname);
+%         for kNetwork = 1:length(network.netinclude)
+%             fprintf(theFID,[',',num2str(auc.(subname)(kNetwork))]);
+%         end
+%         fprintf(theFID,'\n');
+%     end
+%     
+%     display('AUC results saved.')
+%     
+%     
+%     
+% end
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Network-wise Measurements
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. 
+% % If NetworkConnect of one subject is all zeros, will mark it as 0.
+% % Then the data won't be selected in the following stats analysis.
+% 
+% 
+% 
+% for tThresh = 1:nThresh
+%     for iSubject = 1:Sub
+%         for kNetwork = 1:length(network.netinclude)
+%             
+%             
+%             display(sprintf('Now computing Number %s Subject',num2str(iSubject)));
+%             display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
+%             display(sprintf('in network %d',network.netinclude(kNetwork)));
+%             
+%             %         for mThresh = 1:length(network.sparsity)
+%             
+%             % Generate the binary adjacency matrix, do the computation
+%             %             display(sprintf('with sparsity %.2g',network.sparsity(mThresh)));
+%             tic
+%             
+%             
+%             % Keep most siginificant connections based on sparsity
+%             NetworkConnectInt   = NetworkConnectRaw{iSubject,kNetwork};
+%             NetworkConnect      = zeros(size(NetworkConnectInt));
+%             if (network.ztransform == 1)
+%                 NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
+%             else
+%                 NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
+%             end
+%             
+%             %             keep                = round(network.sparsity(mThresh) * numel(NetworkConnectInt));
+%             
+%             %             NetworkValue_flat   = reshape(NetworkConnectInt,[],1);
+%             
+%             %             [~,index]           = sort(NetworkValue_flat,'descend');
+%             
+%             %             NetworkValue_pruned = zeros(length(NetworkValue_flat),1);
+%             
+%             %             NetworkValue_pruned(index(1:keep)) = NetworkValue_flat(index(1:keep));
+%             
+%             %             NetworkConnect                     = reshape(NetworkValue_pruned,size(NetworkConnectInt,1),size(NetworkConnectInt,2));
+%             
+%             
+%             % Create binary matrix if being set so
+%             
+%             if ~network.weighted
+%                 NetworkConnect(NetworkConnect>0) = 1;
+%             end
+%             
+%             
+%             if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
+%                 
+%                 [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);
+%                 Output                   = NetworkMeasures;
+%                 
+%                 
+%                 if network.stream == 't'
+%                     Output.degreeLine = 2*log10(size(NetworkConnect,1));
+%                 end
+%                 
+%                 % Comupte the smallworldness
+%                 Flag.smallworld    = tempflag;
+%                 if Flag.smallworld
+%                     randcluster    = zeros(100,1);
+%                     randpathlength = zeros(100,1);
+%                     % Compute the averaged clustering coefficient and characteristic path length
+%                     % of 100 randomized version of the tested network with the
+%                     % preserved degree distribution, which is used in the
+%                     % smallworldness computing.
+%                     for k = 1:100
+%                         display(sprintf('loop %d',k));
+%                         [NetworkRandom,~] = randmio_und(NetworkConnect,network.iter); % random graph with preserved degree distribution
+%                         drand         = distance_bin(NetworkRandom);
+%                         [lrand,~]     = charpath(drand);
+%                         if network.directed
+%                             crand = clustering_coef_bd(NetworkRandom);
+%                         else
+%                             crand = clustering_coef_bu(NetworkRandom);
+%                         end
+%                         randcluster(k)    = mean(crand);
+%                         randpathlength(k) = lrand;
+%                     end
+%                     RandomMeasures.cluster    = mean(randcluster);
+%                     RandomMeasures.pathlength = mean(randpathlength);
+%                     gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
+%                     lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+%                     Output.smallworld         = gamma / lambda;
+%                 end
+%             else
+%                 Output.smallworld = 0;
+%                 Output.cluster    = 0;
+%                 Output.pathlength = 0;
+%                 Output.glodeg     = 0;
+%                 Output.glostr     = 0;
+%                 Output.density    = 0;
+%                 Output.trans      = 0;
+%                 Output.eglob      = 0;
+%                 Output.modu       = 0;
+%                 Output.assort     = 0;
+%                 Output.btwn       = 0;
+%                 Output.etpy       = 0;
+%                 Output.glodeg     = 0;
+%                 
+%                 Output.deg        = [];
+%                 Output.nodebtwn   = [];
+%                 Output.eloc       = [];
+%                 Output.nodecluster= [];
+%                 
+%                 SubUseMark(iSubject) = 0;
+%                 
+%             end
+%             
+%             
+%             %                 CombinedOutput{iSubject,kNetwork,mThresh} = Output; % saved variables each time
+%             CombinedOutput{tThresh,iSubject,kNetwork} = Output; % saved variables each time
+%             
+%             
+%             
+%             
+%             %             save(OutputMatPath,'CombinedOutput','-v7.3'); % Save to a mat file each loop for safe
+%             
+%             toc
+%             %         end
+%         end
+%     end
+% end
+% 
+% SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
 
 
 
