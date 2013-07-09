@@ -750,9 +750,12 @@ if network.netinclude==-1
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{1,iSub,1}.deg;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -761,20 +764,24 @@ if network.netinclude==-1
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
         
-        save(OutflPath,'SaveData','-v7.3');
+        
         
         % Betweenness
         Metricname = 'betweenness';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{1,iSub,1}.nodebtwn;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -783,19 +790,23 @@ if network.netinclude==-1
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
         
         % Efficiency
         Metricname = 'efficiency';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{1,iSub,1}.eloc;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -804,19 +815,23 @@ if network.netinclude==-1
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
         
         % Clustering Coefficient
         Metricname = 'clustering';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{1,iSub,1}.nodecluster;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -825,10 +840,11 @@ if network.netinclude==-1
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
     
 else
     for kNet=1:nNet
@@ -841,9 +857,12 @@ else
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{iSub,kNet}.deg;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -852,19 +871,23 @@ else
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
         
         % Betweenness
         Metricname = 'betweenness';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{iSub,kNet}.nodebtwn;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -873,19 +896,23 @@ else
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
         
         % Efficiency
         Metricname = 'efficiency';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{iSub,kNet}.eloc;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -894,19 +921,23 @@ else
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                  save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
         
         % Clustering Coefficient
         Metricname = 'clustering';
         OutflPath  = mc_GenPath( struct('Template',network.flsave,...
             'suffix','.mat',...
             'mode','makeparentdir'));
-        SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
+        SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                SubCount = SubCount+1;
+                Subjectfl = num2str(SubCount);
                 OutData = CombinedOutput{iSub,kNet}.nodecluster;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -915,10 +946,11 @@ else
                 else
                     OutSave = OutData;
                 end
-                SaveData(iSub,:)=OutSave;
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
             end
         end
-        save(OutflPath,'SaveData','-v7.3');
+%         save(OutflPath,'SaveData','-v7.3');
     end
 end
 %% 

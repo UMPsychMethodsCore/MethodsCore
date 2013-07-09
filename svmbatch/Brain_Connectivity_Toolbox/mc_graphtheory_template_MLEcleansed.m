@@ -293,7 +293,7 @@ network.save = '[Exp]/GraphTheory/[SubFolder]/MotionScrubbed/CombinedOutput.mat'
 %%%  Save the first level voxel-wise measurement results
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-network.flsave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/[Netname]/[Metricname].mat';
+network.flsave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/[Netname]/[Metricname]_[Subjectfl].mat';
 network.typesave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/type.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
