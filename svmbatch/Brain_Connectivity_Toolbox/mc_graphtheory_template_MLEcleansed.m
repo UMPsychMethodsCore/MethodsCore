@@ -30,7 +30,7 @@ PartNum = 5;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)
 
 ResultTemp = '[Pxe]/Results.mat';
 
-SubFolder = '0627';
+SubFolder = '0710_E';
 
 
 
@@ -67,6 +67,8 @@ network.partial = 0;
 %%%                     'b' - threshloding beta-value matrix to binary/weighted matrix by t-score (e.g. results from cPPI)
 %%% network.ztransform:  If network.datatype is set to 'r', we have the option to do an r to z transform
 %%%                      0  - Don't do z transform    1 - Do z transform
+%%% network.ztransdone:  Although you want to do z transform, have you already done this?
+%%%                      0  - No                      1 - Yes
 %%% network.loc(only for cPPI):  0  - Average over upper and lower triangulars; 1 - upper triangular; 2 - lower triangular  
 %%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% 
@@ -90,7 +92,10 @@ network.partial = 0;
 network.directed   = 0;
 network.weighted   = 0;
 network.datatype   = 'r';
+
 network.ztransform = 1;
+network.ztransdone = 1;
+
 network.loc        = 0;
 network.positive   = 1;
 
@@ -98,9 +103,9 @@ network.local = 0;
 network.voxel = 1;
 
 network.iter       = 5;
-network.netinclude = [1:7]; 
+network.netinclude = 7; 
 
-network.rthresh  = [0.25:0.01:0.3];
+network.rthresh  = 0.25;
 network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
 
 network.perm     = 1;
@@ -391,7 +396,7 @@ addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
 
 %%
-mc_graphtheory_central_MLEcleansed
+% mc_graphtheory_central_MLEcleansed
 
 
 

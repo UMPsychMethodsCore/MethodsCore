@@ -15,10 +15,37 @@ function H = mc_spectral_entropy( CIJ )
 %  Yu Fang, UM, 2013
 
 CIJ(eye(size(CIJ))~=0)=0;
-n = length(CIJ);
-k = nnz(triu(CIJ,1));
-p = k/((n^2-n)/2);
-H = (1/2)*log(4*pi*pi*p*(1-p))-(1/2);
+
+lambda = eig(CIJ); % get the eigenvalues
+n = length(lambda);
+% unilambda = sort(unique(lambda));
+% d = diff(unilambda);
+% ind = abs(d)<eps;  % To cancel out the round up error caused by numeric method of calculating eigenvalues
+% unilambda(ind)=[];
+% n = zeros(1,length(unilambda));
+rou = zeros(1,n);
+roulrou = zeros(1,n);
+for i = 1:n
+    if abs(lambda(i))>=2 
+%         rou(i) = 0;
+        roulrou(i)=0;
+    else
+        rou(i) = (1/(2*pi))*sqrt(4-lambda(i)^2); 
+        roulrou(i) = rou(i)*log(rou(i));
+    end
+    
+end
+% lambda(abs(lambda)>=2)=0;
+% rou = (1/(2*pi))*sqrt(4-lambda.*lambda);
+% p = n./N;
+% lp = log(p);
+% lrou = log(rou);
+% plp = bsxfun(@times,p,lp);
+% roulrou = bsxfun(@times,rou,lrou);
+% H = -sum(plp);
+H = -sum(roulrou);
+
+
 
 end
 

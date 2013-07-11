@@ -116,7 +116,7 @@ end
 
 if network.MLEcleansed
     Sub = 0;
-    SubUseMark = ones(1,length(SubjDir));   % A vector to mark whether to use data of each subject. If NetworkConnect of one subject is all zeros, will mark it as 0.
+    SubUseMark = ones(1,length(Names));   % A vector to mark whether to use data of each subject. If NetworkConnect of one subject is all zeros, will mark it as 0.
                                             % Then the data won't be selected in the following stats analysis.
     for i = 1:PartNum
         m = num2str(i);
@@ -134,33 +134,38 @@ if network.MLEcleansed
             NetworkRvalue = upper + upper';
             
             NetworkRvalue(isnan(NetworkRvalue)) = 0;     % Exclude the NaN elments
+            NetworkValue = zeros(size(NetworkRvalue));
+            switch network.positive
+                case 0
+                    NetworkValue = abs(NetworkRvalue);  % Take absolute value of correlations
+                case 1
+                    NetworkValue = NetworkRvalue;
+                    NetworkValue(NetworkValue<eps)=0;       % Only keep positive correlations
+                case 2
+                    NetworkValue = NetworkRvalue;
+                    NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
+                    NetworkValue = abs(NetworkValue);     % Then take the absolute value
+            end 
             
             switch network.partial
                 case 0
-                    if (network.ztransform == 1)
-                        NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
-                    else
-                        NetworkValue  = NetworkRvalue;
+                    if (network.ztransform == 1 && network.ztransdone == 0)
+                        NetworkValue  = mc_FisherZ(NetworkValue);   % Fisher'Z transform
+%                     else
+%                         NetworkValue  = NetworkValue;
                     end
                     
                 case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
-                    NetworkValue = pinv(NetworkRvalue);
+                    NetworkValue = pinv(NetworkValue);
                     
             end           
             
-            switch network.positive
-                case 0
-                    NetworkValue = abs(NetworkValue);  % Take absolute value of correlations
-                case 1
-                    NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
-                case 2
-                    NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
-                    NetworkValue = abs(NetworkValue);     % Then take the absolute value
-            end         
+                    
                      
             for kNetwork = 1:length(network.netinclude)
                 if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                     %                 NetworkConnectRaw{Sub,1} = NetworkValue;
+                    
                     NetworkConnectRaw = NetworkValue;
                 else
                     networklabel = network.netinclude(kNetwork);
@@ -263,27 +268,34 @@ else
         
         NetworkRvalue    = NonCleansed;
         NetworkRvalue(isnan(NonCleansed)) = 0;           % Exclude the NaN elements
-        switch network.partial
-            case 0
-                if (network.ztransform == 1)
-                    NetworkValue  = mc_FisherZ(NetworkRvalue);   % Fisher'Z transform
-                else
-                    NetworkValue  = NetworkRvalue;
-                end
-                
-            case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
-                NetworkValue = pinv(NetworkRvalue);
-        end        
+        NetworkValue     = zeros(size(NetworkRvalue));
         
         switch network.positive
             case 0
+                NetworkValue = NetworkRvalue;
                 NetworkValue = abs(NetworkValue);  % Take absolute value of correlations
             case 1
+                NetworkValue = NetworkRvalue;
                 NetworkValue(NetworkValue<0)=0;       % Only keep positive correlations
             case 2
+                NetworkValue = NetworkRvalue;
                 NetworkValue(NetworkValue>0)=0;       % Only keep negative correlations
                 NetworkValue = abs(NetworkValue);     % Then take the absolute value
         end
+        
+        switch network.partial
+            case 0
+                if (network.ztransform == 1)
+                    NetworkValue  = mc_FisherZ(NetworkValue);   % Fisher'Z transform
+%                 else
+%                     NetworkValue  = NetworkRvalue;
+                end
+                
+            case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
+                NetworkValue = pinv(NetworkValue);
+        end        
+        
+        
         
         for kNetwork = 1:length(network.netinclude)
             if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
