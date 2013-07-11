@@ -23,7 +23,7 @@ function [Output,Flag] = mc_graphtheory_measures(mtrx,network)
 directed = network.directed;
 weighted = network.weighted;
 measures = network.measures;
-voxel    = network.voxel;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Measurement Flags
@@ -120,20 +120,17 @@ end
 if Flag.efficiency
     if directed
         eglob = 0; % no code for directed matrix
-        if voxel
-            eloc = [];
-        end
+        eloc = [];
+        
     else
         if weighted
             eglob = efficiency_wei(mtrx,0); 
-            if voxel
-                eloc = efficiency_bin(mtrx,1);
-            end
+            eloc = efficiency_bin(mtrx,1);
+            
         else
             eglob = efficiency_bin(mtrx,0);
-            if voxel
-                eloc = efficiency_bin(mtrx,1);
-            end
+            eloc = efficiency_bin(mtrx,1);
+            
         end
     end
     
@@ -225,9 +222,8 @@ if Flag.betweenness
     end
     
     Output.btwn     = mean(bc);
-    if voxel
-        Output.nodebtwn = bc;
-    end
+    Output.nodebtwn = bc;
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -260,9 +256,7 @@ if Flag.degree
             [deg,glodeg] = degrees_und(mtrx);
         end
     end
-    if voxel
-        Output.deg    = deg;
-    end
+    Output.deg    = deg;
     Output.glodeg = glodeg;
 end
     

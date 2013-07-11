@@ -118,18 +118,34 @@ if network.MLEcleansed
     Sub = 0;
     SubUseMark = ones(1,length(Names));   % A vector to mark whether to use data of each subject. If NetworkConnect of one subject is all zeros, will mark it as 0.
                                             % Then the data won't be selected in the following stats analysis.
+                                            
     for i = 1:PartNum
-        m = num2str(i);
+        
         CleansedCheck = struct('Template',CleansedTemp,'mode','check');
         CleansedPath  = mc_GenPath(CleansedCheck);
-        CleansedFile  = load(CleansedPath);
-        Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
-        eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
+        if ~network.voxel
+             
+            m = num2str(i);
+            CleansedFile  = load(CleansedPath);
+            Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
+            eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
+            population = size(CleansedCorr,1);
+        else
+            MassObj = matfile(CleansedPath);
+            sizecorr = size(MassObj,'correctedR');
+            population = sizecorr(1);
+            nFeat      = sizecorr(2);                        
+        end
         
-        for j = 1:size(CleansedCorr,1)
+        for j = 1:population
             
-            Sub           = Sub+1;
-            flat          = CleansedCorr(j,:);
+            if ~network.voxel
+                Sub           = Sub+1;
+                flat          = CleansedCorr(j,:);                
+            else
+                flat = MassObj.correctedR(j,1:nFeat);
+            end
+            
             upper         = mc_unflatten_upper_triangle(flat);
             NetworkRvalue = upper + upper';
             
@@ -151,16 +167,11 @@ if network.MLEcleansed
                 case 0
                     if (network.ztransform == 1 && network.ztransdone == 0)
                         NetworkValue  = mc_FisherZ(NetworkValue);   % Fisher'Z transform
-%                     else
-%                         NetworkValue  = NetworkValue;
-                    end
-                    
+                    end                    
                 case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                     NetworkValue = pinv(NetworkValue);
                     
-            end           
-            
-                    
+            end                     
                      
             for kNetwork = 1:length(network.netinclude)
                 if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs

@@ -22,13 +22,17 @@ Exp = '/net/data4/ADHD/';
 NonCleansedTemp = '[Exp]/FirstLevel/[Subject]/Grid_Censor/Grid_Censor_corr.mat';
 
 
-Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/';
+% Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/';
+Pxe ='/freewill/data/ADHD/UnivariateConnectomics/';
 
-CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
+% CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
+CleansedTemp = '[Pxe]/MassiveOutput.mat';
+
 
 PartNum = 5;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)
 
-ResultTemp = '[Pxe]/Results.mat';
+% ResultTemp = '[Pxe]/Results.mat';
+ResultTemp = '[Exp]/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/Results.mat';
 
 SubFolder = '0710_E';
 
@@ -73,6 +77,7 @@ network.partial = 0;
 %%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% 
 %%% network.local:  1 - Include local measurement; 0 - Do not include local measurement
+%%% network.voxel:  1 - Use voxel-wise correlation file; 0 - Do not use voxel-wise correlation file;
 %%%
 %%% network.iter: rewiring parameter when generating random graph (each
 %%%               edge is rewired approximatel network.iter times)
@@ -112,6 +117,8 @@ network.perm     = 1;
 network.ttest    = 1;
 
 network.MLEcleansed = 1;
+
+network.voxelzscore = 1;
 
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

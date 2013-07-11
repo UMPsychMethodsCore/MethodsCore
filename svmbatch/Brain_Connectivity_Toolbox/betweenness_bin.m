@@ -21,6 +21,8 @@ function BC=betweenness_bin(G)
 %
 %   Mika Rubinov, UNSW/U Cambridge, 2007-2012
 
+%%% @Yu:set the diagonal of G to 0
+G(eye(size(G))~=0)=0;
 
 n=length(G);                %number of nodes
 I=eye(n)~=0;                %logical identity matrix
@@ -54,4 +56,4 @@ end
 BC=sum(DP,1);               %compute betweenness
 
 % @Yu: add BC normalization
-BC = BC./[(n-1)*(n-2)];
+% BC = BC./[(n-1)*(n-2)];
