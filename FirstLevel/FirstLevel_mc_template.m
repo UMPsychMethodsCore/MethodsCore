@@ -130,7 +130,7 @@ ParametricList = {
 %%%  Location of user specified regressor files. To use these make sure 
 %%%  column 2 of RegOp is set to 1 above.
 %%%
-%%%  syntac: File location, number of regressors to use, derivative order
+%%%  syntax: File location, number of regressors to use, derivative order
 %%%          to include for regressor
 %%%
 %%%  Variables you can use in your template are:
@@ -278,6 +278,27 @@ FirBins = 0;
 ContrastRunWeights = {
 };
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CompCorTemplate specifies the location of the log/csv files genereated
+%%% for each run from pcafMRI during preprocessing.  Leave empty if CompCor
+%%% should not be used.
+%%%
+%%% syntax: File location, minimum fractional variance explained
+%%% NOTE: minimum fractional variance explained must > 0 and < 1
+%%%
+%%% Variables used in template are the following:
+%%%       Exp         = path to your experiment directory
+%%%       Subject     = folder name of current subject
+%%%       Run         = folder name of current run
+%%%        *          = wildcard (can only be placed in final part of template)
+%%%
+%%% Example :
+%%%       CompCorTemplate = {
+%%%         'BOTH_PCA_w2mmPCA_Ra_spm8_run', 0.2
+%%%       };
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CompCorTemplate = {
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Volumespecifier specifies the number of volumes to use for each run.
