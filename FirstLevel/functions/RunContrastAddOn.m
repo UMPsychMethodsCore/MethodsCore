@@ -8,12 +8,12 @@ function RunContrastAddOn(Subjects, opt)
     for i = 1:NumSubjects
         SpmCheck.Template = fullfile(Subjects(i).OutputDir, 'SPM.mat');
         SpmCheck.mode = 'check';
-        SubjSpmMatFiles = mc_GenPath(SpmCheck);
+        SubjSpmMatFiles{i} = mc_GenPath(SpmCheck);
     end
 
     % Run contrast add-on now
     for i = 1:NumSubjects
-        matlabbatch{1}.spm.stats.con.spmmat = { spmMatFile{i} };
+        matlabbatch{1}.spm.stats.con.spmmat = { SubjSpmMatFiles{i} };
         for k = 1:size(AllSubjects(i).contrasts, 1)
 
             % check to make sure we have a valid contrast
