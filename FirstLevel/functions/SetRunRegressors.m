@@ -88,7 +88,7 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
     % now we need to save to as structure
     if isempty(tmpRegressors) == 0
 
-        for iRegMatrix = 1:size(RegMatrix, 2)
+        for iRegMatrix = 1:size(tmpRegressors, 2)
 
             RegName = sprintf('R%03d', iRegMatrix);
             Regressors(iRegMatrix).val = tmpRegressors(:, iRegMatrix);
