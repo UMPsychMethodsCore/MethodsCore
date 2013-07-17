@@ -289,4 +289,12 @@ function opt = CheckOpt(opt)
         opt.Sandbox = '';
         mc_Logger('log','Not using sandbox',3);
     end
+
+    % handle CompCor regressors
+    for iCompCor = 1:size(opt.CompCorTemplate, 1)
+        minFracVar = opt.CompCorTemplate{iCompCor, 2};
+        if minFracVar <= 0 || minFracVar >= 1
+            error('ERROR: The minimum fractional variance explained by CompCor file %s is invalid.  Expected a value > 0 and < 1, but found %0.2f\n\n', opt.CompCorTemplate{iCompCor, 1}, minFracVar);
+        end
+    end
 end
