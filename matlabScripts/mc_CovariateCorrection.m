@@ -71,7 +71,9 @@ for iC = Cloop
     tvals(iC,:) = betas (iC,:) ./ sqrt(C(iC,iC) * sum(residuals.^2,1)/(size(Y,1) - (size(betas,1))));
 end
 
-pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
+if exist('tvals','var')
+    pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
+end
 
 predicted = X * betas;
 
