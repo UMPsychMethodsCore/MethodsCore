@@ -25,8 +25,10 @@ NonCleansedTemp = '[Exp]/FirstLevel/[Subject]/Grid_Censor/Grid_Censor_corr.mat';
 % Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/';
 Pxe ='/freewill/data/ADHD/UnivariateConnectomics/';
 
-% CleansedTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
-CleansedTemp = '[Pxe]/MassiveOutput.mat';
+
+CleansedTemp = '[Pxe]/NoAgeModel/CorrectedR.mat';
+CleansedField = 'Corrected_R';   % the subfield name in the file that saves the corr 
+
 
 
 PartNum = 5;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)

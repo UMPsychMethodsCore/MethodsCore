@@ -52,7 +52,7 @@ tempflag = any(strfind(upper(network.measures),'S'));
 %%% Load Name and Type Info %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if network.MLEcleansed
+if network.cleansed
 
 ResultsCheck = struct('Template',ResultTemp,'mode','check');
 ResultsPath  = mc_GenPath(ResultsCheck);
@@ -89,7 +89,7 @@ OutputMatPath = mc_GenPath( struct('Template',network.save,...
         'suffix','.mat',...
         'mode','makeparentdir'));
     
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure out Network Structure 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,25 +114,28 @@ end
 
 
 
-if network.MLEcleansed
+if ~network.subjwise
     Sub = 0;
     SubUseMark = ones(1,length(Names));   % A vector to mark whether to use data of each subject. If NetworkConnect of one subject is all zeros, will mark it as 0.
                                             % Then the data won't be selected in the following stats analysis.
                                             
     for i = 1:PartNum
         
-        CleansedCheck = struct('Template',CleansedTemp,'mode','check');
-        CleansedPath  = mc_GenPath(CleansedCheck);
-        if ~network.voxel
-             
-            m = num2str(i);
-            CleansedFile  = load(CleansedPath);
-            Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
-            eval(sprintf('%s=%s;','CleansedCorr',Cleansed));
-            population = size(CleansedCorr,1);
+        m = num2str(i);
+        ConCatCheck = struct('Template',ConCatTemp,'mode','check');
+        ConCatPath  = mc_GenPath(ConCatCheck);
+        if ~network.voxel  
+            ConCatFile  = load(ConCatPath);
+%             Cleansed      = mc_GenPath('CleansedFile.Cleansed_Part[m]');
+            ConCat      = mc_GenPath('ConCatFile.[ConCatField]');
+            if PartNum>1
+                ConCat = mc_GenPath(ConCat);
+            end
+            eval(sprintf('%s=%s;','ConCatCorr',ConCat));
+            population = size(ConCatCorr,1);
         else
-            MassObj = matfile(CleansedPath);
-            sizecorr = size(MassObj,'correctedR');
+            MassObj = matfile(ConCatPath);
+            sizecorr = size(MassObj,'Corrected_R');
             population = sizecorr(1);
             nFeat      = sizecorr(2);                        
         end
@@ -141,9 +144,10 @@ if network.MLEcleansed
             
             if ~network.voxel
                 Sub           = Sub+1;
-                flat          = CleansedCorr(j,:);                
+                flat          = ConCatCorr(j,:);                
             else
-                flat = MassObj.correctedR(j,1:nFeat);
+                Sub           = Sub+1;
+                flat = MassObj.Corrected_R(j,1:nFeat);
             end
             
             upper         = mc_unflatten_upper_triangle(flat);
@@ -188,16 +192,26 @@ if network.MLEcleansed
                     display(sprintf('in network %d',network.netinclude(kNetwork)));
                     tic
                     NetworkConnectInt   = NetworkConnectRaw;
-                    NetworkConnect      = zeros(size(NetworkConnectInt));
-                    if (network.ztransform == 1)
-                        NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
-                    else
-                        NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
-                    end
+                    
                     % Create binary matrix if being set so
                     if ~network.weighted
-                        NetworkConnect(NetworkConnect>0) = 1;
+                        NetworkConnect      = zeros(size(NetworkConnectInt));
+                        if (network.ztransform == 1)
+                            NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
+                        else
+                            NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
+                        end
+                    else
+                        NetworkConnect      = NetworkConnectInt;
+                        if (network.ztransform == 1)
+                            NetworkConnect(NetworkConnectInt<network.zthresh(tThresh))=0;
+                        else
+                            NetworkConnect(NetworkConnectInt<network.rthresh(tThresh))=0;
+                        end
                     end
+                    
+                    
+                    
                     if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                         
                         [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);   %%%% MAIN MEASURE PART %%%
@@ -269,16 +283,31 @@ if network.MLEcleansed
     end
     
 else
-    SubUseMark = ones(1,length(SubjDir));
-    for Sub = 1:length(SubjDir)
-        Subject = SubjDir{Sub};
-        NonCleansedCheck = struct('Template',NonCleansedTemp,'mode','check');
-        NonCleansedPath  = mc_GenPath(NonCleansedCheck);
-        NonCleansedFile  = load(NonCleansedPath);
-        NonCleansed      = NonCleansedFile.rMatrix;
+    SubUseMark = ones(1,length(Names));
+    for Sub = 1:length(Names)
+        tic
+        Subject = Names{Sub};
+        Subject = Subject(1:SubjNameLength);
+        display(sprintf('Now loading Number %s Subject',num2str(Sub)));
+        SubjWiseCheck = struct('Template',SubjWiseTemp,'mode','check');
+        SubjWisePath  = mc_GenPath(SubjWiseCheck);
+        SubjWiseFile  = load(SubjWisePath);
+        SubjWise      = mc_GenPath('SubjWiseFile.[SubjWiseField]');
+        eval(sprintf('%s=%s;','SubjWiseCorrOri',SubjWise));
         
-        NetworkRvalue    = NonCleansed;
-        NetworkRvalue(isnan(NonCleansed)) = 0;           % Exclude the NaN elements
+        SubjWiseCorr = padarray(SubjWiseCorrOri,[0 nFlat-length(SubjWiseCorrOri)],'post');
+        
+        if network.int
+            SubjWiseCorr = SubjWiseCorr/network.amplify;
+        end
+        
+        if network.uptri
+            upper            = mc_unflatten_upper_triangle(SubjWiseCorr);
+            NetworkRvalue    = upper + upper';
+        else
+            NetworkRvalue    = SubjWiseCorr;
+        end
+        NetworkRvalue(isnan(SubjWiseCorr)) = 0;           % Exclude the NaN elements
         NetworkValue     = zeros(size(NetworkRvalue));
         
         switch network.positive
@@ -296,17 +325,15 @@ else
         
         switch network.partial
             case 0
-                if (network.ztransform == 1)
+                if (network.ztransform == 1 && network.ztransdone == 0)
                     NetworkValue  = mc_FisherZ(NetworkValue);   % Fisher'Z transform
-%                 else
-%                     NetworkValue  = NetworkRvalue;
                 end
                 
             case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                 NetworkValue = pinv(NetworkValue);
         end        
         
-        
+        toc
         
         for kNetwork = 1:length(network.netinclude)
             if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
@@ -317,21 +344,22 @@ else
                 NetworkConnectRaw = NetworkValue(nets==networklabel,nets==networklabel);
             end
             for tThresh = 1:nThresh
-                display(sprintf('Now computing Number %s Subject',num2str(Sub)));
+                display(sprintf('Now computing number %s Subject',num2str(Sub)));
                 display(sprintf('under threshold %.2f',network.rthresh(tThresh)));
                 display(sprintf('in network %d',network.netinclude(kNetwork)));
                 tic
                 NetworkConnectInt   = NetworkConnectRaw;
                 NetworkConnect      = zeros(size(NetworkConnectInt));
+                % Create binary matrix
                 if (network.ztransform == 1)
                     NetworkConnect(NetworkConnectInt>network.zthresh(tThresh))=1;
                 else
                     NetworkConnect(NetworkConnectInt>network.rthresh(tThresh))=1;
                 end
                 % Create binary matrix if being set so
-                if ~network.weighted
-                    NetworkConnect(NetworkConnect>0) = 1;
-                end
+%                 if ~network.weighted
+%                     NetworkConnect(NetworkConnect>0) = 1;
+%                 end
                 if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                     
                     [NetworkMeasures,Flag]   = mc_graphtheory_measures(NetworkConnect,network);   %%%% MAIN MEASURE PART %%%
@@ -395,6 +423,7 @@ else
             end
             clear NetworkConnectRaw
         end
+        
     end
     
 end
@@ -465,13 +494,13 @@ end
 for tThresh = 1:length(network.rthresh)
     for iSubject = 1:Sub
         
-        if network.MLEcleansed
+%         if network.MLEcleansed
             Subject = Names{iSubject};
             Type    = Types{iSubject};
-        else
-            Subject = SubjDir{iSubject};
-            Type    = SubjDir{iSubject,2};
-        end
+%         else
+%             Subject = SubjDir{iSubject};
+%             Type    = SubjDir{iSubject,2};
+%         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for kNetwork = 1:length(network.netinclude);
@@ -510,7 +539,8 @@ for tThresh = 1:length(network.rthresh)
                         %                         fprintf(theFID,'%.4f,',CombinedOutput{iSubject,kNetwork,mThresh}.glodeg);
                         fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.glodeg);
                         if network.weighted
-                            fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.glostr);
+%                             fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork,mThresh}.glostr);
+                            fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.glostr);
                         end
                     else
                         fprintf(theFID,'%s,','NA');
@@ -770,15 +800,16 @@ if network.netinclude==-1
         Netname = ['network' num2str(Netnum)];
         % Degree
         Metricname = 'degree';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
+        
 %         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 SubCount = SubCount+1;
                 Subjectfl = num2str(SubCount);
+                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
                 OutData = CombinedOutput{1,iSub,1}.deg;
                 if network.voxelzscore
                     meanv   = mean2(OutData);

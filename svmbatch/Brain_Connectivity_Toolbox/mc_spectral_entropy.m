@@ -25,24 +25,20 @@ n = length(lambda);
 % n = zeros(1,length(unilambda));
 rou = zeros(1,n);
 roulrou = zeros(1,n);
+p = nnz(CIJ)/(n*(n-1));
+s = n*p*(1-p);
 for i = 1:n
-    if abs(lambda(i))>=2 
+    if abs(lambda(i))>=2*sqrt(s);
 %         rou(i) = 0;
         roulrou(i)=0;
     else
-        rou(i) = (1/(2*pi))*sqrt(4-lambda(i)^2); 
+        rou(i) = (1/(2*pi*s))*sqrt(4*s-lambda(i)^2); 
         roulrou(i) = rou(i)*log(rou(i));
     end
     
 end
-% lambda(abs(lambda)>=2)=0;
-% rou = (1/(2*pi))*sqrt(4-lambda.*lambda);
-% p = n./N;
-% lp = log(p);
-% lrou = log(rou);
-% plp = bsxfun(@times,p,lp);
-% roulrou = bsxfun(@times,rou,lrou);
-% H = -sum(plp);
+
+
 H = -sum(roulrou);
 
 
