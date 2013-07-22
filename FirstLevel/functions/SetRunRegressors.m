@@ -56,7 +56,7 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
             continue;
         end
 
-        % trim regressors
+        % trim regressors across columns
         ColumnsToKeep = opt.RegFilesTemplate{iRegFile, 2};
         RegMatrix = trimRegressor(Subject, Run, RegFile, ColumnsToKeep, RegMatrix);
         if isempty(RegMatrix) == 1
