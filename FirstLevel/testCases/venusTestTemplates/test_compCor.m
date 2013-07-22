@@ -50,10 +50,10 @@ RunDir = {
 SubjDir = {
 % 'CM001OXY/SCAN_A', 1, [4 5 6];
 % 'CM001OXY/SCAN_B', 2, [4 5 6];
-'CM002OXY/SCAN_A', 3, [4 5 6];
-'CM002OXY/SCAN_B', 4, [5 6];   % use for onset time only
-% 'CM004OXY/SCAN_A', 5, [4 5 6]; % use for onset time only
-% 'CM004OXY/SCAN_B', 6, [4 5 6];
+% 'CM002OXY/SCAN_A', 3, [4 5 6];
+% 'CM002OXY/SCAN_B', 4, [5 6];   % use for onset time only
+'CM004OXY/SCAN_A', 5, [4 5 6]; % use for onset time only
+'CM004OXY/SCAN_B', 6, [4 5 6];
 % 'CM005OXY/SCAN_A', 7, [4 5 6];
 % 'CM005OXY/SCAN_B', 8, [4 5 6];
 % 'CM006OXY/SCAN_A', 9, [4 5 6];
@@ -330,7 +330,7 @@ ContrastRunWeights = {
 %%%       };
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CompCorTemplate = {
-% '[Exp]/[Subject]/func/[Run]/BOTH_PCA_w2mm_Ra_spm8_run', 0.2;
+'[Exp]/[Subject]/func/[Run]/BOTH_PCA_w2mm_Ra_spm8_run', 0.2;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
