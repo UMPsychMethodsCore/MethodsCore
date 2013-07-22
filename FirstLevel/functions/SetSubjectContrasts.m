@@ -46,6 +46,11 @@ function SubjectContrasts = SetSubjectContrasts(SubjectNumber, opt, OneSubj)
 %               regress(Z).
 %                   val         - vector, lists one regressors
 %                   names       - string, regressor name
+%               useCompCor      - scalar, if equal 1, then CompCor is used in model
+%               varExplained    - vector, variance explained for each CompCor file
+%               compCor(*).
+%                   val         - vector, lists one component for CompCor
+%                   name        - string, CompCor name
 %
 %   OUTPUT
 %
