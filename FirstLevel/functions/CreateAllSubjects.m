@@ -38,7 +38,7 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %                                 column4 = order
 %
 %
-%           RegFilesTemplate    - cell(Z, 2)
+%           RegFilesTemplate    - cell(Z, 3)
 %                                 column1 = run specific regressor file template
 %                                 column2 = number of regressors to inclucde from file
 %                                           a value of inf includes all regressors
@@ -46,6 +46,10 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %                                           a value equal to or less than 0 does not calculate
 %                                           any derivatives for the regressor
 %                                 Templates : Exp Subject Run
+%           CompCorTemplate     - cell(A, 2)
+%                                 column1 = run specific comp cor prefix file template
+%                                 column2 = minimum fractional variance explained for compcor file
+%                                 Template  : Exp Subject Run
 %
 %
 %           ContrastList        - cell(L, C+2)
@@ -86,6 +90,11 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %               regress(Z).
 %                   val         - vector, lists one regressors
 %                   name        - string, regressor name
+%               useCompCor      - scalar, if equal 1, then CompCor is used in model
+%               varExplained    - vector, variance explained for each CompCor file
+%               compCor(*).
+%                   val         - vector, lists one component for CompCor
+%                   name        - string, CompCor name
 %               contrasts       - matrix, L x Q
 %
 %   M = Number of Run directories
@@ -96,6 +105,7 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %   L = number of contrasts
 %   I = number of timepoint, subject and run specific
 %   Q = number of columns in design matrix per run per subjects
+%   A = number of comp cor files
 %
 
     % Let's assume for now we have done some appropriate checks on the input variables
@@ -129,6 +139,16 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
             else
                 AllSubjects(i).sess(k).useRegress = 1;
             end
+
+            % handle CompCor for run
+            [Components VarAccounted] = SetRunCompCor(i, RunNumber, opt);
+            if isempty(Components) == 1
+                AllSubjects(i).sess(k).useCompCor = 0;
+            else
+                AllSubjects(i).sess(k).useCompCor = 1;
+                AllSubjects(i).sess(k).varExplained = VarAccounted;
+            end
+            AllSubjects(i).sess(k).compCor = Components;
 
             % handle timepoint trimming
             if ~isempty(opt.VolumeSpecifier) == 1 && size(opt.VolumeSpecifier, 2) <= k
