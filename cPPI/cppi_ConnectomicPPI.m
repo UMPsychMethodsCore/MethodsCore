@@ -110,12 +110,14 @@ switch parameters.Output.type
                goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
                index = 1;
                for iB = 1:size(goodbeta,2)
-                   cppi_grid{2,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
-                   cppi_grid{3,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
-                   if (parameters.cppi.StandardizeBetas)
-                       cppi_grid{4,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                   if (goodbeta(iB) == 1)
+                       cppi_grid{2,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       cppi_grid{3,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       if (parameters.cppi.StandardizeBetas)
+                           cppi_grid{4,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       end
+                       index = index + 1;
                    end
-                   index = index + 1;
                end
                result = 1;
                mc_Logger('log',err.message);
