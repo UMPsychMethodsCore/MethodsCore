@@ -52,10 +52,18 @@ function RunFirstLevel(AllSubjects, opt)
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).multi = {''};
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).multi_reg = {''};
 
+            % regressors from RegFileTemplate
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress = struct('name', {}, 'val', {});
             for m = 1:size(AllSubjects(i).sess(k).regress, 2)
                 matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m).name = AllSubjects(i).sess(k).regress(m).name;
                 matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m).val = AllSubjects(i).sess(k).regress(m).val;
+            end
+
+            % regressors from CompCorTemplate
+            NumRegs = size(matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress, 2);
+            for m = 1:size(AllSubjects(i).sess(k).compCor, 2)
+                matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m + NumRegs).name = AllSubjects(i).sess(k).compCor(m).name;
+                matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m + NumRegs).val = AllSubjects(i).sess(k).compCor(m).val;
             end
 
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).hpf = 128;
