@@ -21,6 +21,10 @@ function sess = TrimRun(sess, SubjectNumber, RunNumber, opt)
 %           regress(Z).
 %               val         - vector, lists one regressors
 %               names       - string, regressor name
+%           useCompCor      - scalar, if equals 1, then CompCor is used in the model
+%           compCor(*).
+%               val         - vector, lists one component for CompCor
+%               name        - string, CompCor name
 %
 %
 %   opt.       
@@ -119,6 +123,12 @@ function sess = TrimRun(sess, SubjectNumber, RunNumber, opt)
 
     end
 
+    % handle trimming CompCor
+    if sess.useCompCor == 1
+
+        NumCompCor = size(sess.compCor, 2);
+        for i = 1:NumCompCor
+            sess.compCor(i).val = sess.compCor(i).val(BeginVolume:EndVolume);
         end
 
     end
