@@ -36,6 +36,11 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
 %           regress(Z).
 %               val         - vector, lists one regressors
 %               names       - string, regressor name
+%           useCompCor      - scalar, if equal 1, then CompCor is used in model
+%           varExplained    - vector, variance explained for each CompCor file
+%           compCor(*).
+%               val         - vector, lists one component for CompCor
+%               name        - string, CompCor name
 %
 %   OUTPUT
 %
@@ -169,7 +174,13 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
 
     end
 
-    RunContrasts = [RunContrasts RegressorContrasts];
+    % add in hidden comp cor contrasts, shhhhhhh
+    CompCorContrasts = [];
+    if sess.useCompCor == 1
+        CompCorContrasts = zeros(NumContrasts, size(sess.compCor, 2));
+    end
+    
+    RunContrasts = [RunContrasts RegressorContrasts CompCorContrasts];
 
 end
 
