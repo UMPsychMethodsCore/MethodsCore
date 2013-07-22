@@ -114,7 +114,11 @@ function sess = TrimRun(sess, SubjectNumber, RunNumber, opt)
 
         NumRegressors = size(sess.regress, 2);
         for i = 1:NumRegressors
-            sess.regress(i).val(BeginVolume:EndVolume) = [];
+            sess.regress(i).val = sess.regress(i).val(BeginVolume:EndVolume);
+        end
+
+    end
+
         end
 
     end
