@@ -1,7 +1,5 @@
 function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
-%   Regressors = SetRunRegressors(opt)
-%
-%   subjectInfo = setRegressors(opt, subjectInfo)
+%   Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
 %
 %   REQUIRED INPUT
 %
@@ -23,19 +21,18 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
 %  
 %   OUTPUT
 %
-%       subjectInfo(N).
-%           sess(Y).
-%               useRegress      - scalar, if equals 1, then regressors should be used in model
-%               regress(Z).
-%                   val         - vector, lists one regressors
-%                   names       - cell(C, 1), list of regressor names
-%                                 placeholders in the form of R### are inserted
+%       Regressors(Z).
+%           val         - vector, lists one regressors
+%           names       - string, regressor name
+%                         placeholders in the form of R### are inserted
 %
 %   N = number of subjects
 %   R = number of runs
 %   M = number of regressor files
 %   I = number of volumes in a single sess
 %   C = number of regressors used in a single sess
+%
+%   This function appropriately creates the regressor structure on a per session basis.
 %
 
     Exp = opt.Exp;
@@ -104,7 +101,6 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
         mc_Logger('log', msg, 2);
 
     end
-            
 end
 
 
