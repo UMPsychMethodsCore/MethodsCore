@@ -56,8 +56,9 @@ try
     opt.CompCorTemplate = CompCorTemplate;
 catch err
     
-    msg = sprintf('Not all required variables were assigned in the template file.\n\n');
-    error('%s%s', msg, err.message);
+    msg = sprintf('Not all required variables were assigned in the template file.\n');
+    msg2 = sprintf('Make sure you have the most recent copy of the first level template file.\n\n');
+    error('%s%s%s', msg, msg2, err.message);
 
 end
     

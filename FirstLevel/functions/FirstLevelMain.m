@@ -16,6 +16,7 @@ function FirstLevelMain(opt)
     if opt.Mode == 1
         fprintf(1, '~~~Running first level for all subjects~~~\n\n');
         RunFirstLevel(Subjects, opt);
+        PrintAllSubjects(Subjects, opt);
         fprintf(1, '~~~Done running first levels~~~\n');
     elseif opt.Mode == 2
         fprintf(1, '~~~Runing in contrast add-on mode~~~\n\n');

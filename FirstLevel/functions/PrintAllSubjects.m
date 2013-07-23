@@ -1,7 +1,11 @@
 function PrintAllSubjects(Subjects, opt)
 %   PrintAllSubjects(Subjects, opt)
 
-    fid = fopen('AllSubjects.txt', 'w');
+    Exp = opt.Exp;
+    textPath = mc_GenPath(opt.LogTemplate);
+    textFile = sprintf('SubjectSummary_%s.txt', datestr(now, 'yyyy_mm_dd_HHMMSSFFF'));
+    outputFile = fullfile(textPath, textFile);
+    fid = fopen(outputFile, 'w');
     if fid == -1
         fprintf(1, 'Cannot print all subjects.\n');
         return;
@@ -16,7 +20,7 @@ function PrintAllSubjects(Subjects, opt)
         fprintf(fid, 'SUBJECT : %s OUTPUTDIR : %s RUNS : %d\n\n', Subjects(i).name, Subjects(i).outputDir, NumRuns);
 
         for k = 1:NumRuns
-            PrintRun(Subjects(i).sess(k), fid);
+            PrintRun(Subjects(i).sess(k), Subjects(i).name, fid);
         end
         
         % print out contrast matrix
@@ -33,84 +37,86 @@ function PrintAllSubjects(Subjects, opt)
     fclose(fid);
 end
 
-function PrintRun(sess, fid)
-%   PrintRun(sess, fid)
+function PrintRun(sess, subjectName, fid)
+%   PrintRun(sess, subjectName, fid)
 %   assumes sess is not empty, but still might work if it is
 
-    fprintf(fid, '\tRUN                  : %s\n', sess.name);
-    fprintf(fid, '\tTIMEPOINTS           : %d\n', size(sess.images, 1));
+    lineHeader = sprintf('\tSUBJECT : %-20s RUN : %-10s', subjectName, sess.name);
+
+    fprintf(fid, '%s TIMEPOINTS : %d\n', lineHeader, size(sess.images, 1));
     % print out condition information
     NumCond = size(sess.cond, 2);
-    fprintf(fid, '\tNUMBER OF CONDITIONS : %d\n\n', NumCond);
+    fprintf(fid, '%s NUMBER OF CONDITIONS : %d\n\n', lineHeader, NumCond);
     for i = 1:NumCond
 
         if sess.cond(i).use == 1
-            PrintCondition(sess.cond(i), fid)
+            PrintCondition(sess.cond(i), subjectName, sess.name, fid)
         else
-            fprintf(fid, '\tCONDITION %s IS NOT BEING USED.\n', sess.cond(i).name);
+            fprintf(fid, '%s CONDITION %s IS NOT BEING USED.\n', lineHeader, sess.cond(i).name);
         end
 
     end
-    fprintf(fid, '\n');
 
     % print out regressor information if being used
     if sess.useRegress == 1
         numRegress = size(sess.regress, 2);
-        fprintf(fid, '\tNUMBER REGRESSORS  : %d\n', numRegress);
+        fprintf(fid, '%s REGRESSORS  : %d\n', lineHeader, numRegress);
     else
-        fprintf(fid, '\tNO REGRESSORS USED FOR THIS SESSION\n');
+        fprintf(fid, '%s REGRESSORS  : 0\n', lineHeader);
     end
-    fprintf(fid, '\n');
 
     % print out CompCor information if being used
     if sess.useCompCor == 1
         numCompCor = size(sess.compCor, 2);
-        fprintf(fid, '\tNUMBER COMP COR   : %d\n', numCompCor);
-        fprintf(fid, '\tVARIANCE ACCOUNTED: ');
+        fprintf(fid, '%s NUMBER COMP COR   : %d\n', lineHeader, numCompCor);
+        fprintf(fid, '%s VARIANCE ACCOUNTED: ', lineHeader);
         for i = 1:length(sess.varExplained)
             fprintf(fid, '%0.3f ', sess.varExplained(i));
         end
         fprintf(fid, '\n');
+    else
+        fprintf(fid, '%s NO COMP COR\n', lineHeader);
     end
     fprintf(fid, '\n');
         
 end
 
-function PrintCondition(cond, fid)
+function PrintCondition(cond, subjectName, runName, fid)
 %   PrintCondition(cond, fid)
+
+    lineHeader = sprintf('\tSUBJECT : %-20s RUN : %-10s CONDITION : %-15s', subjectName, runName, cond.name);
 
     % print out general information
     ocurrences = length(cond.onset);
-    fprintf(fid, '\tCONDITION             : %s\n', cond.name);
-    fprintf(fid, '\tOCURRENCES            : %d\n', ocurrences);
+    fprintf(fid, '%s OCURRENCES : %d\n', lineHeader, ocurrences);
     
     % print out condition onsets
-    fprintf(fid, '\t\t ONSETS    : ');
+    fprintf(fid, '%s ONSETS : ', lineHeader);
     for k = 1:ocurrences-1
         fprintf(fid, '%-6.2f ', cond.onset(k)); 
     end
     fprintf(fid, '%-6.2f\n', cond.onset(end));
     
     % print out condition durations
-    fprintf(fid, '\t\t DURATIONS : ');
+    fprintf(fid, '%s DURATIONS : ', lineHeader);
     for k = 1:ocurrences-1
         fprintf(fid, '%-6.2f ', cond.duration(k));
     end
-    fprintf(fid, '%-6.2f\n\n', cond.duration(end));
+    fprintf(fid, '%-6.2f\n', cond.duration(end));
     
     % handle parametric regressors
-    fprintf(fid, '\tPARAMETRIC REGRESSORS : %d\n', cond.usePMod);
+    fprintf(fid, '%s PARAMETRIC REGRESSORS : %d\n', lineHeader, cond.usePMod);
     for i = 1:cond.usePMod
-        fprintf(fid, '\t\tP REGRESSOR # %d\n', i);
-        fprintf(fid, '\t\tNAME        : %s\n', cond.pmod(i).name);
-        fprintf(fid, '\t\tPOLYNOMIAL  : %d\n', cond.pmod(i).poly);
+        fprintf(fid, '%s P REGRESSOR # %d\n', lineHeader, i);
+        fprintf(fid, '%s NAME        : %s\n', lineHeader, cond.pmod(i).name);
+        fprintf(fid, '%s POLYNOMIAL  : %d\n', lineHeader, cond.pmod(i).poly);
 
         % print parameter values only if parametric regressor is being used (param is not empty)
         numParam = length(cond.pmod(i).param);
         if numParam == 0
-            fprintf(fid, '\t\tPARAMETRIC REGRESSOR IS NOT BEING USED.\n');
+            fprintf(fid, '%s PARAMETRIC REGRESSOR %s IS NOT BEING USED.\n', lineHeader, cond.pmod(i).name);
         else
-            fprintf(fid, '\t\tPARAM     : ');
+            fprintf(fid, '%s PNAME %s PARAM     : ', lineHeader, cond.pmod(i).name);
             for k = 1:numParam-1
                 fprintf(fid, '%-4.2f ', cond.pmod(i).param(k));
             end
