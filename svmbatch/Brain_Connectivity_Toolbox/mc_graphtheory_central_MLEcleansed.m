@@ -302,8 +302,8 @@ else
         end
         
         if network.uptri
-            upper            = mc_unflatten_upper_triangle(SubjWiseCorr);
-            NetworkRvalue    = upper + upper';
+            uppertri            = mc_unflatten_upper_triangle(SubjWiseCorr);
+            NetworkRvalue    = uppertri + uppertri';
         else
             NetworkRvalue    = SubjWiseCorr;
         end
@@ -432,7 +432,7 @@ end
 SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
 
 
-%%
+
 %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
 
 save(OutputMatPath,'CombinedOutput','-v7.3');
@@ -852,15 +852,17 @@ if network.netinclude==-1
         
         % Efficiency
         Metricname = 'efficiency';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
+        
 %         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
+                
                 SubCount = SubCount+1;
                 Subjectfl = num2str(SubCount);
+                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
                 OutData = CombinedOutput{1,iSub,1}.eloc;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -877,15 +879,16 @@ if network.netinclude==-1
         
         % Clustering Coefficient
         Metricname = 'clustering';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
+        
 %         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 SubCount = SubCount+1;
                 Subjectfl = num2str(SubCount);
+                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
                 OutData = CombinedOutput{1,iSub,1}.nodecluster;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -899,6 +902,29 @@ if network.netinclude==-1
             end
         end
 %         save(OutflPath,'SaveData','-v7.3');
+        
+        % Eigenvector centrality
+        Metricname='eigenvector';
+        SubCount=0;
+        for iSub=1:length(CombinedOutput)
+            if SubUse(iSub)
+                SubCount=SubCount+1;
+                Subjectfl=num2str(SubCount);
+                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+                OutData = CombinedOutput{1,iSub,1}.eigvector;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
+            end
+        end
     
 else
     for kNet=1:nNet

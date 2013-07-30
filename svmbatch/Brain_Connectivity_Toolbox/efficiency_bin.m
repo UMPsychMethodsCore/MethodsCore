@@ -1,4 +1,4 @@
-function E=efficiency_bin(G,local)
+function E=efficiency_bin(G,local)   
 %EFFICIENCY_BIN     Global efficiency, local efficiency.
 %
 %   Eglob = efficiency_bin(A);
@@ -29,18 +29,20 @@ if ~exist('local','var')
     local=0;
 end
 
-if local                                %local efficiency
+if local %local efficiency
     N=length(G);                        %number of nodes
     E=zeros(N,1);                       %local efficiency
     G(eye(N)~=0)=0;                     %@Yu: set self connection to zero, avoid counting itself as a neighbor
-    for u=1:N
+%     tic
+    for u=1:N   % N = ~32000
         V=find(G(u,:));                 %neighbors
-        k=length(V);                    %degree
+        k=length(V);                  %degree      
         if k>=2;                        %degree must be at least two
             e=distance_inv(G(V,V));
             E(u)=sum(e(:))./(k^2-k);	%local efficiency
         end
     end
+%     toc
 else
     N=length(G);
     e=distance_inv(G);
@@ -49,18 +51,27 @@ end
 
 
 function D=distance_inv(g)
+% tic
 D=eye(length(g));
 n=1;
 nPATH=g;                        %n-path matrix
 L=(nPATH~=0);                   %shortest n-path matrix
 
+
 while find(L,1);
+
     D=D+n.*L;
     n=n+1;
+
+    
+
     nPATH=nPATH*g;
+
     L=(nPATH~=0).*(D==0);
+
 end
 
+% tic
 D(~D)=inf;                      %disconnected nodes are assigned d=inf;
 D=1./D;                         %invert distance
 % D=D-eye(length(g); @Yu

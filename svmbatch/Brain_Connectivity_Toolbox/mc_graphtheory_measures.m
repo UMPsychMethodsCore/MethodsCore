@@ -40,6 +40,8 @@ Flag.degree        = any(strfind(upper(measures),'E'));
 Flag.clustering    = any(strfind(upper(measures),'C'));
 Flag.betweenness   = any(strfind(upper(measures),'B'));
 Flag.entropy       = any(strfind(upper(measures),'Y'));
+Flag.eccentricity  = any(strfind(upper(measures),'N'));
+Flag.eigenvector   = any(strfind(upper(measures),'V'));
 
 
 
@@ -119,22 +121,22 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.efficiency
     if directed
-        eglob = 0; % no code for directed matrix
+%         eglob = 0; % no code for directed matrix
         eloc = [];
         
     else
         if weighted
-            eglob = efficiency_wei(mtrx,0); 
+%             eglob = efficiency_wei(mtrx,0); 
             eloc = efficiency_bin(mtrx,1);
             
         else
-            eglob = efficiency_bin(mtrx,0);
+%             eglob = efficiency_bin(mtrx,0); %temp comment out for speed
             eloc = efficiency_bin(mtrx,1);
             
         end
     end
     
-    Output.eglob = eglob;
+%     Output.eglob = eglob;  %temp comment out for speed
     Output.eloc  = eloc;
 end
 
@@ -173,8 +175,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Characteristic path length-
 % The average shortest path length in the network.
-% -Eccentricity-
-% The maximal shortest path length between a node and any other node 
 % -radius-
 % min eccentricity
 % -diameter-
@@ -197,6 +197,37 @@ if Flag.pathlength
     [lambda,~,~,~,~] = charpath(D); % same code for weighted and unweighted matrix
     Output.pathlength = lambda;
 
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Eccentricity-
+% The maximal shortest path length between a node and any other node 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if Flag.eccentricity
+    D=distance_bin(mtrx);
+    Output.ecc=max(D.*(D~=Inf),[],2);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Eigenvector Centrality-
+% A measure of the influence of a node in a network. It assigns relative scores to all nodes
+% in the network based on the concept that connections to high-scoring nodes contribute more 
+% to the score of the node in question than equal connections to low-scoring nodes.(Wiki)
+% The solution is the eigenvector corresponding to the greates eigenvalue.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Power Method
+if Flag.eigenvector
+    n=length(mtrx);
+    v=ones(n,1);
+    for i=1:100
+        v=mtrx*v;
+        v=v/norm(v);        
+    end
+    rho=v'*mtrx*v;
+    Output.eigvector=v';
+    Output.eigvalue =rho;
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

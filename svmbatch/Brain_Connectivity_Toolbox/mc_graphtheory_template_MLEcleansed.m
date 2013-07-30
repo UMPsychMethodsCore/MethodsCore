@@ -17,26 +17,32 @@ clear all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Exp = '/net/data4/ADHD/';
-% Exp = '/net/data4/slab_OCD/';
 
-NonCleansedTemp = '[Exp]/FirstLevel/[Subject]/Grid_Censor/Grid_Censor_corr.mat';
-
-
+Pxe = '/freewill/data/ADHD/UnivariateConnectomics/VoxelWise_CensorZ_ConnectomeCleaning/';
 % Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/';
-Pxe ='/freewill/data/ADHD/UnivariateConnectomics/';
+% Pxe = '/net/data4/ADHD/UnivariateConnectomics/Results/1166_CensorZ_ConnectomeCleaning_Age/';
+
+SubjWiseTemp = '[Pxe]/SubjectWise/[Subject].mat';
+
+SubjWiseField = 'CorrectedR';
+
+SubjNameLength = 7; % To avoid the akward caused by subject
+
+nFlat = 500434066;
+
+% ConCatTemp = '[Pxe]/Results_Cleansed_Part[m].mat';
+% ConCatField = 'Cleansed_Part[m]';
+ConCatTemp = '[Pxe]/NoAgeModel/CorrectedR.mat';
+ConCatField = 'Corrected_R';   % the subfield name in the file that saves the corr 
 
 
-CleansedTemp = '[Pxe]/NoAgeModel/CorrectedR.mat';
-CleansedField = 'Corrected_R';   % the subfield name in the file that saves the corr 
-
-
-
-PartNum = 5;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)
+PartNum = 1;  % Results_Cleansed_Part1 ~ Results_Cleansed_Part(PartNum)
 
 % ResultTemp = '[Pxe]/Results.mat';
-ResultTemp = '[Exp]/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/Results.mat';
+ResultTemp = '[Pxe]/FixedFX.mat';
+% ResultTemp = '[Exp]/UnivariateConnectomics/Results/Cleansing_MLE_1166_Censor_Z/Results.mat';
 
-SubFolder = '0710_E';
+SubFolder = '0729_voxel_eigenvector';
 
 
 
@@ -46,8 +52,8 @@ SubFolder = '0710_E';
 % Path where the mni coordinates of each node are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166rois_Censor_parameters.mat';
-% NetworkParameter = '[Exp]/FirstLevel/080516dw/Grid_Censor/Grid_Censor_parameters.mat';
+% NetworkParameter = '[Exp]/FirstLevel/SiteCatLinks/1018959/1166rois_Censor/1166rois_Censor_parameters.mat';
+NetworkParameter = '/freewill/data/ADHD/FirstLevel/SiteLinks/1018959/4mmVoxel_Censor/4mmVoxel_Censor_parameters.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Subject type order
@@ -79,7 +85,6 @@ network.partial = 0;
 %%% network.positive(when using weighted network):       0 - Absolute value;   1 - Only positive value
 %%% 
 %%% network.local:  1 - Include local measurement; 0 - Do not include local measurement
-%%% network.voxel:  1 - Use voxel-wise correlation file; 0 - Do not use voxel-wise correlation file;
 %%%
 %%% network.iter: rewiring parameter when generating random graph (each
 %%%               edge is rewired approximatel network.iter times)
@@ -92,25 +97,35 @@ network.partial = 0;
 %%% network.perm:  1 -- To do permutation test; 0 -- not to do permutation test;
 %%% network.ttest: 1 -- To do 2 sample t-test;  0 -- not to do 2 sample t-test;
 %%%
-%%% network.MLEcleansed: 1 -- The input data would be MLEcleansed data;
-%%%                      0 -- The input data would be regular correlation data;
+%%% network.subjwise:    1 -- The input data would be subject wise files;
+%%%                      0 -- The input data would be concatenated file/s;
+%%% network.cleansed:    1 -- The input data would be cleansed;
+%%%                      0 -- The input data would be non cleansed;
+%%% network.uptri:       1 -- The loaded corr would be 1 x n*(n-1)/2 upper triangular vector;
+%%%                      0 -- The loaded corr would be n x n matrix
+%%% network.int
+%%% network.amplify:     1 -- The input data value is interger (amplified by network.amplify) which need to be convert back to (-1,1)
+%%%                      0 -- The input data value is original (-1,1) values.
+%%% network.voxel:       1 -- Use matfile to partially load files if file is very big
+%%%                      0 -- Not use matfile
+%%% network.voxelzscore: 1 -- Convert voxelwise measure values to normalized zscore for each subject: (value-mean())/std()
+%%%                      0 -- Use original voxelwise measure values
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 network.directed   = 0;
 network.weighted   = 0;
-network.datatype   = 'r';
 
 network.ztransform = 1;
-network.ztransdone = 1;
+network.ztransdone = 0; 
 
 network.loc        = 0;
 network.positive   = 1;
 
 network.local = 0;
-network.voxel = 1;
+network.voxel = 0;
 
 network.iter       = 5;
-network.netinclude = 7; 
+network.netinclude = -1; 
 
 network.rthresh  = 0.25;
 network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
@@ -118,129 +133,52 @@ network.zthresh  = 0.5.*log((1+network.rthresh)./(1-network.rthresh));
 network.perm     = 1;
 network.ttest    = 1;
 
-network.MLEcleansed = 1;
+network.subjwise = 1;
+network.cleansed = 1;
+network.uptri    = 1;
 
-network.voxelzscore = 1;
+network.int      = 1;
+network.amplify  = 10000;
+
+network.voxelzscore=1;
 
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Subject List
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if ~network.MLEcleansed
+if ~network.cleansed
     
-    SubjDir = {
-        
-    '080222rt','H';
-% '080223rg','H';
-'080315cs','O';
-'080315jp','H';
-'080412km','H';
-'080419lk','O';
-'080516dw','H';
-'080614bs','H';
-'080618ms','O';
-'080626bc','O';
-'080710kn','H';
-'080820at','O';
-'080830af','O';
-'080917aj','H';
-'081003jd','O';
-'081011mb','H';
-'081220kj','O';
-'090110oh','O';
-'090124jb','H';
-'090210ap','O';
-'090210ep','O';
-'090228cs1','H';
-'090228cs2','H';
-'090228sj','O';
-'090501dt','H';
-'090502es','H';
-'090502js','H';
-'090603eg','H';
-'090613ls','O';
-'090626gc','O';
-'090711zc','O';
-'090714eg','H';
-'090717vm','H';
-'090730ej','H';
-% '090812cz','H';
-'090814mb','H';
-'090829jj','H';
-'090909ac','O';
-'091012rb','O';
-'091019jj','H';
-'091031jk','O';
-'091103rt','H';
-'091114ek','O';
-'091118lp','H';
-'091219ak','O';
-'091222jb','O';
-'100130pe','H';
-'100215na','O';
-'100217jr','O';
-'100220kh','O';
-'100313sw','O';
-'100315mh','H';
-'100331cd','H';
-'100407ld','H';
-'100412hc','H';
-'100417rk','O';
-'100518nh','O';
-'100611gc','O';
-'100729am','O';
-'100817ik','O';
-'100825aw','O';
-'100830nn','O';
-'101002jr','O';
-'101104ss','H';
-'101105kj','O';
-'101113kt','O';
-'101113rm','O';
-'101203ap','O';
-'110214cm','H';
-'110305je','H';
-'110326lm','H';
-'110402kt','O';
-'110413ci','O';
-'110425dt','H';
-'110514ag','O';
-'110608mm','H';
-'110610sm','O';
-'110621se','H';
-'110720lz','O';
-'110723bh','H';
-'110723cg','O';
-'110827eb','H';
-'111114ap','O';
-'111118md','O';
-'111209hw','H';
-'120114aw','H';
-'120127ak','O';
-'120322tu','O';
-'120331ad','O';
-'120331ap','H';
-'120331jm','H';
-'120331js','H';
-'120414tg','H';
+    SubjDir = {      
+    
+%     '1018959'
+    '0015006'
+    '0015007'
+    '0015013'
+    '0015018'
+    '0015026'
+    '0015027'
+    '0015028'
+    '0015031'
+    '0015032'
+    '0015033'
+    '0015036'
+    '0015039'
+    '0015041'
+    '0015043'
+    '0015045'
+    '0015048'
+    '0015050'
+    '0015052'
+    '0015053'
+    '0015054'
+    '0015057'
+    '0015058'
+    '0015061'
+    '0015062'
     
     };
  
-
-
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Nodes of interest (Please input the coordinates that are contained in the
-% parameters file)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if network.local
-%     NodeList = [
-%         -18 0 72;
-%         6 12 72;
-%         -6 12 72;
-%         ];
-% end
 
 %% Permutation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -345,15 +283,19 @@ network.plotMetric = {'CharPathLength','Betweenness','Entropy','GlobalDegree'};
 %%%         E = degree [global/local]
 %%%         F = efficiency [global/local]
 %%%         M = modularity
+%%%         N = eccentricity
 %%%         P = characteristic path length
 %%%         S = small-worldness
 %%%         T = transitivity
+%%%         V = eigenvector centrality
 %%%         Y = entropy
 %%%
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.measures = 'ABCDEFMPTY';
+% network.measures = 'ABCDEFMPTY';
+network.measures = 'V';
+% network.measures = 'BCEF';
 
 % network.measures = 'CDEPS';
 

@@ -3,9 +3,9 @@
 % File path
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Exp = '/net/data4/ADHD/';
-SubFolder = '0715_voxel_degree';
+SubFolder = '0729_voxel_eigenvector';
 Network = '-1';
-Metric = 'degree';
+Metricname = 'eigenvector';
 
 plevel = 0.05;
 permlevel = 0.05;
@@ -18,7 +18,7 @@ nRep = 10000;
 % 1 -- alphabetically, disease group name in the front, like 'A' and 'H'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-covtype = 0;
+covtype = 1;
 
 
 
@@ -135,14 +135,14 @@ roiMNI = param.parameters.rois.mni.coordinates;
 V = spm_vol('/net/data4/ADHD/Subjects/Peking_3/1050345/session_1/rest_1/run_01/4mms8w3rarest.nii');
 roiVoxels = inv(V(1).mat)*[roiMNI ones(size(roiMNI,1),1)]';
 roiVoxels = round(roiVoxels(1:3,:))';
-lidx = sub2ind(size(mtx),roiVoxels(:,1),roiVoxels(:,2),roiVoxels(:,3));
+lidx = sub2ind(V(1).dim,roiVoxels(:,1),roiVoxels(:,2),roiVoxels(:,3));
 Vmask = spm_vol('/net/data4/ADHD/ROIS/4mmrs_rEPI_MASK_NOEYES.img'); % ADHD
 mask = spm_read_vols(Vmask);
 
-VnewTemp = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/nifti/';
-VnewPath = mc_GenPath(struct('Template',VnewTemp,'mode','makedir'));
 
-zscoreTemp = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/network-1/degree_[subjnum].mat';
+VnewTemp = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/nifti/[subjectid]/[group]_[subjectid]_[Metricname].nii';
+
+zscoreTemp = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/network-1/[Metricname]_[subjnum].mat';
 
 ModelTemp = '/freewill/data/ADHD/UnivariateConnectomics/VoxelWise_CensorZ_ConnectomeCleaning/FixedFX.mat';
 ModelCheck = struct('Template',ModelTemp,'mode','check');
@@ -152,8 +152,9 @@ Names = ModelFile.master.Subject;
 Types = ModelFile.master.TYPE;
 
 namelength = 7;
+
     
-for iSubject = 1:nSub
+for iSubject = 1:length(Names)
     
     group = Types{iSubject};
     id    = Names{iSubject};
@@ -164,8 +165,9 @@ for iSubject = 1:nSub
     zscores = load(zscorePath);
     
     Vnew = V(1);
-    Vnew.fname =  fullfile(VnewPath,[group '_' subjectid '_degree.nii']);
-    Vnew.descrip = 'voxelwise degree';  
+    VnewPath = mc_GenPath(struct('Template',VnewTemp,'mode','makeparentdir'));
+    Vnew.fname =  VnewPath;
+    Vnew.descrip = 'voxelwise eigenvector';  
    
     mtx = zeros(Vnew.dim);   
     mtx(lidx) = zscores.OutSave;
