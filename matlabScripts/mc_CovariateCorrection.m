@@ -52,36 +52,30 @@ if(raw==0 | raw==2)
     X = horzcat(ones(size(X,1),1),X);
 end
 
-nFeat = size(Y,2);
-nSub = size(Y,1);
-nPred = size(X,2);
+betas =   pinv(X)*Y;
 
+residuals = Y - X*betas;
 
-stat.betas =   pinv(X)*Y;
+intercepts = X(:,1)*betas(1,:);
 
-stat.residuals = Y - X*stat.betas;
+corrected = intercepts + residuals;
 
-stat.intercepts = X(:,1)*stat.betas(1,:);
-
-stat.corrected = stat.intercepts + stat.residuals;
-
-% X'*X is the covariance matrix of X. The inverse is valuable for denominator or SE(beta hat)
 C = pinv(X'*X);
 
-xvar_inv = diag(C);
-xvar_inv = repmat(xvar_inv,1,nFeat);
+Cloop = 1:size(X,2);
+if exist('tvalcalc','var')
+    Cloop = tvalcalc;
+end
 
+for iC = Cloop
+    tvals(iC,:) = betas (iC,:) ./ sqrt(C(iC,iC) * sum(residuals.^2,1)/(size(Y,1) - (size(betas,1))));
+end
 
-sse = sum(stat.residuals.^2,1) ./ (nSub - nPred);
-sse = repmat(sse,nPred,1);
+if exist('tvals','var')
+    pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
+end
 
-bSE = sqrt(xvar_inv .* sse);
-
-stat.tvals = stat.betas ./ bSE;
-stat.pvals = 2 * (1 - tcdf(abs(stat.tvals),size(Y,1) - size(stat.betas,1)));
-
-
-stat.predicted = X * stat.betas;
+predicted = X * betas;
 
 end
 
