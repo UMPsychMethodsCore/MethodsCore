@@ -87,7 +87,7 @@ CombinedOutput    = cell(nThresh,length(Names),nNet);
 
 OutputMatPath = mc_GenPath( struct('Template',network.save,...
         'suffix','.mat',...
-        'mode','makeparentdir'));
+        'mode','makeparentdir'))
     
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,7 +135,7 @@ if ~network.subjwise
             population = size(ConCatCorr,1);
         else
             MassObj = matfile(ConCatPath);
-            sizecorr = size(MassObj,'Corrected_R');
+            sizecorr = size(MassObj,ConCatField);
             population = sizecorr(1);
             nFeat      = sizecorr(2);                        
         end
@@ -149,9 +149,12 @@ if ~network.subjwise
                 Sub           = Sub+1;
                 flat = MassObj.Corrected_R(j,1:nFeat);
             end
-            
-            upper         = mc_unflatten_upper_triangle(flat);
-            NetworkRvalue = upper + upper';
+            if network.uptri
+                uppertri            = mc_unflatten_upper_triangle(flat);
+                NetworkRvalue    = uppertri + uppertri';
+            else
+                NetworkRvalue    = flat;
+            end          
             
             NetworkRvalue(isnan(NetworkRvalue)) = 0;     % Exclude the NaN elments
             NetworkValue = zeros(size(NetworkRvalue));
@@ -192,7 +195,6 @@ if ~network.subjwise
                     display(sprintf('in network %d',network.netinclude(kNetwork)));
                     tic
                     NetworkConnectInt   = NetworkConnectRaw;
-                    
                     % Create binary matrix if being set so
                     if ~network.weighted
                         NetworkConnect      = zeros(size(NetworkConnectInt));
@@ -260,12 +262,15 @@ if ~network.subjwise
                         Output.assort     = 0;
                         Output.btwn       = 0;
                         Output.etpy       = 0;
-                        Output.glodeg     = 0;
+                        Output.glodeg     = 0;                      
+                        Output.eigvalue   = 0;
                         
                         Output.deg        = [];
                         Output.nodebtwn   = [];
                         Output.eloc       = [];
                         Output.nodecluster= [];
+                        Output.eigenvector= [];
+                        Output.ecc        = [];
                         SubUseMark(Sub) = 0;
                     end
                     
@@ -307,7 +312,7 @@ else
         else
             NetworkRvalue    = SubjWiseCorr;
         end
-        NetworkRvalue(isnan(SubjWiseCorr)) = 0;           % Exclude the NaN elements
+        NetworkRvalue(isnan(NetworkRvalue)) = 0;           % Exclude the NaN elements
         NetworkValue     = zeros(size(NetworkRvalue));
         
         switch network.positive
@@ -409,11 +414,13 @@ else
                     Output.btwn       = 0;
                     Output.etpy       = 0;
                     Output.glodeg     = 0;
-                    
+                    Output.eigvalue   = 0;
                     Output.deg        = [];
                     Output.nodebtwn   = [];
                     Output.eloc       = [];
                     Output.nodecluster= [];
+                    Output.eigenvector= [];
+                    Output.ecc        = [];
                     SubUseMark(Sub) = 0;
                 end
                 
@@ -827,15 +834,15 @@ if network.netinclude==-1
         
         % Betweenness
         Metricname = 'betweenness';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+       %         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
         SubCount = 0;
         for iSub = 1:length(CombinedOutput)
             if SubUse(iSub)
                 SubCount = SubCount+1;
                 Subjectfl = num2str(SubCount);
+                 OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
                 OutData = CombinedOutput{1,iSub,1}.nodebtwn;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
@@ -914,6 +921,28 @@ if network.netinclude==-1
             'suffix','.mat',...
             'mode','makeparentdir'));
                 OutData = CombinedOutput{1,iSub,1}.eigvector;
+                if network.voxelzscore
+                    meanv   = mean2(OutData);
+                    sdv     = std2(OutData);
+                    OutSave = (OutData - meanv)./sdv;
+                else
+                    OutSave = OutData;
+                end
+%                 SaveData(iSub,:)=OutSave;
+                save(OutflPath,'OutSave','-v7.3');
+            end
+        end
+        
+         Metricname='eccentricity';
+        SubCount=0;
+        for iSub=1:length(CombinedOutput)
+            if SubUse(iSub)
+                SubCount=SubCount+1;
+                Subjectfl=num2str(SubCount);
+                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+            'suffix','.mat',...
+            'mode','makeparentdir'));
+                OutData = CombinedOutput{1,iSub,1}.ecc;
                 if network.voxelzscore
                     meanv   = mean2(OutData);
                     sdv     = std2(OutData);
@@ -1112,6 +1141,8 @@ end
         OutEtpy       = zeros(nThresh,length(CombinedOutput),nNet);
         OutDegree     = zeros(nThresh,length(CombinedOutput),nNet);
         OutDensity    = zeros(nThresh,length(CombinedOutput),nNet);
+        OutEigValue   = zeros(nThresh,length(CombinedOutput),nNet);
+        
         
         for iThresh = 1:nThresh
             for iSub = 1:length(CombinedOutput)
@@ -1147,6 +1178,11 @@ end
                     %Entropy
                     OutEtpy(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.etpy;
                     
+                    %Eigenvector
+                    OutEigValue(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eigvalue;
+                    
+                    
+                    
                 end
             end
         end
@@ -1171,6 +1207,7 @@ end
     ColEtpy       = OutEtpy(:);        ColEtpy       = ColEtpy(SubUse==1);
     ColDeg        = OutDegree(:);      ColDeg        = ColDeg(SubUse==1);
     ColDens       = OutDensity(:);     ColDens       = ColDens(SubUse==1);
+    ColEig        = OutEigValue(:);    ColEig        = ColEig(SubUse==1);
     
     % Column of network
     MatNet        = repmat(network.netinclude,length(CombinedOutput)*nThresh,1);
@@ -1186,18 +1223,18 @@ end
     ColThresh     = ColThresh(SubUse==1);
     
     % Combine to 2d matrix (column is thresh label, net label and metrics, row is each subject/thresh/net subset)
-    data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens];
-    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density'};
-    netcol = 2;
+    data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens ColEig];
+    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density','EigVector'};
+    input.netcol = 2;
     
     nMetric = length(Metrics);
-    types   = cell2mat(Types); types = types(SubUseMark==1);
-    unitype = unique(types);
+    types   = cell2mat(Types); input.types = types(SubUseMark==1);
+    input.unitype = unique(types);
     
-    TypePath = mc_GenPath( struct('Template',network.typesave,...
-        'suffix','.mat',...
-        'mode','makeparentdir'));
-    save(TypePath,'types','-v7.3');
+%     TypePath = mc_GenPath( struct('Template',network.typesave,...
+%         'suffix','.mat',...
+%         'mode','makeparentdir'));
+%     save(TypePath,'types','-v7.3');
 
 %% 2 Sample t-test Stream
 if network.ttest
@@ -1207,22 +1244,47 @@ if network.ttest
     meands = zeros(nThresh,nNet,nMetric);
     sehc   = zeros(nThresh,nNet,nMetric);
     seds   = zeros(nThresh,nNet,nMetric);
+    input.ttype = '2-sample';
     for iThresh = 1:nThresh
         if network.ztransform
-            subdata = data(data(:,1)==network.zthresh(iThresh),:);
+            input.subdata = data(data(:,1)==network.zthresh(iThresh),:);
         else
-            subdata = data(data(:,1)==network.rthresh(iThresh),:);
+            input.subdata = data(data(:,1)==network.rthresh(iThresh),:);
         end
-        [subp,subt,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_ttest(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
-         p(iThresh,:,:)      = subp;
-         t(iThresh,:,:)      = subt;
-         meanhc(iThresh,:,:) = submeanhc;
-         meands(iThresh,:,:) = submeands;
-         sehc(iThresh,:,:)   = subsehc;
-         seds(iThresh,:,:)   = subseds;
+        [tresults]=mc_graphtheory_ttest(network,input,nNet,nMetric);
+         p(iThresh,:,:)      = tresults.p;
+         t(iThresh,:,:)      = tresults.t;
+         meanhc(iThresh,:,:) = tresults.meancontrol;
+         meands(iThresh,:,:) = tresults.meanexp;
+         sehc(iThresh,:,:)   = tresults.secontrol;
+         seds(iThresh,:,:)   = tresults.seexp;
     end
 end
 
+%% paired t-test Stream
+if network.ttest
+    p      = zeros(nThresh,nNet,nMetric);
+    t      = zeros(nThresh,nNet,nMetric);
+    meanpb = zeros(nThresh,nNet,nMetric);
+    meandg = zeros(nThresh,nNet,nMetric);
+    sepb   = zeros(nThresh,nNet,nMetric);
+    sedg   = zeros(nThresh,nNet,nMetric);
+    input.ttype = 'paired';
+    for iThresh = 1:nThresh
+        if network.ztransform
+            input.subdata = data(data(:,1)==network.zthresh(iThresh),:);
+        else
+            input.subdata = data(data(:,1)==network.rthresh(iThresh),:);
+        end
+        [tresults]=mc_graphtheory_ttest(network,input,nNet,nMetric);
+         p(iThresh,:,:)      = tresults.p;
+         t(iThresh,:,:)      = tresults.t;
+         meanpb(iThresh,:,:) = tresults.meancontrol;
+         meandg(iThresh,:,:) = tresults.meanexp;
+         sepb(iThresh,:,:)   = tresults.secontrol;
+         sedg(iThresh,:,:)   = tresults.seexp;
+    end
+end
  
 %% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

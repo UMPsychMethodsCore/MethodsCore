@@ -1,35 +1,45 @@
-function [ p,stats,meanhc,meands,sehc,seds] = mc_graphtheory_ttest( Label,unitype,covtype,data,netinclude,netcol,nNet,nMetric)
+function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
 %MC_GRAPHTHEORY_TTEST Summary of this function goes here
 %   Detailed explanation goes here
-
-stats  = zeros(nNet,nMetric);
-p      = zeros(nNet,nMetric);
-meanhc = zeros(nNet,nMetric);
-meands = zeros(nNet,nMetric);
-sehc   = zeros(nNet,nMetric);
-seds   = zeros(nNet,nMetric);
+covtype=network.covtype;
+netinclude=network.netinclude;
+unitype    =input.unitype;
+data   =input.subdata;
+Label  = input.types;
+netcol = input.netcol;
+tresults.t  = zeros(nNet,nMetric);
+tresults.p  = zeros(nNet,nMetric);
+tresults.meancontrol = zeros(nNet,nMetric);
+tresults.meanexp = zeros(nNet,nMetric);
+tresults.secontrol   = zeros(nNet,nMetric);
+tresults.seexp  = zeros(nNet,nMetric);
 for iNet = 1:nNet
     for jMetric = 1:nMetric
         testdata = data(data(:,netcol)==netinclude(iNet),:); % certain network
         testmetric = testdata(:,jMetric+netcol); % certain metric
         if covtype % like 'A' and 'H'
-            testhc = testmetric(Label==unitype(2));
-            testds = testmetric(Label==unitype(1));
+            testcontrol = testmetric(Label==unitype(2));
+            testexp = testmetric(Label==unitype(1));
         else
-            testhc = testmetric(Label==unitype(1));
-            testds = testmetric(Label==unitype(2));
+            testcontrol = testmetric(Label==unitype(1));
+            testexp = testmetric(Label==unitype(2));
         end
-        meanhc(iNet,jMetric) = mean(testhc);
-        meands(iNet,jMetric) = mean(testds);
-                         nhc = length(testhc);
-                         nds = length(testds);
-                        sdhc = std(testhc);
-                        sdds = std(testds);                        
-          sehc(iNet,jMetric) = sdhc/(sqrt(nhc));
-          seds(iNet,jMetric) = sdds/(sqrt(nds));
+        tresults.meancontrol(iNet,jMetric) = mean(testcontrol);
+        tresults.meanexp(iNet,jMetric) = mean(testexp);
+                         ncontrol = length(testcontrol);
+                         nexp = length(testexp);
+                        sdcontrol = std(testcontrol);
+                        sdexp = std(testexp);                        
+          tresults.secontrol(iNet,jMetric) = sdcontrol/(sqrt(ncontrol));
+          tresults.seexp(iNet,jMetric) = sdexp/(sqrt(nexp));
 %         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds,[],[],'unequal');
-        [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds);
-        stats(iNet,jMetric)=tval.tstat;
+        switch input.ttype
+            case '2-sample'
+        [~,tresults.p(iNet,jMetric),~,tval]=ttest2(testcontrol,testexp);
+            case 'paired'
+                =ttest(testcontrol,testexp);
+        end
+        tresults.t(iNet,jMetric)=tval.tstat;
     end
 end
 

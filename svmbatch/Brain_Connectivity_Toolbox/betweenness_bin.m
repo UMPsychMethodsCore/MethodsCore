@@ -84,4 +84,4 @@ BC=sum(DP,1);               %compute betweenness
 % toc  % 0.3s
 
 % @Yu: add BC normalization
-BC = BC./[(n-1)*(n-2)];
+% BC = BC./[(n-1)*(n-2)];

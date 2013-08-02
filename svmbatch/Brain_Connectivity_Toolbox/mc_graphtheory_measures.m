@@ -126,17 +126,17 @@ if Flag.efficiency
         
     else
         if weighted
-%             eglob = efficiency_wei(mtrx,0); 
+            eglob = efficiency_wei(mtrx,0); 
             eloc = efficiency_bin(mtrx,1);
             
         else
-%             eglob = efficiency_bin(mtrx,0); %temp comment out for speed
+            eglob = efficiency_bin(mtrx,0); %temp comment out for speed
             eloc = efficiency_bin(mtrx,1);
             
         end
     end
     
-%     Output.eglob = eglob;  %temp comment out for speed
+    Output.eglob = eglob;  
     Output.eloc  = eloc;
 end
 
