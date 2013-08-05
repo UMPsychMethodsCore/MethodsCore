@@ -95,7 +95,7 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
         xvar_inv = repmat(xvar_inv,1,nFeat);
 
 
-        sse = sum(stat.residuals.^2,1) ./ (nSub - nPred);
+        sse = sum(stat.res.^2,1) ./ (nSub - nPred);
         sse = repmat(sse,nPred,1);
 
         bSE = sqrt(xvar_inv .* sse);
