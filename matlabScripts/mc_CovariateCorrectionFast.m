@@ -15,7 +15,7 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
 %                       disabling some values can significantly increase the speed and decrease
 %                       the memory overhead of this function. Submit this a struct, and set
 %                       appropriately named fields to TRUE. Here are the fields it understands
-%                               t       -       Return t values
+%                               t       -       Return t values (will turn on res)
 %                               p       -       Return p values (will turn on t)
 %                               int     -       Return intercepts
 %                               pred    -       Return predicted values
@@ -121,6 +121,10 @@ function [ vals ] = vals_parser(vals) % turn on upstream vals
         vals.t = true;
     end
     
+    if isfield(vals,'t') && vals.t % if t values are requested, turn on res
+        vals.res = true;
+    end
+
     if isfield(vals,'cor') && vals.cor % if cor requested, turn on int and res
         vals.int = true;
         vals.res = true;
