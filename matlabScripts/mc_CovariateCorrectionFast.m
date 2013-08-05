@@ -101,15 +101,12 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
         bSE = sqrt(xvar_inv .* sse);
 
         stat.t = stat.b ./ bSE;
-        stat.t(~isfinite(stat.t)) = 0; % set garbage t values to 0
-        stat.t = mc_connectome_clean(stat.t); % set bad features to all 0's
+        stat.t = mc_connectome_clean(stat.t,0,0); % set bad features to all 0's
     end
 
     if exist('vals','var') && isfield(vals,'p') && vals.p % calc p values
         stat.p = 2 * (1 - tcdf(abs(stat.t),size(Y,1) - size(stat.b,1)));
-        stat.p(~isfinite(stat.p)) = 0; % set all of the garbage p values to 0 for cleaning
-        stat.p = mc_connectome_clean(stat.p); % clean out all of the zeros
-        stat.p(stat.p==0) = 1; % set all of the garbage p's to 1 for non significant
+        stat.p = mc_connectome_clean(stat.p,0,1); % clean out all of the bad values and set to 1 (no sig)
     end
 
 end
