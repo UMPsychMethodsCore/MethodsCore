@@ -4,10 +4,6 @@ function out = mc_EdgeOverlap(stat,netmask,thresh,AVar,BVar);
 % stat.p = p values
 stat.t = stat.t([AVar BVar],:);
 stat.p = stat.p([AVar BVar],:);
-stat.t = mc_connectome_clean(stat.t);
-stat.p = mc_connectome_clean(stat.p);
-
-stat.p ( stat.p==0) = 1; % set the p values of 0 to 1 for nonsig
 
 out.A = zeros([size(netmask),numel(thresh)]);
 out.B = zeros([size(netmask),numel(thresh)]);
