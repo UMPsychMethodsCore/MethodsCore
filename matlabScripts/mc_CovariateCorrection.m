@@ -70,10 +70,15 @@ end
 for iC = Cloop
     tvals(iC,:) = betas (iC,:) ./ sqrt(C(iC,iC) * sum(residuals.^2,1)/(size(Y,1) - (size(betas,1))));
 end
+tvals = mc_connectome_clean(tvals,0,0); % set bad features to 0's
+
 
 if exist('tvals','var')
     pvals = 2 * (1 - tcdf(abs(tvals),size(Y,1) - size(betas,1)));
+    pvals = mc_connectome_clean(pvals,0,1);
 end
+
+
 
 predicted = X * betas;
 
