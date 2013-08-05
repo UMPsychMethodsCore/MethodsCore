@@ -1,8 +1,6 @@
 function out = mc_EdgeOverlap(stat,netmask,thresh,AVar,BVar);
 % Expected input
-% stat.b = betas
 % stat.p = p values
-stat.t = stat.t([AVar BVar],:);
 stat.p = stat.p([AVar BVar],:);
 
 out.A = zeros([size(netmask),numel(thresh)]);
