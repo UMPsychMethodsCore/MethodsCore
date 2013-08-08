@@ -21,6 +21,7 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
 %                               pred    -       Return predicted values
 %                               res     -       Return residuals (will turn on pred)
 %                               cor     -       Return corrected values (will turn on int and res)
+%                               x       -       Return the design matrix X (after centering, etc)    
 %                       If you set the value to true, you will get a corresponding field in the stat output. For example...
 %                               vals.t = true;
 %                               vals.pred = true;
@@ -107,6 +108,10 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
     if exist('vals','var') && isfield(vals,'p') && vals.p % calc p values
         stat.p = 2 * (1 - tcdf(abs(stat.t),size(Y,1) - size(stat.b,1)));
         stat.p = mc_connectome_clean(stat.p,0,1); % clean out all of the bad values and set to 1 (no sig)
+    end
+    
+    if exist('vals','var') && isfield(vals,'x') && vals.x % return design matrix
+        stat.x = X;
     end
 
 end
