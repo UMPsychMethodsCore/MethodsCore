@@ -1,4 +1,4 @@
-function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, matrixtype )
+function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, matrixtype, nolabels )
 %MC_LOAD_SVM_DATASET Load connectomic data
 %   Prior to performing SVM, you will need to load your connectomic data.
 %   These can be produced by the som toolbox including in the advanced
@@ -25,7 +25,8 @@ function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, 
 %                           connectivity matrix. In this
 %                           case, flattening and
 %                           unflattening will work a little
-%                           bit differently. % 
+%                           bit differently.  
+%       nolabels        -   Set to true if you are not passing in any labels, and don't want any back
 %   NOTE - Use this function if loading unpaired datasets where you have two or more classes.
 
 conPathTemplate.Template=FileTemplate;
@@ -40,7 +41,10 @@ nSubs=size(SubjDir,1);
 
 for iSub=1:size(SubjDir,1)
   Subject = SubjDir{iSub,1};
-  Example=SubjDir{iSub,2};
+  if exist('nolabels','var') && ~nolabels
+  else
+      Example=SubjDir{iSub,2};
+  end
   conPath=mc_GenPath(conPathTemplate);
   conmat=load(conPath);
   rmat=conmat.rMatrix;
@@ -58,5 +62,8 @@ for iSub=1:size(SubjDir,1)
         case 'nodiag'
           data(iSub,:)=reshape(rmat,numel(rmat),1);
       end
-      label(iSub,1)=Example;
+      if exist('nolabels','var') && ~nolabels
+      else
+          label(iSub,1)=Example;
+      end
 end
