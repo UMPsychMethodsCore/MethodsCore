@@ -47,8 +47,10 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %                                           any derivatives for the regressor
 %                                 Templates : Exp Subject Run
 %           CompCorTemplate     - cell(A, 2)
-%                                 column1 = run specific comp cor prefix file template
-%                                 column2 = minimum fractional variance explained for compcor file
+%                                 column1 = string, run specific comp cor prefix file template
+%                                 column2 = scalar flag [1 2 3], regressors used 
+%                                 column3 = scalar flag [1 2], component inclusion method
+%                                 column4 = scalar, # of components  OR  minimal fractional variance explained
 %                                 Template  : Exp Subject Run
 %
 %

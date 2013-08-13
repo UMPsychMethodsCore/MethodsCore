@@ -11,8 +11,10 @@ function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
 %                                 column3 = vector of runs to include
 %           RunDir              - cell(R, 1), list of run folders
 %           CompCorTemplate     - cell(A, 2)
-%                                 column1 = run specific compcor file template
-%                                 column2 = minimum fraction variance explained
+%                                 column1 = string, run specific comp cor prefix file template
+%                                 column2 = scalar flag [1 2 3], regressors used 
+%                                 column3 = scalar flag [1 2], component inclusion method
+%                                 column4 = scalar, # of components  OR  minimal fractional variance explained
 %                                 Templates : Exp Subject Run
 %
 %   OUPTUT
@@ -39,7 +41,7 @@ function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
         return;
     end
 
-    % now if comp cor is being used
+    % now if CompCor is being used
     tmpComponents = [];
     numFiles = size(opt.CompCorTemplate, 1);
     VarAccounted = zeros(numFiles, 1);
@@ -55,45 +57,123 @@ function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
         ccCsvCheck.mode = 'check';
         ccCsv = mc_GenPath(ccCsvCheck);
 
-        % read log file to determine number of components to use
-        logFid = fopen(ccLog, 'r');
+        % read in csv and log file
+        AllRunComponents = csvread(ccCsv);
+        AllVarAcc = ParseCompCorLog(ccLog);
+        
+        % add regressors based on CompUsedFlag value
+        CompUsedFlag = opt.CompCorTemplate{iCompFile, 2};
 
-        % currently the log file has a header that consists of 13 lines
-        for iHeader = 1:13
-            line = fgetl(logFid);
-            if isnumeric(line) && line == -1
-                error(['SUBJECT %s RUN %s :\n' ...
-                       ' CompCor log file %s is incomplete\n\n'], Subject, Run, ccLog);
+        % global mean only
+        if CompUsedFlag == 1
+
+            FileComps = AllRunComponents(:, 1);
+            VarAccounted(iCompFile) = 0;
+
+        % components only
+        elseif CompUsedFlag == 2
+
+            CompIncMethod = opt.CompCorTemplate{iCompFile, 3};
+            
+            % add components based on component inclusion method
+            % specified number of components
+            if CompIncMethod == 1
+                NumCompIncluded = opt.CompCorTemplate{iCompFile, 4};
+
+                if NumCompIncluded > size(AllRunComponents, 2)
+                    error(['SUBJECT %s RUN %s :\n' ...
+                           ' COMPCOR: Number of components to include %d is greater the number of components present %d\n\n'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
+                end
+
+                FileComps = AllRunComponents(:, 2:(1+NumCompIncluded));
+                VarAccounted(iCompFile) = AllVarAcc(NumCompIncluded);
+
+            % minimum fractional variance explained
+            elseif CompIncMethod == 2
+
+                MinVar = opt.CompCorTemplate{iCompFile, 4};
+
+                % find out number of components to use
+                CompToInclude = 1;
+                while CompToInclude < length(AllVarAcc) && AllVarAcc(CompToInclude) < MinVar
+                    CompToInclude = CompToInclude + 1;
+                end
+
+                % check to make sure enough components were present; otherwise error out
+                if AllVarAcc(CompToInclude) < minVarExplained
+                    error(['SUBJECT %s RUN %s :\n' ...
+                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance\n\n'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
+                end
+
+                FileComps = AllRunComponents(:, 2:(1+CompToInclude));
+                VarAccounted(iCompFile) = AllVarAcc(CompToInclude);
+
+            % invalid option that should never occur
+            else
+                error(['SUBJECT %s RUN %s :\n'...
+                       ' COMPCOR: Invalid component inclusion method.\n'...
+                       '          Expected [1 2] but found %d\n\n'], Subject, Run, CompIncMethod);
             end
-        end
-        % variance is stored in the third column
-        pcaInfo = textscan(logFid, '%f%f%f\n');
-        fclose(logFid);
+
+        % both global mean and components
+        elseif CompUsedFlag == 3
         
-        % now find out the number of components used using the minimum variance explained
-        minVarExplained = opt.CompCorTemplate{iCompFile, 2};
-        pcaIndex = 1;
-        while pcaIndex < size(pcaInfo{1, 3}, 1) && pcaInfo{1, 3}(pcaIndex) < minVarExplained
-            pcaIndex = pcaIndex + 1;
-        end
-        
-        % check to make sure enough components were present; otherwise error out
-        if pcaInfo{1, 3}(pcaIndex) < minVarExplained
-            error(['SUBJECT %s RUN %s :\n' ...
-                   ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance\n\n'], Subject, Run, minVarExplained, pcaInfo{1, 3}(pcaIndex));
+            CompIncMethod = opt.CompCorTemplate{iCompFile, 3};
+            
+            % add components based on component inclusion method
+            % specified number of components
+            if CompIncMethod == 1
+                NumCompIncluded = opt.CompCorTemplate{iCompFile, 4};
+
+                if NumCompIncluded > size(AllRunComponents, 2)
+                    error(['SUBJECT %s RUN %s :\n' ...
+                           ' COMPCOR: Number of components to include %d is greater the number of components present %d\n\n'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
+                end
+
+                FileComps = AllRunComponents(:, 1:(1+NumCompIncluded));
+                VarAccounted(iCompFile) = AllVarAcc(NumCompIncluded);
+
+            % minimum fractional variance explained
+            elseif CompIncMethod == 2
+
+                MinVar = opt.CompCorTemplate{iCompFile, 4};
+
+                % find out number of components to use
+                CompToInclude = 1;
+                while CompToInclude < length(AllVarAcc) && AllVarAcc(CompToInclude) < MinVar
+                    CompToInclude = CompToInclude + 1;
+                end
+
+                % check to make sure enough components were present; otherwise error out
+                if AllVarAcc(CompToInclude) < minVarExplained
+                    error(['SUBJECT %s RUN %s :\n' ...
+                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance\n\n'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
+                end
+
+                FileComps = AllRunComponents(:, 1:(1+CompToInclude));
+                VarAccounted(iCompFile) = AllVarAcc(CompToInclude);
+
+            % invalid option that should never occur
+            else
+                error(['SUBJECT %s RUN %s :\n'...
+                       ' COMPCOR: Invalid component inclusion method.\n'...
+                       '          Expected [1 2] but found %d\n\n'], Subject, Run, CompIncMethod);
+            end
+
+        % invalid option that should never occur
+        else
+            error(['SUBJECT %s RUN %s :\n'...
+                   ' COMPCOR: Invalid components used flag.\n'...
+                   '          Expected [1 2 3] but found %d\n\n'], Subject, Run, CompUsedFlag);
         end
 
-        % read in components
-        allRunComponents = csvread(ccCsv);
+        % save components
         try
-            tmpComponents = [tmpComponents allRunComponents(:, 1:pcaIndex)];
+            tmpComponents = [tmpComponents FileComps];
         catch
             error(['SUBJECT %s RUN %s : \n' ...
-                   ' Failed to add components from file %s.'], Subject, Run, ccCsv);
+                   ' COMPCOR: Invalid rows from file %s.'], Subject, Run, ccCsv);
         end
-
-        % save variance explained
-        VarAccounted(iCompFile) = pcaInfo{1, 3}(pcaIndex);
     end
 
     % create final Components structure
@@ -105,3 +185,28 @@ function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
     end
 end        
 
+function AllVarAcc = ParseCompCorLog(LogFile)
+% function AllVarAcc = ParseCompCorLog(LogFile)
+%
+% This function parses the .log files output from pcafMRI from spm8Batch.
+% It outputs the cumulative sum (column 3) of the variance accounted by the components.
+
+    logFid = fopen(LogFile, 'r');
+    LinesInHdr = 13;
+    
+    % currently the log file has a header that consists of 13 lines
+    for iHeader = 1:LinesInHdr
+        line = fgetl(logFid);
+        if isnumeric(line) && line == -1
+            error(['SUBJECT %s RUN %s :\n' ...
+                   ' CompCor log file %s is incomplete\n\n'], Subject, Run, ccLog);
+        end
+    end
+
+    % variance is stored in the third column
+    pcaInfo = textscan(logFid, '%f%f%f\n');
+    fclose(logFid);
+
+    AllVarAcc = pcaInfo{3};
+
+end

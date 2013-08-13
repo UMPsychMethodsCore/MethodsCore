@@ -283,8 +283,19 @@ ContrastRunWeights = {
 %%% for each run from pcafMRI during preprocessing.  Leave empty if CompCor
 %%% should not be used.
 %%%
-%%% syntax: File location, minimum fractional variance explained
-%%% NOTE: minimum fractional variance explained must > 0 and < 1
+%%% syntax: File location,
+%%%         Components Used,
+%%%           1 = use global mean only (assumed to be 1st regressor listed)
+%%%           2 = use components only
+%%%           3 = use both global mean and components
+%%%         Component inclusion method,
+%%%           1 = use specified number of components
+%%%           2 = use components that explain an amount of variance
+%%%         # of components   OR   minimum fractional variance explained
+%%%
+%%%         NOTE: component inclusion method is ignored if Regressors Used = 1
+%%%               (global mean is only used as a regressor)
+%%%         NOTE: minimum fractional variance explained must > 0 and < 1
 %%%
 %%% Variables used in template are the following:
 %%%       Exp         = path to your experiment directory
@@ -294,8 +305,10 @@ ContrastRunWeights = {
 %%%
 %%% Example :
 %%%       CompCorTemplate = {
-%%%         'BOTH_PCA_w2mmPCA_Ra_spm8_run', 0.2
+%%%         '/Path/To/File/CSF_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
+%%%         '/Path/To/File/WM_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
 %%%       };
+%%% Read documentation for more in-depth examples.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CompCorTemplate = {
 };
