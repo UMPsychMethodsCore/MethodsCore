@@ -25,3 +25,16 @@ for i = 1:numel(thresh)
     end
 end
 
+%% Calculate an odds ratio
+celltot = cellfun(@nnz,netmask);
+
+celltot = repmat(celltot,[1,1,numel(thresh)]);
+
+Odds.pa = out.AB ./ out.B;
+Odds.pn = (out.A - out.AB) ./ (celltot - out.B);
+Odds.qa = 1 - Odds.pa;
+Odds.qn = 1 - Odds.pn;
+
+Odds.Ratio = (Odds.pa .* Odds.qn) ./ (Odds.pn .* Odds.qa);
+
+out.OddsRatio = Odds.Ratio;
