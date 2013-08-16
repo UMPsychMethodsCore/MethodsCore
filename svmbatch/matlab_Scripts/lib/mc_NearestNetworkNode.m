@@ -1,4 +1,4 @@
-function [ labels ] = mc_NearestNetworkNode(voxlist, radius)
+function [ labels ] = mc_NearestNetworkNode(voxlist, radius, refimage)
 %MC_NEARESTNETWORKNODE A function to map unlabeled network nodes to
 %network of their nearest neighbor
 %
@@ -14,7 +14,9 @@ function [ labels ] = mc_NearestNetworkNode(voxlist, radius)
 %       Currently hardcoded to use the YeoNetwork Map
 
 %% Get the space
-refimage='/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr';
+if ~exist('refimage','var')
+    refimage='/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr';
+end
     
 v2m=spm_get_space(refimage);
 m2v=inv(v2m);
