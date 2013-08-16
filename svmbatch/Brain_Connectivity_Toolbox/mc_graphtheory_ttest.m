@@ -26,18 +26,18 @@ for iNet = 1:nNet
         end
         tresults.meancontrol(iNet,jMetric) = mean(testcontrol);
         tresults.meanexp(iNet,jMetric) = mean(testexp);
-                         ncontrol = length(testcontrol);
-                         nexp = length(testexp);
-                        sdcontrol = std(testcontrol);
-                        sdexp = std(testexp);                        
-          tresults.secontrol(iNet,jMetric) = sdcontrol/(sqrt(ncontrol));
-          tresults.seexp(iNet,jMetric) = sdexp/(sqrt(nexp));
-%         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds,[],[],'unequal');
+        ncontrol = length(testcontrol);
+        nexp = length(testexp);
+        sdcontrol = std(testcontrol);
+        sdexp = std(testexp);
+        tresults.secontrol(iNet,jMetric) = sdcontrol/(sqrt(ncontrol));
+        tresults.seexp(iNet,jMetric) = sdexp/(sqrt(nexp));
+        %         [~,p(iNet,jMetric),~,tval]=ttest2(testhc,testds,[],[],'unequal');
         switch input.ttype
             case '2-sample'
-        [~,tresults.p(iNet,jMetric),~,tval]=ttest2(testcontrol,testexp);
+                [~,tresults.p(iNet,jMetric),~,tval]=ttest2(testcontrol,testexp);
             case 'paired'
-                =ttest(testcontrol,testexp);
+                [~,tresults.p(iNet,jMetric),~,tval]=ttest(testcontrol,testexp);
         end
         tresults.t(iNet,jMetric)=tval.tstat;
     end

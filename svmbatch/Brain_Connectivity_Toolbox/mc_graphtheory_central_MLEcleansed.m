@@ -292,16 +292,17 @@ else
     for Sub = 1:length(Names)
         tic
         Subject = Names{Sub};
-        Subject = Subject(1:SubjNameLength);
-        display(sprintf('Now loading Number %s Subject',num2str(Sub)));
+%         Subject = Subject(1:SubjNameLength);
+        display(sprintf('Now loading Number %s Subject %s',num2str(Sub),Subject));
         SubjWiseCheck = struct('Template',SubjWiseTemp,'mode','check');
         SubjWisePath  = mc_GenPath(SubjWiseCheck);
         SubjWiseFile  = load(SubjWisePath);
         SubjWise      = mc_GenPath('SubjWiseFile.[SubjWiseField]');
         eval(sprintf('%s=%s;','SubjWiseCorrOri',SubjWise));
         
-        SubjWiseCorr = padarray(SubjWiseCorrOri,[0 nFlat-length(SubjWiseCorrOri)],'post');
-        
+%         SubjWiseCorr = padarray(SubjWiseCorrOri,[0 nFlat-length(SubjWiseCorrOri)],'post');
+          SubjWiseCorr=SubjWiseCorrOri;        
+
         if network.int
             SubjWiseCorr = SubjWiseCorr/network.amplify;
         end
@@ -310,7 +311,12 @@ else
             uppertri            = mc_unflatten_upper_triangle(SubjWiseCorr);
             NetworkRvalue    = uppertri + uppertri';
         else
+            if MASfix
+                NetworkRvalue = SubjWiseCorr + SubjWiseCorr';
+            else
             NetworkRvalue    = SubjWiseCorr;
+            end           
+                
         end
         NetworkRvalue(isnan(NetworkRvalue)) = 0;           % Exclude the NaN elements
         NetworkValue     = zeros(size(NetworkRvalue));
@@ -479,19 +485,12 @@ switch network.stream
                 'Subject,Type,Network,Sparsity,Smallworldness,GlobalDegree,Density,2*log(N)\n');
         end
     case 'm'
-        %         if network.weighted
-        %         fprintf(theFID,...
-        %             'Subject,Type,Network,Sparsity,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness\n');
-        %         else
-        %             fprintf(theFID,...
-        %             'Subject,Type,Network,Sparsity,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness\n');
-        %         end
         if network.weighted
             fprintf(theFID,...
-                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
+                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,GlobalStrength,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy,EigValue\n');
         else
             fprintf(theFID,...
-                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy\n');
+                'Subject,Type,Network,Threshold,Smallworldness,Clustering,CharateristicPathLength,GlobalDegree,Density,Transitivity,GlobalEfficiency,Modularity,Assortativity,Betweenness,Entropy,EigValue\n');
         end
     otherwise
         error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
@@ -500,15 +499,9 @@ end
 
 for tThresh = 1:length(network.rthresh)
     for iSubject = 1:Sub
-        
-%         if network.MLEcleansed
+      
             Subject = Names{iSubject};
-            Type    = Types{iSubject};
-%         else
-%             Subject = SubjDir{iSubject};
-%             Type    = SubjDir{iSubject,2};
-%         end
-        
+            Type    = Types(iSubject);        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for kNetwork = 1:length(network.netinclude);
             %         for mThresh = 1:length(network.sparsity)
@@ -600,7 +593,13 @@ for tThresh = 1:length(network.rthresh)
                     
                     if Flag.entropy
                         %                         fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,kNetwork,mThresh}.etpy);
-                        fprintf(theFID,'%.4f\n',CombinedOutput{tThresh,iSubject,kNetwork}.etpy);
+                        fprintf(theFID,'%.4f,',CombinedOutput{tThresh,iSubject,kNetwork}.etpy);
+                    else
+                        fprintf(theFID,'%s,','NA');
+                    end
+                    
+                    if Flag.eigenvector
+                        fprintf(theFID,'%.4f\n',CombinedOutput{tThresh,iSubject,kNetwork}.eigvalue);
                     else
                         fprintf(theFID,'%s\n','NA');
                     end
@@ -654,412 +653,103 @@ switch network.stream
         error('You should be either measure the metrics or selecting the sparsity, check your network.stream setting');
 end
 
-if (network.stream =='m' && network.local==1)
-    
-    %%%%%%% Save the local results to CSV file %%%%%%%%%%
-    
-    NodeSelect = mc_node_select(roiMNI,NodeList);
-    
-    theFID = fopen(OutputPathFile2,'w');
-    if theFID < 0
-        fprintf(1,'Error opening the csv file!\n');
-        return;
-    end
-    
-    %%%%%% Output Local Measure Values for each selected node, each Run of each Subject %%%%%%%%%%%
-    % Header
-    fprintf(theFID,...
-        'Subject,Run,Network,Threshold');
-    for p = 1:length(NodeSelect)
-        fprintf(theFID,...
-            ',LocalDegree_%d',NodeSelect(p));
-    end
-    if network.weighted
-        for p = 1:length(NodeSelect)
-            fprintf(theFID,...
-                ',LocalStrength_%d',NodeSelect(p));
-        end
-    end
-    for p = 1:length(NodeSelect)
-        fprintf(theFID,...
-            ',LocalEfficiency_%d',NodeSelect(p));
-    end
-    for p = 1:length(NodeSelect)
-        fprintf(theFID,...
-            ',LocalClusteringCoef_%d',NodeSelect(p));
-    end
-    for p = 1:length(NodeSelect)
-        fprintf(theFID,...
-            ',NodeEccentricity_%d',NodeSelect(p));
-    end
-    for p = 1:length(NodeSelect)
-        fprintf(theFID,...
-            ',NodeBetweenness_%d',NodeSelect(p));
-    end
-    fprintf(theFID,'\n');
-    
-    for iSubject = 1:size(SubjDir,1)
-        Subject = SubjDir{iSubject,1};
-        for jRun = 1:size(SubjDir{iSubject,3},2)
-            RunNum = SubjDir{iSubject,3}(jRun);
-            
-            %%%%% Select appropriate output based on h user has set
-            %         index=strfind(NetworkTemplate,'Run');
-            %         if size(index)>0
-            RunString=RunDir{jRun};
-            %         else
-            %             RunString=num2str(jRun);
-            %         end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            for kNetwork = 1:length(network.netinclude)
-            for mThresh = 1:length(network.adjacency)
-                fprintf(theFID,'%s,%s,%s,%s,',Subject,RunString,network.netinclude(kNetwork),network.adjacency(mThresh));
-                
-                
-                
-                if Flag.degree
-                    intdeg = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.deg;
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%.4f,',intdeg(NodeSelect(p)));
-                    end
-                    if network.weighted
-                        intstr = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.strength;
-                        for p = 1:length(NodeSelect)
-                            fprintf(theFID,'%.4f,',intstr(NodeSelect(p)));
-                        end
-                    end
-                else
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%s,','NA');
-                    end
-                    if network.weighted
-                        for p = 1:length(NodeSelect)
-                            fprintf(theFID,'%s,','NA');
-                        end
-                    end
-                end
-                
-                if Flag.lefficiency
-                    inteloc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.eloc;
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%.4f,',inteloc(NodeSelect(p)));
-                    end
-                else
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%s,','NA');
-                    end
-                end
-                
-                if Flag.clustering
-                    intenc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.nodecluster;
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%.4f,',intenc(NodeSelect(p)));
-                    end
-                else
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%s,','NA');
-                    end
-                end
-                
-                if Flag.pathlength
-                    intecc = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.ecc.nodes;
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%.4f,',intecc(NodeSelect(p)));
-                    end
-                else
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%s,','NA');
-                    end
-                end
-                
-                if Flag.betweenness
-                    intbtwn = CombinedOutput{iSubject,jRun,kNetwork,mThresh}.btwn;
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%.4f,',intbtwn(NodeSelect(p)));
-                    end
-                    fprintf(theFID,'\n');
-                else
-                    for p = 1:length(NodeSelect)
-                        fprintf(theFID,'%s,','NA');
-                    end
-                    fprintf(theFID,'\n');
-                end
-            end
-            end
-        end
-    end
-    
-    fclose(theFID);
-    display('Local Measures All Done')
-    
-end
-
 
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% re-arrangement of voxel-wise measurements results
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Save subject wise results of voxel-wise measurements results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%% for now only do this under single threshold %%%%%%%%%%%
 
 if network.netinclude==-1
         Netnum = -1;
-        Netname = ['network' num2str(Netnum)];
-        % Degree
-        Metricname = 'degree';
-        
-%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.deg;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
+        Netname = ['network' num2str(Netnum)];        
+        for n=1:length(network.voxelmeasures)
+            Metricname=network.voxelmeasures{n};
+            SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+            for iSub = 1:length(CombinedOutput)
+                if SubUse(iSub)
+                    Subjectfl=Names{iSub};
+                    OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+                        'suffix','.mat',...
+                        'mode','makeparentdir'));
+                    switch Metricname
+                        case 'degree'
+                            OutData = CombinedOutput{1,iSub,1}.deg;
+                        case 'betweenness'
+                            OutData = CombinedOutput{1,iSub,1}.nodebtwn;
+                        case 'efficiency'
+                            OutData = CombinedOutput{1,iSub,1}.eloc;
+                        case 'clustering'
+                            OutData = CombinedOutput{1,iSub,1}.nodecluster;
+                        case 'eigenvector'
+                            OutData = CombinedOutput{1,iSub,1}.eigvector;
+                        case 'eccentricity'
+                            OutData = CombinedOutput{1,iSub,1}.ecc;
+                        otherwise
+                            display(sprintf('%s is not in the measure list yet, please add it',Metricname));
+                    end
+                    if network.voxelzscore
+                        meanv   = mean2(OutData);
+                        sdv     = std2(OutData);
+                        OutSave = (OutData - meanv)./sdv;
+                    else
+                        OutSave = OutData;
+                    end
+                    SaveData(iSub,:)=OutSave;
+                    save(OutflPath,'OutSave','-v7.3');
                 end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
             end
-        end
-        
-        
-        
-        % Betweenness
-        Metricname = 'betweenness';
-       %         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                 OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.nodebtwn;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Efficiency
-        Metricname = 'efficiency';
-        
-%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.eloc;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Clustering Coefficient
-        Metricname = 'clustering';
-        
-%         SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.nodecluster;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Eigenvector centrality
-        Metricname='eigenvector';
-        SubCount=0;
-        for iSub=1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount=SubCount+1;
-                Subjectfl=num2str(SubCount);
-                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.eigvector;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-        
-         Metricname='eccentricity';
-        SubCount=0;
-        for iSub=1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount=SubCount+1;
-                Subjectfl=num2str(SubCount);
-                OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-                OutData = CombinedOutput{1,iSub,1}.ecc;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
+            OutflConcat=mc_GenPath(struct('Template',network.flconcat,'mode','makeparentdir'));
+            save(OutflConcat,'SaveData','-v7.3');
+            clear SaveData
+        end              
     
 else
     for kNet=1:nNet
         
         Netnum  = network.netinclude(kNet);
         Netname = ['network' num2str(Netnum)];
-        
-        % Degree
-        Metricname = 'degree';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutData = CombinedOutput{iSub,kNet}.deg;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
+         for n=1:length(network.voxelmeasures)
+            Metricname=network.voxelmeasures{n};
+            SaveData = zeros(length(CombinedOutput),length(NetworkConnect));
+            for iSub = 1:length(CombinedOutput)
+                if SubUse(iSub)
+                    Subjectfl=Names{iSub};
+                    OutflPath  = mc_GenPath( struct('Template',network.flsave,...
+                        'suffix','.mat',...
+                        'mode','makeparentdir'));
+                    switch Metricname
+                        case 'degree'
+                            OutData = CombinedOutput{1,iSub,kNet}.deg;
+                        case 'betweenness'
+                            OutData = CombinedOutput{1,iSub,kNet}.nodebtwn;
+                        case 'efficiency'
+                            OutData = CombinedOutput{1,iSub,kNet}.eloc;
+                        case 'clustering'
+                            OutData = CombinedOutput{1,iSub,kNet}.nodecluster;
+                        case 'eigenvector'
+                            OutData = CombinedOutput{1,iSub,kNet}.eigvector;
+                        case 'eccentricity'
+                            OutData = CombinedOutput{1,iSub,kNet}.ecc;
+                        otherwise
+                            display(sprintf('%s is not in the measure list yet, please add it',Metricname));
+                    end
+                    if network.voxelzscore
+                        meanv   = mean2(OutData);
+                        sdv     = std2(OutData);
+                        OutSave = (OutData - meanv)./sdv;
+                    else
+                        OutSave = OutData;
+                    end
+                    SaveData(iSub,:)=OutSave;
+                    save(OutflPath,'OutSave','-v7.3');
                 end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
             end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Betweenness
-        Metricname = 'betweenness';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutData = CombinedOutput{iSub,kNet}.nodebtwn;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Efficiency
-        Metricname = 'efficiency';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutData = CombinedOutput{iSub,kNet}.eloc;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                  save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
-        
-        % Clustering Coefficient
-        Metricname = 'clustering';
-        OutflPath  = mc_GenPath( struct('Template',network.flsave,...
-            'suffix','.mat',...
-            'mode','makeparentdir'));
-%         SaveData = zeros(length(CombinedOutput),sum(nets==Netnum));
-        SubCount = 0;
-        for iSub = 1:length(CombinedOutput)
-            if SubUse(iSub)
-                SubCount = SubCount+1;
-                Subjectfl = num2str(SubCount);
-                OutData = CombinedOutput{iSub,kNet}.nodecluster;
-                if network.voxelzscore
-                    meanv   = mean2(OutData);
-                    sdv     = std2(OutData);
-                    OutSave = (OutData - meanv)./sdv;
-                else
-                    OutSave = OutData;
-                end
-%                 SaveData(iSub,:)=OutSave;
-                save(OutflPath,'OutSave','-v7.3');
-            end
-        end
-%         save(OutflPath,'SaveData','-v7.3');
+            OutflConcat=mc_GenPath(struct('Template',network.flconcat,'mode','makeparentdir'));
+            save(OutflConcat,'SaveData','-v7.3');
+            clear SaveData
+        end        
     end
 end
 %% 
@@ -1141,13 +831,10 @@ end
         OutEtpy       = zeros(nThresh,length(CombinedOutput),nNet);
         OutDegree     = zeros(nThresh,length(CombinedOutput),nNet);
         OutDensity    = zeros(nThresh,length(CombinedOutput),nNet);
-        OutEigValue   = zeros(nThresh,length(CombinedOutput),nNet);
-        
-        
+        OutEigValue   = zeros(nThresh,length(CombinedOutput),nNet);       
         for iThresh = 1:nThresh
             for iSub = 1:length(CombinedOutput)
                 for jNet = 1:nNet
-                    
                     %Degree
                     OutDegree(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glodeg;
                     
@@ -1180,15 +867,12 @@ end
                     
                     %Eigenvector
                     OutEigValue(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eigvalue;
-                    
-                    
-                    
-                end
+                                      
+               end
             end
         end
     
-    %%%%%%%%%%%%%% Rearrange the data %%%%%%%%%%%%%%%%%%
-    
+    %%%%%%%%%%%%%% Rearrange the data %%%%%%%%%%%%%%%%%%    
     % Transfer matrix to vector (order: network1 for all subs, network2 for all subs....)
 %     ColCluster    = AveCluster(:);
 %     ColPathLength = AvePathLength(:);
@@ -1224,17 +908,13 @@ end
     
     % Combine to 2d matrix (column is thresh label, net label and metrics, row is each subject/thresh/net subset)
     data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens ColEig];
-    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density','EigVector'};
+    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density','EigValue'};
     input.netcol = 2;
     
     nMetric = length(Metrics);
-    types   = cell2mat(Types); input.types = types(SubUseMark==1);
-    input.unitype = unique(types);
-    
-%     TypePath = mc_GenPath( struct('Template',network.typesave,...
-%         'suffix','.mat',...
-%         'mode','makeparentdir'));
-%     save(TypePath,'types','-v7.3');
+        
+    input.types=Types(SubUseMark==1);
+    input.unitype=unique(Types);
 
 %% 2 Sample t-test Stream
 if network.ttest
@@ -1283,8 +963,50 @@ if network.ttest
          meandg(iThresh,:,:) = tresults.meanexp;
          sepb(iThresh,:,:)   = tresults.secontrol;
          sedg(iThresh,:,:)   = tresults.seexp;
+         
     end
 end
+[r,c,v]=ind2sub(size(p),find(p<siglevel));
+result.sigloc=[r c v];
+result.siglevel=siglevel;
+result.p=p;
+result.t=t;
+result.meanpb=meanpb;
+result.meandg=meandg;
+result.direction=sign(meandg-meanpb);
+result.sepb=sepb;
+result.sedg=sedg;
+result.metricorder=Metrics;
+result.networkorder=network.netinclude;
+tresultsave=mc_GenPath(struct('Template',network.tsave,'mode','makeparentdir'));
+save(tresultsave,'result','-v7.3');
+
+% output p value to csv
+OutpvaluePath=mc_GenPath(struct('Template',OutpvaluePathTemplate,'suffix','.csv','mode','makeparentdir'));
+theFID = fopen(OutpvaluePath,'w');
+if theFID < 0
+    fprintf(1,'Error opening the csv file!\n');
+    return;
+end
+fprintf(theFID,'Threshold,Network,Metric,pVal,direction\n');
+for i=1:nThresh
+    for j=1:nNet
+        for k=1:nMetric
+            fprintf(theFID,'%.4f,',network.zthresh(i));
+            fprintf(theFID,'%d,',network.netinclude(j));
+            fprintf(theFID,'%s,',result.metricorder{k});
+            fprintf(theFID,'%.4f,',result.p(i,j,k));
+            switch result.direction(i,j,k)
+                case 1
+                    fprintf(theFID,'%s\n','increase');
+                case -1
+                    fprintf(theFID,'%s\n','decrease');
+            end
+                    
+        end
+    end
+end
+fclose(theFID);
  
 %% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
