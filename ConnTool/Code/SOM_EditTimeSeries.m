@@ -8,7 +8,7 @@
 % Routine to take 2D input (space x time)
 % and edit out points
 %
-% function D1 = SOM_editTimeSeries(D0,censorVector)
+% function D1 = SOM_EditTimeSeries(D0,censorVector)
 %
 % data         = space x time data.
 %
@@ -16,13 +16,16 @@
 %                point on what to keep and throw away in
 %                time-series data.
 %
+%                1 = keep
+%                0 = toss
+%
 % Output
 % 
 % D1           = space x time data, edited.
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function D1 = SOM_editTimeSeries(D0,censorVector)
+function D1 = SOM_EditTimeSeries(D0,censorVector)
 
 D1 = -1;
 
@@ -31,8 +34,7 @@ if size(D0,2) ~= length(censorVector)
   return
 end
 
-idxGood = find(censorVector~=0);
-D1 = D0(:,idxGood);
+D1 = D0(:,censorVector~=0);
 
 return
 

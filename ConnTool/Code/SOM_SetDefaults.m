@@ -19,8 +19,8 @@ global SOM
 % Timing parameters
 
 SOM.defaults.TIME.TR          = 2;    %Seconds.
-SOM.defaults.TIME.BandFLAG    = 1;
-SOM.defaults.TIME.TrendFLAG   = 1;
+%SOM.defaults.TIME.BandFLAG    = 1;
+SOM.defaults.TIME.DetrendOder = 1;
 SOM.defaults.TIME.LowF        = 0.01;  %Hz
 SOM.defaults.TIME.HiF         = 0.10;
 SOM.defaults.TIME.padding     = 10; 
@@ -31,8 +31,13 @@ SOM.defaults.TIME.fraction    = 1;
 % Some regression defaults, some, not all.
 
 SOM.defaults.RegressFLAGS.prinComp = 5;
-SOM.defaults.RegressFLAGS.global   = 0;
 SOM.defaults.RegressFLAGS.order    = 'DCWMB';
+
+% Despiking defaults
+
+SOM.defaults.DespikeNumberOption      = 5;
+SOM.defaults.DespikeOption            = 'sgolay';
+SOM.defaults.DespikeReplacementInterp = 'pchip';
 
 % ROI deaults
 

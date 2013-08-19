@@ -12,7 +12,11 @@ end
 
 spm('defaults','fmri');
 global defaults
+global SOM
+
 warning off all
+
+SOM_SetDefaults
 
 spmver = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
@@ -37,28 +41,28 @@ if (RunMode(1) | sum(RunMode) == 0)
     
     MaskBrain = 1;
     
-    RegressGlobal    = any(strfind(upper(RegressOrder),'G'));
-    RegressWhite     = any(strfind(upper(RegressOrder),'W'));
-    RegressCSF       = any(strfind(upper(RegressOrder),'C'));
-    DoBandpassFilter = any(strfind(upper(RegressOrder),'B'));
-    RegressMotion    = any(strfind(upper(RegressOrder),'M'));
-    DoLinearDetrend  = any(strfind(upper(RegressOrder),'D'));
+    %RegressGlobal    = any(strfind(upper(RegressOrder),'G'));
+    %RegressWhite     = any(strfind(upper(RegressOrder),'W'));
+    %RegressCSF       = any(strfind(upper(RegressOrder),'C'));
+    %DoBandpassFilter = any(strfind(upper(RegressOrder),'B'));
+    %RegressMotion    = any(strfind(upper(RegressOrder),'M'));
+    %DoLinearDetrend  = any(strfind(upper(RegressOrder),'D'));
     
     for iSubject = 1:size(SubjDir,1)
         clear parameters;
         clear global SOM;
         
         parameters.RegressFLAGS.prinComp = PrincipalComponents;
-        parameters.RegressFLAGS.global   = RegressGlobal;
-        parameters.RegressFLAGS.csf      = RegressCSF;
-        parameters.RegressFLAGS.white    = RegressWhite;
-        parameters.RegressFLAGS.motion   = RegressMotion;
+        %parameters.RegressFLAGS.global   = RegressGlobal;
+        %parameters.RegressFLAGS.csf      = RegressCSF;
+        %parameters.RegressFLAGS.white    = RegressWhite;
+        %parameters.RegressFLAGS.motion   = RegressMotion;
         parameters.RegressFLAGS.order    = RegressOrder;
         
         Subject=SubjDir{iSubject,1};
-	
-	% This SubjDir{:,2} previous was useless, so discard to remove confusion.
-	
+        
+        % This SubjDir{:,2} previous was useless, so discard to remove confusion.
+        
         RunList=SubjDir{iSubject,2};
         
         SOM_LOG(sprintf('STATUS : Working on Subject : %s',Subject));
@@ -121,16 +125,86 @@ if (RunMode(1) | sum(RunMode) == 0)
                 parameters.data.run(iRun).cP  = cImageFiles;
             end
             
-            RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
+            % Only get the motion parameters if the person asked for motion
+            % regression.
             
-            parameters.data.run(iRun).P = ImageFiles;
+            if ~isempty(strfind(parameters.RegressFLAGS.order,'M'))
+                RealignmentParametersFile   = mc_GenPath(RealignmentParametersTemplate);
+                RealignmentParameters       = load(RealignmentParametersFile);
+                RealignmentParametersDeriv  = diff(RealignmentParameters);
+                RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
+                
+                parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
+            else
+                parameters.data.run(iRun).MotionParameters = [];
+            end
             
-            RealignmentParameters       = load(RealignmentParametersFile);
-            RealignmentParametersDeriv  = diff(RealignmentParameters);
-            RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
+            % This neesd some logic, such that if NumScan is missing then
+            % the code will assume all time points.
             
-            parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-            parameters.data.run(iRun).nTIME            = NumScan(iRun);
+            try
+                parameters.data.run(iRun).nTIME            = NumScan(iRun);
+            catch
+                parameters.data.run(iRun).nTIME            = 9999;
+            end
+            
+            parameters.data.run(iRun).despikeVector    = [];
+            parameters.data.run(iRun).censorVector     = [];
+            
+            %%%added code to handle DeSpike Vectors
+            %
+            %
+            if (exist('DespikeParametersTemplate','var') && ~isempty(DespikeParametersTemplate))
+                DeSpikeFile = mc_GenPath(struct('Template',DespikeParametersTemplate,'mode','check'));
+                [p f e] = fileparts(DeSpikeFile);
+                if (strcmp(e,'.mat'))
+                    %read variable and use cv element
+                    tempcv = load(DeSpikeFile);
+                    cv = tempcv.cv;
+                else %assume text file
+                    cv = load(DeSpikeFile);
+                end
+                if (size(cv,1) ~= NumScan(iRun))
+                    SOM_LOG(sprintf('STATUS : Your despiking vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
+                end
+                parameters.data.run(iRun).despikeVector = cv;
+                % Now the parameters for despiking
+                
+                DESPIKEOPTIONS = {'moving','lowess','loess','sgolay','rlowess','rloess'};
+                SOM.defaults.DespikeNumberOption
+                DespikeOption       = SOM.defaults.DespikeOption;
+                DespikeNumberOption = SOM.defaults.DespikeNumberOption;
+                if exist('DespikeReplacementOption','var') && ~isempty(DespikeReplacementOption)
+                    for iOpt = 1:length(DESPIKEOPTIONS)
+                        if strcmp(DESPIKEOPTIONS{iOpt}(1:3),DespikeReplacementOption(1:3))
+                            DespikeOption = DESPIKEOPTIONS{iOpt};
+                            DespikeNumberOption = DespikeReplacementOption(length(DESPIKEOPTIONS{iOpt})+1:end);
+                            try
+                                DespikeNumberOption = str2double(DespikeNumberOption);
+                            catch
+                                SOM_LOG(sprintf('WARNING : Despiking span is unreadable : %s. Using default',DespikeNumberOption))
+                                DespikeNumberOption = SOM.defaults.DespikeNumberOption;
+                            end
+                        end
+                    end
+                else
+                    SOM_LOG('WARNING : No "DespikeReplacementOption" specified, using default');
+                end
+                
+                DESPIKEINTERP1 = {'nearest','linear','spline','pchip'};
+                
+                if exist('DespikeReplacementInterp','var') && ~isempty(DespikeReplacementInterp)
+                    if isempty(cell2mat(DESPIKEINTERP1,DespikeReplacementInterp))
+                        SOM_LOG('WARNING : No "DespikeReplacementInterp" specified, using default');
+                        DespikeReplacementInterp = SOM.defaults.DespikeReplacementInterp;
+                    end
+                    
+                    parameters.RegressFLAGS.despikeParameters.span         = DespikeNumberOption;
+                    parameters.RegressFLAGS.despikeParameters.method       = DespikeOption;
+                    parameters.RegressFLAGS.despikeParameters.interpMethod = DespikeReplacementInterp;
+                    
+                end
+            end
             
             %%%added code to handle censorVectors
             %
@@ -148,17 +222,17 @@ if (RunMode(1) | sum(RunMode) == 0)
                     cv = load(CensorFile);
                 end
                 if (size(cv,1) ~= NumScan(iRun))
-                    SOM_LOG(sprintf('Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
+                    SOM_LOG(sprintf('STATUS : Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
                 end
-                parameters.data.run(iRun).censorVector = ~cv;
+                parameters.data.run(iRun).censorVector = cv;
             end
             %%%
             
             parameters.data.MaskFLAG = MaskBrain;
             
             parameters.TIME.run(iRun).TR            = TR;
-            parameters.TIME.run(iRun).BandFLAG      = DoBandpassFilter;
-            parameters.TIME.run(iRun).TrendFLAG     = DoLinearDetrend;
+            %parameters.TIME.run(iRun).BandFLAG      = DoBandpassFilter;
+            parameters.TIME.run(iRun).DetrendOrder  = DetrendOrder;
             parameters.TIME.run(iRun).LowF          = LowFrequency;
             parameters.TIME.run(iRun).HiF           = HighFrequency;
             parameters.TIME.run(iRun).gentle        = Gentle;
@@ -195,72 +269,51 @@ if (RunMode(1) | sum(RunMode) == 0)
             case 'directory'
                 ROIFolder = mc_GenPath(ROITemplate);
                 parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
-            case 'coordinates'
-                parameters.rois.mni.coordinates = ROICenters;
-                if (iscell(ROISize))
-                    parameters.rois.mni.size = ROISize{1};
-                else
-                    XYZ = SOM_MakeSphereROI(ROISize);
-                    parameters.rois.mni.size.XROI = XYZ(1,:);
-                    parameters.rois.mni.size.YROI = XYZ(2,:);
-                    parameters.rois.mni.size.ZROI = XYZ(3,:);
+            case {'coordinates','coordload','grid','gridplus'}
+                switch(ROIInput)
+                    case 'coordinates'
+                        grid_coord = ROICenters;
+                    case 'coordload'
+                        tmpArray = load(mc_GenPath(ROIFile));
+                        if isstruct(tmpArray)
+                            tmpArrayField = fieldnames(tmpArray);
+                            %
+                            % Now we only expect one field, else throw an error
+                            %
+                            if length(tmpArrayField) ~= 1
+                                SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
+                                return
+                            end
+                            try
+                                grid_coord = getfield(tmpArray,tmpArrayFields{1});
+                            catch
+                                SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
+                                return
+                            end
+                        end
+                    case 'grid'
+                        ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
+                        ROIGridMaskHdr  = spm_vol(ROIGridMask);
+                        ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
+                        grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                        inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                        grid_coord      = grid_coord_cand(inOutIDX,:);
+                    case 'gridplus'
+                        ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
+                        ROIGridMaskHdr  = spm_vol(ROIGridMask);
+                        ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
+                        grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                        inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                        grid_coord      = grid_coord_cand(inOutIDX,:);
+                        grid_coord      = [grid_coord; ROIGridCenters];
                 end
-            case 'coordload'
-                tmpArray = load(mc_GenPath(ROIFile));
-                if isstruct(tmpArray)
-                    tmpArrayField = fieldnames(tmpArray);
-                    %
-                    % Now we only expect one field, else throw an error
-                    %
-                    if length(tmpArrayField) ~= 1
-                        SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
-                        return
-                    end
-                    try
-                        parameters.rois.mni.coordinates = getfield(tmpArray,tmpArrayFields{1});
-                    catch
-                        SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
-			return
-                    end
-                    if (iscell(ROISize))
-                        parameters.rois.mni.size = ROISize{1};
-                    else
-                        XYZ = SOM_MakeSphereROI(ROISize);
-                        parameters.rois.mni.size.XROI = XYZ(1,:);
-                        parameters.rois.mni.size.YROI = XYZ(2,:);
-                        parameters.rois.mni.size.ZROI = XYZ(3,:);
-                    end
-                end
-            case 'grid'
-                ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
-                ROIGridMaskHdr  = spm_vol(ROIGridMask);
-                ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
-                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                grid_coord      = grid_coord_cand(inOutIDX,:);
+                
                 parameters.rois.mni.coordinates = grid_coord;
+                
                 if (iscell(ROIGridSize))
                     parameters.rois.mni.size = ROIGridSize{1};
                 else
-                    XYZ = SOM_MakeSphereROI(ROIGridSize);
-                    parameters.rois.mni.size.XROI = XYZ(1,:);
-                    parameters.rois.mni.size.YROI = XYZ(2,:);
-                    parameters.rois.mni.size.ZROI = XYZ(2,:);
-                end
-            case 'gridplus'
-                ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
-                ROIGridMaskHdr  = spm_vol(ROIGridMask);
-                ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
-                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                grid_coord      = grid_coord_cand(inOutIDX,:);
-                
-                grid_coord      = [grid_coord; ROIGridCenters];
-                
-                parameters.rois.mni.coordinates = grid_coord;
-                if (iscell(ROIGridSize))
-                    parameters.rois.mni.size = ROIGridSize{1};
-                else
+                    % The radius is measured in VOXELS and not mm.
                     XYZ = SOM_MakeSphereROI(ROIGridSize);
                     parameters.rois.mni.size.XROI = XYZ(1,:);
                     parameters.rois.mni.size.YROI = XYZ(2,:);
@@ -287,22 +340,27 @@ if (RunMode(2))
         %load existing parameter file
         OutputPath = mc_GenPath(OutputTemplate);
         load(fullfile(OutputPath,ParameterFilename));
+        parameters = SOM_CheckParamVersion(parameters);
+        if ~parameters.OK
+            SOM_LOG('FATAL ERROR : The version of parameters loaded is incompatible with this release.');
+            return
+        end
         clear global SOM;
         global SOM;
         SOM.silent = 1;
-        SOM_LOG('STATUS : 01');
+        SOM_LOG('STATUS : Read parameters file in from previous run');
         
         [D0 parameters] = SOM_PreProcessData(parameters);
         if D0 == -1
             SOM_LOG('FATAL ERROR : No data returned');
             SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo data was returned from SOM_PreProcessData\n');
-	    return
+            return
         else
             results = SOM_CalculateCorrelations(D0,parameters);
             if isnumeric(results)
                 SOM_LOG('FATAL ERROR : ');
                 SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo results were returned from SOM_CalculateCorrelations\n');
-		return
+                return
             else
                 for iR = 1:size(results,1)
                     SOM_LOG(results(iR,:));

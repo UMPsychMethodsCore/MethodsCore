@@ -104,7 +104,7 @@
 %         BandFLAG       = 0 no band pass filter
 %                          1 apply bandpass filter
 %
-%         TrendFLAG      < 0 no linear detrending
+%         DetrendOrder      < 0 no linear detrending
 %                          # use [N]-order polynomial to detrend.
 %
 %         LowF           = low frequency band cut
@@ -283,7 +283,7 @@ D0RUN  = [];
 for iRUN = 1:length(parameters.data.run)
     
     [D0RUN(iRUN).D0 parameters.maskInfo] = SOM_PrepData(parameters.data.run(iRUN).P,parameters.maskHdr.fname,[]);
-
+    
     % Read in the confound data
     
     [D0RUN(iRUN).cD0, ~]                 = SOM_PrepData(parameters.data.run(iRUN).cP,parameters.maskHdr.fname,[]);
@@ -316,8 +316,21 @@ for iRUN = 1:length(parameters.data.run)
         switch parameters.RegressFLAGS.order(iOrder)
             
             %
-            % Detrend
+            % Replace spiky bad data with smoothed interpolation
             %
+            case 'S'
+                %
+                % using smooth function and interp1 replace bad time points
+                %
+                SOM_LOG('STATUS : Doing smooth replacement of bad time points.');
+                parametesr.startCPU.run(iRUN).replace = cputime;
+                D0RUN(iRUN).D0 = SOM_DeSpikeTimeSeries(DORUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                
+                parameters.stopCPU.run(iRUN).replace = cputime;
+                
+                %
+                % Detrend
+                %
             case 'D'
                 
                 % Detrend the data.
@@ -329,11 +342,11 @@ for iRUN = 1:length(parameters.data.run)
                 SOM_LOG('STATUS : Doing detrending.');
                 parameters.startCPU.run(iRUN).detrend = cputime;
                 
-                if parameters.TIME.run(iRUN).TrendFLAG > 0
-		    % Detrend time-series data
-                    D0RUN(iRUN).D0  = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).TrendFLAG)';
-		    % Detrend confound as well
-                    D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN).cD0',parameters.TIME.run(iRUN).TrendFLAG)';
+                if parameters.TIME.run(iRUN).DetrendOrder > 0
+                    % Detrend time-series data
+                    D0RUN(iRUN).D0  = spm_detrend(D0RUN(iRUN).D0',parameters.TIME.run(iRUN).DetrendOrder)';
+                    % Detrend confound as well
+                    D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN).cD0',parameters.TIME.run(iRUN).DetrendOrder)';
                 end
                 
                 parameters.stopCPU.run(iRUN).detrend = cputime;
@@ -392,7 +405,7 @@ for iRUN = 1:length(parameters.data.run)
                         % Now remove them.
                         % From the time-series data
                         D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.csf.run(iRUN).regressors);
-			% And from the confound data
+                        % And from the confound data
                         D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.masks.csf.run(iRUN).regressors);
                     end
                 else
@@ -422,38 +435,38 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.masks.white.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.white.ROIIDX);
                     
                     if length(parameters.masks.white.IDX) < 1
-		      SOM_LOG(sprintf('STATUS : Not enough voxels to determine White time course'))
+                        SOM_LOG(sprintf('STATUS : Not enough voxels to determine White time course'))
                     else
-		      SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
-                    
-		      % Are we regressing out the principle components or the mean.
-		      
-		      parameters.masks.white.run(iRUN).PRINCOMP = [];
-		      
-		      %
-		      % Are we doing principle components are we taking the mean of the ROI?
-		      %
-		      if parameters.RegressFLAGS.prinComp > 0
-                        parameters.masks.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:),parameters.TIME.run(iRUN).fraction);
-                        % How many components are we to use?
-                        parameters.masks.white.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.white.run(iRUN).PRINCOMP.TC,2)]);
-                        parameters.masks.white.run(iRUN).regressors = (parameters.masks.white.run(iRUN).PRINCOMP.TC(:,1:parameters.masks.white.run(iRUN).nComp));
-		      else
-                        parameters.masks.white.run(iRUN).regressors = mean(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:))';
-		      end
-		      
-		      % Now remove them.
-		      
-		      % From the time-series data
-		      D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
-		      % And from the confound data
-		      D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.masks.white.run(iRUN).regressors);
-		    end
+                        SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
+                        
+                        % Are we regressing out the principle components or the mean.
+                        
+                        parameters.masks.white.run(iRUN).PRINCOMP = [];
+                        
+                        %
+                        % Are we doing principle components are we taking the mean of the ROI?
+                        %
+                        if parameters.RegressFLAGS.prinComp > 0
+                            parameters.masks.white.run(iRUN).PRINCOMP   = SOM_PrinComp(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:),parameters.TIME.run(iRUN).fraction);
+                            % How many components are we to use?
+                            parameters.masks.white.run(iRUN).nComp      = min([parameters.RegressFLAGS.prinComp size(parameters.masks.white.run(iRUN).PRINCOMP.TC,2)]);
+                            parameters.masks.white.run(iRUN).regressors = (parameters.masks.white.run(iRUN).PRINCOMP.TC(:,1:parameters.masks.white.run(iRUN).nComp));
+                        else
+                            parameters.masks.white.run(iRUN).regressors = mean(D0RUN(iRUN).cD0(parameters.masks.white.IDX,:))';
+                        end
+                        
+                        % Now remove them.
+                        
+                        % From the time-series data
+                        D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.masks.white.run(iRUN).regressors);
+                        % And from the confound data
+                        D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.masks.white.run(iRUN).regressors);
+                    end
                 else
-		  parameters.masks.white.run(iRUN).regressors = [];
-		  SOM_LOG('WARNING : * * * * * * * * * * * *');
-		  SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
-		  SOM_LOG('WARNING : * * * * * * * * * * * *');
+                    parameters.masks.white.run(iRUN).regressors = [];
+                    SOM_LOG('WARNING : * * * * * * * * * * * *');
+                    SOM_LOG('WARNING : WM reression speficied but no WM regression mask available.');
+                    SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
                 parameters.stopCPU.run(iRUN).white = cputime;
@@ -467,13 +480,15 @@ for iRUN = 1:length(parameters.data.run)
                 
                 parameters.startCPU.run(iRUN).motion = cputime;
                 
-                if parameters.RegressFLAGS.motion > 0
+                %if parameters.RegressFLAGS.motion > 0
+                if ~isempty(parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:))
                     D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
                     D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
                     SOM_LOG('STATUS : Motion Correction Implemented');
                 else
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
-                    SOM_LOG('WARNING : Motion regression speficied, but motion regression internally turned off???');
+                    %SOM_LOG('WARNING : Motion regression speficied, but motion regression internally turned off???');
+                    SOM_LOG(sprintf('WARNING : Motion regression speficied, but motion parameters missing for run %d',iRUN));
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
@@ -488,30 +503,30 @@ for iRUN = 1:length(parameters.data.run)
                 
                 % Now band-pass filter
                 
-                if parameters.TIME.run(iRUN).BandFLAG > 0
-                    [D0RUN(iRUN).D0 b filtParams] = SOM_Filter(D0RUN(iRUN).D0,...
-                        parameters.TIME.run(iRUN).TR,...
-                        parameters.TIME.run(iRUN).LowF,...
-                        parameters.TIME.run(iRUN).HiF,...
-                        parameters.TIME.run(iRUN).gentle,...
-                        parameters.TIME.run(iRUN).padding,...
-                        parameters.TIME.run(iRUN).whichFilter);
-                    parameters.TIME.run(iRUN).b = b(1,:);
-                    parameters.TIME.run(iRUN).filtParams = filtParams;   % Number of degrees of freedom.
-                    SOM_LOG('STATUS : Band Pass Filter Implemented.');
-		    % And now the confound series.
-                    [D0RUN(iRUN).cD0 b filtParams] = SOM_Filter(D0RUN(iRUN).cD0,...
-                        parameters.TIME.run(iRUN).TR,...
-                        parameters.TIME.run(iRUN).LowF,...
-                        parameters.TIME.run(iRUN).HiF,...
-                        parameters.TIME.run(iRUN).gentle,...
-                        parameters.TIME.run(iRUN).padding,...
-                        parameters.TIME.run(iRUN).whichFilter);
-                else
-                    parameters.TIME.run(iRUN).b = [];
-                    parameters.TIME.run(iRUN).nDF = size(D0RUN(iRUN).D0,2);
-                    SOM_LOG(sprintf('WARNING : No Band Pass Filter Speficied for this run : %d.',iRUN));
-                end
+                %if parameters.TIME.run(iRUN).BandFLAG > 0
+                [D0RUN(iRUN).D0 b filtParams] = SOM_Filter(D0RUN(iRUN).D0,...
+                    parameters.TIME.run(iRUN).TR,...
+                    parameters.TIME.run(iRUN).LowF,...
+                    parameters.TIME.run(iRUN).HiF,...
+                    parameters.TIME.run(iRUN).gentle,...
+                    parameters.TIME.run(iRUN).padding,...
+                    parameters.TIME.run(iRUN).whichFilter);
+                parameters.TIME.run(iRUN).b = b(1,:);
+                parameters.TIME.run(iRUN).filtParams = filtParams;   % Number of degrees of freedom.
+                SOM_LOG('STATUS : Band Pass Filter Implemented.');
+                % And now the confound series.
+                [D0RUN(iRUN).cD0 b filtParams] = SOM_Filter(D0RUN(iRUN).cD0,...
+                    parameters.TIME.run(iRUN).TR,...
+                    parameters.TIME.run(iRUN).LowF,...
+                    parameters.TIME.run(iRUN).HiF,...
+                    parameters.TIME.run(iRUN).gentle,...
+                    parameters.TIME.run(iRUN).padding,...
+                    parameters.TIME.run(iRUN).whichFilter);
+                %else
+                %    parameters.TIME.run(iRUN).b = [];
+                %    parameters.TIME.run(iRUN).nDF = size(D0RUN(iRUN).D0,2);
+                %    SOM_LOG(sprintf('WARNING : No Band Pass Filter Speficied for this run : %d.',iRUN));
+                %end
                 
                 parameters.stopCPU.run(iRUN).band = cputime;
                 
@@ -550,7 +565,7 @@ end
 % Number of time points before editing
 %
 %
-% This is very controversial. Editing a bad volume will not fully removing its influence on the 
+% This is very controversial. Editing a bad volume will not fully removing its influence on the
 % time series and will have ripple effects.
 %
 % We use a FFT bandpass which will introduce Ripples.
@@ -572,10 +587,10 @@ enTIME = [];
 
 for iRUN = 1:length(parameters.data.run)
     if isfield(parameters.data.run(iRUN),'censorVector')
-      SOM_LOG('WARNING : You are editing a time-series post filtering, this is controversial and not 100% recommended.')
-      D0RUN(iRUN).D0 = SOM_editTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
+        SOM_LOG('WARNING : You are editing a time-series post filtering, this is controversial and not 100% recommended.')
+        D0RUN(iRUN).D0 = SOM_EditTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
         if D0RUN(iRUN).D0 == -1
-            SOM_LOG('FATAL : SOM_editTimeSeries failed.');
+            SOM_LOG('FATAL : SOM_EditTimeSeries failed.');
             exit
         else
             enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
