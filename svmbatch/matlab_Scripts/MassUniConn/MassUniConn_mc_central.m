@@ -193,7 +193,7 @@ a = mc_TakGraph_enlarge(a); % enlarge dots
 
 %%% plot the actual graph
 
-a.title = strrep(outputPath,Exp,'');
+a.title = GraphTitle;
 
 
 a = mc_TakGraph_plot(a);

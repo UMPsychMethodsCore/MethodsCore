@@ -90,6 +90,7 @@ ZTrans = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 outputPath = '/net/data4/MyStudy/SweetNewOutput';
+GraphTitle = 'SweetNewOutput';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also need to find just ONE parameter file that has info on where the     %
