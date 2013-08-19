@@ -64,6 +64,7 @@ for iSub=1:nSubs
       conPath=mc_GenPath(conPathTemplate);
       conmat=load(conPath);
       rmat=conmat.rMatrix;
+%       rmat=conmat.zMatrix;
       if ~exist('unsprung','var') || unsprung==0
         switch matrixtype
           case 'upper'

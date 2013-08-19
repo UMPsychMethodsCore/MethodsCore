@@ -15,7 +15,7 @@ function [ a ] =  mc_TakGraph_AddShading( a )
 %                                                       nNet x nNet logical matrix of which cells to shade.
 %                       a.mediator.pad          -       OPTIONAL - Number of blank rows and columns to draw around the figure for better graphics.
 
-set(0,'currentfigure',a.h)
+% set(0,'currentfigure',a.h)
 hold on;
 
 if isfield(a.shading,'shademask') % if a shademask is given, use that

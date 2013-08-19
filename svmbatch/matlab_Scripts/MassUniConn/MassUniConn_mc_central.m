@@ -173,6 +173,32 @@ cellneg = a.cellcount.cellneg; % count of negative
 
 edgemat = a.mediator.square; %snag edgemat for use down in network contingency stuff
 
+%% Generate unshaded TakGraph
+%%% Enlarge Dots
+
+a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
+                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
+                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
+
+a.colormap = [1 1 1; % make 1 white
+              1 0 0; % make 2 red
+              0 0 1; % make 3 blue
+              1 1 0; % make 4 yellow (blended)
+                    ];
+if TakGraphNetSubsetEnable == 1
+    a.mediator.NetSubset = TakGraphNetSubset;
+end
+
+a = mc_TakGraph_enlarge(a); % enlarge dots
+
+%%% plot the actual graph
+
+a.title = strrep(outputPath,Exp,'');
+
+
+a = mc_TakGraph_plot(a);
+
+
 %% Permutations
 
 % If Shading is disabled, then reset nRep to 1 no matter what value it was given.
@@ -181,8 +207,10 @@ if (~exist('ShadingEnable','var'))
 end
 
 if ShadingEnable == 0
-    nRep = 1;
+    nRep = 1;    
 end
+
+
 
 % for perms.count
 %First two dimensions will index the network structure. 
@@ -193,8 +221,9 @@ if permDone ~= 1
 
     perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
-% attempt parallel
+    a = mc_TakGraph_plot(a);
 
+% attempt parallel
     if permCores ~= 1
         try
             matlabpool('open',permCores)
@@ -248,28 +277,7 @@ a.stats.FDR.CalcP    = CalcP;
 
 a = mc_Network_CellLevelStats(a);
 
-%% Generate TakGraph
-
-%%% Enlarge Dots
-
-a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
-                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
-                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
-
-a.colormap = [1 1 1; % make 1 white
-              1 0 0; % make 2 red
-              0 0 1; % make 3 blue
-              1 1 0; % make 4 yellow (blended)
-                    ];
-if TakGraphNetSubsetEnable == 1
-    a.mediator.NetSubset = TakGraphNetSubset;
-end
-
-a = mc_TakGraph_enlarge(a); % enlarge dots
-
-%%% plot the actual graph
-
-a = mc_TakGraph_plot(a);
+%% Add shading to TakGraph
 
 %%% add shading
 
