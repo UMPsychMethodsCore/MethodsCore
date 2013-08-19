@@ -76,6 +76,7 @@ for iBox=1:size(starts)
 end
 
 hold off
+set(a.h,'Visible','on')
 
 end
 

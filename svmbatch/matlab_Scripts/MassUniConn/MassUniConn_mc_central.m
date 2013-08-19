@@ -221,8 +221,6 @@ if permDone ~= 1
 
     perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
-    a = mc_TakGraph_plot(a);
-
 % attempt parallel
     if permCores ~= 1
         try
@@ -256,6 +254,7 @@ if permDone ~= 1
     save(permSave,'perms','-v7.3');  %%%%  Backup
 else
     load(permSave);
+    
 end
 
 
@@ -277,7 +276,7 @@ a.stats.FDR.CalcP    = CalcP;
 
 a = mc_Network_CellLevelStats(a);
 
-%% Add shading to TakGraph
+% Add shading to TakGraph
 
 %%% add shading
 
