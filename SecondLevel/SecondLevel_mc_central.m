@@ -156,11 +156,11 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
 		  cn = 1;
 		  for r = 1:length(options.models(N).reg)
 		      con.consess{cn}.tcon.name = [options.models(N).reg(r).name ' pos'];
-		      con.consess{cn}.tcon.convec = [zeros(1,(r-1)) 1];
+              con.consess{cn}.tcon.convec = [zeros(1, r) 1];
 		      con.consess{cn}.tcon.sessrep = 'none';
 		      cn = cn + 1;
 		      con.consess{cn}.tcon.name = [options.models(N).reg(r).name ' neg'];
-		      con.consess{cn}.tcon.convec = [zeros(1,(r-1)) -1];
+              con.consess{cn}.tcon.convec = [zeros(1, r) -1];
 		      con.consess{cn}.tcon.sessrep = 'none';
 		      cn = cn + 1;
 		  end
