@@ -6,15 +6,18 @@ function [ labels ] = mc_NearestNetworkNode(voxlist, radius, refimage)
 %               voxlist -       nROI*3 matrix of coordinates in MNI
 %                               space 
 %               radius  -       Radius of sphere to search in MNI distance
+%               refimage-       OPTIONAL - Path to a reference image's hdr
+%                                       If not specified, defaults to Yeo map at
+%                                       /net/data4/MAS/ROIS/Yeo/YeoPlus.hdr
 %       Output Args
 %       
 %               labels  -       1*nRoi list of values taken from
 %                               nearest neighbor
 % NOTES
-%       Currently hardcoded to use the YeoNetwork Map
+
 
 %% Get the space
-if ~exist('refimage','var')
+if ~exist('refimageg','var')
     refimage='/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr';
 end
     
