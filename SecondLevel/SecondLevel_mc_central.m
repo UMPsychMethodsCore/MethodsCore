@@ -189,6 +189,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
         factorial_design.dir = {mc_GenPath(FactorialDesignCheck)};
 
 		if (options.models(N).type == 6)
+                    if (des2.fd.fact.levels>1)
             mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
                                'mode','makedir') );
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
@@ -217,6 +218,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
             end
             
 			n2 = n2 + 1;
+                        end
 		end
 		con.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{1}.factorial_design = factorial_design;
