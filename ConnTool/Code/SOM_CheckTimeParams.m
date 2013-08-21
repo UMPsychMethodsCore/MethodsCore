@@ -92,9 +92,9 @@ for iRUN = 1:length(TIME.run)
 % % %     TIME.run(iRUN).BandFLAG = SOM.defaults.TIME.BandFLAG;
 % % %   end
   
-  if isfield(TIME.run(iRUN),'DetrendOder') == 0
-    SOM_LOG(sprintf('WARNING : Missing TIME.run(%d).DetrendOder, setting to 1',iRUN));
-    TIME.run(iRUN).DetrendOder = SOM.defaults.TIME.DetrendOder;
+  if isfield(TIME.run(iRUN),'DetrendOrder') == 0
+    SOM_LOG(sprintf('WARNING : Missing TIME.run(%d).DetrendOrder, setting to 1',iRUN));
+    TIME.run(iRUN).DetrendOrder = SOM.defaults.TIME.DetrendOder;
   end
   
   if isfield(TIME.run(iRUN),'LowF') == 0

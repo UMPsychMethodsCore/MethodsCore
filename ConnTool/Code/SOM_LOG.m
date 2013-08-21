@@ -51,6 +51,12 @@ global SOM
 
 LOGLEVELS = {'INFO','STATUS','WARN','FATAL'};
 
+inputLog = strrep(inputLog,'INFO :'   ,'INFO    :');
+inputLog = strrep(inputLog,'STATUS :' ,'STATUS  :');
+inputLog = strrep(inputLog,'WARNING :','WARNING :');
+inputLog = strrep(inputLog,'FATAL :'  ,'FATAL   :');
+inputLog = strrep(inputLog,'OUTPUT :' ,'OUTPUT  :');
+
 [ST STI] = dbstack;
 
 % The logic of the combination of log type and logging level.

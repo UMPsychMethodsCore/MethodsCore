@@ -73,7 +73,7 @@ if isfield(parameters,'RegressFLAGS') == 0
 % % %         else
 % % %             RegressFLAGS.motion = 1;
 % % %         end
-    end
+% % %     end
     % Default the order.
     RegressFLAGS.order = SOM.defaults.RegressFLAGS.order;
     RegressFLAGS.OK    = 1;
@@ -92,24 +92,24 @@ if isfield(RegressFLAGS,'prinComp') == 0
 end
 
 if isfield(RegressFLAGS,'despikeParameters') == 0
-    SOM_LOG('WARNING : despikeParameters not set, using defaults')
+    SOM_LOG('WARNING : despikeParameters not set, using defaults');
     RegressFLAGS.despikeParameters.span         = SOM.defaults.DespikeNumberOption;
     RegressFLAGS.despikeParameters.method       = SOM.defaults.DespikeOption;
     RegressFLAGS.despikeParameters.interpMethod = SOM.defaults.DespikeReplacementInterp;
 end
 
 if isfield(RegressFLAGS.despikeParameters,'span') == 0
-    SOM_LOG('WARNING : despikeParameters.span not set, using default')
+    SOM_LOG('WARNING : despikeParameters.span not set, using default');
     RegressFLAGS.despikeParameters.span         = SOM.defaults.DespikeNumberOption;
 end
 
 if isfield(RegressFLAGS.despikeParameters,'method') == 0
-    SOM_LOG('WARNING : despikeParameters.method not set, using default')
+    SOM_LOG('WARNING : despikeParameters.method not set, using default');
     RegressFLAGS.despikeParameters.method       = SOM.defaults.DespikeOption;
 end
 
 if isfield(RegressFLAGS.despikeParameters,'interpMethod') == 0
-    SOM_LOG('WARNING : despikeParameters.interpMethod not set, using default')
+    SOM_LOG('WARNING : despikeParameters.interpMethod not set, using default');
     RegressFLAGS.despikeParameters.interpMethod = SOM.defaults.DespikeReplacementInterp;
 end
 
@@ -149,7 +149,7 @@ else
     end
     nOrder = '';
     for iOrder = 1:length(RegressFLAGS.order)
-        if ~isempty(strfind('DGCWMB',upper(RegressFLAGS.order(iOrder))))
+        if ~isempty(strfind('DSGCWMEB',upper(RegressFLAGS.order(iOrder))))
             nOrder = [nOrder upper(RegressFLAGS.order(iOrder))];
         else
             SOM_LOG(sprintf('FATAL : I don''t recognize the regression order symbol : %s',RegressFLAGS.order(iOrder)));

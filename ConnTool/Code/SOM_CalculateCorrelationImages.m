@@ -35,9 +35,9 @@ MatlabVer = ver;
 SOM.StatsToolBox = any(strcmp('Statistics Toolbox',{MatlabVer.Name}));
 
 if SOM.StatsToolBox
-  SOM_LOG('INFO : Statistics Toolbox Ppresent');
+    SOM_LOG('INFO : Statistics Toolbox Ppresent');
 else
-  SOM_LOG('INFO : Statistics Toolbox NOT present, this will take longer.');
+    SOM_LOG('INFO : Statistics Toolbox NOT present, this will take longer.');
 end
 
 %
@@ -59,25 +59,25 @@ for iROI = 1 : parameters.rois.nroisRequested
         rMap = 0*rMap;
         pMap = 0*rMap;
         
-	if SOM.StatsToolBox
-	  % Much faster!
-	  [rMap pMap] = corr(D0',roiTC');
-	else
-	  % 
-	  % Have to use corrcoef which is slower
-	  %
-	  for iV = 1:size(D0,1);
-	    [rTmp pTmp]         = corrcoef(D0(iV,:)',roiTC');
-	    rMap(iV)            = rTmp(1,2);
-	    pMap(iV)            = pTmp(1,2);
-	  end
+        if SOM.StatsToolBox
+            % Much faster!
+            [rMap pMap] = corr(D0',roiTC');
+        else
+            %
+            % Have to use corrcoef which is slower
+            %
+            for iV = 1:size(D0,1);
+                [rTmp pTmp]         = corrcoef(D0(iV,:)',roiTC');
+                rMap(iV)            = rTmp(1,2);
+                pMap(iV)            = pTmp(1,2);
+            end
         end
-	
-	% Now turn into maps (r and p) and write out.
+        
+        % Now turn into maps (r and p) and write out.
         
         rMapVol                            = 0*rMapVol;
         pMapVol                            = ones(size(rMapVol));
-
+        
         rMapVol(parameters.maskInfo.iMask) = rMap;
         pMapVol(parameters.maskInfo.iMask) = pMap;
         
@@ -91,12 +91,12 @@ for iROI = 1 : parameters.rois.nroisRequested
         rMapHdr.dim     = parameters.maskHdr.dim(1:3);
         rMapHdr.dt      = [16 0];
         rMapHdr.descrip = sprintf('%s : %d',parameters.Output.description,iROI);
-
-	% Now the probability map.
-
+        
+        % Now the probability map.
+        
         pMapHdr       = rMapHdr;
-	pMapHdr.fname = fullfile(parameters.Output.directory,sprintf('pmap_%s_%04d.nii',parameters.Output.name,iROI));
-
+        pMapHdr.fname = fullfile(parameters.Output.directory,sprintf('pmap_%s_%04d.nii',parameters.Output.name,iROI));
+        
         spm_write_vol(rMapHdr,rMapVol);
         spm_write_vol(pMapHdr,pMapVol);
         
@@ -115,7 +115,7 @@ for iROI = 1 : parameters.rois.nroisRequested
             SOM_LOG(sprintf('WARNING : I guess the corr didn''t work for ROI %d',iROI));
         end
     end
-    results = strvcat(results,rMapHdr.fname);
+    results = strvcat(results,rMapHdr.fname,pMapHdr.fname,Vo.fname);
 end
 
 return

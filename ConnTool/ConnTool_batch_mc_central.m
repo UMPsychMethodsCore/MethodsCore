@@ -2,6 +2,43 @@
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Initialize what we need.
+
+warning off all
+
+global defaults
+global SOM
+
+spm('defaults','fmri');
+SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * *');
+SOM_LOG('STATUS : Starting up the ConnTool Box');
+SOM_LOG('STATUS : Authored by Robert Welsh 2008-2013');
+SOM_LOG('STATUS : Some parts authored by Methods Core');
+SOM_LOG('STATUS : Ann Arbor, MI');
+SOM_LOG('STATUS : rcwelsh (at) med (dot) umich (dot) edu');
+
+SOM_SetDefaults
+SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * *');
+
+% Did they specify a smaller group of subjects to process?
+
+if exist('SubjectDirBatch') && ~isempty(SubjectDirBatch)
+    if max(SubjectDirBatch) > size(SubjDir,1) || min(SubjectDirBatch) < 1
+        fprintf('\nError - the batch of subjects you are requesting will not exist\n\n');
+        FATALERROR=1;
+    else
+        SubjDirTmp = {};
+        nSubjectBatch = 0;
+        for iSubjectBatch = 1:length(SubjectDirBatch)
+            nSubjectBatch = nSubjectBatch + 1;
+            for iSubjectBatchCol = 1:2
+                SubjDirTmp{nSubjectBatch,iSubjectBatchCol} = SubjDir{SubjectDirBatch(iSubjectBatch),iSubjectBatchCol};
+            end
+        end
+        SubjDir = SubjDirTmp;
+    end
+end
+
 RunMode = [0 0];
 if (strcmpi(Mode,'full'))
     RunMode = [1 1];
@@ -10,21 +47,13 @@ else
     RunMode(2) = strcmpi(Mode,'som');
 end
 
-spm('defaults','fmri');
-global defaults
-global SOM
-
-warning off all
-
-SOM_SetDefaults
-
-spmver = spm('Ver');
+[spmver spmsubver] = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
     spm_get_defaults('cmdline',true);
 end
 
 if ~isempty(GreyFile)
-    GreyMatterTemplate  = [AnatomyMaskPath '/' GreyFile]
+    GreyMatterTemplate  = [AnatomyMaskPath '/' GreyFile];
 end
 
 if ~isempty(WhiteFile)
@@ -38,25 +67,12 @@ end
 if (RunMode(1) | sum(RunMode) == 0)
     RunNamesTotal = RunDir;
     NumScanTotal  = NumScan;
-    
-    MaskBrain = 1;
-    
-    %RegressGlobal    = any(strfind(upper(RegressOrder),'G'));
-    %RegressWhite     = any(strfind(upper(RegressOrder),'W'));
-    %RegressCSF       = any(strfind(upper(RegressOrder),'C'));
-    %DoBandpassFilter = any(strfind(upper(RegressOrder),'B'));
-    %RegressMotion    = any(strfind(upper(RegressOrder),'M'));
-    %DoLinearDetrend  = any(strfind(upper(RegressOrder),'D'));
-    
+        
     for iSubject = 1:size(SubjDir,1)
         clear parameters;
-        clear global SOM;
+        SOM.LOG = [];
         
         parameters.RegressFLAGS.prinComp = PrincipalComponents;
-        %parameters.RegressFLAGS.global   = RegressGlobal;
-        %parameters.RegressFLAGS.csf      = RegressCSF;
-        %parameters.RegressFLAGS.white    = RegressWhite;
-        %parameters.RegressFLAGS.motion   = RegressMotion;
         parameters.RegressFLAGS.order    = RegressOrder;
         
         Subject=SubjDir{iSubject,1};
@@ -82,36 +98,72 @@ if (RunMode(1) | sum(RunMode) == 0)
         ImageNumRun=size(RunDir,1); %number of image folders
         
         if ~isempty(GreyFile)
-            GreyPath  = mc_GenPath(GreyMatterTemplate);
+            [GreyPath EC]  = mc_GenPath(GreyMatterTemplate);
+            if ~isempty(EC)
+                SOM_LOG('FATAL : You specified a gray matter volume but it is not there.');
+                SOM_LOG(EC);
+                return
+            end
         end
         if ~isempty(WhiteFile)
-            WhitePath = mc_GenPath(WhiteMatterTemplate);
+            [WhitePath EC] = mc_GenPath(WhiteMatterTemplate);
+            if ~isempty(EC)
+                SOM_LOG('FATAL : You specified a white matter volume but it is not there.');
+                SOM_LOG(EC);
+                return
+            end
         end
         if ~isempty(CSFFile)
-            CSFPath   = mc_GenPath(CSFTemplate);
+            [CSFPath EC]  = mc_GenPath(CSFTemplate);
+            if ~isempty(EC)
+                SOM_LOG('FATAL : You specified a CSF volume but it is not there.');
+                SOM_LOG(EC);
+                return
+            end
         end
-        BrainPath = mc_GenPath(BrainMaskTemplate);
+        [BrainPath EC] = mc_GenPath(EPIBrainMaskTemplate);
+        if ~isempty(EC)
+            SOM_LOG('FATAL : The specified BrainMask is not there.');
+            SOM_LOG(EC);
+            return
+        end
         
         if ~isempty(GreyFile)
             parameters.masks.grey.File          = GreyPath;
-            parameters.masks.grey.ImgThreshold  = GreyThreshold;
+            if ~isempty(GreyThreshold)
+                parameters.masks.grey.ImgThreshold  = GreyThreshold;
+            else
+                parameters.masks.grey.ImgThreshold  = SOM.defaults.MaskImgThreshold;
+            end
+            
         end
         
         if ~isempty(WhiteFile)
-            parameters.masks.white.File   = WhitePath;
+            parameters.masks.white.File         = WhitePath;
         end
         if ~isempty(CSFFile)
-            parameters.masks.csf.File     = CSFPath;
+            parameters.masks.csf.File           = CSFPath;
         end
-        parameters.masks.epi.File     = BrainPath;
-        parameters.rois.mask.MaskFLAG = MaskBrain;
+        
+        parameters.masks.epi.File               = BrainPath;
+        
+        % Save an example of a time course for plotting.
         
         for iRun = 1:ImageNumRun
             Run = RunDir{iRun};
             
-            ImagePath   = mc_GenPath(ImageTemplate);
+            [ImagePath EC]   = mc_GenPath(ImageTemplate);
+            if ~isempty(EC)
+                SOM_LOG('FATAL : The generation of the path to the data failed.');
+                SOM_LOG(EC);
+                return
+            end
+            
             ImageFiles  = spm_select('FPList',ImagePath, ['^' connectFile '.*.' imagetype]);
-            parameters.data.run(iRun).P     = ImageFiles;
+            parameters.data.run(iRun).P        = ImageFiles;
+            parameters.data.run(iRun).voxelIDX = voxelIDX;
+            parameters.data.run(iRun).sampleTC = [];
+            
             if isempty(ImageFiles)
                 SOM_LOG(sprintf('FATAL ERROR : P spm_select returned nothing for %s/^%s.*.%s',ImagePath,connectFile,imagetype));
                 return
@@ -129,7 +181,12 @@ if (RunMode(1) | sum(RunMode) == 0)
             % regression.
             
             if ~isempty(strfind(parameters.RegressFLAGS.order,'M'))
-                RealignmentParametersFile   = mc_GenPath(RealignmentParametersTemplate);
+                [RealignmentParametersFile EC]  = mc_GenPath(RealignmentParametersTemplate);
+                if ~isempty(EC)
+                    SOM_LOG('FATAL : The specified path to the realignment file failed.');
+                    SOM_LOG(EC);
+                    return
+                end
                 RealignmentParameters       = load(RealignmentParametersFile);
                 RealignmentParametersDeriv  = diff(RealignmentParameters);
                 RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
@@ -145,7 +202,7 @@ if (RunMode(1) | sum(RunMode) == 0)
             try
                 parameters.data.run(iRun).nTIME            = NumScan(iRun);
             catch
-                parameters.data.run(iRun).nTIME            = 9999;
+                parameters.data.run(iRun).nTIME            = 99999;
             end
             
             parameters.data.run(iRun).despikeVector    = [];
@@ -154,84 +211,111 @@ if (RunMode(1) | sum(RunMode) == 0)
             %%%added code to handle DeSpike Vectors
             %
             %
+            parameters.data.run(iRun).despikeVector = [];
             if (exist('DespikeParametersTemplate','var') && ~isempty(DespikeParametersTemplate))
-                DeSpikeFile = mc_GenPath(struct('Template',DespikeParametersTemplate,'mode','check'));
-                [p f e] = fileparts(DeSpikeFile);
-                if (strcmp(e,'.mat'))
-                    %read variable and use cv element
-                    tempcv = load(DeSpikeFile);
-                    cv = tempcv.cv;
-                else %assume text file
-                    cv = load(DeSpikeFile);
-                end
-                if (size(cv,1) ~= NumScan(iRun))
-                    SOM_LOG(sprintf('STATUS : Your despiking vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
-                end
-                parameters.data.run(iRun).despikeVector = cv;
-                % Now the parameters for despiking
-                
-                DESPIKEOPTIONS = {'moving','lowess','loess','sgolay','rlowess','rloess'};
-                SOM.defaults.DespikeNumberOption
-                DespikeOption       = SOM.defaults.DespikeOption;
-                DespikeNumberOption = SOM.defaults.DespikeNumberOption;
-                if exist('DespikeReplacementOption','var') && ~isempty(DespikeReplacementOption)
-                    for iOpt = 1:length(DESPIKEOPTIONS)
-                        if strcmp(DESPIKEOPTIONS{iOpt}(1:3),DespikeReplacementOption(1:3))
-                            DespikeOption = DESPIKEOPTIONS{iOpt};
-                            DespikeNumberOption = DespikeReplacementOption(length(DESPIKEOPTIONS{iOpt})+1:end);
-                            try
-                                DespikeNumberOption = str2double(DespikeNumberOption);
-                            catch
-                                SOM_LOG(sprintf('WARNING : Despiking span is unreadable : %s. Using default',DespikeNumberOption))
-                                DespikeNumberOption = SOM.defaults.DespikeNumberOption;
+                [DeSpikeFile EC] = mc_GenPath(struct('Template',DespikeParametersTemplate,'mode','check'));
+                if isempty(EC)
+                    [p f e] = fileparts(DeSpikeFile);
+                    if (strcmp(e,'.mat'))
+                        %read variable and use the found element
+                        tempcv = load(DeSpikeFile);
+                        tmpArrayField = fieldnames(tempcv);
+                        if length(tmpArrayField) ~= 1
+                            SOM_LOG(sprintf('FATAL ERROR : Ambiguous Spike information in file %s',DeSpikeFile));
+                            return
+                        end
+                        try
+                            cv = getfield(tempcv,tmpArrayFields{1});
+                        catch
+                            SOM_LOG(sprintf('FATAL ERROR : Error in Spike information in file %s',DeSpikeFile));
+                            return
+                        end
+                    else %assume text file
+                        cv = load(DeSpikeFile);
+                    end
+                    parameters.data.run(iRun).despikeVector = cv;
+                    % Now the parameters for despiking
+                    
+                    DESPIKEOPTIONS = {'moving','lowess','loess','sgolay','rlowess','rloess'};
+                    DespikeOption       = SOM.defaults.DespikeOption;
+                    DespikeNumberOption = SOM.defaults.DespikeNumberOption;
+                    if exist('DespikeReplacementOption','var') && ~isempty(DespikeReplacementOption)
+                        for iOpt = 1:length(DESPIKEOPTIONS)
+                            if strcmp(DESPIKEOPTIONS{iOpt}(1:3),DespikeReplacementOption(1:3))
+                                DespikeOption = DESPIKEOPTIONS{iOpt};
+                                DespikeNumberOption = DespikeReplacementOption(length(DESPIKEOPTIONS{iOpt})+1:end);
+                                try
+                                    DespikeNumberOption = str2double(DespikeNumberOption);
+                                catch
+                                    SOM_LOG(sprintf('WARNING : Despiking span is unreadable : %s. Using default',DespikeNumberOption));
+                                    DespikeNumberOption = SOM.defaults.DespikeNumberOption;
+                                end
                             end
                         end
+                    else
+                        SOM_LOG('WARNING : No "DespikeReplacementOption" specified, using default');
                     end
+                    
+                    DESPIKEINTERP1 = {'nearest','linear','spline','pchip'};
+                    
+                    if exist('DespikeReplacementInterp','var') && ~isempty(DespikeReplacementInterp)
+                        if isempty(cell2mat(strfind(DESPIKEINTERP1,DespikeReplacementInterp)))
+                            SOM_LOG('WARNING : No "DespikeReplacementInterp" specified, using default');
+                            DespikeReplacementInterp = SOM.defaults.DespikeReplacementInterp;
+                        end
+                        
+                        parameters.RegressFLAGS.despikeParameters.span         = DespikeNumberOption;
+                        parameters.RegressFLAGS.despikeParameters.method       = DespikeOption;
+                        parameters.RegressFLAGS.despikeParameters.interpMethod = DespikeReplacementInterp;
+                        
+                    end
+                    SOM_LOG(sprintf('STATUS : Despiking file found for run %d',iRun));
                 else
-                    SOM_LOG('WARNING : No "DespikeReplacementOption" specified, using default');
-                end
-                
-                DESPIKEINTERP1 = {'nearest','linear','spline','pchip'};
-                
-                if exist('DespikeReplacementInterp','var') && ~isempty(DespikeReplacementInterp)
-                    if isempty(cell2mat(DESPIKEINTERP1,DespikeReplacementInterp))
-                        SOM_LOG('WARNING : No "DespikeReplacementInterp" specified, using default');
-                        DespikeReplacementInterp = SOM.defaults.DespikeReplacementInterp;
-                    end
-                    
-                    parameters.RegressFLAGS.despikeParameters.span         = DespikeNumberOption;
-                    parameters.RegressFLAGS.despikeParameters.method       = DespikeOption;
-                    parameters.RegressFLAGS.despikeParameters.interpMethod = DespikeReplacementInterp;
-                    
+                    SOM_LOG(sprintf('STATUS : No despiking file found for run %d',iRun));
                 end
             end
             
             %%%added code to handle censorVectors
             %
-            % ROBERT DOES NOT RECOMMEND THE CURRENT IMPLEMENTATION OF CENSORING.
+            % ROBERT DOES NOT RECOMMEND THE CURRENT IMPLEMENTATION OF
+            % CENSORING IF DONE AFTER FILTERING.
+            %
             % USE AT YOUR OWN STATISTICAL RISK
             %
-            if (exist('CensorTemplate','var') && ~isempty(CensorTemplate))
-                CensorFile = mc_GenPath(struct('Template',CensorTemplate,'mode','check'));
-                [p f e] = fileparts(CensorFile);
-                if (strcmp(e,'.mat'))
-                    %read variable and use cv element
-                    tempcv = load(CensorFile);
-                    cv = tempcv.cv;
-                else %assume text file
-                    cv = load(CensorFile);
+            parameters.data.run(iRun).censorVector = [];
+            if (exist('CensorParametersTemplate','var') && ~isempty(CensorParametersTemplate))
+                [CensorFile EC] = mc_GenPath(struct('Template',CensorParametersTemplate,'mode','check'));
+                if isempty(EC)
+                    [p f e] = fileparts(CensorFile);
+                    if (strcmp(e,'.mat'))
+                        %read variable and use the found element
+                        tempcv = load(CensorFile);
+                        tmpArrayField = fieldnames(tempcv);
+                        if length(tmpArrayField) ~= 1
+                            SOM_LOG(sprintf('FATAL ERROR : Ambiguous Censor information in file %s',CensorFile));
+                            return
+                        end
+                        try
+                            cv = getfield(tempcv,tmpArrayFields{1});
+                        catch
+                            SOM_LOG(sprintf('FATAL ERROR : Error in Censor information in file %s',CensorFile));
+                            return
+                        end
+                    else %assume text file
+                        cv = load(CensorFile);
+                    end
+                    parameters.data.run(iRun).censorVector = cv;
+                    SOM_LOG(sprintf('STATUS : Censor vector found for this run : %d',iRun));
+                else
+                    SOM_LOG(sprintf('STATUS : No censor vector found for this run : %d',iRun));
                 end
-                if (size(cv,1) ~= NumScan(iRun))
-                    SOM_LOG(sprintf('STATUS : Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject)));
-                end
-                parameters.data.run(iRun).censorVector = cv;
             end
+            
             %%%
             
-            parameters.data.MaskFLAG = MaskBrain;
+            %parameters.data.MaskFLAG = MaskBrain;
             
             parameters.TIME.run(iRun).TR            = TR;
-            %parameters.TIME.run(iRun).BandFLAG      = DoBandpassFilter;
             parameters.TIME.run(iRun).DetrendOrder  = DetrendOrder;
             parameters.TIME.run(iRun).LowF          = LowFrequency;
             parameters.TIME.run(iRun).HiF           = HighFrequency;
@@ -242,10 +326,20 @@ if (RunMode(1) | sum(RunMode) == 0)
         end
         
         Run = RunDir{1};
-        ImagePath = mc_GenPath(ImageTemplate);
-        SOM_Mask  = mc_GenPath(fullfile(ImagePath,'som_mask.img'));
+        [ImagePath EC] = mc_GenPath(ImageTemplate);
+        if ~isempty(EC)
+            SOM_LOG('FATAL : Failure to generate path to save som_mask.img.');
+            SOM_LOG(EC);
+            return
+        end
+        [SOM_Mask EC] = mc_GenPath(fullfile(ImagePath,'som_mask.img'));
+        if ~isempty(EC)
+            SOM_LOG('FATAL : Failure to generate name to save som_mask.img.');
+            SOM_LOG(EC);
+            return
+        end
         
-        if (isempty(BrainMaskTemplate))
+        if (isempty(EPIBrainMaskTemplate))
             parameters.rois.mask.File = SOM_Mask;
         else
             parameters.rois.mask.File = BrainPath;
@@ -254,58 +348,79 @@ if (RunMode(1) | sum(RunMode) == 0)
         output.type     = 1;
         output.mode     = 'makedir';
         if (RunMode(1))
-            OutputPath = mc_GenPath(output);
+            [OutputPath EC] = mc_GenPath(output);
         else
-            OutputPath = mc_GenPath(OutputTemplate);
+            [OutputPath EC] = mc_GenPath(OutputTemplate);
+        end
+        if ~isempty(EC)
+            SOM_LOG('FATAL : Failure to generate path to save output.');
+            SOM_LOG(EC);
+            return
         end
         
         switch (ROIInput)
             case 'files'
-                ROIFolder = mc_GenPath(ROITemplate);
+                [ROIFolder EC] = mc_GenPath(ROITemplate);
+                if ~isempty(EC)
+                    SOM_LOG('FATAL : Failure to find the ROI directory');
+                    SOM_LOG(EC);
+                    return
+                end
                 for iROIs = 1:size(ROIImages,1)
                     ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
                 end
                 parameters.rois.files = char(ROI);
             case 'directory'
-                ROIFolder = mc_GenPath(ROITemplate);
+                [ROIFolder EC] = mc_GenPath(ROITemplate);
+                if ~isempty(EC)
+                    SOM_LOG('FATAL : Failure to find the ROI directory');
+                    SOM_LOG(EC);
+                    return
+                end
                 parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
             case {'coordinates','coordload','grid','gridplus'}
                 switch(ROIInput)
                     case 'coordinates'
                         grid_coord = ROICenters;
                     case 'coordload'
-                        tmpArray = load(mc_GenPath(ROIFile));
+                        [ROIFileName EC] = mc_GenPath(ROIFile);
+                        if ~isempty(EC)
+                            SOM_LOG('FATAL : Failure to find the ROI file');
+                            SOM_LOG(EC);
+                            return
+                        end
+                        tmpArray = load(ROIFileName);
                         if isstruct(tmpArray)
                             tmpArrayField = fieldnames(tmpArray);
                             %
                             % Now we only expect one field, else throw an error
                             %
                             if length(tmpArrayField) ~= 1
-                                SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
+                                SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',ROIFileName));
                                 return
                             end
                             try
                                 grid_coord = getfield(tmpArray,tmpArrayFields{1});
                             catch
-                                SOM_LOG(sprintf('FATAL ERROR : Ambiguous ROI information in file %s',mc_GenPath(ROIFile)));
+                                SOM_LOG(sprintf('FATAL ERROR : Error in ROI information in file %s',ROIFileName));
                                 return
                             end
                         end
-                    case 'grid'
-                        ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
+                    case {'grid','gridplus'}
+                        [ROIGridMask EC]   = mc_GenPath(ROIGridMaskTemplate);
+                        if ~isempty(EC)
+                            SOM_LOG('FATAL : Failure to find the ROI grid mask file');
+                            SOM_LOG(EC);
+                            return
+                        end
                         ROIGridMaskHdr  = spm_vol(ROIGridMask);
                         ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
                         grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
                         inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
                         grid_coord      = grid_coord_cand(inOutIDX,:);
-                    case 'gridplus'
-                        ROIGridMask     = mc_GenPath(ROIGridMaskTemplate);
-                        ROIGridMaskHdr  = spm_vol(ROIGridMask);
-                        ROIGridBB       = mc_GetBoundingBox(ROIGridMaskHdr);
-                        grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
-                        inOutIDX        = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
-                        grid_coord      = grid_coord_cand(inOutIDX,:);
-                        grid_coord      = [grid_coord; ROIGridCenters];
+                        if strcmp(ROIInput,'gridplus')
+                            grid_coord      = [grid_coord; ROIGridCenters];
+                        end
                 end
                 
                 parameters.rois.mni.coordinates = grid_coord;
@@ -327,9 +442,27 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.Output.directory    = OutputPath;
         parameters.Output.name         = OutputName;
         ParameterFilename              = [OutputName '_parameters'];
-        ParameterPath                  = mc_GenPath(fullfile(OutputPath,ParameterFilename));
+        [ParameterPath EC]             = mc_GenPath(fullfile(OutputPath,ParameterFilename));
+        if ~isempty(EC)
+            SOM_LOG('FATAL : Failure to generate name to save parameters.');
+            SOM_LOG(EC);
+            return
+        end
+        % Save some version information into the file.
+        parameters                   = SOM_SetParamVersion(parameters);
+        parameters.spmVer            = spmver;
+        parameters.spmSubVer         = spmsubver;
+        parameters.callingScriptName = ConnToolCallingScriptName;
+        parameters.centralScriptName = which(mfilename);
+        parameters.callingScript     = SOM_DumpScript(parameters.callingScriptName);
+        parameters.centralScript     = SOM_DumpScript(parameters.centralScriptName);
+        SOM_LOG(sprintf('STATUS : Saving parameters to %s',ParameterPath));
+        parameters.LOG = SOM.LOG;
         save(ParameterPath,'parameters');
-        
+        %
+        % Now clear out the log.
+        %
+        SOM.LOG = [];
     end
 end
 
@@ -338,24 +471,37 @@ if (RunMode(2))
         clear D0 parameters results;
         Subject=SubjDir{iSubject,1};
         %load existing parameter file
-        OutputPath = mc_GenPath(OutputTemplate);
-        load(fullfile(OutputPath,ParameterFilename));
+        [OutputPath EC] = mc_GenPath(OutputTemplate);
+        if ~isempty(EC)
+            SOM_LOG('FATAL : Failure to generate name to save results.');
+            SOM_LOG(EC);
+            return
+        end
+        try
+            load(fullfile(OutputPath,ParameterFilename));
+        catch
+            SOM_LOG('FATAL : Error trying to read in the file %s',fullfile(OutputPath,ParameterFilename));
+            return
+        end
+        % Restore the log for this person so we can continue.
+        SOM.LOG = parameters.LOG;
+        SOM_LOG('STATUS : Log restored');
+        SOM_LOG(sprintf('STATUS : Working again on subject %s',Subject));
         parameters = SOM_CheckParamVersion(parameters);
         if ~parameters.OK
             SOM_LOG('FATAL ERROR : The version of parameters loaded is incompatible with this release.');
             return
         end
-        clear global SOM;
-        global SOM;
-        SOM.silent = 1;
         SOM_LOG('STATUS : Read parameters file in from previous run');
         
+        SOM_LOG('STATUS : Preprocessing data');
         [D0 parameters] = SOM_PreProcessData(parameters);
         if D0 == -1
             SOM_LOG('FATAL ERROR : No data returned');
             SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo data was returned from SOM_PreProcessData\n');
             return
         else
+            SOM_LOG('STATUS : Going to calculate the correlations');
             results = SOM_CalculateCorrelations(D0,parameters);
             if isnumeric(results)
                 SOM_LOG('FATAL ERROR : ');
@@ -363,9 +509,13 @@ if (RunMode(2))
                 return
             else
                 for iR = 1:size(results,1)
-                    SOM_LOG(results(iR,:));
+                    SOM_LOG(['OUTPUT : ',results(iR,:)]);
                 end
+                SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
+                SOM_LOG('STATUS : ');
                 SOM_LOG(sprintf('STATUS : Calculation done for Subject : %s',Subject));
+                SOM_LOG('STATUS : ');
+                SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
             end
         end
     end

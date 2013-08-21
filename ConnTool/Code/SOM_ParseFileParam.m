@@ -46,7 +46,7 @@ end
 
 % Check that they name of the mask has been passed.
 
-if isfield(type.name,'name') == 0
+if isfield(type,'name') == 0
     type.name = 'unknown';
     SOM_LOG('WARNING : Assuming an "unknown" mask type');
     SOM_LOG(sprintf('WARNING : File name is %s',type.File));

@@ -18,11 +18,11 @@ parameters = inParameters;
 
 validVersions = [3];
 
-OK = -1;
+OK = false;
 
 if isfield(inParameters,'version') 
-    if ~isempty(find(inParameters.version,validVersions))
-        OK = 1;
+    if ~isempty(find(floor(inParameters.version),validVersions))
+        OK = true;
     end
 end
 

@@ -16,6 +16,10 @@ function SOM_SetDefaults
 
 global SOM
 
+% Version of the release
+
+SOM.defaults.version = 3.0;
+
 % Timing parameters
 
 SOM.defaults.TIME.TR          = 2;    %Seconds.

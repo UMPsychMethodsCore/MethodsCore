@@ -49,6 +49,9 @@
 % NOTE : Presently the code can only read a series of 3D files. 
 %        There is NO support for 4D files yet.
 %
+%     ***** CORRECTION--THE CODE CAN HANDLE 4D NIFTI FILES ******
+%           2013-08-21 - RCW
+%
 %        However, you can just read your own data and reshape
 %        appropriately for calling SOM_CalculateMap.
 %

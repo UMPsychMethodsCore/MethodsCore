@@ -47,7 +47,7 @@
 %
 % data.
 %
-%   run[iRun].
+%   run[iRUN].
 %
 %        P                 = full directory path to time-series data.
 %
@@ -97,7 +97,7 @@
 %
 % TIME.
 %
-%   run[iRun].
+%   run[iRUN].
 %
 %         TR             = repetition time
 %
@@ -178,7 +178,7 @@ end
 parameters.masks = SOM_CheckMasks(parameters);
 
 if parameters.masks.OK ~= 1
-    SOM_LOG('FATAL ERROR : Something wrong with masks definitions.')
+    SOM_LOG('FATAL ERROR : Something wrong with masks definitions.');
     return
 end
 
@@ -229,8 +229,7 @@ if parameters.RegressFLAGS.OK < 1
     return
 end
 
-
-curDir = pwd;
+%%curDir = pwd; %% NOT USED??? 2013-08-21 RCW
 
 % Where is the data?
 
@@ -238,7 +237,7 @@ curDir = pwd;
 
 % Make the mask file, masking out non-brain. Using a standard mask.
 
-if parameters.data.MaskFLAG == 1
+% % % if parameters.data.MaskFLAG == 1
     if parameters.masks.epi.MaskFLAG == 0
         SOM_LOG('Calculating subject specific epi mask');
         % Create the mask from the very first/only run.
@@ -249,13 +248,13 @@ if parameters.data.MaskFLAG == 1
     % store temp
     fileINDEXTemp                    = fileINDEXTemp + 1;
     filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
-else
-    % changed this on 2012-03-29 (RCWelsh), this will force some sort of masking, but that is okay.
-    % This will prevent SOM_CalculateCorrelationImages from failing if no mask is indicated at all
-    parameters.maskHdr               = SOM_CreateMask(parameters.data.run(1).P);
-    fileINDEXTemp                    = fileINDEXTemp + 1;
-    filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
-end
+% % % else
+% % %     % changed this on 2012-03-29 (RCWelsh), this will force some sort of masking, but that is okay.
+% % %     % This will prevent SOM_CalculateCorrelationImages from failing if no mask is indicated at all
+% % %     parameters.maskHdr               = SOM_CreateMask(parameters.data.run(1).P);
+% % %     fileINDEXTemp                    = fileINDEXTemp + 1;
+% % %     filesToCheck(fileINDEXTemp).hdr  = parameters.maskHdr;
+% % % end
 
 %
 % Now make sure all headers comply with each other:
@@ -267,6 +266,27 @@ for iHDR = 1:fileINDEXTemp
         return
     end
 end
+
+%
+% Now combine the grey mask and the other mask to a final mask
+%
+
+if parameters.masks.grey.MaskFLAG
+    SOM_LOG('STATUS : Creating combined mask that is AND of grey and input mask');
+    tmpHDR.fname = [];
+    tmpHDR.mat   = parameters.masks.grey.ImgHDR.mat;
+    tmpHDR.dim   = parameters.masks.grey.ImgHDR.dim;
+    tmpHDR.dt = [4 0];
+    tmpHDR.descrip = ['Grey and SOM Created Masked based on SPM:',spm('ver')];
+    tmpHDR.pinfo = [1 0]';
+    [fP fN fE] = fileparts(parameters.masks.grey.ImgHDR.fname);
+    [fPM fNM fEM] = fileparts(parameters.maskHdr.fname);
+    tmpHDR.fname = fullfile(fP,['som_created_grey_' fNM '.nii']);
+    Vi = spm_vol(strvcat(parameters.maskHdr.fname,parameters.masks.grey.ImgHDR.fname));
+    Vo = spm_imcalc(Vi,tmpHDR,sprintf('(i1>0).*(i2>%f)',parameters.masks.grey.ImgThreshold));
+    parameters.maskHdr = spm_vol(Vo.fname);    
+end
+
 
 % Read in the data.
 
@@ -280,9 +300,17 @@ nSPACE = [];
 
 D0RUN  = [];
 
+% resulting number of time points post editing.
+
+enTIME = [];
+
 for iRUN = 1:length(parameters.data.run)
     
     [D0RUN(iRUN).D0 parameters.maskInfo] = SOM_PrepData(parameters.data.run(iRUN).P,parameters.maskHdr.fname,[]);
+    
+    if ~isempty(parameters.data.run(iRUN).voxelIDX)
+        parameters.data.run(iRUN).sampleTC = D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:);
+    end
     
     % Read in the confound data
     
@@ -292,6 +320,11 @@ for iRUN = 1:length(parameters.data.run)
     
     if size(D0RUN(iRUN).D0,2) > parameters.data.run(iRUN).nTIME;
         D0RUN(iRUN).D0  = D0RUN(iRUN).D0(:,1:parameters.data.run(iRUN).nTIME);
+        
+        if ~isempty(parameters.data.run(iRUN).voxelIDX)
+            parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+        end
+        
         D0RUN(iRUN).cD0 = D0RUN(iRUN).cD0(:,1:parameters.data.run(iRUN).nTIME);
         SOM_LOG(sprintf('WARNING : Trimming data to adhere to length specified in parameters.data.run.nTIME : %d',parameters.data.run(iRUN).nTIME));
     end
@@ -304,6 +337,11 @@ for iRUN = 1:length(parameters.data.run)
     
     nTIME  = [nTIME parameters.data.run(iRUN).nTimeAnalyzed];
     nSPACE = [nSPACE size(D0RUN(iRUN).D0,1)];
+    
+    % We need to keep track of when the band-pass filtering takes place so
+    % as to send a warning if editing takes place AFTER filtering.
+    
+    parameters.data.run(iRUN).filtered = false;
     
     % Loop on the preprocessing steps requested.
     
@@ -322,10 +360,16 @@ for iRUN = 1:length(parameters.data.run)
                 %
                 % using smooth function and interp1 replace bad time points
                 %
-                SOM_LOG('STATUS : Doing smooth replacement of bad time points.');
-                parametesr.startCPU.run(iRUN).replace = cputime;
-                D0RUN(iRUN).D0 = SOM_DeSpikeTimeSeries(DORUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                SOM_LOG('STATUS : STEP : Doing smooth replacement of bad time points.');
+                parameters.startCPU.run(iRUN).replace = cputime;
+                % Must fix the data and the confound data. This is a very
+                % time intensive correction.
+                D0RUN(iRUN).D0  = SOM_DeSpikeTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                D0RUN(iRUN).cD0 = SOM_DeSpikeTimeSeries(D0RUN(iRUN).cD0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).replace = cputime;
                 
                 %
@@ -339,7 +383,7 @@ for iRUN = 1:length(parameters.data.run)
                 % operator. This will also mean center the data.
                 %
                 
-                SOM_LOG('STATUS : Doing detrending.');
+                SOM_LOG('STATUS : STEP : Doing detrending.');
                 parameters.startCPU.run(iRUN).detrend = cputime;
                 
                 if parameters.TIME.run(iRUN).DetrendOrder > 0
@@ -349,6 +393,9 @@ for iRUN = 1:length(parameters.data.run)
                     D0RUN(iRUN).cD0 = spm_detrend(D0RUN(iRUN).cD0',parameters.TIME.run(iRUN).DetrendOrder)';
                 end
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).detrend = cputime;
                 
                 %
@@ -362,10 +409,13 @@ for iRUN = 1:length(parameters.data.run)
                 
                 parameters.TIME.run(iRUN).GS = SOM_GlobalCalc(D0RUN(iRUN).D0);
                 
-                SOM_LOG('STATUS : Doing global regression');
+                SOM_LOG('STATUS : STEP : Doing global regression');
                 D0RUN(iRUN).D0  = SOM_RemoveConfound(D0RUN(iRUN).D0,parameters.TIME.run(iRUN).GS);
                 D0RUN(iRUN).cD0 = SOM_RemoveConfound(D0RUN(iRUN).cD0,parameters.TIME.run(iRUN).GS);
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).global = cputime;
                 
                 %
@@ -378,7 +428,7 @@ for iRUN = 1:length(parameters.data.run)
                 
                 if parameters.masks.csf.MaskFLAG > 0
                     
-                    SOM_LOG('STATUS : CSF Regression');
+                    SOM_LOG('STATUS : STEP : CSF Regression');
                     parameters.masks.csf.IDX  = [];
                     
                     % Now convert the ROI indices to the indices in the mask.
@@ -386,7 +436,7 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.masks.csf.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.csf.ROIIDX);
                     
                     if length(parameters.masks.csf.IDX) < 1
-                        SOM_LOG(sprintf('STATUS : Not enough voxels to determine CSF time course'))
+                        SOM_LOG(sprintf('STATUS : Not enough voxels to determine CSF time course'));
                     else
                         SOM_LOG(sprintf('STATUS : %d CSF Voxels in extracted data.',length(parameters.masks.csf.IDX)));
                         parameters.masks.csf.run(iRUN).PRINCOMP = [];
@@ -415,6 +465,9 @@ for iRUN = 1:length(parameters.data.run)
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).csf = cputime;
                 
                 %
@@ -427,7 +480,7 @@ for iRUN = 1:length(parameters.data.run)
                 
                 if parameters.masks.white.MaskFLAG > 0
                     
-                    SOM_LOG('STATUS : WM Regression');
+                    SOM_LOG('STATUS : STEP : WM Regression');
                     parameters.masks.white.IDX  = [];
                     
                     % Now convert the ROI indices to the indices in the mask.
@@ -435,7 +488,7 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.masks.white.IDX = SOM_ROIIDXnMASK(parameters,parameters.masks.white.ROIIDX);
                     
                     if length(parameters.masks.white.IDX) < 1
-                        SOM_LOG(sprintf('STATUS : Not enough voxels to determine White time course'))
+                        SOM_LOG(sprintf('STATUS : Not enough voxels to determine White time course'));
                     else
                         SOM_LOG(sprintf('STATUS : %d WM Voxels in extracted data.',length(parameters.masks.white.IDX)));
                         
@@ -469,6 +522,9 @@ for iRUN = 1:length(parameters.data.run)
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).white = cputime;
                 
                 %
@@ -484,7 +540,7 @@ for iRUN = 1:length(parameters.data.run)
                 if ~isempty(parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:))
                     D0RUN(iRUN).D0  = SOM_RemoveMotion(D0RUN(iRUN).D0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
                     D0RUN(iRUN).cD0 = SOM_RemoveMotion(D0RUN(iRUN).cD0,parameters.data.run(iRUN).MotionParameters(1:parameters.data.run(iRUN).nTimeAnalyzed,:));
-                    SOM_LOG('STATUS : Motion Correction Implemented');
+                    SOM_LOG('STATUS : STEP : Motion Correction Implemented');
                 else
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
                     %SOM_LOG('WARNING : Motion regression speficied, but motion regression internally turned off???');
@@ -492,6 +548,9 @@ for iRUN = 1:length(parameters.data.run)
                     SOM_LOG('WARNING : * * * * * * * * * * * *');
                 end
                 
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).motion = cputime;
                 
                 %
@@ -503,7 +562,6 @@ for iRUN = 1:length(parameters.data.run)
                 
                 % Now band-pass filter
                 
-                %if parameters.TIME.run(iRUN).BandFLAG > 0
                 [D0RUN(iRUN).D0 b filtParams] = SOM_Filter(D0RUN(iRUN).D0,...
                     parameters.TIME.run(iRUN).TR,...
                     parameters.TIME.run(iRUN).LowF,...
@@ -513,7 +571,7 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.TIME.run(iRUN).whichFilter);
                 parameters.TIME.run(iRUN).b = b(1,:);
                 parameters.TIME.run(iRUN).filtParams = filtParams;   % Number of degrees of freedom.
-                SOM_LOG('STATUS : Band Pass Filter Implemented.');
+                SOM_LOG('STATUS : STEP : Band Pass Filter Implemented.');
                 % And now the confound series.
                 [D0RUN(iRUN).cD0 b filtParams] = SOM_Filter(D0RUN(iRUN).cD0,...
                     parameters.TIME.run(iRUN).TR,...
@@ -522,13 +580,74 @@ for iRUN = 1:length(parameters.data.run)
                     parameters.TIME.run(iRUN).gentle,...
                     parameters.TIME.run(iRUN).padding,...
                     parameters.TIME.run(iRUN).whichFilter);
-                %else
-                %    parameters.TIME.run(iRUN).b = [];
-                %    parameters.TIME.run(iRUN).nDF = size(D0RUN(iRUN).D0,2);
-                %    SOM_LOG(sprintf('WARNING : No Band Pass Filter Speficied for this run : %d.',iRUN));
-                %end
                 
+                parameters.data.run(iRUN).filtered = true;
+                
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 parameters.stopCPU.run(iRUN).band = cputime;
+                
+            case 'E'
+                % * * * * * * * * EDITING/CENSORING OF DATA * * * * * * *
+                %
+                %   WARNING - ROBERT DOES NOT RECOMMEND USING THIS OPTION
+                %             IT INTERACTS WITH FILTERING IN A MANNER THAT
+                %             CAN INTRODUCE CORRELATIONS.
+                %
+                %
+                % This is very controversial. Editing a bad volume will not fully removing its influence on the
+                % time series and will have ripple effects.
+                %
+                % We use a FFT bandpass which will introduce Ripples.
+                %
+                % If you are to edit it would be best to edit BEFORE
+                % bandpass filter.
+                %
+                % * * * * * * * * EDITING/CENSORING OF DATA * * * * * * *
+                
+                cnTIME = [0 cumsum(nTIME)];
+                
+                SOM_LOG(sprintf('STATUS : STEP : Editing data and starting with data : %d space by %d time-points',nSPACE(1),cnTIME(end)));
+                
+                % 2011.11.18 - RCWelsh : Fixed nSPACE -> nSPACE(1)
+                
+                % Edit the data if needed.
+                %
+                % 2012.10.10 - I'm not sure this is correct to do here as we have already done the filtering.
+                % and an erroneous data point will spread out across many time points.
+                %
+                
+                if parameters.data.run(iRUN).filtered
+                    SOM_LOG('WARNING : * * * * * * * * * * * * ');
+                    SOM_LOG('WARNING : You are editing a time-series post filtering, this is controversial and not 100%% recommended.');
+                    SOM_LOG('WARNING : * * * * * * * * * * * * ');
+                end
+                
+                if isfield(parameters.data.run(iRUN),'censorVector')
+                    D0RUN(iRUN).D0 = SOM_EditTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
+                    if D0RUN(iRUN).D0 == -1
+                        SOM_LOG('FATAL : SOM_EditTimeSeries failed.');
+                        return
+                    else
+                        enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
+                        SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
+                    end
+                    %
+                    % Now the confound data must also be edited.
+                    %
+                    D0RUN(iRUN).cD0 = SOM_EditTimeSeries(D0RUN(iRUN).cD0,parameters.data.run(iRUN).censorVector);
+                    if D0RUN(iRUN).cD0 == -1
+                        SOM_LOG('FATAL : SOM_EditTimeSeries failed.');
+                        return
+                    else
+                        SOM_LOG(sprintf('STATUS : Changed confound run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
+                    end
+                    
+                end
+                if ~isempty(parameters.data.run(iRUN).voxelIDX)
+                    parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));
+                end
                 
                 %
                 % Major error.
@@ -553,49 +672,6 @@ if length(nSPACE>1)
             SOM_LOG(sprintf('FATAL : Run %d has %d voxels',iRUN,nSPACE(iRUN)));
         end
         return
-    end
-end
-
-% * * * * * * * * CENSORING OF DATA * * * * * * *
-%
-%   WARNING - ROBERT DOES NOT RECOMMEND USING THIS OPTION
-%             IT INTERACTS WITH FILTERING IN A MANNER THAT
-%             CAN INTRODUCE CORRELATIONS.
-%
-% Number of time points before editing
-%
-%
-% This is very controversial. Editing a bad volume will not fully removing its influence on the
-% time series and will have ripple effects.
-%
-% We use a FFT bandpass which will introduce Ripples.
-%
-
-cnTIME = [0 cumsum(nTIME)];
-
-SOM_LOG(sprintf('STATUS : Starting with data : %d space by %d time-points',nSPACE(1),cnTIME(end)));
-
-% 2011.11.18 - RCWelsh : Fixed nSPACE -> nSPACE(1)
-
-% Edit the data if needed.
-%
-% 2012.10.10 - I'm not sure this is correct to do here as we have already done the filtering.
-% and an erroneous data point will spread out across many time points.
-%
-
-enTIME = [];
-
-for iRUN = 1:length(parameters.data.run)
-    if isfield(parameters.data.run(iRUN),'censorVector')
-        SOM_LOG('WARNING : You are editing a time-series post filtering, this is controversial and not 100% recommended.')
-        D0RUN(iRUN).D0 = SOM_EditTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).censorVector);
-        if D0RUN(iRUN).D0 == -1
-            SOM_LOG('FATAL : SOM_EditTimeSeries failed.');
-            exit
-        else
-            enTIME = [enTIME size(D0RUN(iRUN).D0,2)];
-            SOM_LOG(sprintf('STATUS : Changed run %d from %d time-points to %d',iRUN,nTIME(iRUN),enTIME(iRUN)));
-        end
     end
 end
 

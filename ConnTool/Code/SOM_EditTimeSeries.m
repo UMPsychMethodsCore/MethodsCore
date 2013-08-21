@@ -29,10 +29,20 @@ function D1 = SOM_EditTimeSeries(D0,censorVector)
 
 D1 = -1;
 
-if size(D0,2) ~= length(censorVector)
+if isempty(censorVector) || sum(censorVector) == 0
+    D1 = D0;
+    SOM_LOG('STATUS : Censor Vector empty, or nothing to edit');
+    return
+end
+
+if size(D0,2) > length(censorVector)
   SOM_LOG(sprintf('FATAL : Size of D0 (%d,%d) not consistent with edit vector (%d))',size(D0,1),size(D0,2),length(censorVector)));
   return
 end
+
+% Trim the vector just in case they trimmed the time-series data.
+
+censorVector = censorVector(1:size(D0,2));
 
 D1 = D0(:,censorVector~=0);
 

@@ -17,16 +17,25 @@ SubjDir = {
     '111109ma',[1];
     };
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Specify a subject of the above by indicating which rows 
+%%% of subjects to include in the current job. 
+%%% One number per subject you want. If you leave this empty all
+%%% subjects will be processed.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SubjectDirBatch = [1 2];
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Path where your images are located
 %%%
 %%%  Variables you can use in your template are:
-%%%       Exp = path to your experiment directory
-%%%       iSubject = index for subject
-%%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%%       Run = name of run from RunDir (using iRun as index of row)
-%%%        * = wildcard (can only be placed in final part of template)
+%%%      Exp      = path to your experiment directory
+%%%      iSubject = index for subject
+%%%      Subject  = name of subject from SubjDir 
+%%%                 (using iSubject as index of row)
+%%%      iRun     = index of run (listed in Column 3 of SubjDir)
+%%%      Run      = name of run from RunDir (using iRun as index of row)
+%%%       *       = wildcard (can only be placed in final part of template)
 %%% Examples:
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
@@ -98,7 +107,7 @@ TR = 2;
 %%% will be taken.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumScan = [240];
+NumScan = [9999 9999];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,17 +117,17 @@ NumScan = [240];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Mode to run ConnTool_batch_mc_central in
-%%%        'test'       = test script but do not save parameters or run any
-%%%                       ConnTool code
-%%%        'parameters' = run script and save parameters for each subject
+%%%    'test'       = test script but do not save parameters or run any
+%%%                    ConnTool code
+%%%    'parameters' = run script and save parameters for each subject
 %%%                       but do not run any ConnTool code
-%%%        'presave'    = run ConnTool code on previously saved parameters
-%%%        'full'       = generate parameters and immediately run ConnTool code
+%%%    'presave'    = run ConnTool code on previously saved parameters
+%%%    'full'       = generate parameters and immediately run ConnTool code
 %%%
-%%%        NOTE: If you choose mode 'presave' then most variables except
-%%%        SubjDir and OutputTemplate/OutputName will be ignored as they
-%%%        will be loaded from the already existing parameter file for each
-%%%        subject.
+%%%    NOTE: If you choose mode 'presave' then most variables except
+%%%       SubjDir and OutputTemplate/OutputName will be ignored as they
+%%%       will be loaded from the already existing parameter file for each
+%%%       subject.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Mode = 'full';
@@ -128,8 +137,8 @@ Mode = 'full';
 %%%
 %%%     AnatomyMaskPath --- this should point to the VBM8 processed data
 %%%
-%%%     GreyFile  --- name of a grey matter image from VBM8 -- Just leave
-%%%                   blank, in general don't use this option.
+%%%     GreyFile  --- name of a grey matter image from VBM8.
+%%%                   Just leave blank, in general don't use this option.
 %%%
 %%%     WhiteFile --- name of the WM image produced by VBM8
 %%%                   Typically this starts with "WM_ero"
@@ -139,12 +148,46 @@ Mode = 'full';
 %%%
 %%% NOTE : Wildcard "*" can be used in the definition of the file names.
 %%%
+%%% The white matter and CSF masks are use for COMPCOR
+%%%
+%%% If the grey is specified then a new mask is created which is the AND
+%%% of the EPI and the grey. This new mask is used to constrain the
+%%% calculations. If you do use this option then you will have a subject
+%%% specific mask. This may make doing group analysis troublesome if you
+%%% are using 'maps' as the output. 
+%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 AnatomyMaskPath = '[Exp]/Subjects/[Subject]/connect/func/coRegRARUN/VBM8/';
 
-GreyFile  = [];
+GreyFile  = 'w3mm_vbm8_p1ht1spgr.nii';
 WhiteFile = 'WM_ero*.nii';
 CSFFile   = 'CSF_ero*.nii';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path and name of explicit mask to use at subject level.
+%%% Leaving this blank ('') will use a subject-specific mask
+%%%
+%%% The EPI mask is used to calculate only in brain.
+%%%
+%%% NOTE: Subject-specific masks are NOT recommended at all.
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EPIBrainMaskTemplate = ...
+    '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Value threshold to use for each mask.  If left as [] use default 0.75
+%%%
+%%% If you specify a grey matter mask I suggest you place a low threshold
+%%% You may wish to look at the image inside a NII viewer to get a 
+%%% sense of a sufficient threshold.
+%%% 
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+GreyThreshold  = [0.05];
+WhiteThreshold = [];
+CSFThreshold   = [];
+EPIThreshold   = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for realignment parameters file
@@ -189,9 +232,7 @@ RealignmentParametersTemplate = ...
 %%%
 %%%
 %%% After the data are smoothed, the missing point is then calculated with 
-%%% an interpolation(interp1) using a cubic.
-%%%
-%%% Spikes can be regressed away
+%%% an interpolation(interp1) using pchip (cubic).
 %%%
 %%% This is following:
 %%%
@@ -206,7 +247,7 @@ RealignmentParametersTemplate = ...
 DespikeParametersTemplate = ...
     '[Exp]/Subjects/[Subject]/connect/func/[Run]/prefilter_despike.dat';
 DespikeReplacementOption  = 'sgolay7';
-DespikeReplacementInterp  = 'cubic';
+DespikeReplacementInterp  = 'pchip';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for post-filter censoring of spikes.
@@ -222,74 +263,40 @@ DespikeReplacementInterp  = 'cubic';
 %%%     bit of smoothing. If you want to censor your data your should
 %%%     see the following papers.
 %%%
-%%%     See the following three papers:
+%%%     See the following papers:
 %%%
 %%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE.
 %%%     Spurious but Systematic Correlations in Functional Connectivity
-%%%     MRI Networks Arise From Subject Motion. NeuroImage 2012;59:2142–2154.
+%%%     MRI Networks Arise From Subject Motion. NeuroImage 2012
 %%%
-%%%	Carp J. Optimizing the Order of Operations for Movement Scrubbing:
-%%%     Comment on Power Et Al. NeuroImage 2012:1–3.
+%%%	    Carp J. Optimizing the Order of Operations for Movement Scrubbing:
+%%%     Comment on Power Et Al. NeuroImage 2012
 %%%
 %%% 	Power JD, Barnes KA, Snyder AZ, Schlaggar BL, Petersen SE.
 %%%     Steps Toward Optimizing Motion Artifact Removal in Functional
-%%%     Connectivity MRI; a Reply to Carp. NeuroImage 2012:1–3.
+%%%     Connectivity MRI; a Reply to Carp. NeuroImage 2012.
 %%%
 %%%     Satterthwaite TD, Elliott MA, Gerraty RT, Ruparel K, Loughead J, 
 %%%     Calkins ME, Eickhoff SB, Hakonarson H, Gur RC, Gur RE, Wolf DH. 
 %%%     An Improved Framework for Confound Regression and Filtering for 
 %%%     Control of Motion Artifact in the Preprocessing of Resting-State 
 %%%     Functional Connectivity Data. 
-%%%     NeuroImage 2013;64:240?256.
+%%%     NeuroImage 2013
 %%%
 %%%     Fair, D. et al. Distinct Neural Signatures Detected for ADHD 
 %%%     Subtypes After Controlling for Micro-Movements in Resting State 
-%%%     Functional Connectivity MRI Data. 2013:1?31.
+%%%     Functional Connectivity MRI Data. Front in Sys Neuro 2013
+%%%
+%%% More recently this paper came out that shows how to do a correction
+%%%
+%%%     Ziad S. Saad, Richard C. Reynolds, Hang Joon Jo, Stephen J. Gotts, 
+%%%     Gang Chen, Alex Martin, Robert W. Cox
+%%%     Correcting Brain-Wide Correlation Differences in Resting-State FMRI 
+%%%     Brain Connectivity. August 2013, 3(4): 339-352.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CensorParametersTemplate = ...
     '[Exp]/Subjects/[Subject]/connect/func/[Run]/postfilter_censor.dat';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path and name of explicit mask to use at subject level.
-%%% Leaving this blank ('') will use a subject-specific mask
-%%%
-%%% NOTE: Subject-specific masks are NOT recommended at all.
-%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BrainMaskTemplate = ...
-    '[mcRoot]/ConnTool/Templates/symmetric_3mm_EPI_MASK_NOEYES.nii';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Constrain calculations to only regions in GreyMatterTemplate (1=yes, 0=no)
-%%% 
-%%% Use of this will result in a varying ROI size by subject.
-%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MaskGrey = 0;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Value threshold to use for each mask.  If left as [] use default 0.75
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-GreyThreshold  = [];
-WhiteThreshold = [];
-CSFThreshold   = [];
-EPIThreshold   = [];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% the order to perform the regressions etc
-%%%         D = detrend      - Nth order detrend
-%%%         S = despike      - by replacement
-%%%         M = motion       - by regression, includes dM/dt
-%%%         G = global       - Controversial, you should know the lit.
-%%%         W = white matter - by PCA
-%%%         C = csf          - by PCA
-%%%         B = bandpass     - by method selected.
-%%%         E = edit         - by removal
-%%%
-%%%         Suggested order is "DSM[G]CWB"
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegressOrder = 'DSMCWB';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -334,6 +341,37 @@ Padding        = 10;
 BandpassFilter = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% the order to perform the regressions etc
+%%%         D = detrend      - Nth order detrend
+%%%         S = despike      - by replacement
+%%%         M = motion       - by regression, includes dM/dt
+%%%         G = global       - Controversial, you should know the lit.
+%%%         W = white matter - by PCA
+%%%         C = csf          - by PCA
+%%%         B = bandpass     - by method selected.
+%%%         E = edit         - by removal
+%%%
+%%%         Suggested order is "DSM[G]CWB"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+RegressOrder = 'DMCWEB';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% You can save the time course of a single voxel at each step of the 
+%%% processing to get a sense of what happens. 
+%%% Leave empty if you don't want it.
+%%%
+%%% If you do choose to save a voxel time series it will be in the 
+%%% 'parameters' structure under 'parameters.data.run.sampleTC
+%%% each row of the sampleTC is a time-course of the data. The raw time 
+%%% course will be the 1st row. If detrending is the first RegressOrder
+%%% option then the 2nd row will be the data after it's been detrended and
+%%% so forth.
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+voxelIDX       = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of input
 %%%         coordinates - provide the center of each seed and a radius
 %%%
@@ -352,7 +390,7 @@ BandpassFilter = 1;
 %%%                       by provided mask, as above.  Additionally, add
 %%%                       the extra ROI points specified in ROIGridCenters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROIInput = 'coordload';
+ROIInput = 'coordinates';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -363,8 +401,8 @@ ROIInput = 'coordload';
 %%%
 %%% NOTE: ROISize will be used as the radius (in voxels, can be fracional
 %%% of a sphere at each point.
-%%% If you'd prefer to use the predefined 1,7,19, or 27 voxel sizes you will
-%%% need to specify the size as a cell (i.e. {19})
+%%% If you'd prefer to use the predefined 1,7,19, or 27 voxel 
+%%% sizes you will need to specify the size as a cell (i.e. {19})
 %%%
 %%% See the MethodsCore/ConnTool/Documentation for more help on ROI size.
 %%%
@@ -375,7 +413,7 @@ ROIInput = 'coordload';
 %%%    ROICenters = load('myROIs.csv');
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ROICenters = [0 -5 10];
+ROICenters = [0 -48 26];
 ROISize    = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -395,9 +433,9 @@ ROISize = {19};
 %%% 'files' and 'directory' methods
 %%%
 %%% If specifying ROI images you need to provide an ROI folder as well as a
-%%% cell array list of ROI images.  If specifying an ROI directory, you only
-%%% need to specify an ROITemplate.  The script will then load all images
-%%% in that directory to use as the ROIImages cell array.
+%%% cell array list of ROI images.  If specifying an ROI directory, you 
+%%% only need to specify an ROITemplate.  The script will then load all 
+%%% images in that directory to use as the ROIImages cell array.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROITemplate = '[Exp]/ROIS';
@@ -412,8 +450,8 @@ ROIImages = {
 %%%
 %%% If specifying ROI grid you need to provide a spacing and ROI size as
 %%% well as an optional mask for grid point inclusion (a mask is strongly
-%%% encouraged as not using one will return coordinates from across the entire
-%%% bounding box).
+%%% encouraged as not using one will return coordinates from across the 
+%%% entire bounding box).
 %%% NOTE: ROIGridSize will be used as the radius of a sphere at each grid
 %%% point.  If you'd prefer to use the predefined 1,7,19, or 27 voxel sizes
 %%% you will need to specify the size as a cell (i.e. {19})
@@ -445,30 +483,30 @@ ROIGridCenters = [
 %%% Where to output the data and what to call it.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputTemplate  = '[Exp]/FirstLevel/[Subject]/[OutputName]/';
-OutputName      = 'ConnToolTest';
+OutputName      = 'ConnToolTest5';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Type of output
-%%%         images - output R and Z images of correlation with each seed
-%%%         maps   - output R,P, and Z matrices of correlations between seeds
+%%%       images - output R and Z images of correlation with each seed
+%%%       maps   - output R,P, and Z matrices of correlations between seeds
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputType     = 'maps';
+OutputType     = 'images';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Options for 'maps'
 %%%
-%%%         correlation type can be 'full' or 'partial'
+%%%       correlation type can be 'full' or 'partial'
 %%%
-%%%         You can also save the power spectrum of the ROIS when running
-%%%         in 'maps' mode. This will only save the power spectrum of
-%%%         single run.
-%%%            1 - save power spectrum
-%%%            0 - do not save power spectrum
+%%%       You can also save the power spectrum of the ROIS when running
+%%%       in 'maps' mode. This will only save the power spectrum of
+%%%       single run.
+%%%          1 - save power spectrum
+%%%          0 - do not save power spectrum
 %%%
-%%%         save ROI time courses
-%%%            1 - save ROI time courses to same location as R and P matrices
-%%%            0 - do not save ROI time courses
+%%%       save ROI time courses
+%%%          1 - save ROI time courses to same location as R and P matrices
+%%%          0 - do not save ROI time courses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputCorrType = 'full';
 OutputPower    = 0;
@@ -479,7 +517,7 @@ saveroiTC      = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %DEVSTART
-mcRoot = '/Volumes/ALS/Software/MethodsCore';
+mcRoot = '/Users/rcwelsh/src/git/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
@@ -487,6 +525,9 @@ mcRoot = '/Volumes/ALS/Software/MethodsCore';
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'ConnTool'));
 addpath(fullfile(mcRoot,'ConnTool/Code'));
+addpath(fullfile(mcRoot,'ConnTool/matlab'),'-END');
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+
+ConnToolCallingScriptName = which(mfilename);
 
 ConnTool_batch_mc_central

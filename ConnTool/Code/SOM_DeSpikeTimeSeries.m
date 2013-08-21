@@ -42,15 +42,30 @@ D1 = D0;
 % Is there anything to despike?
 
 if isempty(despikeVector) || sum(despikeVector) == 0
+    SOM_LOG('STATUS : Despike Vector empty, or nothing to edit');
+    return
+end
+
+% Now make sure they specified enough info.
+
+if length(despikeVector) < size(D0,2)
+    SOM_LOG(sprintf('FATAL : Length of despikeVector (%d) is too short for the run (%d)',length(despikeVector),size(D0,2)));
+    D1 = -1;
+    return
+end
+
+nVox          = size(D0,1);
+xBase         = 1:size(D0,2);
+xBaseKeep     = find(despikeVector(1:length(xBase))~=0);
+xBaseReplace  = find(despikeVector(1:length(xBase))==0);
+
+% One last check, perhaps the spikes are outside our window?
+
+if isempty(xBaseReplace)
     return
 end
 
 % Unfortunately we have to process linearly all voxels.
-
-nVox          = size(D0,1);
-xBase         = 1:size(D0,2);
-xBaseKeep     = find(despikeVector~=0);
-xBaseReplace  = find(despikeVector==0);
 
 for iVox = 1:nVox
     
