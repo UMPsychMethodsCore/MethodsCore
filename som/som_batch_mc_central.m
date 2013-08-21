@@ -102,6 +102,25 @@ if (RunMode(1) | sum(RunMode) == 0)
 
             parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
             parameters.data.run(iRun).nTIME = NumScan(iRun);
+            
+            %%%added code to handle censorVectors
+            if (exist('CensorTemplate','var') && ~isempty(CensorTemplate))
+                CensorFile = mc_GenPath(struct('Template',CensorTemplate,'mode','check'));
+                [p f e] = fileparts(CensorFile);
+                if (strcmp(e,'.mat'))
+                    %read variable and use cv element
+                    tempcv = load(CensorFile);
+                    cv = tempcv.cv;
+                else %assume text file
+                    cv = load(CensorFile);
+                end
+                if (size(cv,1) ~= NumScan(iRun))
+                    mc_Error('Your censor vector is %g elements, but you have %g scans in run %g of %s',size(cv,1),NumScan(iRun),iRun,SubjDir(iSubject));
+                end
+                parameters.data.run(iRun).censorVector = ~cv;
+            end
+            %%%
+            
             parameters.data.MaskFLAG = MaskBrain;
 
             parameters.TIME.run(iRun).TR = TR;
@@ -140,7 +159,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                     ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
                 end
                 parameters.rois.files = char(ROI);
-            
+            case 'directory'
+                ROIFolder = mc_GenPath(ROITemplate);
+                parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
             case 'coordinates'
                 parameters.rois.mni.coordinates = ROICenters;
                 if (iscell(ROISize))
@@ -152,7 +173,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
             case 'grid'
-                ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
                 ROIGridMaskHdr = spm_vol(ROIGridMask);
                 ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
@@ -167,9 +188,29 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.YROI = XYZ(2,:);
                     parameters.rois.mni.size.ZROI = XYZ(2,:);
                 end
+            case 'gridplus'
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr = spm_vol(ROIGridMask);
+                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord = grid_coord_cand(inOutIDX,:);
+                
+                grid_coord = [grid_coord; ROIGridCenters];
+                
+                parameters.rois.mni.coordinates = grid_coord;
+                if (iscell(ROIGridSize))
+                    parameters.rois.mni.size = ROIGridSize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROIGridSize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                end
         end
 
         parameters.Output.correlation = ROIOutput;
+        parameters.Output.saveroiTC = saveroiTC;
         %parameters.Output.description = 'description of output';
         parameters.Output.directory = OutputPath;
         parameters.Output.name = OutputName;
