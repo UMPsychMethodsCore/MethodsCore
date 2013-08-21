@@ -22,29 +22,32 @@ function RunFirstLevel(AllSubjects, opt)
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = AllSubjects(i).sess(k).images;
 
             % handle conditions
+            condIndex = 1;
             matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond = [];
             for m = 1:size(AllSubjects(i).sess(k).cond, 2)
 
                 if AllSubjects(i).sess(k).cond(m).use == 1
 
-                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).name = AllSubjects(i).sess(k).cond(m).name;
-                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).onset = AllSubjects(i).sess(k).cond(m).onset;
-                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).duration = AllSubjects(i).sess(k).cond(m).duration;
-                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).tmod = 0;
+                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).name = AllSubjects(i).sess(k).cond(m).name;
+                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).onset = AllSubjects(i).sess(k).cond(m).onset;
+                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).duration = AllSubjects(i).sess(k).cond(m).duration;
+                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).tmod = 0;
 
                     % handle parametric regressors of conditons
                     pmodIndex = 1;
-                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).pmod = struct('name', {}, 'param', {}, 'poly', {});
+                    matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).pmod = struct('name', {}, 'param', {}, 'poly', {});
 
                     for iPar = 1:AllSubjects(i).sess(k).cond(m).usePMod
                         if ~isempty(AllSubjects(i).sess(k).cond(m).pmod(iPar).param) == 1
-                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).pmod(pmodIndex).name = AllSubjects(i).sess(k).cond(m).pmod(iPar).name;
-                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).pmod(pmodIndex).param = AllSubjects(i).sess(k).cond(m).pmod(iPar).param;
-                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(m).pmod(pmodIndex).poly = AllSubjects(i).sess(k).cond(m).pmod(iPar).poly;
+                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).pmod(pmodIndex).name = AllSubjects(i).sess(k).cond(m).pmod(iPar).name;
+                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).pmod(pmodIndex).param = AllSubjects(i).sess(k).cond(m).pmod(iPar).param;
+                            matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(condIndex).pmod(pmodIndex).poly = AllSubjects(i).sess(k).cond(m).pmod(iPar).poly;
 
                             pmodIndex = pmodIndex + 1;
                         end
                     end
+                    
+                    condIndex = condIndex + 1;
                 end
             end
 

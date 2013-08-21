@@ -277,6 +277,7 @@ function ContrastRow = ScaleContrastRow(NumCond, ContrastRow, NumBases, CondScal
     for k = 1:NumCond
     
         if CondScaling(k).weight == 0
+            % add 1 to account for contrast name
             ContrastRow{k + 1} = ContrastRow{k + 1} .* 0;
         else
             TmpConVec = ContrastRow{k + 1};
