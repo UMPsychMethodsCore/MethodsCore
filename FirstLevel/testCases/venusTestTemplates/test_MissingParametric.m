@@ -62,7 +62,7 @@ SubjDir = {
 %%% Examples:
 %%% MasterTemplate='[Exp]/Scripts/MasterData/EurekaDM_Master.csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/MasterDataFiles/EurekaDM_Master.csv';
+MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/venusTestTemplates/MasterDataFiles/EurekaDM_MasterSameCov.csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Number of rows and columns to skip when reading the MasterData csv file
@@ -130,7 +130,7 @@ ParametricList = {
 %%%  Location of user specified regressor files. To use these make sure 
 %%%  column 2 of RegOp is set to 1 above.
 %%%
-%%%  syntax: File location, number of regressors to use, derivative order
+%%%  syntac: File location, number of regressors to use, derivative order
 %%%          to include for regressor
 %%%
 %%%  Variables you can use in your template are:
@@ -152,8 +152,8 @@ RegFilesTemplate = {
 %%% long as the number of bins being used.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {
-'UncertDraw_PostProb_Pos' [0 1 0] 0 0 0 0 [0 0 0 0 0 0];
-'UncertDraw_PostProb_Neg' [0 -1 0] 0 0 0 0 [0 0 0 0 0 0];
+'UncertDraw_PostProb_Pos' [0 0 0 1 0 0 0 0 0] [0 0 0] [0 0 0] [0 0 0] [0 0 0] [0 0 0 0 0 0];
+'UncertDraw_PostProb_Neg' [0 0 0 -1 0 0 0 0 0] [0 0 0] [0 0 0] [0 0 0] [0 0 0] [0 0 0 0 0 0];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,7 +202,7 @@ StartOp=1;
 %%% OVERWRITE existing results without prompting you, so please be sure
 %%% your paths are all correct before running.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-UseSandbox = 1;
+UseSandbox = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ref point for data out of 16, use same fraction as ref slice for slice timing
@@ -247,7 +247,7 @@ Basis = 'hrf';
 %%% 1 - derivative
 %%% 2 = derivative and dispersion
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HrfDerivative = 0;
+HrfDerivative = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Only used if Basis = 'fir'
@@ -278,40 +278,6 @@ FirBins = 0;
 ContrastRunWeights = {
 };
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CompCorTemplate specifies the location of the log/csv files genereated
-%%% for each run from pcafMRI during preprocessing.  Leave empty if CompCor
-%%% should not be used.
-%%%
-%%% syntax: File location,
-%%%         Components Used,
-%%%           1 = use global mean only (assumed to be 1st regressor listed)
-%%%           2 = use components only
-%%%           3 = use both global mean and components
-%%%         Component inclusion method,
-%%%           1 = use specified number of components
-%%%           2 = use components that explain an amount of variance
-%%%         # of components   OR   minimum fractional variance explained
-%%%
-%%%         NOTE: component inclusion method is ignored if Regressors Used = 1
-%%%               (global mean is only used as a regressor)
-%%%         NOTE: minimum fractional variance explained must > 0 and < 1
-%%%
-%%% Variables used in template are the following:
-%%%       Exp         = path to your experiment directory
-%%%       Subject     = folder name of current subject
-%%%       Run         = folder name of current run
-%%%        *          = wildcard (can only be placed in final part of template)
-%%%
-%%% Example :
-%%%       CompCorTemplate = {
-%%%         '/Path/To/File/CSF_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
-%%%         '/Path/To/File/WM_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
-%%%       };
-%%% Read documentation for more in-depth examples.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CompCorTemplate = {
-};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Volumespecifier specifies the number of volumes to use for each run.
@@ -358,14 +324,20 @@ spmdefaults = {
 
 global mcRoot;
 %DEVSTART
-mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'FirstLevel'))
-addpath(fullfile(mcRoot,'FirstLevel','functions'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%%%
+addpath('/oracle7/Researchers/heffjos/MethodsCore/matlabScripts');
+addpath('/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/functions');
+
+mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
+%%%
+
+% addpath(fullfile(mcRoot,'matlabScripts'))
+% addpath(fullfile(mcRoot,'FirstLevel'))
+% addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 FirstLevel_mc_central

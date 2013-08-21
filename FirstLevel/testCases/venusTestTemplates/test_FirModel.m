@@ -1,9 +1,10 @@
+
 clear
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/zubdata/oracle1/Eureka';
+Exp = '/zubdata/oracle1/OXYTOCIN';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path where your logfiles will be stored
@@ -21,25 +22,21 @@ LogTemplate = fullfile(pwd, 'Logs');
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImagePathTemplate = '[Exp]/[Subject]/dm_func/[Run]/';
+ImagePathTemplate = '[Exp]/[Subject]/HRF/func/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% spm_select filter used to collect subject images
 %%% Type help regexp and spm_filter for description how to create filters
 %%% generally it will always be something like '^sw3mm_ra_spm8_run.*nii'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BaseFileSpmFilter = '^sw3mmVBM8_rarun.*nii';
+BaseFileSpmFilter = '^sw2mm_Ra_spm8_run.*nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% A list of run folders where the script can find the images to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_01';
-    'run_02';
-    'run_03';
-    'run_04';
-    'run_05';
-	'run_06';
+'run_01';
+'run_07';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,9 +44,11 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-     'PM103_EUR/Active',1301,[1 2 3 4 5 6];
-     'PM103_EUR/Inactive',1032,[1 2 3 4 5];
-     'PF104_EUR/Active',1041,[1 2 3 4 5 6];
+'CM001OXY/SCAN_A', 1, 2;
+'CM001OXY/SCAN_B', 2, 2;
+'CM002OXY/SCAN_A', 3, 2;
+'CM002OXY/SCAN_B', 4, 1;
+'CM004OXY/SCAN_A', 5, 2;
 };
 
 
@@ -62,12 +61,12 @@ SubjDir = {
 %%% Examples:
 %%% MasterTemplate='[Exp]/Scripts/MasterData/EurekaDM_Master.csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/MasterDataFiles/EurekaDM_Master.csv';
+MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/venusTestTemplates/MasterDataFiles/OxytocinFir.csv';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Number of rows and columns to skip when reading the MasterData csv file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterDataSkipRows = 2;
+MasterDataSkipRows = 1;
 MasterDataSkipCols = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,28 +82,24 @@ RunColumn = 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number(s) in the MasterData file where conditions numbers are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CondColumn = 5;
+CondColumn = 3;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Onset times are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TimeColumn = 11;
+TimeColumn = 4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Column number in the MasterData file where your Durations are located
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-DurationColumn = 10;
+DurationColumn = 5;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% List of conditions in your model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ConditionName = {
-    'Draws1234_UncertDecks';
-    'Draws1234_Cont';
-    'Pick_UncertDecks';
-    'Pick_Cont';
-    'Feedback_All';
+'Blinky';
 };
 
 
@@ -122,7 +117,6 @@ ConditionName = {
 %%% a constant parametric regressor and it will cause problems with contrasts.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ParametricList = {
-    'Cov_PostProb_JNeuroModel1',12,1,2;
 };
 
 
@@ -130,7 +124,7 @@ ParametricList = {
 %%%  Location of user specified regressor files. To use these make sure 
 %%%  column 2 of RegOp is set to 1 above.
 %%%
-%%%  syntax: File location, number of regressors to use, derivative order
+%%%  syntac: File location, number of regressors to use, derivative order
 %%%          to include for regressor
 %%%
 %%%  Variables you can use in your template are:
@@ -140,7 +134,7 @@ ParametricList = {
 %%%        *          = wildcard (can only be placed in final part of template)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegFilesTemplate = {
-'[Exp]/[Subject]/dm_func/[Run]/mcflirt*.dat', Inf, 0;
+'[Exp]/[Subject]/HRF/func/[Run]/rp_*.txt', Inf, 0;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,8 +146,19 @@ RegFilesTemplate = {
 %%% long as the number of bins being used.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {
-'UncertDraw_PostProb_Pos' [0 1 0] 0 0 0 0 [0 0 0 0 0 0];
-'UncertDraw_PostProb_Neg' [0 -1 0] 0 0 0 0 [0 0 0 0 0 0];
+'BinOne',       [1 0 0 0 0 0 0 0 0 0 0 0 0], [];
+'BinTwo',       [0 1 0 0 0 0 0 0 0 0 0 0 0], [];
+'BinThree',     [0 0 1 0 0 0 0 0 0 0 0 0 0], [];
+'BinFour',      [0 0 0 1 0 0 0 0 0 0 0 0 0], [];
+'BinFive',      [0 0 0 0 1 0 0 0 0 0 0 0 0], [];
+'BinSix',       [0 0 0 0 0 1 0 0 0 0 0 0 0], [];
+'BinSeven',     [0 0 0 0 0 0 1 0 0 0 0 0 0], [];
+'BinEight',     [0 0 0 0 0 0 0 1 0 0 0 0 0], [];
+'BinNine',      [0 0 0 0 0 0 0 0 1 0 0 0 0], [];
+'BinTen',       [0 0 0 0 0 0 0 0 0 1 0 0 0], [];
+'BinEleven',    [0 0 0 0 0 0 0 0 0 0 1 0 0], [];
+'BinTwelve',    [0 0 0 0 0 0 0 0 0 0 0 1 0], [];
+'BinThirteen',  [0 0 0 0 0 0 0 0 0 0 0 0 1], [];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,7 +171,7 @@ ContrastList = {
 %%% Examples:
 %%% OutputTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputDir = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/FirstLevelTests/OneParametric/[Subject]';
+OutputDir = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/FirstLevelTests/Fir/[Subject]';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,7 +207,7 @@ StartOp=1;
 %%% OVERWRITE existing results without prompting you, so please be sure
 %%% your paths are all correct before running.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-UseSandbox = 1;
+UseSandbox = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ref point for data out of 16, use same fraction as ref slice for slice timing
@@ -228,17 +233,17 @@ ConditionThreshold = 0;
 %%%   1 - each person has identical models, grab all from first block of MasterData
 %%%   NOTE: Regressors still use subject index so are not identical across subjects
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-IdenticalModels = 0;
+IdenticalModels = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Total number of trials in your experiment for a subject (only used if IdenticalModels = 1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TotalTrials = 0;
+TotalTrials = 40;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Basis function to use in model.  Valid options are 'hrf' or 'fir'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Basis = 'hrf';
+Basis = 'fir';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Only used if Basis = 'hrf'
@@ -247,19 +252,19 @@ Basis = 'hrf';
 %%% 1 - derivative
 %%% 2 = derivative and dispersion
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HrfDerivative = 0;
+HrfDerivative = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Only used if Basis = 'fir'
 %%% Indicates the poststimulus duration for the hemodynamic response
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FirDuration = 0;
+FirDuration = 26;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Only used if Basis = 'fir'
 %%% Indicates the bins to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FirBins = 0;
+FirBins = 13;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
@@ -278,40 +283,6 @@ FirBins = 0;
 ContrastRunWeights = {
 };
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CompCorTemplate specifies the location of the log/csv files genereated
-%%% for each run from pcafMRI during preprocessing.  Leave empty if CompCor
-%%% should not be used.
-%%%
-%%% syntax: File location,
-%%%         Components Used,
-%%%           1 = use global mean only (assumed to be 1st regressor listed)
-%%%           2 = use components only
-%%%           3 = use both global mean and components
-%%%         Component inclusion method,
-%%%           1 = use specified number of components
-%%%           2 = use components that explain an amount of variance
-%%%         # of components   OR   minimum fractional variance explained
-%%%
-%%%         NOTE: component inclusion method is ignored if Regressors Used = 1
-%%%               (global mean is only used as a regressor)
-%%%         NOTE: minimum fractional variance explained must > 0 and < 1
-%%%
-%%% Variables used in template are the following:
-%%%       Exp         = path to your experiment directory
-%%%       Subject     = folder name of current subject
-%%%       Run         = folder name of current run
-%%%        *          = wildcard (can only be placed in final part of template)
-%%%
-%%% Example :
-%%%       CompCorTemplate = {
-%%%         '/Path/To/File/CSF_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
-%%%         '/Path/To/File/WM_PCA_w2mmPCA_Ra_spm8_run', 2, 1, 5;
-%%%       };
-%%% Read documentation for more in-depth examples.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CompCorTemplate = {
-};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Volumespecifier specifies the number of volumes to use for each run.
@@ -366,6 +337,6 @@ mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'FirstLevel','functions'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+% addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 FirstLevel_mc_central
