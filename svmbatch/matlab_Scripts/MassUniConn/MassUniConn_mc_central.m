@@ -207,8 +207,10 @@ if (~exist('ShadingEnable','var'))
 end
 
 if ShadingEnable == 0
-    nRep = 1;
+    nRep = 1;    
 end
+
+
 
 % for perms.count
 %First two dimensions will index the network structure. 
@@ -252,6 +254,7 @@ if permDone ~= 1
     save(permSave,'perms','-v7.3');  %%%%  Backup
 else
     load(permSave);
+    
 end
 
 
