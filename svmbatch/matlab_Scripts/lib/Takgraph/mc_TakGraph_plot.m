@@ -31,6 +31,7 @@ if ~isfield(a,'colormap')
 end
 map    = a.colormap;
 sorted = a.mediator.sorted;
+graphtitle=a.title;
 
 if isfield(a.mediator,'NetSubset')
     NetLogic = ismember(sorted,a.mediator.NetSubset);
@@ -51,6 +52,7 @@ sorted_pad((a.mediator.pad+1):(end - a.mediator.pad)) = sorted;
 a.h = figure;
 image(square_pad);
 colormap(map);
+title(graphtitle,'Interpreter','none'); % Ignore any possible underscore
 axis off;
 
 hold on
@@ -74,6 +76,7 @@ for iBox=1:size(starts)
 end
 
 hold off
+set(a.h,'Visible','on')
 
 end
 
