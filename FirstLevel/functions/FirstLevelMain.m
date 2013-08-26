@@ -43,6 +43,15 @@ function opt = CheckOpt(opt)
     LogDirectory = mc_GenPath(LogCheck);
     mc_Logger('setup', LogDirectory);
 
+    % check run nubmers are valid for each subject
+    NumRuns = size(opt.RunDir, 1);
+    for i = 1:size(opt.SubjDir, 1)
+        SubjectRuns = opt.SubjDir{3};
+        if any(SubjectRuns > NumRuns)
+            error('Subject %s : Runs to include exceed the number of possible runs.\n', opt.SubjDir{i, 1});
+        end
+    end
+
     % MasterDataFile checks
     if length(opt.CondColumn) ~= length(opt.TimeColumn) || length(opt.TimeColumn) ~= length(opt.DurationColumn)
         error('Variables CondColumn TimeColumn DurationColumn must all have equal lengths');
