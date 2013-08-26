@@ -49,6 +49,13 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
 %
 
     NumCond = size(opt.ConditionName, 1);
+    
+    % include a check for zero conditions -- this is for PPI
+    if NumCond == 0
+        RunConditions = [];
+        return;
+    end
+
     RunConditions(NumCond) = struct();
     Subject = opt.SubjDir{SubjectNumber, 1};
     Run = opt.RunDir{RunNumber};
