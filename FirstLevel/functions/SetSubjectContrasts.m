@@ -308,7 +308,7 @@ function ContrastRow = ScaleContrastRow(NumCond, ContrastRow, NumBases, CondScal
     %scale regressors if present
     if ~isempty(ContrastRow{NumCond + 2}) == 1
         RegConVec = ContrastRow{NumCond + 2};
-        for k = 1:length(RegConVec)
+        for k = 1:length(RegScaling)
             RegConVec(k) = RegConVec(k) * NumRuns / RegScaling(k);
         end
         ContrastRow{NumCond + 2} = RegConVec;
