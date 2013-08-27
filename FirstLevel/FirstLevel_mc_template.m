@@ -131,7 +131,8 @@ ParametricList = {
 %%%  column 2 of RegOp is set to 1 above.
 %%%
 %%%  syntax: File location, number of regressors to use, derivative order
-%%%          to include for regressor
+%%%          to include for regressor, polynomial term (applies to derivatives
+%%%          as well if being used)
 %%%
 %%%  Variables you can use in your template are:
 %%%       Exp         = path to your experiment directory
@@ -140,7 +141,7 @@ ParametricList = {
 %%%        *          = wildcard (can only be placed in final part of template)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegFilesTemplate = {
-'[Exp]/[Subject]/dm_func/[Run]/mcflirt*.dat', Inf, 0;
+'[Exp]/[Subject]/dm_func/[Run]/mcflirt*.dat', Inf, 0, 1;
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
