@@ -1,4 +1,4 @@
-function [Output,Flag] = mc_graphtheory_measures(mtrx,network)
+function [Output] = mc_graphtheory_measures(mtrx,network,Flag)
 % mc_graphtheory_measures: Do the computation of graph theory measurements
 % INPUT:
 %         mtrx         - A binary 2D network that undergoes the computation
@@ -22,33 +22,7 @@ function [Output,Flag] = mc_graphtheory_measures(mtrx,network)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 directed = network.directed;
 weighted = network.weighted;
-measures = network.measures;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Measurement Flags
-% 1 - include this measure
-% 0 - do not include this measure
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Flag.density       = any(strfind(upper(measures),'D'));
-Flag.transitivity  = any(strfind(upper(measures),'T'));
-Flag.efficiency    = any(strfind(upper(measures),'F'));
-Flag.modularity    = any(strfind(upper(measures),'M'));
-Flag.assortativity = any(strfind(upper(measures),'A'));
-Flag.pathlength    = any(strfind(upper(measures),'P'));
-Flag.degree        = any(strfind(upper(measures),'E'));
-Flag.clustering    = any(strfind(upper(measures),'C'));
-Flag.betweenness   = any(strfind(upper(measures),'B'));
-Flag.entropy       = any(strfind(upper(measures),'Y'));
-Flag.eccentricity  = any(strfind(upper(measures),'N'));
-Flag.eigenvector   = any(strfind(upper(measures),'V'));
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%% Global Measurements (Networkwise) %%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Density-

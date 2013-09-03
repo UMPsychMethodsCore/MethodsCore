@@ -170,38 +170,12 @@ network.perm     = 1;
 
 if network.perm
     nRep     = 10;
-    PermOutput = '[Exp]/GraphTheory/[SubFolder]/permutation/[ThreshValue]/';
+    PermOutput = '[Exp]/GraphTheory/[OutputFolder]/permutation/[ThreshValue]/';
     permSave = 'MAS_tcb_10perm.mat';
     permDone = 0;
     permCores = 1;
     permlevel = 0.005;
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Output Settings
-% 
-% SubFolder:   The major folder that contains all of the outputs
-% 
-% Name and path for output csv files, 1 is for global measures, 2 is for
-% local measures (leave off the .csv), and t-test p values
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubFolder = 'Grid_tcb_WholeBrain';
-network.save = '[Exp]/GraphTheory/[SubFolder]/MotionScrubbed/CombinedOutput.mat';
-
-OutputPathTemplate = '[Exp]/GraphTheory/[SubFolder]/MotionScrubbed/Measure_global';
-
-
-OutpvaluePathTemplate = '[Exp]/GraphTheory/[SubFolder]/ttest/pvalue';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%
-%%%  Save the first level voxel-wise measurement results
-%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-network.flsave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/[Netname]/[Metricname]/[Metricname]_[Subjectfl].mat';
-network.flconcat = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/[Netname]/[Metricname]/[Metricname].mat';
-network.typesave = '[Exp]/GraphTheory/[SubFolder]/FirstLevel/type.mat';
-network.tsave = '[Exp]/GraphTheory/[SubFolder]/ttest/result.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -245,17 +219,35 @@ network.measures = 'ABCDEFMNPTVY';
 
 network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenvector','eccentricity'};
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The stream you are at
-%%%          m   =   measurement
-%%%          t   =   threshold selection
-%%%
-%%%         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.stream = 'm';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Output Settings
+% 
+% General:
+% OutputFolder:    The folder that contains all of the outputs, located under
+%               [Exp]/GraphTheory/
+% 
+% Global measures:
+% OutputMat: The mat file saving the first level graph theory results
+% OutputPathTemplate:  csv file containing first level graph theory results
+% ttestOutMat:The mat file saving the t-test results
+% ttestOutPathTemplate: csv file containing t-test results
+% 
+% Node-wise measures:
+% Nodeflsave: The mat files saving the first level node-wise graph theory
+%             results (per threshold, per network, per metric). 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+OutputFolder = 'Grid_tcb_WholeBrain';
 
-%% 
+OutputMat = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/CombinedOutput.mat';
+OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/Measure_global';
+if network.ttest
+    ttestOutMat = '[Exp]/GraphTheory/[OutputFolder]/ttest/result.mat';
+    ttestOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/ttest/pvalue';
+end
+
+NodeflMat = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[Threname]/[Netname]/[Metricname]/[Metricname].mat';
+ 
 %%%%%%%%%%%%%%%%%%%
 % set the path
 %%%%%%%%%%%%%%%%%%%
