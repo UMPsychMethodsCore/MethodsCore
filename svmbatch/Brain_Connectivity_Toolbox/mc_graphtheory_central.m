@@ -353,146 +353,204 @@ fclose(theFID);
       
 display('Global Measures All Done')
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Save subject wise results of node-wise measurements results
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%% Multiple thresholding %%%%%%%%%%%
-for tThresh = 1:nThresh
-    Threname = ['threshold' num2str(network.thresh(tThresh))];
-    for kNet=1:nNet
-        if network.netinclude==-1
-            Netnum = -1;
-        else
-            Netnum  = network.netinclude(kNet);
-        end
-        Netname = ['network' num2str(Netnum)];
-        for n=1:length(network.voxelmeasures)
-            Metricname=network.voxelmeasures{n};
-            SaveData = zeros(length(CombinedOutput),nSub);
-            for iSub = 1:nSub
-                if SubUse(iSub)
-                    Subjectfl=Names{iSub};
-                    switch Metricname
-                        case 'degree'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
-                        case 'betweenness'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
-                        case 'efficiency'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
-                        case 'clustering'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
-                        case 'eigenvector'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
-                        case 'eccentricity'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
-                        otherwise
-                            display(sprintf('%s is not in the measure list yet, please add it',Metricname));
-                    end
-                    if network.voxelzscore
-                        meanv   = mean2(OutData);
-                        sdv     = std2(OutData);
-                        OutSave = (OutData - meanv)./sdv;
-                    else
-                        OutSave = OutData;
-                    end
-                    SaveData(iSub,:)=OutSave;
-                end
-            end
-            NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
-            save(NodeflSave,'SaveData','-v7.3');
-            clear SaveData
-        end       
-    end
-end
 
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Re-arrangement of global measure data
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Re-arrangement of global measure data to a 2d matrix 
+%%% column is thresh label, net label and metrics, 
+%%% row is each subject/thresh/net subset
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (network.ttest || network.perm)
-    OutCluster    = zeros(nThresh,length(CombinedOutput),nNet);
-    OutPathLength = zeros(nThresh,length(CombinedOutput),nNet);
-    OutTrans      = zeros(nThresh,length(CombinedOutput),nNet);
-    OutEglob      = zeros(nThresh,length(CombinedOutput),nNet);
-    OutModu       = zeros(nThresh,length(CombinedOutput),nNet);
-    OutAssort     = zeros(nThresh,length(CombinedOutput),nNet);
-    OutBtwn       = zeros(nThresh,length(CombinedOutput),nNet);
-    OutEtpy       = zeros(nThresh,length(CombinedOutput),nNet);
-    OutDegree     = zeros(nThresh,length(CombinedOutput),nNet);
-    OutDensity    = zeros(nThresh,length(CombinedOutput),nNet);
-    OutEigValue   = zeros(nThresh,length(CombinedOutput),nNet);
-    for iThresh = 1:nThresh
-        for iSub = 1:length(CombinedOutput)
-            for jNet = 1:nNet
-                %Degree
-                OutDegree(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glodeg;
-                
-                %Density
-                OutDensity(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.density;
-                
-                %Clustering
-                OutCluster(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.cluster;
-                
-                %CharacteristicPathLength
-                OutPathLength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.pathlength;
-                
-                %Transitivity
-                OutTrans(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.trans;
-                
-                %GlobalEfficiency
-                OutEglob(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eglob;
-                
-                %Modularity
-                OutModu(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.modu;
-                
-                %Assortativity
-                OutAssort(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.assort;
-                
-                %Betweenness
-                OutBtwn(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.btwn;
-                
-                %Entropy
-                OutEtpy(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.etpy;
-                
-                %Eigenvector
-                OutEigValue(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eigvalue;
-                
-            end
-        end
-    end
-    
-    %%%%%%%%%%%%%% Rearrange the data %%%%%%%%%%%%%%%%%%
-    ColCluster    = OutCluster(:);     ColCluster    = ColCluster(SubUse==1);
-    ColPathLength = OutPathLength(:);  ColPathLength = ColPathLength(SubUse==1);
-    ColTrans      = OutTrans(:);       ColTrans      = ColTrans(SubUse==1);
-    ColEglob      = OutEglob(:);       ColEglob      = ColEglob(SubUse==1);
-    ColModu       = OutModu(:);        ColModu       = ColModu(SubUse==1);
-    ColAssort     = OutAssort(:);      ColAssort     = ColAssort(SubUse==1);
-    ColBtwn       = OutBtwn(:);        ColBtwn       = ColBtwn(SubUse==1);
-    ColEtpy       = OutEtpy(:);        ColEtpy       = ColEtpy(SubUse==1);
-    ColDeg        = OutDegree(:);      ColDeg        = ColDeg(SubUse==1);
-    ColDens       = OutDensity(:);     ColDens       = ColDens(SubUse==1);
-    ColEig        = OutEigValue(:);    ColEig        = ColEig(SubUse==1);
-    
+       
     % Column of network
     MatNet        = repmat(network.netinclude,length(CombinedOutput)*nThresh,1);
     ColNet        = MatNet(:);
     ColNet        = ColNet(SubUse==1);
     
     % Column of threshold
-    if network.ztransform
-        ColThresh     = repmat(network.zthresh,1,length(CombinedOutput)*nNet)';
-    else
-        ColThresh     = repmat(network.rthresh,1,length(CombinedOutput)*nNet)';
-    end
+    ColThresh     = repmat(network.thresh,1,length(CombinedOutput)*nNet)';
     ColThresh     = ColThresh(SubUse==1);
     
-    % Combine to 2d matrix (column is thresh label, net label and metrics, row is each subject/thresh/net subset)
-    data     = [ColThresh ColNet ColCluster ColPathLength ColTrans ColEglob ColModu ColAssort ColBtwn ColEtpy ColDeg ColDens ColEig];
-    Metrics   = {'Clustering','CharPathLength','Transitivity','GlobEfficiency','Modularity','Assortativity','Betweenness','Entropy','GlobalDegree','Density','EigValue'};
+    % Initialization
+    data = [ColNet ColThresh];
+    Metrics = {};
     input.netcol = 2;
+    
+    % Column of Degree
+    if Flag.degree
+        OutDegree     = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutDegree(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glodeg;
+                end
+            end
+        end
+        ColDeg = OutDegree(:);      
+        ColDeg = ColDeg(SubUse==1);
+        data   = [data ColDeg];
+        Metrics{end+1} ='GlobalDegree';
+    end
+                
+    % Column of Density
+    if Flag.density
+        OutDensity    = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutDensity(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.density;
+                end
+            end
+        end
+        ColDens = OutDensity(:);     
+        ColDens = ColDens(SubUse==1);
+        data    = [data ColDens];
+        Metrics{end+1} ='Density';
+    end
+    
+    % Column of Clustering
+    if Flag.clustering
+        OutCluster    = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutCluster(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.cluster;
+                end
+            end
+        end
+        ColCluster = OutCluster(:);     
+        ColCluster = ColCluster(SubUse==1);
+        data       = [data ColCluster];
+        Metrics{end+1} = 'Clustering';
+    end
+    
+    % Column of CharacteristicPathLength
+    if Flag.pathlength
+        OutPathLength = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutPathLength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.pathlength;
+                end
+            end
+        end
+        ColPathLength = OutPathLength(:);  
+        ColPathLength = ColPathLength(SubUse==1);
+        data          = [data ColPathLength];
+        Metrics{end+1} = 'CharPathLength';
+    end
+    
+    % Column of Transitivity
+    if Flag.transitivity
+        OutTrans      = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutTrans(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.trans;
+                end
+            end
+        end
+        ColTrans = OutTrans(:);       
+        ColTrans = ColTrans(SubUse==1);
+        data     = [data ColTrans];
+        Metrics{end+1} = 'Transitivity';
+    end
+    
+    % Column of GlobalEfficiency
+    if Flag.efficiency
+        OutEglob      = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutEglob(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eglob;
+                end
+            end
+        end
+        ColEglob = OutEglob(:);       
+        ColEglob = ColEglob(SubUse==1);
+        data     = [data ColEglob];
+        Metrics{end+1} = 'GlobEfficiency';
+    end
+    
+    % Column of Modularity
+    if Flag.modularity
+        OutModu       = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutModu(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.modu;
+                end
+            end
+        end
+        ColModu = OutModu(:);        
+        ColModu = ColModu(SubUse==1);
+        data    = [data ColModu];
+        Metrics{end+1} = 'Modularity';
+    end
+    
+    % Column of Assortativity
+    if Flag.assortativity
+        OutAssort     = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutAssort(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.assort;
+                end
+            end
+        end
+        ColAssort = OutAssort(:);      
+        ColAssort = ColAssort(SubUse==1);
+        data      = [data ColAssort];
+        Metrics{end+1} = 'Assortativity';
+    end
+    
+    % Column of Betweenness
+    if Flag.betweenness
+        OutBtwn       = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutBtwn(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.btwn;
+                end
+            end
+        end
+        ColBtwn = OutBtwn(:);        
+        ColBtwn = ColBtwn(SubUse==1);
+        data    = [data ColBtwn];
+        Metrics{end+1} = 'Betweenness';
+    end
+    
+    % Column of Entropy
+    if Flag.entropy
+        OutEtpy       = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutEtpy(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.etpy;
+                end
+            end
+        end
+        ColEtpy = OutEtpy(:);        
+        ColEtpy = ColEtpy(SubUse==1);
+        data    = [data ColEtpy];
+        Metrics{end+1} = 'Entropy';
+    end
+    
+    % Column of Eigenvector
+    if Flag.eigenvector
+        OutEigValue   = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutEigValue(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eigvalue;
+                end
+            end
+        end
+        ColEig = OutEigValue(:);    
+        ColEig = ColEig(SubUse==1);
+        data   = [data ColEig];
+        Metrics{end+1} = 'EigValue';
+    end       
     
     nMetric = length(Metrics);
     
@@ -545,8 +603,8 @@ if network.ttest
     save(tresultsave,'result','-v7.3');
     
     % output p value to csv
-    OutpvaluePath=mc_GenPath(struct('Template',ttestOutPathTemplate,'suffix','.csv','mode','makeparentdir'));
-    theFID = fopen(OutpvaluePath,'w');
+    ttestOutPath=mc_GenPath(struct('Template',ttestOutPathTemplate,'mode','makeparentdir'));
+    theFID = fopen(ttestOutPath,'w');
     if theFID < 0
         fprintf(1,'Error opening the csv file!\n');
         return;
@@ -570,8 +628,7 @@ if network.ttest
             end
         end
     end
-    fclose(theFID);
-    
+    fclose(theFID);    
 end
  
 %% 
@@ -580,71 +637,79 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if network.perm
     for iThresh = 1:nThresh
-        
-        ThreshValue = num2str(network.rthresh(iThresh));
-        
+        ThreValue = num2str(network.thresh(iThresh));
         meandiff = zeros(nThresh,nNet,nMetric);
-        meanhc   = zeros(nThresh,nNet,nMetric);
+        meancl   = zeros(nThresh,nNet,nMetric);
         meanep   = zeros(nThresh,nNet,nMetric);
         secl     = zeros(nThresh,nNet,nMetric);
         seep     = zeros(nThresh,nNet,nMetric);
-        if network.ztransform
-            subdata = data(data(:,1)==network.zthresh(iThresh),:);
-        else
-            subdata = data(data(:,1)==network.rthresh(iThresh),:);
-        end
-        [submeandiff,submeanhc,submeands,subsehc,subseds]=mc_graphtheory_meandiff(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
-        meandiff(iThresh,:,:) = submeandiff;
-        meanhc(iThresh,:,:)   = submeanhc;
-        meanep(iThresh,:,:)   = submeands;
-        secl(iThresh,:,:)     = subsehc;
-        seep(iThresh,:,:)     = subseds;
         
+        input.subdata = data(data(:,1)==network.thresh(iThresh),:);
+        
+        [permresults]=mc_graphtheory_meandiff(network,input,nNet,nMetric);
+        meandiff(iThresh,:,:) = permresults.submeandiff;
+        meancl(iThresh,:,:)   = permresults.submeancl;
+        meanep(iThresh,:,:)   = permresults.submeanep;
+        secl(iThresh,:,:)     = permresults.subsecl;
+        seep(iThresh,:,:)     = permresults.subseep;        
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% Permutation Test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %%%%%%%%%%%%%%%% Permutation %%%%%%%%%%%%%%%%%%%%%%%
-        if ~permDone
-            
+        if ~permDone            
             perm = zeros(nNet,nMetric,nRep);
             if permCores ~= 1
                 try
                     matlabpool('open',permCores)
                     parfor i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
-                    matlabpool('close')
+                    matlabpool('close') 
                 catch
                     matlabpool('close')
                     for i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
                 end
             else
                 for i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(types,unitype,covtype,subdata,network.netinclude,netcol,nNet,nMetric);
+                    perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
                     fprintf(1,'%g\n',i);
                 end
             end
-            permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','makeparentdir'));
+            permLoc = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
             save(permLoc,'perm','-v7.3');
         else
-            permLoc = mc_GenPath(struct('Template',fullfile(PermOutput,permSave),'mode','check'));
+            permLoc = mc_GenPath(struct('Template',permOutMat,'mode','check'));
             load(permLoc);
-        end
+        end            
         
-        
-        
-        %%%%%%%%%%%%%% Computation %%%%%%%%%%%%%%%%%%%%%%%
-        
-        realn=0;
+        %%%%%%%%%%%%%%%%%% See the order %%%%%%%%%%%%%%%%%%
+        permOrder = zeros(nThresh,nNet,nMetric);
+        permpVal = zeros(nThresh,nNet,nMetric);
         for i = 1:nNet
             for j = 1:nMetric
-                
+                vector = sort(abs(squeeze(perm(i,j,:))),'descend');
+                N      = length(vector);
+                for k = 1:N
+                    if abs(meandiff(iThresh,i,j))>vector(k)
+                        permOrder(iThresh,i,j)=k;
+                        permpVal(iThresh,i,j)=k/N;                        
+                        break
+                    end                    
+                end
+            end
+        end
+        permDirection = sign(meandiff);
+        
+        %%%%%%%%%%%%%% Find significant difference subset %%%%%%%%%%%%%%%%%%%%%%%
+        realn=0;
+        for i = 1:nNet
+            for j = 1:nMetric                
                 vector = sort(squeeze(perm(i,j,:)),'descend');
                 N      = length(vector);
                 pos    = floor(permlevel*N)+1;
@@ -655,36 +720,9 @@ if network.perm
                 end
             end
             
-        end
-        
-        
-        %%%%%%%%%%%%%%%%%% See the order %%%%%%%%%%%%%%%%%%
-        RealOrder = zeros(nThresh,nNet,nMetric);
-        RealLevel = zeros(nThresh,nNet,nMetric);
-        for i = 1:nNet
-            for j = 1:nMetric
-                vector = sort(abs(squeeze(perm(i,j,:))),'descend');
-                N      = length(vector);
-                for k = 1:N
-                    if abs(meandiff(iThresh,i,j))>vector(k)
-                        RealOrder(iThresh,i,j)=k;
-                        RealLevel(iThresh,i,j)=k/N;
-                        break
-                    end
-                end
-            end
-        end
-        
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Output result
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if network.ztransform
-            disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.zthresh(iThresh)));
-        else
-            disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.rthresh(iThresh)));
-        end
-        
+        end                 
+        %%%%%%%%%%%%%% Display Significant difference subset %%%%%%%%%%%%%%%%%%%%%%%
+        disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.thresh(iThresh)));        
         for i = 1:realn
             disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
             disp(sprintf('meanhc - meands: %.5f',meandiff(iThresh,RealSigNet(i),RealSigMetric(i))));
@@ -692,9 +730,89 @@ if network.perm
             disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meanep(iThresh,RealSigNet(i),RealSigMetric(i)),seep(iThresh,RealSigNet(i),RealSigMetric(i))));
         end
     end
+    %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%   
+    permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
+    save(permOutSave,'RealLevel','-v7.3');
+    permOutPath = mc_GenPatn(struct('Template',permOutPathTemplate','mode','makeparentdir'));
+    theFID = fopen(permOutPath,'w');
+    if theFID < 0
+        fprintf(1,'Error opening the csv file!\n');
+        return;
+    end
+    fprintf(theFID,'Threshold,Network,Metric,permpVal,direction\n');
+    for i=1:nThresh
+        for j=1:nNet
+            for k=1:nMetric
+                fprintf(theFID,'%.4f,',network.thresh(i));
+                fprintf(theFID,'%d,',network.netinclude(j));
+                fprintf(theFID,'%s,',result.metricorder{k});
+                fprintf(theFID,'%.4f,',permpVal(i,j,k));
+                switch permDirection(i,j,k)
+                    case 1
+                        fprintf(theFID,'%s\n','increase');
+                    case -1
+                        fprintf(theFID,'%s\n','decrease');
+                end
+            end
+        end
+    end
+    fclose(theFID); 
 end
 
 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Save subject wise results of node-wise measurements results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%% Multiple thresholding %%%%%%%%%%%
+for tThresh = 1:nThresh
+    ThreValue = ['threshold' num2str(network.thresh(tThresh))];
+    for kNet=1:nNet
+        if network.netinclude==-1
+            Netnum = -1;
+        else
+            Netnum  = network.netinclude(kNet);
+        end
+        Netname = ['network' num2str(Netnum)];
+        for n=1:length(network.voxelmeasures)
+            Metricname=network.voxelmeasures{n};
+            SaveData = zeros(length(CombinedOutput),nSub);
+            for iSub = 1:nSub
+                if SubUse(iSub)
+                    Subjectfl=Names{iSub};
+                    switch Metricname
+                        case 'degree'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
+                        case 'betweenness'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
+                        case 'efficiency'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
+                        case 'clustering'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
+                        case 'eigenvector'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
+                        case 'eccentricity'
+                            OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
+                        otherwise
+                            display(sprintf('%s is not in the measure list yet, please add it',Metricname));
+                    end
+                    if network.voxelzscore
+                        meanv   = mean2(OutData);
+                        sdv     = std2(OutData);
+                        OutSave = (OutData - meanv)./sdv;
+                    else
+                        OutSave = OutData;
+                    end
+                    SaveData(iSub,:)=OutSave;
+                end
+            end
+            NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
+            save(NodeflSave,'SaveData','-v7.3');
+            clear SaveData
+        end       
+    end
+end
 
 
 %% 

@@ -157,8 +157,7 @@ end
 %
 % network.perm:  1 - To do permutation test; 
 %                0 - Not to do permutation test.                                                                                        %
-% nRep:          Number of permutations to perform.                            
-% permSave:      Where should we save the permutation results?                 
+% nRep:          Number of permutations to perform.        
 % permDone:      1 - Permutation already done;
 %                0 - Permutation not done.                          
 % permCores:     How many CPU cores to use for permutations. We will try,      
@@ -169,9 +168,7 @@ end
 network.perm     = 1;
 
 if network.perm
-    nRep     = 10;
-    PermOutput = '[Exp]/GraphTheory/[OutputFolder]/permutation/[ThreshValue]/';
-    permSave = 'MAS_tcb_10perm.mat';
+    nRep     = 10;   
     permDone = 0;
     permCores = 1;
     permlevel = 0.005;
@@ -222,7 +219,7 @@ network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenve
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Output Settings
-% 
+%  
 % General:
 % OutputFolder:    The folder that contains all of the outputs, located under
 %               [Exp]/GraphTheory/
@@ -232,6 +229,11 @@ network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenve
 % OutputPathTemplate:  csv file containing first level graph theory results
 % ttestOutMat:The mat file saving the t-test results
 % ttestOutPathTemplate: csv file containing t-test results
+% permSave: The mat files saving permutation intermediate results, nThresh files,
+%           nNet x nMetric x nRep, 
+% permOutMat: The mat file saving the permutation stats results, nThresh x
+%             nNet x nMetric
+% permOutPathTemplate: csv file containing permutation results
 % 
 % Node-wise measures:
 % Nodeflsave: The mat files saving the first level node-wise graph theory
@@ -240,13 +242,18 @@ network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenve
 OutputFolder = 'Grid_tcb_WholeBrain';
 
 OutputMat = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/CombinedOutput.mat';
-OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/Measure_global';
+OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/Measure_global.csv';
 if network.ttest
     ttestOutMat = '[Exp]/GraphTheory/[OutputFolder]/ttest/result.mat';
-    ttestOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/ttest/pvalue';
+    ttestOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/ttest/pvalue.csv';
+end
+if network.perm
+    permSave   = '[Exp]/GraphTheory/[OutputFolder]/permutation/perms[iThresh].mat';
+    permOutMat = '[Exp]/GraphTheory/[OutputFolder]/permutation/tcb_10perm.mat';
+    permOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/permutation/tcb_10perm.csv'; 
 end
 
-NodeflMat = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[Threname]/[Netname]/[Metricname]/[Metricname].mat';
+NodeflMat = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname].mat';
  
 %%%%%%%%%%%%%%%%%%%
 % set the path
