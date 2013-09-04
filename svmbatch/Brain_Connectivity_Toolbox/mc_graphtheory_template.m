@@ -100,21 +100,22 @@ network.weighted   = 0;
 % network.positive:    1 - Only use positive value; 
 %                      2 - Only use negative value;
 %                      0 - Use absolute value. 
+% network.node         1 - Do node-wise measurement analysis;
+%                      0 - Don't do node-wise measurement analysis.
 % network.voxelzscore: 1 - Convert voxelwise measure values to normalized 
 %                          zscore for each subject: (value-mean())/std();
 %                      0 - Use original voxelwise measure values.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-network.amplify  = 1;
+network.amplify     = 1;
 
-network.partial    = 0;
+network.partial     = 0;
+network.ztransform  = 1;
+network.ztransdone  = 0; 
+network.positive    = 1;
 
-network.ztransform = 1;
-network.ztransdone = 0; 
-
-network.positive   = 1;
-
-network.voxelzscore=1;
+network.node        = 1;
+network.voxelzscore = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Thresholding
@@ -141,13 +142,17 @@ network.netinclude = -1;
 % t-test settings
 %
 % network.ttest: 1 - To do t-test for global measures;  
-%                0 - Not to do t-test for global measures.
-% siglevel:      Significant level of  t-test                        
+%                0 - Not to do t-test for global measures.                     
+% network.nodettest: 1 - To do t-test for node-wise measures;
+%                    0 - Not to do t-test for global measures.
+% siglevel:      Significant level of t-test. 
 % ttype:         'paired' - paired t-test
 %                '2-sample' - 2 sample t-test
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 network.ttest    = 1;
-if network.ttest
+network.nodettest = 1;
+if (network.ttest||network.nodettest)
     siglevel  = 0.005;
     ttype     = 'paired';
 end
@@ -155,8 +160,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Permutation Settings 
 %
-% network.perm:  1 - To do permutation test; 
-%                0 - Not to do permutation test.                                                                                        %
+% - global measure - 
+% network.perm:  1 - To do permutation test for global measures; 
+%                0 - Not to do permutation test for global measures.                                                                                        
 % nRep:          Number of permutations to perform.        
 % permDone:      1 - Permutation already done;
 %                0 - Permutation not done.                          
@@ -164,6 +170,14 @@ end
 %                but it often fails with big data, in which case we will       
 %                fall back to just one core. 
 % permlevel:     significant level of permutation test
+%
+% - nodewise measure -
+% network.nodeperm:  1 - To do permutation test for nodewise measures; 
+%                    0 - Not to do permutation test for nodewise measures.                                                                                        
+% nodenRep:          Number of permutations to perform.                
+% nodepermCores:     How many CPU cores to use for permutations. We will try,      
+%                    but it often fails with big data, in which case we will       
+%                    fall back to just one core. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 network.perm     = 1;
 
@@ -172,6 +186,47 @@ if network.perm
     permDone = 0;
     permCores = 1;
     permlevel = 0.005;
+end
+
+network.nodeperm = 0;
+
+if network.nodeperm
+    nodenRep = 10;
+    nodepermCores = 1;
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3D map settings
+%    
+% Necessary for node-wise measurement analysis
+% 
+% TDtemplate - Template for building 3D map for node-wise graph theory
+%              measure results or second level (t-test/permutation test) 
+%              results. Usually use one of the preprocessed functional
+%              image.
+% TDmask     - Mask for building 3D map for node-wise graph theory
+%              measure results or second level (t-test/permutation test) 
+%              results. 
+% TDgptemp   - Necessary when intending to do second-level with SPM
+% TDttemp    - Necessary when intending to do second-level t-test within
+%              script
+% TDpermtemp - Necessary when intending to do second-level permutation test
+%              within script
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if network.node
+    TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_05_lss/tr_s8w3rarun.nii';
+    TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+    if ~(network.nodettest||network.nodeperm)
+        TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname].nii';
+    else        
+        if network.nodettest
+            TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_ttest.nii';
+        end
+        if netwrok.nodeperm
+            TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_permtest.nii';            
+        end
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -184,22 +239,21 @@ end
 %%%                    'GlobEfficiency','Modularity','Assortativity',
 %%%                    'Betweenness','Entropy','GlobalDegree','Density'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 network.plot = 1;
 network.plotNet = [3,4,6,7];
 network.plotMetric = {'CharPathLength','Betweenness','Entropy','GlobalDegree'};
 
-
-%% Measures, Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The measurements you want to select
 %%% ( Detailed explanation of the measurements is in mc_graphtheory_measures.m)
 %%% 
 %%%         A = assortativity
-%%%         B = betweenness [global/local]
-%%%         C = clustering coefficient [global/local]
+%%%         B = betweenness [global/node-wise]
+%%%         C = clustering coefficient [global/node-wise]
 %%%         D = density
-%%%         E = degree [global/local]
-%%%         F = efficiency [global/local]
+%%%         E = degree [global/node-wise]
+%%%         F = efficiency [global/node-wise]
 %%%         M = modularity
 %%%         N = eccentricity
 %%%         P = characteristic path length
@@ -211,11 +265,9 @@ network.plotMetric = {'CharPathLength','Betweenness','Entropy','GlobalDegree'};
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% network.measures = 'V';
 network.measures = 'ABCDEFMNPTVY';
 
 network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenvector','eccentricity'};
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Output Settings

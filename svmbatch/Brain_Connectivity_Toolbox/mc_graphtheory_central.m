@@ -556,6 +556,11 @@ if (network.ttest || network.perm)
     
     input.types=Types(SubUseMark==1);
     input.unitype=unique(Types);
+    if ~exist('ttype','var')
+        ttype='2-sample';
+        warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');
+    end
+    input.ttype=ttype;
 end
 
 %%
@@ -570,11 +575,7 @@ if network.ttest
     meanep = zeros(nThresh,nNet,nMetric);
     secl   = zeros(nThresh,nNet,nMetric);
     seep   = zeros(nThresh,nNet,nMetric);
-    if ~exist('ttype','var')
-        ttype='2-sample';
-        warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');
-    end
-    input.ttype=ttype;
+    
     for iThresh = 1:nThresh
         input.subdata = data(data(:,1)==network.thresh(iThresh),:);
         [tresults]=mc_graphtheory_ttest(network,input,nNet,nMetric);
@@ -645,7 +646,7 @@ if network.perm
         seep     = zeros(nThresh,nNet,nMetric);
         
         input.subdata = data(data(:,1)==network.thresh(iThresh),:);
-        
+               
         [permresults]=mc_graphtheory_meandiff(network,input,nNet,nMetric);
         meandiff(iThresh,:,:) = permresults.submeandiff;
         meancl(iThresh,:,:)   = permresults.submeancl;
@@ -694,11 +695,10 @@ if network.perm
         for i = 1:nNet
             for j = 1:nMetric
                 vector = sort(abs(squeeze(perm(i,j,:))),'descend');
-                N      = length(vector);
-                for k = 1:N
-                    if abs(meandiff(iThresh,i,j))>vector(k)
-                        permOrder(iThresh,i,j)=k;
-                        permpVal(iThresh,i,j)=k/N;                        
+                for kperm = 1:nRep
+                    if abs(meandiff(iThresh,i,j))>vector(kperm)
+                        permOrder(iThresh,i,j)=kperm;
+                        permpVal(iThresh,i,j)=kperm/N;                        
                         break
                     end                    
                 end
@@ -762,59 +762,133 @@ end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Save subject wise results of node-wise measurements results
+% node-wise measurements 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%% Multiple thresholding %%%%%%%%%%%
-for tThresh = 1:nThresh
-    ThreValue = ['threshold' num2str(network.thresh(tThresh))];
-    for kNet=1:nNet
-        if network.netinclude==-1
-            Netnum = -1;
-        else
-            Netnum  = network.netinclude(kNet);
+if network.node
+    if network.nodettest
+        if ~exist('ttype','var')
+            ttype='2-sample';
+            warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');
         end
-        Netname = ['network' num2str(Netnum)];
-        for n=1:length(network.voxelmeasures)
-            Metricname=network.voxelmeasures{n};
-            SaveData = zeros(length(CombinedOutput),nSub);
-            for iSub = 1:nSub
-                if SubUse(iSub)
-                    Subjectfl=Names{iSub};
-                    switch Metricname
-                        case 'degree'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
-                        case 'betweenness'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
-                        case 'efficiency'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
-                        case 'clustering'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
-                        case 'eigenvector'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
-                        case 'eccentricity'
-                            OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
-                        otherwise
-                            display(sprintf('%s is not in the measure list yet, please add it',Metricname));
-                    end
-                    if network.voxelzscore
-                        meanv   = mean2(OutData);
-                        sdv     = std2(OutData);
-                        OutSave = (OutData - meanv)./sdv;
-                    else
-                        OutSave = OutData;
-                    end
-                    SaveData(iSub,:)=OutSave;
-                end
-            end
-            NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
-            save(NodeflSave,'SaveData','-v7.3');
-            clear SaveData
-        end       
+        input.ttype   = ttype;
+        NodeT         = cell(nThresh,nNet,length(network.voxelmeasures));
     end
+    
+    if network.nodeperm
+        NodepermpVal = cell(nThresh,nNet,length(network.voxelmeasures));
+    end
+    
+    if (network.nodettest||network.nodeperm)
+        input.netcol  = 1;         
+        input.types   = Types(SubUseMark==1);
+        input.unitype = unique(Types);        
+    end
+    
+    for tThresh = 1:nThresh
+        ThreValue = ['threshold' num2str(network.thresh(tThresh))];
+        for kNet=1:nNet
+            if network.netinclude==-1
+                Netnum = -1;
+            else
+                Netnum  = network.netinclude(kNet);
+            end
+            Netname = ['network' num2str(Netnum)];
+            for nMetric=1:length(network.voxelmeasures)
+                Metricname=network.voxelmeasures{n};
+                SaveData = zeros(length(CombinedOutput),nSub);
+                for iSub = 1:nSub
+                    if SubUse(iSub)
+                        Subjectfl=Names{iSub};
+                        switch Metricname
+                            case 'degree'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
+                            case 'betweenness'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
+                            case 'efficiency'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
+                            case 'clustering'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
+                            case 'eigenvector'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
+                            case 'eccentricity'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
+                            otherwise
+                                display(sprintf('%s is not in the measure list yet, please add it',Metricname));
+                        end
+                        if network.voxelzscore
+                            meanv   = mean2(OutData);
+                            sdv     = std2(OutData);
+                            OutSave = (OutData - meanv)./sdv;
+                        else
+                            OutSave = OutData;
+                        end
+                        SaveData(iSub,:)=OutSave;
+                    end                    
+                end
+                NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
+                save(NodeflSave,'SaveData','-v7.3');
+                nROI = size(SaveData,2);
+                %%%%%%%%%%%% t-test %%%%%%%%%%%%%
+                if network.ttest
+                    nodet = zeros(1,nROI);
+                    for iCol = 1:nROI
+                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1);SaveData(:,iCol)];
+                        
+                        [tresults]=mc_graphtheory_ttest(network,input,1,1);
+                        nodet(iCol)=tresults.t;
+                    end
+                    NodeT{tThresh,kNet,nMetric} = nodet;
+                end
+                %%%%%%%%%%% permutation %%%%%%%%%
+                if network.perm                    
+                    nodepermpval = zeros(1,nROI);
+                    nodemeandiff = zeros(1,nROI);
+                    nodeperm     = zeros(1,nRep);
+                    for iCol = 1:nROI
+                        fprintf(1,'ROI %g\n',iCol);
+                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1);SaveData(:,iCol)];
+                        [permresults] = mc_graphtheory_meandiff(network,input,1,1);
+                        nodemeandiff(iCol) = permresults.submeandiff;
+                        if nodepermCores ~=1
+                            try
+                                matlabpool('open',nodepermCores)
+                                parfor i = 1:nodenRep
+                                    nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                                end
+                                matlabpool('close')
+                            catch
+                                matlabpool('close')
+                                for i = 1:nodenRep
+                                    nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                                end
+                            end
+                        else
+                            for i = 1:nodenRep
+                                nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                            end
+                        end
+                        vector = sort(abs(nodeperm),'descend');                    
+                        for kperm = 1:nodenRep
+                            if abs(nodemeandiff(iCol))>vector(kperm)
+                                nodepermpval(iCol)=kperm/nodenRep;
+                                break
+                            end
+                        end
+                    end                    
+                    NodepermpVal{tThresh,kNet,nMetric} = nodepermpval;                    
+                end
+                clear SaveData
+            end
+        end
+    end
+    
+    
+    
+    
+    
+    
+    
 end
-
-
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot Over thresholds
