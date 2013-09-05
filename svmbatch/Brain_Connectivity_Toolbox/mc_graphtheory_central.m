@@ -29,6 +29,7 @@ display(sprintf('The global csv will be outputed to: %s', OutputPathFile));
 
 if ~isfield(network,'measures')
     network.measures = 'E';
+    warning('Measure not selected, so only measure degree');
 end
 
 Flag.smallworld    = any(strfind(upper(network.measures),'S'));
@@ -80,6 +81,11 @@ OutputMatPath = mc_GenPath( struct('Template',OutputMat,...
 %%% Figure out Network Structure 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if ~isfield(network,'netinclude')
+    network.netinclude = -1;
+    warning('Network not selected, so do wholebrain measurement');
+end
+
 if (network.netinclude~=-1)  % If the netinclude is set to -1, then means whole brain, no need to figure out the net structure then
     
     %%% Load parameter File
@@ -120,7 +126,11 @@ SubUseMark = ones(1,length(Names));
         % Exclude the NaN elements
         SubjWiseEdge(isnan(SubjWiseEdge)) = 0;           
         SubjWiseThresh(isnan(SubjWiseThresh))=0;
-                
+        
+        if isfield(network,'positive')
+            network.positive = 1;
+            warning('Default to use positive values only');
+        end
         switch network.positive
             case 0 % Take absolute value 
                 SubjWiseEdge = abs(SubjWiseEdge);  
@@ -136,6 +146,14 @@ SubUseMark = ones(1,length(Names));
         
         % partial and ztransform options only apply to pearson's r
         % correlation
+        if isfield(network,'partial')
+            network.partial=0;
+            warning('Default not to use partial correlation');
+        end
+        if isfield(network,'ztransform')
+            network.ztransform = 1;
+            warning('Default to do z transform');
+        end
         switch network.partial
             case 0
                 if (network.ztransform == 1 && network.ztransdone == 0)
@@ -145,7 +163,12 @@ SubUseMark = ones(1,length(Names));
             case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                 SubjWiseEdge = pinv(SubjWiseEdge);
                 SubjWiseThresh  = pinv(SubjWiseThresh);
-        end        
+        end  
+        
+        if isfield(network,'weighted')
+            network.weighted = 0;
+            warning('Default to create binary graph');
+        end
         
         toc
         
@@ -364,6 +387,14 @@ display('Global Measures All Done')
 %%% column is thresh label, net label and metrics, 
 %%% row is each subject/thresh/net subset
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if isfield(network,'ttest')
+    network.ttest = 0;
+    warning('No t-test for global measure if not assigned');
+end
+if isfield(network,'perm')
+    network.perm = 0;
+    warning('No permutation test for global measure if not assigned');
+end
 if (network.ttest || network.perm)
        
     % Column of network
@@ -567,7 +598,6 @@ if (network.ttest || network.perm)
     input.ttype=ttype;
 end
 
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% t-test of global measure data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -636,7 +666,6 @@ if network.ttest
     fclose(theFID);    
 end
  
-%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -764,10 +793,21 @@ if network.perm
 end
 
 
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % node-wise measurements 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if isfield(network,'node')
+    network.node = 0;
+    warning('No node-wise measure analysis if not assigned');
+end
+if isfield(network,'nodettest')
+    network.nodettest = 0;
+    warning('No t-test for node-wise measure if not assigned');
+end
+if isfield(network,'nodeperm')
+    network.nodeperm = 0;
+    warning('No permutation test for node-wise measure if not assigned');
+end
 if network.node
     if network.nodettest
         if ~exist('ttype','var')
