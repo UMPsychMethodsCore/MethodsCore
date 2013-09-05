@@ -27,6 +27,10 @@ display(sprintf('The global csv will be outputed to: %s', OutputPathFile));
 % 0 - do not include this measure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if ~isfield(network,'measures')
+    network.measures = 'E';
+end
+
 Flag.smallworld    = any(strfind(upper(network.measures),'S'));
 Flag.density       = any(strfind(upper(network.measures),'D'));
 Flag.transitivity  = any(strfind(upper(network.measures),'T'));
@@ -771,18 +775,16 @@ if network.node
             warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');
         end
         input.ttype   = ttype;
-        NodeT         = cell(nThresh,nNet,length(network.voxelmeasures));
     end
-    
-    if network.nodeperm
-        NodepermpVal = cell(nThresh,nNet,length(network.voxelmeasures));
-    end
-    
+       
     if (network.nodettest||network.nodeperm)
         input.netcol  = 1;         
         input.types   = Types(SubUseMark==1);
         input.unitype = unique(Types);        
     end
+    
+    TDtemplatePath = mc_GenPath(struct('Template',TDtemplate,'mode','makeparentdir'));
+    TDmaskPath     = mc_GenPath(struct('Template',TDmask,'mode','makeparentdir'));
     
     for tThresh = 1:nThresh
         ThreValue = ['threshold' num2str(network.thresh(tThresh))];
@@ -798,7 +800,7 @@ if network.node
                 SaveData = zeros(length(CombinedOutput),nSub);
                 for iSub = 1:nSub
                     if SubUse(iSub)
-                        Subjectfl=Names{iSub};
+                        Subjname=Names{iSub};
                         switch Metricname
                             case 'degree'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
@@ -822,25 +824,31 @@ if network.node
                         else
                             OutSave = OutData;
                         end
+                        %%%%%%%%%%%% save nii image of node wise measure results for doing second level in SPM %%%%%%%%%%%%%
+                        if ~(network.nodettest||network.nodeperm)
+                            group = Types(iSub);
+                            TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir'));                          
+                            mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,OutSave,roiMNI);
+                        end              
                         SaveData(iSub,:)=OutSave;
                     end                    
                 end
                 NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
                 save(NodeflSave,'SaveData','-v7.3');
-                nROI = size(SaveData,2);
+                nROI = size(SaveData,2);                  
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
-                if network.ttest
+                if network.nodettest
                     nodet = zeros(1,nROI);
                     for iCol = 1:nROI
-                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1);SaveData(:,iCol)];
-                        
+                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1);SaveData(:,iCol)];                        
                         [tresults]=mc_graphtheory_ttest(network,input,1,1);
                         nodet(iCol)=tresults.t;
-                    end
-                    NodeT{tThresh,kNet,nMetric} = nodet;
+                    end                    
+                    TDttempPath = mc_GenPath(struct('Template',TDttemp,'mode','makeparentdir'));
+                    mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI);
                 end
                 %%%%%%%%%%% permutation %%%%%%%%%
-                if network.perm                    
+                if network.nodeperm
                     nodepermpval = zeros(1,nROI);
                     nodemeandiff = zeros(1,nROI);
                     nodeperm     = zeros(1,nRep);
@@ -867,27 +875,22 @@ if network.node
                                 nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
                             end
                         end
-                        vector = sort(abs(nodeperm),'descend');                    
+                        vector = sort(abs(nodeperm),'descend');
                         for kperm = 1:nodenRep
                             if abs(nodemeandiff(iCol))>vector(kperm)
                                 nodepermpval(iCol)=kperm/nodenRep;
                                 break
                             end
                         end
-                    end                    
-                    NodepermpVal{tThresh,kNet,nMetric} = nodepermpval;                    
+                    end
+                    TDpermtempPath = mc_GenPath(struct('Template',TDpermtemp,'mode','makeparentdir'));
+                    mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI);
                 end
+                
                 clear SaveData
             end
         end
-    end
-    
-    
-    
-    
-    
-    
-    
+    end   
 end
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -900,8 +903,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n     = length(network.plotNet)*length(network.plotMetric);
 plotorder = 0;
-
-
 figure;
 if network.plot
     for iNet = 1:length(network.plotNet)
@@ -926,132 +927,5 @@ if network.plot
     end
     
 end
-
-
-%% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% AUC of Metric - Threshold curve  
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% if ~isempty(network.AUC)
-%     
-%     aucflag.transitivity = any(strfind(upper(network.AUC),'T'));
-%     aucflag.gefficiency = any(strfind(upper(network.AUC),'G'));
-%     aucflag.modularity = any(strfind(upper(network.AUC),'M'));
-%     aucflag.assortativity = any(strfind(upper(network.AUC),'A'));
-%     aucflag.pathlength = any(strfind(upper(network.AUC),'P'));
-%     aucflag.degree = any(strfind(upper(network.AUC),'E'));
-%     aucflag.clustering = any(strfind(upper(network.AUC),'C'));
-%     aucflag.betweenness = any(strfind(upper(network.AUC),'B'));
-%     aucflag.smallworldness = any(strfind(upper(network.AUC),'S'));
-%     
-%     
-%     if aucflag.transitivity
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.trans(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'trans');
-%         end
-%     end
-%     
-%     if aucflag.gefficiency
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.eglob(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'eglob');
-%         end
-%     end
-%     
-%     if aucflag.modularity
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.modu(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'modu');
-%         end
-%     end
-%     
-%     if aucflag.assortativity
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.assort(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'assort');
-%         end
-%     end
-%     
-%     if aucflag.pathlength
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.pathlength(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'pathlength');
-%         end
-%     end
-%     
-%     if aucflag.degree
-%         if network.weighted
-%             for kNetwork = 1:length(network.netinclude)
-%                 auc.glostr(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glostr');
-%             end
-%         else
-%             for kNetwork = 1:length(network.netinclude)
-%                 auc.glodeg(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'glodeg');
-%             end
-%         end
-%     end
-%     
-%     if aucflag.clustering
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.cluster(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
-%         end
-%     end
-%     
-%     if aucflag.betweenness
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.btwn(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'cluster');
-%         end
-%     end
-%     
-%     if aucflag.smallworldness
-%         for kNetwork = 1:length(network.netinclude)
-%             auc.smallworld(kNetwork) = mc_AUCcalculation(CombinedOutput,SubjDir,network.netinclude(kNetwork),network.sparsity,'smallworld');
-%         end
-%     end
-%     
-%     
-%     
-%     save(AUCMatFile,'auc','-v7.3');
-%     
-%     
-%     theFID = fopen(AUCPathFile,'w');
-%     if theFID < 0
-%         fprintf(1,'Error opening the csv file!\n');
-%         return;
-%     end
-%     
-%     fprintf(theFID,...
-%         'metric');
-%     for kNetwork = 1:length(network.netinclude)
-%         fprintf(theFID,...
-%             [',Network',num2str(network.netinclude(kNetwork))]);
-%     end
-%     fprintf(theFID,'\n');
-%     
-%     names = fieldnames(auc);
-%     for nMetric = 1:length(names)
-%         subname = names{nMetric};
-%         fprintf(theFID,subname);
-%         for kNetwork = 1:length(network.netinclude)
-%             fprintf(theFID,[',',num2str(auc.(subname)(kNetwork))]);
-%         end
-%         fprintf(theFID,'\n');
-%     end
-%     
-%     display('AUC results saved.')
-%     
-%     
-%     
-% end
-
-
-
-
-    
-    
-
-
-
-    
-    
-    
-
 
 

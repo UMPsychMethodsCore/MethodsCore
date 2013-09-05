@@ -218,7 +218,7 @@ if network.node
     TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_05_lss/tr_s8w3rarun.nii';
     TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
     if ~(network.nodettest||network.nodeperm)
-        TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname].nii';
+        TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[group]_[Subjname].nii';
     else        
         if network.nodettest
             TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_ttest.nii';
@@ -306,7 +306,7 @@ if network.perm
 end
 
 NodeflMat = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname].mat';
- 
+
 %%%%%%%%%%%%%%%%%%%
 % set the path
 %%%%%%%%%%%%%%%%%%%
