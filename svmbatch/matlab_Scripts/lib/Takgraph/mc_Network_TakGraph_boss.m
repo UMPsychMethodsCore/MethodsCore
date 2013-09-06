@@ -80,7 +80,7 @@ if ~isfield(a.stats,'FDR')
     a.stats.FDR.Enable = 1;
 end
 
-a = mc_Network_CellLevelstats(a);
+a = mc_Network_CellLevelStats(a);
 
 
 %% Enlarge dots
