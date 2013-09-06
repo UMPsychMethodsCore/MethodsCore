@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Display infomation
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -47,7 +47,7 @@ Flag.eccentricity  = any(strfind(upper(network.measures),'N'));
 Flag.eigenvector   = any(strfind(upper(network.measures),'V'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Load Name and Type Info %%%
+%%% Load Name and Type Info 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MDFCheck   = struct('Template',MDF.path,'mode','check');
@@ -60,7 +60,6 @@ MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE');
 Names = num2str(MDFInclude.(MDF.Subject));
 Types = num2str(MDFInclude.(MDF.Type));
   
-%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -76,7 +75,6 @@ OutputMatPath = mc_GenPath( struct('Template',OutputMat,...
         'suffix','.mat',...
         'mode','makeparentdir'))
     
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure out Network Structure 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +97,7 @@ if (network.netinclude~=-1)  % If the netinclude is set to -1, then means whole 
     nets = mc_NearestNetworkNode(roiMNI,5);
     
 end
-%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Load Files one by one and do the calculation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -267,8 +265,8 @@ SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
 save(OutputMatPath,'CombinedOutput','-v7.3');
 
 
-%%
-%%%%%%% Save the global results to CSV file %%%%%%%%%%
+
+%%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%
 
 theFID = fopen(OutputPathFile,'w');
 
@@ -276,9 +274,6 @@ if theFID < 0
     fprintf(1,'Error opening the csv file!\n');
     return;
 end
-
-%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%%
-% Header
 
 if network.weighted
     fprintf(theFID,...
@@ -381,12 +376,14 @@ fclose(theFID);
 display('Global Measures All Done')
 
 
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Re-arrangement of global measure data to a 2d matrix 
+%%% Second Level
+%%% 1.Re-arrangement of global measure data to a 2d matrix 
 %%% column is thresh label, net label and metrics, 
-%%% row is each subject/thresh/net subset
+%%% row is each subject/thresh/net subset;
+%%% 2. t-test; 3. permutation test.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if isfield(network,'ttest')
     network.ttest = 0;
     warning('No t-test for global measure if not assigned');
@@ -601,6 +598,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% t-test of global measure data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if network.ttest
     
     p      = zeros(nThresh,nNet,nMetric);
@@ -669,6 +667,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if network.perm
     for iThresh = 1:nThresh
         ThreValue = num2str(network.thresh(iThresh));
@@ -796,6 +795,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % node-wise measurements 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if isfield(network,'node')
     network.node = 0;
     warning('No node-wise measure analysis if not assigned');
@@ -932,40 +932,3 @@ if network.node
         end
     end   
 end
-%% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Plot Over thresholds
-% For each metric in each network that has been selected,
-% the plot part expects vectors with the size of 1xnThresh:
-%   meanhc, meands, sdhc, sdds, pval
-%   nNet x nMetric x nThresh
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-n     = length(network.plotNet)*length(network.plotMetric);
-plotorder = 0;
-figure;
-if network.plot
-    for iNet = 1:length(network.plotNet)
-        for jMetric = 1:length(network.plotMetric)
-            
-            NetNum    = find(network.netinclude==network.plotNet(iNet));
-            MetricNum = find(strcmp(network.plotMetric{jMetric},Metrics));
-            
-            plotorder = plotorder+1;
-            hcline = meanhc(:,NetNum,MetricNum);
-            dsline = meanep(:,NetNum,MetricNum);
-            hcbar  = secl(:,NetNum,MetricNum);
-            dsbar  = seep(:,NetNum,MetricNum);
-            subplot(2,ceil(n/2),plotorder);
-            hold on;
-            title(['network ' num2str(network.plotNet(iNet)) network.plotMetric{jMetric}])
-            hold on;
-            errorbar(hcline,hcbar,'r');
-            hold on;
-            errorbar(dsline,dsbar);
-        end
-    end
-    
-end
-
-

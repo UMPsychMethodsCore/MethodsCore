@@ -179,6 +179,7 @@ end
 %                    but it often fails with big data, in which case we will       
 %                    fall back to just one core. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 network.perm     = 1;
 
 if network.perm
@@ -194,55 +195,6 @@ if network.nodeperm
     nodenRep = 10;
     nodepermCores = 1;
 end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 3D map settings
-%    
-% Necessary for node-wise measurement analysis
-% 
-% TDtemplate - Template for building 3D map for node-wise graph theory
-%              measure results or second level (t-test/permutation test) 
-%              results. Usually use one of the preprocessed functional
-%              image.
-% TDmask     - Mask for building 3D map for node-wise graph theory
-%              measure results or second level (t-test/permutation test) 
-%              results. 
-% TDgptemp   - Necessary when intending to do second-level with SPM
-% TDttemp    - Necessary when intending to do second-level t-test within
-%              script
-% TDpermtemp - Necessary when intending to do second-level permutation test
-%              within script
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if network.node
-    TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_05_lss/tr_s8w3rarun.nii';
-    TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
-    if ~(network.nodettest||network.nodeperm)
-        TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[group]_[Subjname].nii';
-    else        
-        if network.nodettest
-            TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_ttest.nii';
-        end
-        if netwrok.nodeperm
-            TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_permtest.nii';            
-        end
-    end
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%
-%%%  Plot options
-%%%    network.plot         1  -- To do the plot; 0 -- not to do the plot
-%%%    network.plotNet      -1 -- Whole brain; any combination of 1:13 -- sub networks
-%%%    network.plotMetric   any combination from:
-%%%       Metrics   = {'Clustering','CharPathLength','Transitivity',
-%%%                    'GlobEfficiency','Modularity','Assortativity',
-%%%                    'Betweenness','Entropy','GlobalDegree','Density'};
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-network.plot = 1;
-network.plotNet = [3,4,6,7];
-network.plotMetric = {'CharPathLength','Betweenness','Entropy','GlobalDegree'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The measurements you want to select
@@ -291,6 +243,7 @@ network.voxelmeasures={'degree','betweenness','efficiency','clustering','eigenve
 % Nodeflsave: The mat files saving the first level node-wise graph theory
 %             results (per threshold, per network, per metric). 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 OutputFolder = 'Grid_tcb_WholeBrain';
 
 OutputMat = '[Exp]/GraphTheory/[OutputFolder]/MotionScrubbed/CombinedOutput.mat';
@@ -307,6 +260,40 @@ end
 
 NodeflMat = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname].mat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3D map settings
+%    
+% Necessary for node-wise measurement analysis
+% 
+% TDtemplate - Template for building 3D map for node-wise graph theory
+%              measure results or second level (t-test/permutation test) 
+%              results. Usually use one of the preprocessed functional
+%              image.
+% TDmask     - Mask for building 3D map for node-wise graph theory
+%              measure results or second level (t-test/permutation test) 
+%              results. 
+% TDgptemp   - Necessary when intending to do second-level with SPM
+% TDttemp    - Necessary when intending to do second-level t-test within
+%              script
+% TDpermtemp - Necessary when intending to do second-level permutation test
+%              within script
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if network.node
+    TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_05_lss/tr_s8w3rarun.nii';
+    TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+    if ~(network.nodettest||network.nodeperm)
+        TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/[ThreValue]/[Netname]/[Metricname]/[group]_[Subjname].nii';
+    else        
+        if network.nodettest
+            TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_ttest.nii';
+        end
+        if netwrok.nodeperm
+            TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_permtest.nii';            
+        end
+    end
+end
+
 %%%%%%%%%%%%%%%%%%%
 % set the path
 %%%%%%%%%%%%%%%%%%%
@@ -318,7 +305,7 @@ addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
-%%
+%% Run central script
 mc_graphtheory_central
 
 

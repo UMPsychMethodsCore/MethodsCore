@@ -2,19 +2,21 @@ function [Output] = mc_graphtheory_measures(mtrx,network,Flag)
 % mc_graphtheory_measures: Do the computation of graph theory measurements
 % INPUT:
 %         mtrx         - A binary 2D network that undergoes the computation
-%         directed     - The indicator that shows if the matrix is directed
-%                        or not ( 0 is undirected, 1 is directed)
-%         measures     - A string that contains which measurements are to
-%                        be computed, each letter contains in the string 
-%                        represents one measurement
-% OUTPUT:
-%         Output       - A structure that contains the computation results,
-%                        each subfield represents one measurement.
+%         network
+%                 network.directed     - The indicator that shows if the matrix is directed
+%                                        or not ( 0 is undirected, 1 is directed)
+%                 network.weighted     - The indicator that shows if the
+%                                        matrix is weighted or not ( 0 is unweighted,i.e. binary, 1 is weighted)
+%        
 %         Flag         - A logical flag that contains whether or not a
 %                        measurement is included ( 0 is not included, 1 is included),
 %                        would be useful for the future use, such as writing results in
 %                        the assigned file
 %
+% OUTPUT:
+%         Output       - A structure that contains the computation results,
+%                        each subfield represents one measurement.
+%         
 % Yu Fang 2013/01
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
