@@ -55,10 +55,15 @@ MDFPath    = mc_GenPath(MDFCheck);
 MDFData    = dataset('File',MDFPath,'Delimiter',',');
 
 MDFData.(MDF.include)=nominal(MDFData.(MDF.include));
-MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE');
+MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE',:);
 
-Names = num2str(MDFInclude.(MDF.Subject));
-Types = num2str(MDFInclude.(MDF.Type));
+switch class(MDFInclude.(MDF.Subject))
+    case 'double'
+        Names = cellstr(strcat(MDF.NamePre,num2str(MDFInclude.(MDF.Subject))));
+    case 'cell'
+        Names = MDFInclude.(MDF.Subject);
+end  
+Types = char(MDFInclude.(MDF.Type));
   
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
@@ -106,7 +111,6 @@ SubUseMark = ones(1,length(Names));
     for Sub = 1:nSub
         tic
         Subject = Names{Sub};
-        Subject = Subject(1:SubjNameLength);
         display(sprintf('Now loading Number %s Subject %s',num2str(Sub),Subject));
         SubjWiseCheck = struct('Template',SubjWiseTemp,'mode','check');
         SubjWisePath  = mc_GenPath(SubjWiseCheck);
@@ -587,7 +591,7 @@ if (network.ttest || network.perm)
     nMetric = length(Metrics);
     
     input.types=Types(SubUseMark==1);
-    input.unitype=unique(Types);
+    input.unitype=unique(input.types);
     if ~exist('ttype','var')
         ttype='2-sample';
         warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');

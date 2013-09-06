@@ -36,12 +36,12 @@ Exp = '/net/data4/MAS/';
 % SubjWiseTemp   - Subject-wise input file
 % ThreshField    - Subfield with thresholding matrix
 % EdgeField      - Subfield with edge matrix
-% SubjNameLength - Length of subject name (supposed to be consistent over
-%                  all subjects
 % MDF.path       - Path of MasterDataFile, which provides subject list and
 %                  type list
-% MDF.Subject    - String naming column of Subject names
-% MDF.Type       - String naming column of Subject types
+% MDF.Subject    - column of Subject names, expected type: string, and the
+%                  length of strings should be consistent
+% MDF.Type       - column of Subject types, expected type: char, i.e.
+%                  string length = 1
 % MDF.include    - String naming column of logicals in MDF for subsetting
 %                  ('TRUE' or 'FALSE')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -52,10 +52,9 @@ EdgeField   = 'rMatrix';
 
 MDF.path    = '[Exp]/Scripts/MSIT/MDF/MDF_LSS_GT.csv'; 
 MDF.Subject = 'Subject';
+MDF.NamePre = '';    % in case of name like 05001
 MDF.Type    = 'Type';
 MDF.include = 'Include.Overall';   
-SubjNameLength = 4; 
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % mni coordinates used to separate sub-networks
@@ -200,6 +199,8 @@ end
 %%% The measurements you want to select
 %%% ( Detailed explanation of the measurements is in mc_graphtheory_measures.m)
 %%% 
+%%% network.measures  -  What metrics do you want to get
+%%%
 %%%         A = assortativity
 %%%         B = betweenness [global/node-wise]
 %%%         C = clustering coefficient [global/node-wise]
@@ -208,12 +209,20 @@ end
 %%%         F = efficiency [global/node-wise]
 %%%         M = modularity
 %%%         N = eccentricity
-%%%         P = characteristic path length
+%%%         P = characteristic path length [global-pathlength/node-wise-eccentricity]
 %%%         S = small-worldness
 %%%         T = transitivity
-%%%         V = eigenvector centrality
+%%%         V = eigenvector centrality [global-eigenvalue/node-wise-eigenvector]
 %%%         Y = entropy
 %%%
+%%% network.voxelmeasures  -  What node-wise metrics do you want to analyze
+%%%   options: 
+%%%         'degree'   (need to include 'E' in network.measures when selecting it)
+%%%         'betweenness' (need to include 'B' in network.measures when selecting it)
+%%%         'efficiency' (need to include 'F' in network.measures when selecting it)
+%%%         'clustering' (need to include 'C' in network.measures when selecting it)
+%%%         'eigenvector' (need to include 'V' in network.measures when selecting it)
+%%%         'eccentricity' (need to include 'P' in network.measures when selecting it)
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -288,7 +297,7 @@ if network.node
         if network.nodettest
             TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_ttest.nii';
         end
-        if netwrok.nodeperm
+        if network.nodeperm
             TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/[ThreValue]/[Netname]/[Metricname]/[Metricname]_permtest.nii';            
         end
     end
