@@ -5,10 +5,12 @@ function [ output ] = mc_graphtheory_permutation( network,input,nNet,nMetric)
 %       nNet                     -   Number of networks
 %       nMetric                  -   Number of metrics
 %       input 
-%             input.netcol       -   Number of columns with extra info like
+%             input.col          -   Number of columns with extra info like
 %                                    network and threshold
-%             input.subdata      -   nSub x (nMetric + input.netcol) matrix,
-%                                    first input.netcol columns contains extra 
+%             input.netcol       -   Indicate which column contains the
+%                                    network info
+%             input.subdata      -   nSub x (nMetric + input.col) matrix,
+%                                    first input.col columns contains extra 
 %                                    info, the rest each column is measures of
 %                                    one kind of metric.
 %             input.types        -   nSub x 1 vector with info of subject type

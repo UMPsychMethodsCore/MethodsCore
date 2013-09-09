@@ -6,10 +6,12 @@ function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
 %       nNet                     -   Number of networks
 %       nMetric                  -   Number of metrics
 %       input 
-%             input.netcol       -   Number of columns with extra info like
+%             input.col          -   Number of columns with extra info like
 %                                    network and threshold
-%             input.subdata      -   nSub x (nMetric + input.netcol) matrix,
-%                                    first input.netcol columns contains extra 
+%             input.netcol       -   Indicate which column contains the
+%                                    network info
+%             input.subdata      -   nSub x (nMetric + input.col) matrix,
+%                                    first input.col columns contains extra 
 %                                    info, the rest each column is measures of
 %                                    one kind of metric.
 %             input.types        -   nSub x 1 vector with info of subject type
@@ -45,6 +47,7 @@ function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
 covtype=network.covtype;
 netinclude=network.netinclude;
 
+col = input.col;
 netcol = input.netcol;
 data   =input.subdata;
 Label  = input.types;
@@ -62,7 +65,7 @@ for iNet = 1:nNet
     for jMetric = 1:nMetric
         % extract data
         testdata = data(data(:,netcol)==netinclude(iNet),:); % certain network
-        testmetric = testdata(:,jMetric+netcol); % certain metric
+        testmetric = testdata(:,jMetric+col); % certain metric
         if covtype % like 'A' and 'H'
             testcontrol = testmetric(Label==unitype(2));
             testexp = testmetric(Label==unitype(1));
