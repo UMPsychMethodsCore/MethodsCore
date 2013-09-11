@@ -8,7 +8,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Display infomation
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -68,6 +67,7 @@ Types = char(MDFInclude.(MDF.Type));
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
 %%%%%%%%%%%%%%%%%%%%%%%
+
 clear CombinedOutput
 clear NetworkPath
 
@@ -89,7 +89,6 @@ if ~isfield(network,'netinclude')
     warning('Network not selected, so do wholebrain measurement');
 end
 
-
 %%% Load parameter File
 
 ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
@@ -99,8 +98,6 @@ param = load(ParamPath);
 %%% Look up ROI Networks
 roiMNI = param.parameters.rois.mni.coordinates;
 nets = mc_NearestNetworkNode(roiMNI,5);
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Load Files one by one and do the calculation
@@ -170,9 +167,7 @@ SubUseMark = ones(1,length(Names));
             network.weighted = 0;
             warning('Default to create binary graph');
         end
-        
-        toc
-        
+              
         for kNetwork = 1:length(network.netinclude)
             if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                 NetworkConnectRaw = SubjWiseEdge;
@@ -186,9 +181,7 @@ SubUseMark = ones(1,length(Names));
                 fprintf('Computing number %s Subject',num2str(Sub));
                 fprintf(' under threshold %.2f',network.thresh(tThresh));
                 fprintf(' in network %d\n',network.netinclude(kNetwork));
-                
-                tic
-                
+                              
                 NetworkConnect      = zeros(size(NetworkConnectRaw));
                 
                 if network.weighted
@@ -672,6 +665,8 @@ if network.ttest
                         fprintf(theFID,'%s\n','increase');
                     case -1
                         fprintf(theFID,'%s\n','decrease');
+                    case 0
+                        fprintf(theFID,'%s\n','nodiff');
                 end
                 
             end
@@ -781,7 +776,7 @@ if network.perm
         end
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
-    fprintf('Saving permutation results of global measures');
+    display('Saving permutation results of global measures');
     permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
     save(permOutSave,'permpVal','-v7.3');
     permOutPath = mc_GenPath(struct('Template',permOutPathTemplate,'mode','makeparentdir'));
@@ -812,7 +807,8 @@ if network.perm
     fclose(theFID); 
 end
 
-display('Global Measures All Done')
+fprintf('Global Measures All Done\n\n')
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % node-wise measurements 
@@ -895,8 +891,14 @@ if network.node
                         if ~(network.nodettest||network.nodeperm)
                             fprintf('Writing out first level node-wise measure results');
                             group = Types(iSub);
-                            TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir'));                          
-                            mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,OutSave,roiMNI);
+                            TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir')); 
+                            if (network.netinclude==-1)
+                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,OutSave,roiMNI);
+                            else
+                                longOutSave = zeros(1,length(nets));
+                                longOutSave(nets==Netnum)=OutSave;
+                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
+                            end
                         end              
                         SaveData(iSub,:)=OutSave;
                     end                    
@@ -906,22 +908,29 @@ if network.node
                 nROI = size(SaveData,2);                  
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
                 if network.nodettest
-                    fprintf('t-test for node-wise measures');
+                    fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     nodet = zeros(1,nROI);
                     for iCol = 1:nROI
                         input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1) SaveData(:,iCol)];                        
                         [tresults]=mc_graphtheory_ttest(network,input,1,1);
                         nodet(iCol)=tresults.t;
-                    end                    
+                    end  
+                    fprintf('saving t-test results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     TDttempPath = mc_GenPath(struct('Template',TDttemp,'mode','makeparentdir'));
-                    mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI);
+                    if (network.netinclude==-1)
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI);
+                    else
+                        longnodet=zeros(1,length(nets));
+                        longnodet(nets==Netnum)=nodet;
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,longnodet,roiMNI);
+                    end
                 end
                 %%%%%%%%%%% permutation %%%%%%%%%
                 if network.nodeperm
                     nodepermpval = zeros(1,nROI);
                     nodemeandiff = zeros(1,nROI);
                     nodeperm     = zeros(1,nRep);
-                    fprintf('permutation test for node-wise measures with %d times\n',nodenRep);
+                    fprintf('permutation test for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     for iCol = 1:nROI
                         fprintf(1,'ROI %g\n',iCol);
                         input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1) SaveData(:,iCol)];
@@ -953,8 +962,15 @@ if network.node
                             end
                         end
                     end
+                    fprintf('saving permutation results for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     TDpermtempPath = mc_GenPath(struct('Template',TDpermtemp,'mode','makeparentdir'));
-                    mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI);
+                    if (network.netinclude==-1)
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI);
+                    else
+                        longnpp=ones(1,length(nets));
+                        longnpp(nets==Netnum)=nodepermpval;
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,longnpp,roiMNI);
+                    end
                 end
                 
                 clear SaveData
@@ -962,3 +978,6 @@ if network.node
         end
     end   
 end
+
+display('Node-wise Measures All Done')
+
