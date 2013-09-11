@@ -32,7 +32,7 @@ function [results, b] = SOM_RemoveMotion(theData,theMotion)
 
 % Check for number of motion parameters, just warn if not 3 or 6
 
-if size(theMotion,2) ~= 3 | size(theMotion,2) ~= 6 | size(theMotion,2) ~= 9 | size(theMotion,2) ~= 12
+if size(theMotion,2) ~= 3 && size(theMotion,2) ~= 6 && size(theMotion,2) ~= 9 && size(theMotion,2) ~= 12
   SOM_LOG('INFO : You have non-standard # of motion parameters, but continuing anyway.');
 end
 

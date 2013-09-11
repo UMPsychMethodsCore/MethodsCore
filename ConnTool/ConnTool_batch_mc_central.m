@@ -225,7 +225,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                             return
                         end
                         try
-                            cv = getfield(tempcv,tmpArrayFields{1});
+                            cv = getfield(tempcv,tmpArrayField{1});
                         catch
                             SOM_LOG(sprintf('FATAL ERROR : Error in Spike information in file %s',DeSpikeFile));
                             return
@@ -296,7 +296,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                             return
                         end
                         try
-                            cv = getfield(tempcv,tmpArrayFields{1});
+                            cv = getfield(tempcv,tmpArrayField{1});
                         catch
                             SOM_LOG(sprintf('FATAL ERROR : Error in Censor information in file %s',CensorFile));
                             return
@@ -400,7 +400,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                                 return
                             end
                             try
-                                grid_coord = getfield(tmpArray,tmpArrayFields{1});
+                                grid_coord = getfield(tmpArray,tmpArrayField{1});
                             catch
                                 SOM_LOG(sprintf('FATAL ERROR : Error in ROI information in file %s',ROIFileName));
                                 return

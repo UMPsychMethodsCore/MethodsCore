@@ -29,12 +29,19 @@
 % 2011.11.20 - RCWelsh - Duh, DO NOT USE "princomp" that is not right??
 %                        use luis's PCAwash.m from BIRB, just stripped
 %                        out code and it's fine. This will not need special toolbox.
+%
+% 2013.09.10 - RCWelsh - Scan for NaN
 
 function results = SOM_PrinComp(theData,dataFraction)
 
 global SOM
 
 results.startCPU = cputime;
+
+% Any NaN?
+
+nonNANIDX = find(~isnan(sum(theData,2)));
+theData   = theData(nonNANIDX,:)
 
 if isfield(SOM,'NumberPrincipleComponents') == 0
     SOM.NumberPrincipleComponents = 50;
