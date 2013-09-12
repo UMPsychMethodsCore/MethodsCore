@@ -352,7 +352,7 @@ if (Processing(1) == 1)
             job{2}.spm.spatial.realign = realign;
             job{3}.spm.spatial.coreg = coreg;
             job{4}.spm.spatial.coreg = coreg;
-            job{5}.spm.spatial.preproc = segment;
+            job{5}.spm.spatial.preproc = preproc;
             job{6}.spm.spatial.normalise = normalise;
             job{7}.spm.spatial.smooth = smooth;
 
