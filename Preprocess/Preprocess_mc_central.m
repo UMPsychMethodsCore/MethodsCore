@@ -452,17 +452,19 @@ if (Processing(1) == 1)
                 NewOverlayTemplate = fullfile(Sandbox,NewOverlayTemplate);
             end
         end
-        if (docoreghires && ~strcmp(NormMethod,'func'))
+        if (~strcmp(NormMethod,'func'))
             %copy hires file to new location
             [p f e] = fileparts(HiResTemplate);
             NewHiResTemplate = fullfile(AnatTemplate,[CoregHiResPrefix f e]);
-            mc_Copy(HiResTemplate,NewHiResTemplate);
+            if (docoreghires)
+                mc_Copy(HiResTemplate,NewHiResTemplate);
+            end
             if (UseSandbox)
                 NewHiResTemplate = fullfile(Sandbox,NewHiResTemplate);
             end
         end
         
-        if ((docoregoverlay || docoreghires) && ~strcmp(NormMethod,'func'))
+        if (~strcmp(NormMethod,'func'))
             SandboxFiles{end+1,1} = mc_GenPath(AnatTemplate);
             SandboxFiles{end,2} = mc_GenPath(fullfile(Sandbox,AnatTemplate));
             SandboxFolders{end+1,1} = mc_GenPath(AnatTemplate);
@@ -661,9 +663,16 @@ if (Processing(1) == 1)
             
             [p f e] = fileparts(HiResDir);
             MatFile = fullfile(p,[f '_seg_sn.mat']);
+            C1File = fullfile(p,['c1' f e]);
+            C2File = fullfile(p,['c2' f e]);
+            C3File = fullfile(p,['c3' f e]);
+            
             job{6}.spm.spatial.normalise.write.subj.matname = {MatFile};
             job{6}.spm.spatial.normalise.write.subj.resample = wscan;
             job{6}.spm.spatial.normalise.write.subj.resample{end+1} = HiResDir;
+            job{6}.spm.spatial.normalise.write.subj.resample{end+1} = C1File;
+            job{6}.spm.spatial.normalise.write.subj.resample{end+1} = C2File;
+            job{6}.spm.spatial.normalise.write.subj.resample{end+1} = C3File;
 
             job{7}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
