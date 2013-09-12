@@ -640,6 +640,7 @@ if (Processing(1) == 1)
             end
             normsource = fullfile(p,['mean' f e]);
 
+            OverlayDir = '';
             if (docoregoverlay)
                 OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
                 OverlayDir=mc_GenPath(OverlayDirCheck);
