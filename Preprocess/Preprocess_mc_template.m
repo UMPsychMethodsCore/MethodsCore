@@ -166,10 +166,12 @@ AnatTemplate = '[Exp]/Subjects/[Subject]/func/coReg/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The normalization method
-%%%      func = normalization of functional images to functional template
-%%%      anat = normalization of anatomical images to anatomical template
-%%%      seg  = normalization by segmentation of anatomical image
+%%%      func   = normalization of functional images to functional template
+%%%      anat   = normalization of anatomical images to anatomical template
+%%%      seg    = normalization by segmentation of anatomical image
 %%%      note: seg will use VBM8 with DARTEL warping
+%%%      spmseg = normalization by segmentation of anatomical image
+%%%      note: spmseg will use SPM default segmentation (not New Segment)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NormMethod = 'seg';
 
@@ -221,6 +223,22 @@ SandboxDir = '';
 %%% then this should be left blank ([]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NumScan = [];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% This setting allows use of customized Tissue Probablity Maps for VBM8
+%%% and SPMs built-in segmentation via 'seg' and 'spmseg' options 
+%%% respectively. This should be a cell array of filenames.
+%%% 3 files are required for spmseg option: gray matter, white matter, and
+%%% CSF
+%%% 1 file is required for seg option, but it must be a multivolume image
+%%% containing 6 volumes, 1 for each tissue type used in VBM
+%%% (GM,WM,CSF,bone, non-brain tissue, and air)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CustomTPMs = {
+%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_gm.nii';
+%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_wm';
+%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_csf';
+};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SPM Default Values for First Level analysis

@@ -186,7 +186,7 @@ if (Processing(1) == 1)
         mc_Error('You are using an unsupported version of SPM.  This script is compatible with SPM8');
     end
     
-    if (strcmp(NormMethod,'seg'))
+    if (strcmp(NormMethod,'seg') || strcmp(NormMethod,'spmseg'))
         normalise.write = defaults.normalise.write;
         normalise.write.subj.matname = {};
         normalise.write.subj.resample = {};
@@ -204,7 +204,38 @@ if (Processing(1) == 1)
         normalise.estwrite.roptions.prefix = nop;
     end
     
-
+    %standard SPM segment options for 'spmseg'
+    preproc.data = {};
+    preproc.output.GM = [1 0 1];
+    preproc.output.WM = [1 0 1];
+    preproc.output.CSF = [1 0 1];
+    preproc.output.biascor = 1;
+    preproc.output.cleanup = 0;
+    preproc.opts = defaults.preproc;
+    preproc.opts = rmfield(preproc.opts,'output');
+    preproc.opts = rmfield(preproc.opts,'fudge');
+    preproc.opts.mask = {''};
+    
+    if (exist('CustomTPMs','var') && ~isempty(CustomTPMs))
+        %verify custom TPMs
+        if (strcmp(NormMethod,'seg'))
+            if (size(CustomTPMs,1) ~=1)
+                mc_Error('You have specified an incorrect number of custom tissue probability map files.\n''seg'' requires only 1.');
+            end
+            CustomTPMs{1} = mc_GenPath(CustomTPMs{1});
+        elseif (strcmp(NormMethod,'spmseg'))
+            if (size(CustomTPMs,1) ~=3)
+                mc_Error('You have specified an incorrect number of custom tissue probability map files.\n''spmseg'' requires 3.');
+            end
+            CustomTPMs{1} = mc_GenPath(CustomTPMs{1});
+            CustomTPMs{2} = mc_GenPath(CustomTPMs{2});
+            CustomTPMs{3} = mc_GenPath(CustomTPMs{3});
+        else
+            mc_Logger('log','You have specified custom tissue probability maps but are not using ''seg'' or ''spmseg'' normalization, so they will be ignored.',2);
+        end
+        preproc.opts.tpm = CustomTPMs;
+    end
+    
     smooth = defaults.smooth;
 	smooth.data = {};
     if (numel(SmoothingKernel)==1)
@@ -316,6 +347,16 @@ if (Processing(1) == 1)
             job{8}.spm.spatial.smooth = smooth; 
             
 		    nj = 8;
+        case 'spmseg'
+            job{1}.spm.temporal.st = st;
+            job{2}.spm.spatial.realign = realign;
+            job{3}.spm.spatial.coreg = coreg;
+            job{4}.spm.spatial.coreg = coreg;
+            job{5}.spm.spatial.preproc = segment;
+            job{6}.spm.spatial.normalise = normalise;
+            job{7}.spm.spatial.smooth = smooth;
+
+            nj = 7;
         end
 
 	    clear scancell
@@ -342,7 +383,7 @@ if (Processing(1) == 1)
             ImageDirCheck = struct('Template',ImageTemplate,'type',1,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
             scan{r} = spm_select('ExtList',ImageDir,['^' newbasefile '.*' imagetype],frames);
-            imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\..*']);
+            imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\.*' imagetype]);
             
             %%%%%%%%% Copy Images to Sandbox directory if necessary
             if (UseSandbox)
@@ -587,7 +628,64 @@ if (Processing(1) == 1)
             end
             job(cellfun(@isempty,job)) = [];
             %jobs{x} = job;
+		case 'spmseg'
+            job{1}.spm.temporal.st.scans = ascan;
+            job{2}.spm.spatial.realign.estwrite.data = rscan;
 
+            [p f e] = fileparts(rscan{1}{1});
+            if (strcmp(f(1),'r') & AlreadyDone(2))
+                f = f(2:end);
+            end
+            normsource = fullfile(p,['mean' f e]);
+
+            if (docoregoverlay)
+                OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
+                OverlayDir=mc_GenPath(OverlayDirCheck);
+            end
+
+            HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
+            HiResDir=mc_GenPath(HiResDirCheck);
+
+            job{3}.spm.spatial.coreg.estimate.ref = {normsource};
+            job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};
+            
+            if (docoreghires && docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {OverlayDir};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            elseif (docoreghires && ~docoregoverlay)
+                job{4}.spm.spatial.coreg.estimate.ref = {normsource};
+                job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
+            end
+            
+            job{5}.spm.spatial.preproc.data = {HiResDir};
+            
+            [p f e] = fileparts(HiResDir);
+            MatFile = fullfile(p,[f '_seg_sn.mat']);
+            job{6}.spm.spatial.normalise.write.subj.matname = {MatFile};
+            job{6}.spm.spatial.normalise.write.subj.resample = wscan;
+            job{6}.spm.spatial.normalise.write.subj.resample{end+1} = HiResDir;
+
+            job{7}.spm.spatial.smooth.data = sscan;
+            if (~doslicetiming)
+            job{1} = [];
+            end
+            if (~dorealign)
+            job{2} = [];
+            end
+            if (~docoregoverlay)
+            job{3} = [];
+            end
+            if(~docoreghires)
+            job{4} = [];
+            end
+            if (~donormalize)
+            job{5} = [];
+            end
+            if (~dosmooth)
+            job{6} = [];
+            end
+            job(cellfun(@isempty,job)) = [];
+            %jobs{x} = job;
         end
 
         if (dosmooth)
