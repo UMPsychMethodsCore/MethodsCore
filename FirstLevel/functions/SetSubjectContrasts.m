@@ -243,7 +243,10 @@ function [CondScaling RegScaling] = CreateContrastScales(Subject, NumCond, MaxNu
             if Subject.sess(i).cond(k).usePMod > 0
 
                 NumParaForCond = size(Subject.sess(i).cond(k).pmod, 2);
-                CondScaling(k).pmod(NumParaForCond) = struct('weight', 0, 'order', []);
+                CondScaling(k).pmod(NumParaForCond) = struct('weight', [], 'order', []);
+                for l = 1:NumParaForCond
+                    CondScaling(k).pmod(l).weight = 0;
+                end
 
                 for iPar = 1:NumParaForCond
 
@@ -305,7 +308,7 @@ function ContrastRow = ScaleContrastRow(NumCond, ContrastRow, NumBases, CondScal
     %scale regressors if present
     if ~isempty(ContrastRow{NumCond + 2}) == 1
         RegConVec = ContrastRow{NumCond + 2};
-        for k = 1:length(RegConVec)
+        for k = 1:length(RegScaling)
             RegConVec(k) = RegConVec(k) * NumRuns / RegScaling(k);
         end
         ContrastRow{NumCond + 2} = RegConVec;

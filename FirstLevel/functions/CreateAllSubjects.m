@@ -122,11 +122,17 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
         AllSubjects(i).outputDir = mc_GenPath(opt.OutputDir);
         NumRuns = length( opt.SubjDir{i, 3} );
 
+        % be verbose about build subject
+        fprintf(1, 'Building subject %s\n', Subject);
+
         for k = 1:NumRuns
 
             RunNumber = opt.SubjDir{i, 3}(k);
             Run = opt.RunDir{ RunNumber };
             AllSubjects(i).sess(k).name = Run;
+
+            % be verbose about building run
+            fprintf(1, '\tWorking on %s\n', Run);
 
             % get subject images for run
             AllSubjects(i).sess(k).images = SetRunImages(i, RunNumber, opt);
