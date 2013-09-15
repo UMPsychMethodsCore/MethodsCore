@@ -146,6 +146,15 @@ function opt = CheckOpt(opt)
         error('When using IdenticalModels, TotalTrials must be a positive value and less than or equal to the number of columns in the mastetr data file %d.', MasterDataCols);
     end
 
+    % handle RegFilesTemplate
+    NumRegFiles = size(opt.RegFilesTemplate, 1);
+    for i = 1:NumRegFiles
+        if opt.RegFilesTemplate{i, 4} < 1
+            msg = sprintf(['ERROR: Invalid polynomial expansion option for RegFile %s.  Expected a value >= 1, but found %d\n'], opt.RegFilesTemplate{i, 1}, opt.RegFilesTemplate{i, 4});
+            error('%s', msg);
+        end
+    end
+
     % handle different bases functions
     if any(strcmp(opt.Basis, {'hrf', 'fir'})) ~= 1
         msg = sprintf(['ERROR: Only valid values for ''Basis'' are ''hrf'' or ''fir''\n']);
