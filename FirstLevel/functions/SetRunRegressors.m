@@ -73,6 +73,12 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
         Order = opt.RegFilesTemplate{iRegFile, 3};
         RegMatrix = addDerivatives(Subject, Run, RegFile, Order, RegMatrix);
 
+        % calculate and add polynomial terms if need be
+        PTerm = opt.RegFilesTemplate{iRegFile, 4};
+        if PTerm > 1
+            RegMatrix = addPolynomials(Subject, Run, PTerm, RegMatrix);
+        end
+
         try
             tmpRegressors = [tmpRegressors RegMatrix];
         catch err
@@ -240,3 +246,23 @@ function RegMatrix = addDerivatives(Subject, Run, RegFile, Order, RegMatrix)
         end
     end
 end
+
+function RegMatrix = addPolynomials(Subject, Run, PTerm, RegMatrix)
+% function RegMatrix = addPolynomials(Subject, Run, PTerm, RegMatrix)
+%
+%   PTerm is assumed to be a valid value, meaning > 1
+%
+
+    [M N] = size(RegMatrix);
+    PolyReg = zeros(M, (PTerm - 1) * N);
+
+    for i = 2:PTerm
+        bIndex = (i - 2) * N + 1;
+        eIndex = bIndex + N - 1;
+        PolyReg(:, bIndex:eIndex) = RegMatrix.^i;
+    end
+
+    RegMatrix = [RegMatrix PolyReg];
+end
+
+

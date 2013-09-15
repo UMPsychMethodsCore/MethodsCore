@@ -43,6 +43,15 @@ function opt = CheckOpt(opt)
     LogDirectory = mc_GenPath(LogCheck);
     mc_Logger('setup', LogDirectory);
 
+    % check run nubmers are valid for each subject
+    NumRuns = size(opt.RunDir, 1);
+    for i = 1:size(opt.SubjDir, 1)
+        SubjectRuns = opt.SubjDir{i, 3};
+        if any(SubjectRuns > NumRuns)
+            error('Subject %s : Runs to include exceed the number of possible runs.\n', opt.SubjDir{i, 1});
+        end
+    end
+
     % MasterDataFile checks
     if length(opt.CondColumn) ~= length(opt.TimeColumn) || length(opt.TimeColumn) ~= length(opt.DurationColumn)
         error('Variables CondColumn TimeColumn DurationColumn must all have equal lengths');
@@ -135,6 +144,15 @@ function opt = CheckOpt(opt)
     % simple check for IdenticalModels and TotalTrials
     if opt.IdenticalModels == 1 && (opt.TotalTrials <= 0 || opt.TotalTrials > MasterDataRows)
         error('When using IdenticalModels, TotalTrials must be a positive value and less than or equal to the number of columns in the mastetr data file %d.', MasterDataCols);
+    end
+
+    % handle RegFilesTemplate
+    NumRegFiles = size(opt.RegFilesTemplate, 1);
+    for i = 1:NumRegFiles
+        if opt.RegFilesTemplate{i, 4} < 1
+            msg = sprintf(['ERROR: Invalid polynomial expansion option for RegFile %s.  Expected a value >= 1, but found %d\n'], opt.RegFilesTemplate{i, 1}, opt.RegFilesTemplate{i, 4});
+            error('%s', msg);
+        end
     end
 
     % handle different bases functions

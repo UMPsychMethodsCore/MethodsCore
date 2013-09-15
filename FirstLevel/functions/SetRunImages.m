@@ -47,4 +47,7 @@ function RunImages = SetRunImages(SubjectNumber, RunNumber, opt)
         RunImages{iRunImage} = strtrim(runImages(iRunImage, :));
     end
 
+    % be verbore about run images
+    fprintf(1, '\t\tNumber of images: %d\n', size(runImages, 1));
+
 end
