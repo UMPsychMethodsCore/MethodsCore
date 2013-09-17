@@ -215,7 +215,10 @@ if (Processing(1) == 1)
     preproc.opts = rmfield(preproc.opts,'output');
     preproc.opts = rmfield(preproc.opts,'fudge');
     preproc.opts.mask = {''};
-    
+    preproc.opts.regtype = ''; %disable affine registration
+                               %temporary fix for weird segmentation results
+                               %images should be coregistered first to the 
+                               %template.  This will need to be integrated
     if (exist('CustomTPMs','var') && ~isempty(CustomTPMs))
         %verify custom TPMs
         if (strcmp(NormMethod,'seg'))
