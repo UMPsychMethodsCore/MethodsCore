@@ -205,6 +205,10 @@ RealignmentParametersTemplate = ...
 %%% vector of 1s and 0s, or a saved MATLAB .mat file with a 
 %%% cv variable containing a column of 1s and 0s
 %%%
+%%%
+%%%  1 == keep the time point
+%%%  0 == replace the time point
+%%%
 %%%     'moving#'    - local timecourse mean
 %%%                    where # is a real number indicating the window
 %%%                    e.g. 
@@ -258,6 +262,11 @@ DespikeReplacementInterp  = 'pchip';
 %%% This file should either be a simple text file containing a column of
 %%% 1s and 0s, or a saved MATLAB .mat file with a cv variable containing a
 %%% column of 1s and 0s
+%%%
+%%%
+%%%  1 == keep the time point
+%%%  0 == replace the time point
+%%%
 %%%
 %%%     This ConnTool Toolbox users an FFT filter with a little
 %%%     bit of smoothing. If you want to censor your data your should

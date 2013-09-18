@@ -681,9 +681,9 @@ if length(enTIME) > 0
     cenTIME = [0 cumsum(enTIME)];
     SOM_LOG(sprintf('STATUS : Edited data to : %d space by total  %d time-points',nSPACE(1),cenTIME(end)));
 else
-    enTIME=nTIME;
-    SOM_LOG(sprintf('STATUS : No editing of data : %d space by total % time-points',nSPACE(1),cnTIME(end)));
+    enTIME  = nTIME;
     cenTIME = [0 cumsum(enTIME)];
+    SOM_LOG(sprintf('STATUS : No editing of data : %d space by total % time-points',nSPACE(1),cenTIME(end)));
 end
 
 % We can store all of this for posterity

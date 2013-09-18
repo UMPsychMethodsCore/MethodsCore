@@ -39,10 +39,10 @@ SOM.defaults.RegressFLAGS.order    = 'DCWMB';
 
 % Despiking defaults
 
-SOM.defaults.DespikeNumberOption      = 5;
-SOM.defaults.DespikeOption            = 'sgolay';
-SOM.defaults.DespikeReplacementInterp = 'pchip';
-
+SOM.defaults.DespikeNumberOption       = 5;
+SOM.defaults.DespikeOption             = 'sgolay';
+SOM.defaults.DespikeReplacementInterp  = 'pchip';
+SOM.defaults.DespikeTooManyNANFraction = 0.25;
 % ROI deaults
 
 SOM.defaults.roi.mni.size     = 19;

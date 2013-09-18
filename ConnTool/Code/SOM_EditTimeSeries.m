@@ -29,7 +29,7 @@ function D1 = SOM_EditTimeSeries(D0,censorVector)
 
 D1 = -1;
 
-if isempty(censorVector) || sum(censorVector) == 0
+if isempty(censorVector) || sum(censorVector) == length(censorVector)
     D1 = D0;
     SOM_LOG('STATUS : Censor Vector empty, or nothing to edit');
     return

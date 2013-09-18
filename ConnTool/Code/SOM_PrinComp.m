@@ -41,7 +41,7 @@ results.startCPU = cputime;
 % Any NaN?
 
 nonNANIDX = find(~isnan(sum(theData,2)));
-theData   = theData(nonNANIDX,:)
+theData   = theData(nonNANIDX,:);
 
 if isfield(SOM,'NumberPrincipleComponents') == 0
     SOM.NumberPrincipleComponents = 50;

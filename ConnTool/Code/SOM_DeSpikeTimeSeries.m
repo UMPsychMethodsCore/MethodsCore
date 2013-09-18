@@ -12,7 +12,7 @@
 % function D1 = SOM_SmoothTimeSeries(D0,despikeVector,smoothParameters)
 %
 % Input
-% 
+%
 % D0           = data that is space x time
 %
 % censorVector = string of 1's and 0's, one element per time
@@ -24,16 +24,18 @@
 %
 %
 % smoothParameters
-% 
+%
 %     .span         = fractional span
 %
 %     .method       = method to smooth
-% 
+%
 %     .interpMethod = interpolation method for missing time points.
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function D1 = SOM_DeSpikeTimeSeries(D0,despikeVector,despikeParameters)
+
+global SOM
 
 % Fill our return
 
@@ -41,7 +43,7 @@ D1 = D0;
 
 % Is there anything to despike?
 
-if isempty(despikeVector) || sum(despikeVector) == 0
+if isempty(despikeVector) || sum(despikeVector) == length(despikeVector)
     SOM_LOG('STATUS : Despike Vector empty, or nothing to edit');
     return
 end
@@ -67,16 +69,24 @@ end
 
 % Unfortunately we have to process linearly all voxels.
 
+nNANVox = 0;
+
 for iVox = 1:nVox
     
-    D1Temp = smooth(xBaseKeep,D0(iVox,xBaseKeep),despikeParameters.span,despikeParameters.method);
-    
-    % Now do the interpolation back to the full time-course.
-    
-    D1Temp                = interp1(xBaseKeep(:),D1Temp(:),xBase(:),despikeParameters.interpMethod);
-    D1(iVox,xBaseReplace) = D1Temp(xBaseReplace);
-    
+    if sum(isnan(D0(iVox,xBaseKeep))) < length(D0(iVox,xBaseKeep))*SOM.defaults.DespikeTooManyNANFraction
+        D1Temp = smooth(xBaseKeep,D0(iVox,xBaseKeep),despikeParameters.span,despikeParameters.method);
+        
+        % Now do the interpolation back to the full time-course.
+        
+        D1Temp                = interp1(xBaseKeep(:),D1Temp(:),xBase(:),despikeParameters.interpMethod);
+        D1(iVox,xBaseReplace) = D1Temp(xBaseReplace);
+    else
+        nNANVox = nNANVox + 1;
+        fi
+    end
 end
+
+SOM_LOG(sprintf('STATUS : DeSpiker Found %d NAN voxels',nNANVox));
 
 return
 
