@@ -110,10 +110,34 @@ if (RunMode(1) | sum(RunMode) == 0)
             end
             RealignmentParameters = load(RealignmentParametersFile);
             RealignmentParametersDeriv = diff(RealignmentParameters);
+            
+            tempReg = RealignmentParameters;
+            tempRegD = [];
+            tempRegQ = [];
+            tempRegQD = [];
+            tempCSF = [];
+            tempCensor = [];
+            
+            if (IncludeMotionDeriv)
+                tempRegD = (diff([2*tempReg(1,:)-tempReg(2,:);tempReg])+diff([tempReg;2*tempReg(end,:)-tempReg(end-1,:)])) / 2;
+                %tempRegD = gradient(tempReg); %for vector this is equivalent to the above which is the average of forward and back derivative
+            end
+            if (IncludeMotionQuad)
+                tempRegQ = tempReg.^2;
+            end
+            if (IncludeMotionQuad && IncludeMotionDeriv)
+                tempRegQD = tempRegD.^2;
+            end
+            if (IncludeCSF)
+                tempCSF = load(mc_GenPath(CSFRegTemplate));
+            end
+            if (IncludeCensor)
+                tempCensor = load(mc_GenPath(CensorTemplate));
+            end
             %RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
 
-            %parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-            parameters.data.run(iRun).MotionParameters = RealignmentParameters(1:parameters.data.run(iRun).nTIME,:);
+            parameters.data.run(iRun).MotionParameters = [RealignmentParameters tempRegD tempRegQ tempRegQD tempCSF tempCensor];
+            parameters.data.run(iRun).MotionParameters = parameters.data.run(iRun).MotionParameters(1:parameters.data.run(iRun).nTIME,:);
 
             parameters.data.MaskFLAG = MaskBrain;
 

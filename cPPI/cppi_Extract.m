@@ -30,19 +30,25 @@ for iRun = 1:size(SPM.Sess,2)
     reg = [reg [SPM.Sess(iRun).C.C;add]];
 end
 
-nummotion = size(parameters.data.run(1).MotionParameters,2);
+%nummotion = size(parameters.data.run(1).MotionParameters,2);
+nummotion = size([parameters.data.run(:).MotionParameters],2);
 domotion = parameters.cppi.domotion;
 numrun = size(parameters.data.run,2);
 numregressors = size(cppiregressors,2);
 %domotion = 1;
-if (numimages ~= (numrun + (numrun*numregressors) + (domotion*numrun*nummotion)))
+if (numimages ~= (numrun + (numrun*numregressors) + (domotion*nummotion)))
     mc_Error('There are an inconsistent number of beta images and regressors.');
 end
 if (numimages ~= numt)
     mc_Error('There are an unequal number of beta images and T images');
 end
 
-goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
+goodbeta = [];
+for iRun = 1:size(SPM.Sess,2)
+    goodbeta = [goodbeta ones(1,numregressors) zeros(1,domotion*size(parameters.data.run(iRun).MotionParameters,2))];
+end
+
+%goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
 index = 1;
 for iB = 1:size(goodbeta,2)
     %extract beta iB and place in grid
