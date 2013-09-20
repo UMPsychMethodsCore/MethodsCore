@@ -367,7 +367,7 @@ for iRUN = 1:length(parameters.data.run)
                 [D0RUN(iRUN).D0  nanMask]    = SOM_DeSpikeTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
                 [D0RUN(iRUN).cD0 tmpnanMask] = SOM_DeSpikeTimeSeries(D0RUN(iRUN).cD0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
                 
-                nanMask = nanMask || tmpnanMask;
+                nanMask = nanMask | tmpnanMask;
                 clear tmpnanMask;
                 
                 parameters.data.run(iRUN).nanMask = nanMask;
