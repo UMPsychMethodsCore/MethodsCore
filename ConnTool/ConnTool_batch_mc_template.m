@@ -206,8 +206,8 @@ RealignmentParametersTemplate = ...
 %%% cv variable containing a column of 1s and 0s
 %%%
 %%%
-%%%  1 == keep the time point
-%%%  0 == replace the time point
+%%%  0 == keep the time point
+%%%  1 == replace the time point
 %%%
 %%%     'moving#'    - local timecourse mean
 %%%                    where # is a real number indicating the window
@@ -264,8 +264,8 @@ DespikeReplacementInterp  = 'pchip';
 %%% column of 1s and 0s
 %%%
 %%%
-%%%  1 == keep the time point
-%%%  0 == replace the time point
+%%%  0 == keep the time point
+%%%  1 == replace the time point
 %%%
 %%%
 %%%     This ConnTool Toolbox users an FFT filter with a little

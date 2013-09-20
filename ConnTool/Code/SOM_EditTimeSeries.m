@@ -16,8 +16,8 @@
 %                point on what to keep and throw away in
 %                time-series data.
 %
-%                1 = keep
-%                0 = toss
+%                0 = keep
+%                1 = toss
 %
 % Output
 % 
@@ -29,7 +29,7 @@ function D1 = SOM_EditTimeSeries(D0,censorVector)
 
 D1 = -1;
 
-if isempty(censorVector) || sum(censorVector) == length(censorVector)
+if isempty(censorVector) || sum(censorVector) == 0
     D1 = D0;
     SOM_LOG('STATUS : Censor Vector empty, or nothing to edit');
     return
@@ -44,7 +44,7 @@ end
 
 censorVector = censorVector(1:size(D0,2));
 
-D1 = D0(:,censorVector~=0);
+D1 = D0(:,censorVector==0);
 
 return
 

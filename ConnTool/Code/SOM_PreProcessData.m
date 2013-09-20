@@ -364,8 +364,13 @@ for iRUN = 1:length(parameters.data.run)
                 parameters.startCPU.run(iRUN).replace = cputime;
                 % Must fix the data and the confound data. This is a very
                 % time intensive correction.
-                D0RUN(iRUN).D0  = SOM_DeSpikeTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
-                D0RUN(iRUN).cD0 = SOM_DeSpikeTimeSeries(D0RUN(iRUN).cD0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                [D0RUN(iRUN).D0  nanMask]    = SOM_DeSpikeTimeSeries(D0RUN(iRUN).D0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                [D0RUN(iRUN).cD0 tmpnanMask] = SOM_DeSpikeTimeSeries(D0RUN(iRUN).cD0,parameters.data.run(iRUN).despikeVector,parameters.RegressFLAGS.despikeParameters);
+                
+                nanMask = nanMask || tmpnanMask;
+                clear tmpnanMask;
+                
+                parameters.data.run(iRUN).nanMask = nanMask;
                 
                 if ~isempty(parameters.data.run(iRUN).voxelIDX)
                     parameters.data.run(iRUN).sampleTC = catpad(1,parameters.data.run(iRUN).sampleTC,D0RUN(iRUN).D0(parameters.data.run(iRUN).voxelIDX,:));

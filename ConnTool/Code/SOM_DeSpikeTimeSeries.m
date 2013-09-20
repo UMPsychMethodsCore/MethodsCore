@@ -19,8 +19,8 @@
 %                point on what to keep and throw away in
 %                time-series data.
 %
-%                1 = keep
-%                0 = toss
+%                1 = toss
+%                0 = keep
 %
 %
 % smoothParameters
@@ -31,9 +31,15 @@
 %
 %     .interpMethod = interpolation method for missing time points.
 %
+% Output
+%
+% D1           = fixed data
+%
+% nanMask      = mask of 0's and 1's where nans were found (1)
+%
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function D1 = SOM_DeSpikeTimeSeries(D0,despikeVector,despikeParameters)
+function [D1 nanMask] = SOM_DeSpikeTimeSeries(D0,despikeVector,despikeParameters)
 
 global SOM
 
@@ -41,9 +47,11 @@ global SOM
 
 D1 = D0;
 
+nanMask = zeros(size(D0,1),1);
+
 % Is there anything to despike?
 
-if isempty(despikeVector) || sum(despikeVector) == length(despikeVector)
+if isempty(despikeVector) || sum(despikeVector) == 0
     SOM_LOG('STATUS : Despike Vector empty, or nothing to edit');
     return
 end
@@ -58,8 +66,8 @@ end
 
 nVox          = size(D0,1);
 xBase         = 1:size(D0,2);
-xBaseKeep     = find(despikeVector(1:length(xBase))~=0);
-xBaseReplace  = find(despikeVector(1:length(xBase))==0);
+xBaseKeep     = find(despikeVector(1:length(xBase))==0);
+xBaseReplace  = find(despikeVector(1:length(xBase))~=0);
 
 % One last check, perhaps the spikes are outside our window?
 
@@ -81,8 +89,8 @@ for iVox = 1:nVox
         D1Temp                = interp1(xBaseKeep(:),D1Temp(:),xBase(:),despikeParameters.interpMethod);
         D1(iVox,xBaseReplace) = D1Temp(xBaseReplace);
     else
+        nanMask(iVox) = 1;
         nNANVox = nNANVox + 1;
-        fi
     end
 end
 
