@@ -116,19 +116,29 @@ end
 %%% Do the GLM
 [~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,3,des.FxCol);
 
-ts = sign(t(des.FxCol,:)); % figure out the sign
 ps = p(des.FxCol,:);
-
-
-
-%%% Figure out the subthreshold edges and their sign
-% will want to be able to loop over threshold probably? we rarely use that, so maybe we don't need to support?
 prune = ps < thresh;
-ts(~prune) = 0; % mask out everything that didn't survive pruning
+a.edgeenable=EdgeShadingEnable;
+if (EdgeShadingEnable==1)
+    ts = t(des.FxCol,:);
+    ts(~prune) = 0; 
 
-ts(ts==+1) = 2; % map the positive values to 2 per mc_network_FeatRestruct standard
-ts(ts==-1) = 3; % map the negative values to 3 per mc_network_FeatRestruct standard
-ts(ts==+0) = 1; % map the nonsig values to 1 per mc_network_FeatRestruct standard
+else
+    ts = sign(t(des.FxCol,:)); % figure out the sign
+    %%% Figure out the subthreshold edges and their sign
+    % will want to be able to loop over threshold probably? we rarely use that, so maybe we don't need to support?
+    
+    ts(~prune) = 0; % mask out everything that didn't survive pruning
+    
+    ts(ts==+1) = 2; % map the positive values to 2 per mc_network_FeatRestruct standard
+    ts(ts==-1) = 3; % map the negative values to 3 per mc_network_FeatRestruct standard
+    ts(ts==+0) = 1; % map the nonsig values to 1 per mc_network_FeatRestruct standard
+end
+
+
+
+
+
 
 %%% Do CellCounting
 switch matrixtype
@@ -277,7 +287,30 @@ a.stats.FDR.CalcP    = CalcP;
 
 a = mc_Network_CellLevelStats(a);
 
-% Add shading to TakGraph
+%% Generate TakGraph
+
+%%% Enlarge Dots
+
+a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
+                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
+                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
+
+a.colormap = [1 1 1; % make 1 white
+              1 0 0; % make 2 red
+              0 0 1; % make 3 blue
+              1 1 0; % make 4 yellow (blended)
+                    ];
+if TakGraphNetSubsetEnable == 1
+    a.mediator.NetSubset = TakGraphNetSubset;
+end
+
+if EdgeEnlarge==1
+    a = mc_TakGraph_enlarge(a); % enlarge dots
+end
+
+%%% plot the actual graph
+
+a = mc_TakGraph_plot(a);
 
 %%% add shading
 
