@@ -193,6 +193,10 @@ a = mc_TakGraph_enlarge(a); % enlarge dots
 
 %%% plot the actual graph
 
+if(~exist('GraphTitle','var'))
+    GraphTitle='';
+end
+
 a.title = GraphTitle;
 
 
