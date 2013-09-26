@@ -456,6 +456,16 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.centralScriptName = which(mfilename);
         parameters.callingScript     = SOM_DumpScript(parameters.callingScriptName);
         parameters.centralScript     = SOM_DumpScript(parameters.centralScriptName);
+	%
+	% Log the usage
+	%
+	mcUsageReturn = mc_Usage([Subject ': SOM parameters set and written'],'ConnTool');
+	if ~mUsageReturn
+	  SOM_LOG('WARNING : Can not write mc_Usage token for parameters');
+	end		
+	%
+	% Now save the parameters
+	%
         SOM_LOG(sprintf('STATUS : Saving parameters to %s',ParameterPath));
         parameters.LOG = SOM.LOG;
         save(ParameterPath,'parameters');
@@ -511,6 +521,13 @@ if (RunMode(2))
                 for iR = 1:size(results,1)
                     SOM_LOG(['OUTPUT : ',results(iR,:)]);
                 end
+		%
+		% Log the usage
+		%
+		mcUsageReturn = mc_Usage([Subject ': SOM calculated'],'ConnTool');
+		if ~mUsageReturn
+		  SOM_LOG('WARNING : Can not write mc_Usage token for calculation');
+		end		
                 SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
                 SOM_LOG('STATUS : ');
                 SOM_LOG(sprintf('STATUS : Calculation done for Subject : %s',Subject));
