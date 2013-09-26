@@ -291,9 +291,9 @@ a = mc_Network_CellLevelStats(a);
 
 %%% Enlarge Dots
 
-a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
-                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
-                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
+a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1]; % cross
+%                    -1 1; 1 1; -1 -1; 1 -1; %fill out square
+%                    -2 0; 0 2; 2 0; 0 -2]; % cross around square
 
 a.colormap = [1 1 1; % make 1 white
               1 0 0; % make 2 red
