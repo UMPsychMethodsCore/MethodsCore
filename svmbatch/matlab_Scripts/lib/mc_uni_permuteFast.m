@@ -35,9 +35,9 @@ nuisance.design = design;
 nuisance.design(:,permcol) = []; %nuisance only version of design
 
 if numel(nuisance.design) ~= 0;
-    vals.pred = 1;
-    vals.res = 1;
-    nuisancestat = mc_CovariateCorrectionFast(data,nuisance.design,3,vals);
+    nuisancevals.pred = 1;
+    nuisancevals.res = 1;
+    nuisancestat = mc_CovariateCorrectionFast(data,nuisance.design,3,nuisancevals);
     
 
 
