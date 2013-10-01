@@ -270,6 +270,10 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
             end
         end
     end
+    mcUsageReturn = mc_Usage([' : SecondLevel completed : ' num2str(n-1) ' models'],'SecondLevel');
+    if ~mcUsageReturn
+        mc_Logger('log','Unable to write some usage information',2);
+    end
     mc_Logger('log',sprintf('Finshed processing %d models at %s',length(options.models),datestr(now)),3);
     
 
