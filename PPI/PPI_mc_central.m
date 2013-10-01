@@ -127,16 +127,24 @@ for iSubject = 1:size(SubjDir,1)
             CondPresent = zeros(1,TotalNumCond);
             for iCond = 1:NumCond
                 for iCondTotal = 1:TotalNumCond
-                    match = strfind(SPM.Sess(iRun).U(iCond).name{1},ConditionName{iCondTotal}); %need to adjust for parametric PPI
-                    if (~isempty(match))
-                        %weights(iCond) = fullweights(iCondTotal);
-                        if (fullweights(iCondTotal)~=0)
-                            CondPresent(iCondTotal) = iCond;
-                        else
-                            CondPresent(iCondTotal) = -iCond;
-                        end
-                        weights(iCond,:) = [iCond 1 fullweights(iCondTotal)];
+                    temp = strfind(SPM.Sess(iRun).U(iCond).name{1},ConditionName{iCondTotal}); %need to adjust for parametric PPI
+                    if (~isempty(temp))
+                        match(iCondTotal) = size(ConditionName{iCondTotal},2);
+                    else
+                        match(iCondTotal) = 0;
                     end
+                end
+                [maxmatch, idxmatch] = max(match);
+                
+                if (idxmatch>0)
+                    iCondTotal = idxmatch;
+                    %weights(iCond) = fullweights(iCondTotal);
+                    if (fullweights(iCondTotal)~=0)
+                        CondPresent(iCondTotal) = iCond;
+                    else
+                        CondPresent(iCondTotal) = -iCond;
+                    end
+                    weights(iCond,:) = [iCond 1 fullweights(iCondTotal)];
                 end
             end
             
