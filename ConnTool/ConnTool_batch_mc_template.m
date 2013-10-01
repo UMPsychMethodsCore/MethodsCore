@@ -195,6 +195,14 @@ EPIThreshold   = [];
 RealignmentParametersTemplate = ...
     '[Exp]/Subjects/[Subject]/connect/func/[Run]/mcflirt*a8*.dat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Include first derivitave and quadratic terms for regressors
+%%%  0 = do not include
+%%%  1 = include
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MotionDeriv = 1;
+MotionQuad = 1;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for pre-filter replacement of spikes.
 %%%

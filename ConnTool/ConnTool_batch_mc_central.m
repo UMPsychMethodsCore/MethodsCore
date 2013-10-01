@@ -189,9 +189,21 @@ if (RunMode(1) | sum(RunMode) == 0)
                 end
                 RealignmentParameters       = load(RealignmentParametersFile);
                 RealignmentParametersDeriv  = diff(RealignmentParameters);
-                RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
+                RealignmentParametersDerivR = [zeros(1,size(RealignmentParametersDeriv,2));RealignmentParametersDeriv];
+                if (MotionDeriv)
+                    RealignmentParametersQuad = [RealignmentParameters RealignmentParametersDerivR].^2;
+                else
+                    RealignmentParametersQuad = RealignmenParameters.^2;
+                end
+
+                parameters.data.run(iRun).MotionParameters = [RealignmentParameters];
                 
-                parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
+                if (MotionDeriv)
+                    parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersDerivR];
+                end
+                if (MotionQuad)
+                    parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersQuad];
+                end
             else
                 parameters.data.run(iRun).MotionParameters = [];
             end
