@@ -128,11 +128,11 @@ SubUseMark = ones(1,length(Names));
         SubjWiseEdge(isnan(SubjWiseEdge)) = 0;           
         SubjWiseThresh(isnan(SubjWiseThresh))=0;
         
-        if ~isfield(graph,'positive')
-            graph.positive = 1;
+        if ~isfield(graph,'value')
+            graph.value = 1;
             warning('Default to use positive values only');
         end
-        switch graph.positive
+        switch graph.value
             case -1
                 % no change 
             case 0 % Take absolute value 
@@ -188,7 +188,7 @@ SubUseMark = ones(1,length(Names));
                 fprintf('Computing number %s Subject',num2str(Sub));
                 fprintf(' under threshold %.2f',graph.thresh(tThresh));
                 if (graph.netinclude == -1)
-                    fprintf('in whole brain');
+                    fprintf(' in whole brain\n');
                 else
                     fprintf(' in network %d\n',networklabel);
                 end
@@ -697,9 +697,9 @@ if graph.ttest
                 else
                     fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
                 end
-                fprintf(theFID,'%s,',result.metricorder{k});
-                fprintf(theFID,'%.4f,',result.t(i,j,k));
-                fprintf(theFID,'%.4f,',result.p(i,j,k));
+                fprintf(theFID,'%s,',tOut.metricorder{k});
+                fprintf(theFID,'%.4f,',tOut.t(i,j,k));
+                fprintf(theFID,'%.4f,',tOut.p(i,j,k));
                 switch result.direction(i,j,k)
                     case 1
                         fprintf(theFID,'%s\n','increase');
@@ -767,10 +767,10 @@ if graph.perm
                     fprintf(1,'%g\n',i);
                 end
             end
-            permLoc = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
+            permLoc = mc_GenPath(struct('Template',permSave,'mode','makeparentdir'));
             save(permLoc,'perm','-v7.3');
         else
-            permLoc = mc_GenPath(struct('Template',permOutMat,'mode','check'));
+            permLoc = mc_GenPath(struct('Template',permSave,'mode','check'));
             load(permLoc);
         end            
         
@@ -937,7 +937,7 @@ if graph.node
                             otherwise
                                 display(sprintf('%s is not in the measure list yet, please add it',Metricname));
                         end
-                        if graph.voxelzscore
+                        if graph.nodezscore
                             meanv   = mean2(OutData);
                             sdv     = std2(OutData);
                             OutSave = (OutData - meanv)./sdv;
