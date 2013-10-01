@@ -156,11 +156,11 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
 		  cn = 1;
 		  for r = 1:length(options.models(N).reg)
 		      con.consess{cn}.tcon.name = [options.models(N).reg(r).name ' pos'];
-		      con.consess{cn}.tcon.convec = [zeros(1,(r-1)) 1];
+              con.consess{cn}.tcon.convec = [zeros(1, r) 1];
 		      con.consess{cn}.tcon.sessrep = 'none';
 		      cn = cn + 1;
 		      con.consess{cn}.tcon.name = [options.models(N).reg(r).name ' neg'];
-		      con.consess{cn}.tcon.convec = [zeros(1,(r-1)) -1];
+              con.consess{cn}.tcon.convec = [zeros(1, r) -1];
 		      con.consess{cn}.tcon.sessrep = 'none';
 		      cn = cn + 1;
 		  end
@@ -189,6 +189,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
         factorial_design.dir = {mc_GenPath(FactorialDesignCheck)};
 
 		if (options.models(N).type == 6)
+                    if (des2.fd.fact.levels>1)
             mc_GenPath( struct('Template', fullfile(factorial_design.dir{1},'ME_Group'),...
                                'mode','makedir') );
 			jobs2{n2}.stats{1}.factorial_design = factorial_design;
@@ -217,6 +218,7 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
             end
             
 			n2 = n2 + 1;
+                        end
 		end
 		con.spmmat = {fullfile(factorial_design.dir{1},'SPM.mat')};
 		jobs{n}.stats{1}.factorial_design = factorial_design;
