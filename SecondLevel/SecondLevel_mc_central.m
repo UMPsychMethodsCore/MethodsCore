@@ -246,6 +246,17 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
             clear savetemp job;
         end
 		n = n + 1;
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%   Log usage information                %%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        ModelTypes = {'One-Sample','Two-Sample','Paired T','Mult Reg','Full Factorial','Flexible Factorial'};
+        ModelString = ModelTypes{options.models(N).type};
+        mcUsageReturn = mc_Usage([ModelString ': SecondLevel configured'],'SecondLevel');
+        if ~mcUsageReturn
+            mc_Logger('log','Unable to write some usage information',2);
+        end
+        
         end
         if (~isempty(jobs))
             if (strcmp(options.spmver,'SPM8')==1)
