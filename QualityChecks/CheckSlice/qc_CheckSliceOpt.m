@@ -10,6 +10,7 @@ function checkedFiles = qc_CheckSliceOpt(Opt)
 %       FileExp       - Prefix for file names
 %       OutlierText   - full path to output text file
 %       Thresh        - z-score threshold value
+%       LogTemplate  - directory path to log files
 %
 % Output:
 %   checkedFiles{:,1} - file names
@@ -20,6 +21,14 @@ nsubjects = size(Opt.List.Subjects,1);
 tempRuns = numel([Opt.List.Subjects{:,3}]);
 checkedFiles = cell(tempRuns,3);
 index = 1;
+
+% handle logging
+LogDirectory = mc_GenPath(struct('Template',Opt.LogTemplate,'mode','makedir'));
+result = mc_Logger('setup', LogDirectory);
+if (~result)
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+global mcLog
 
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %3.2f\n'...
