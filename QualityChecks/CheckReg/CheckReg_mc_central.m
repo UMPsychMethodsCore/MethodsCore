@@ -1,3 +1,10 @@
+% handle logging
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup', LogDirectory);
+if (~result)
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+global mcLog
 
 spmver = spm('Ver');
 if (strcmp(spmver,'SPM8')==1)
@@ -50,6 +57,14 @@ for iSubject = 1:size(SubjDir,1)
 
     fprintf('Press any key to continue:\n');
     pause;
+
+    % Log usage
+    str = sprintf('Subject: %s CheckReg complete\n', Subject);
+    UsageResult = mc_Usage(str, 'CheckReg');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to log usage information.', 2);
+    end
+    
 end % Loop over subjects
 close all
 fprintf('All done!\n');

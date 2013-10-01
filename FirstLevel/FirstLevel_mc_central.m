@@ -602,7 +602,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
                             NonZeroRegColumns = NonZeroRegColumns - 1;
                         end
                     end
-                    mc_Logger('log',sprintf('Found %d non-constant regressors in file %s.  Using %d of them.',NonZeroRegColumns,File,min(NonZeroRegColumns,RegColumns)));
+                    mc_Logger('log',sprintf('Found %d non-constant regressors in file %s.  Using %d of them.',NonZeroRegColumns,File,min(NonZeroRegColumns,RegColumns)),3);
                     fprintf(1,'Found %d non-constant regressors in file %s.  Using %d of them.\n',NonZeroRegColumns,File,min(NonZeroRegColumns,RegColumns));
                 end
             end
@@ -1022,6 +1022,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Log completed subject in usage file        %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    mcUsageReturn = mc_Usage([Subject ': FirstLevel completed'],'FirstLevel');
+    if ~mcUsageReturn
+        mc_Logger('log','Unable to write some usage information',2);
+    end
+    
 end % loop through subjects
 
 if (UseSandbox) %should only run if sandbox is being used
