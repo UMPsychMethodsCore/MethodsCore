@@ -53,10 +53,7 @@ for iSubject = 1:size(SubjDir,1)
 
     % Log usage
     str = sprintf('Subject: %s CheckReg complete\n', Subject);
-    UsageResult = mc_Usage(str, 'CheckReg');
-    if ~UsageResult
-        mc_Logger('log', 'Unable to write some usage information', 2);
-    end
+    mc_Usage(str, 'CheckReg');
     
 end % Loop over subjects
 close all

@@ -36,10 +36,7 @@ for i = 1:size(checkedFiles,1)
     % Now log each subject
     RunsChecked = size(checkedFiles{i, 3}, 1);
     str = sprintf('Subject: %s Runs: %d CheckFrame complete\n', checkedFiles{i, 2}, RunsChecked);
-    UsageResult = mc_Usage(str, 'CheckFrames');
-    if ~UsageResult
-        mc_Logger('log', 'Unable to write some usage information', 2);
-    end
+    mc_Usage(str, 'CheckFrames');
 
     if ~isempty(out)
         [pathstr file ext] = fileparts(checkedFiles{i,1});

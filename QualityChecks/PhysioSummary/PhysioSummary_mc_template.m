@@ -55,7 +55,8 @@ SubjDir = {
 '5041/Tx2',50311,[1 2], 0, 0;
 '5042/Tx2',50321,[1 3 5], 0, 0; 
 };
-   
+
+global mcRoot   
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..')
 %DEVSTOP

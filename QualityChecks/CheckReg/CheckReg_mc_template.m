@@ -65,6 +65,7 @@ ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FilePrefix = 'ra';
 
+global mcRoot
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..')
 %DEVSTOP

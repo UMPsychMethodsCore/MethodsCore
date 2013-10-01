@@ -82,6 +82,11 @@ for iSubject = 1:size(SubjDir,1)
             fprintf(theFID,'\n');
         end %iRow
     end %iRun
+
+    % Log usage
+    str = sprintf('Subject:%s Runs:%d PhysioSummary complete.\n', Subject, NumRun);
+    mc_Usage(str, 'PhysioSummary');
+    
 end %iSubject
 
 fclose(theFID);

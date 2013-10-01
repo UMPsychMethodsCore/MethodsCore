@@ -92,6 +92,7 @@ OutputMode = 1;
 FramesBefore = 1;
 FramesAfter = 2;
 
+global mcRoot;
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
