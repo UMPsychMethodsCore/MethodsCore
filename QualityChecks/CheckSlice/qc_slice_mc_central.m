@@ -30,6 +30,14 @@ fprintf(1,'Calculating metrics...\n');
 for i = 1:size(checkedFiles,1)
     fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
     metricsList{i} = qc_CalcSliceMetrics(checkedFiles{i,1});
+
+    % Now log each subject
+    RunsChecked = size(checkedFiles{i, 3}, 1);
+    str = sprintf('Subject:%s Runs:%d CheckSlice complete\n', checkedFiles{i, 2}, RunsChecked);
+    UsageResult = mc_Usage(str, 'CheckSlice');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to write some usage information', 2);
+    end
      
     if ~isempty(metricsList{i})
         [pathstr file ext] = fileparts(metricsList{i}.Fname);
@@ -83,8 +91,3 @@ end
 fclose('all');
 fprintf(1,'All done!\n');
 Results = 1;
-
-% Log usage
-str = sprintf('%d runs processed.\n',size(checkedFiles,1));
-mc_Usage(str,'CheckSlice');
-

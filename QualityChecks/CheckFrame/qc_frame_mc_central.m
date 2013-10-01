@@ -32,6 +32,15 @@ fprintf(1,'Calculating outliers...\n');
 for i = 1:size(checkedFiles,1)
     fprintf(1,'Subject: %s Run: %s\n',checkedFiles{i,2},checkedFiles{i,3});
     out = qc_CalcFrameMetrics(checkedFiles{i,1});
+
+    % Now log each subject
+    RunsChecked = size(checkedFiles{i, 3}, 1);
+    str = sprintf('Subject: %s Runs: %d CheckFrame complete\n', checkedFiles{i, 2}, RunsChecked);
+    UsageResult = mc_Usage(str, 'CheckFrames');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to write some usage information', 2);
+    end
+
     if ~isempty(out)
         [pathstr file ext] = fileparts(checkedFiles{i,1});
         qc_FrameReport(out,fullfile(pathstr,'frameReport.ps'),Opt.Thresh);
@@ -57,6 +66,3 @@ end
 fclose('all');
 fprintf(1,'All done!\n');
 Results = 1;
-
-str = sprintf('%d runs checked\n',size(checkedFiles,1));
-mc_Usage(str,'CheckFrames');

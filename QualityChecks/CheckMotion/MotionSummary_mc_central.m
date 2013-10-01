@@ -79,6 +79,14 @@ for iSubject = 1:size(SubjDir,1)
             fclose(fdFid);
         end
     end
+
+    % now log usages
+    RunsChecked = size(SubjDir{iSubject,3},2);
+    str = sprintf('Subject:%s Runs:%d CheckMotion complete\n', Subject, RunsChecked);
+    UsageResult = mc_Usage(str, 'CheckMotion');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to write some usage information', 2);
+    end
 end
 
 %%%%%%% Save results to CSV file

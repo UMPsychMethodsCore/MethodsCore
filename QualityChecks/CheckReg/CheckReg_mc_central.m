@@ -50,6 +50,14 @@ for iSubject = 1:size(SubjDir,1)
 
     fprintf('Press any key to continue:\n');
     pause;
+
+    % Log usage
+    str = sprintf('Subject: %s CheckReg complete\n', Subject);
+    UsageResult = mc_Usage(str, 'CheckReg');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to write some usage information', 2);
+    end
+    
 end % Loop over subjects
 close all
 fprintf('All done!\n');
