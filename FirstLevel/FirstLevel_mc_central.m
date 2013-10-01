@@ -1022,6 +1022,15 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%    Done with subject   %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Log completed subject in usage file        %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    mcUsageReturn = mc_Usage([Subject ': FirstLevel completed'],'FirstLevel');
+    if ~mcUsageReturn
+        mc_Logger('log','Unable to write some usage information',2);
+    end
+    
 end % loop through subjects
 
 if (UseSandbox) %should only run if sandbox is being used
