@@ -59,6 +59,11 @@ Opt.OutlierText = '[Exp]/TestDir/outlier.txt';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.Thresh = 6;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.LogTemplate = '[Exp]/CheckSlice/Logs';
+
 global mcRoot;
 %DEVSTART
 mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
