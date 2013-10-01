@@ -13,6 +13,7 @@ function Results = qc_frame_mc_central(Opt)
 %       FileExp      - Regexp for file names
 %       OutlierText  - full path to output text file
 %       Thresh       - mean diff z-score threshold value
+%       LogTemplate  - directory path to log files
 %
 Results = -1;
 
@@ -36,7 +37,10 @@ for i = 1:size(checkedFiles,1)
     % Now log each subject
     RunsChecked = size(checkedFiles{i, 3}, 1);
     str = sprintf('Subject: %s Runs: %d CheckFrame complete\n', checkedFiles{i, 2}, RunsChecked);
-    mc_Usage(str, 'CheckFrames');
+    UsageResult = mc_Usage(str, 'CheckFrames');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to write some usage information', 2);
+    end
 
     if ~isempty(out)
         [pathstr file ext] = fileparts(checkedFiles{i,1});

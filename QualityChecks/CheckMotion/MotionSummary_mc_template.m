@@ -84,6 +84,11 @@ FDcriteria = 0.2;
 OutputMode = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogTemplate = '[Exp]/CheckMotion/Logs';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Other frames to exclude.
 %%% FramesBefore is the number of frames before a censored frame to create
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
