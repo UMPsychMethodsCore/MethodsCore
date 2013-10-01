@@ -1,3 +1,11 @@
+% handle logging
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup', LogDirectory);
+if (~result)
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+global mcLog
+
 fprintf(1,'-----\n');
 OutputPathFile = mc_GenPath( struct('Template',OutputPathTemplate,...
                                     'suffix','.csv',...
@@ -78,6 +86,14 @@ for iSubject = 1:size(SubjDir,1)
             end
             fclose(fdFid);
         end
+    end
+
+    % now log usages
+    RunsChecked = size(SubjDir{iSubject,3},2);
+    str = sprintf('Subject:%s Runs:%d CheckMotion complete\n', Subject, RunsChecked);
+    UsageResult = mc_Usage(str, 'CheckMotion');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to log usage information.', 2);
     end
 end
 
