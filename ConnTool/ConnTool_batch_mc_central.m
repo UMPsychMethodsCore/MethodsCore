@@ -472,7 +472,7 @@ if (RunMode(1) | sum(RunMode) == 0)
 	% Log the usage
 	%
 	mcUsageReturn = mc_Usage([Subject ': SOM parameters set and written'],'ConnTool');
-	if ~mUsageReturn
+	if ~mcUsageReturn
 	  SOM_LOG('WARNING : Can not write mc_Usage token for parameters');
 	end		
 	%
@@ -537,7 +537,7 @@ if (RunMode(2))
 		% Log the usage
 		%
 		mcUsageReturn = mc_Usage([Subject ': SOM calculated'],'ConnTool');
-		if ~mUsageReturn
+		if ~mcUsageReturn
 		  SOM_LOG('WARNING : Can not write mc_Usage token for calculation');
 		end		
                 SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');

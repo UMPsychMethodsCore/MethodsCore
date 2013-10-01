@@ -533,6 +533,7 @@ saveroiTC      = 0;
 %%% Do not edit below this line
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+global mcRoot
 %DEVSTART
 mcRoot = '/Users/rcwelsh/src/git/MethodsCore';
 %DEVSTOP
