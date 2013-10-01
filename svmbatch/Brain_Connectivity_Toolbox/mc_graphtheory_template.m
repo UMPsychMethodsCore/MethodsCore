@@ -222,7 +222,7 @@ end
 %%%         'efficiency' (need to include 'F' in network.measures when selecting it)
 %%%         'clustering' (need to include 'C' in network.measures when selecting it)
 %%%         'eigenvector' (need to include 'V' in network.measures when selecting it)
-%%%         'eccentricity' (need to include 'P' in network.measures when selecting it)
+%%%         'eccentricity' (need to include 'N' in network.measures when selecting it)
 %%%         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

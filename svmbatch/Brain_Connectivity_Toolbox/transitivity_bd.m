@@ -3,7 +3,7 @@ function T=transitivity_bd(A)
 %
 %   T = transitivity_bd(A);
 %
-%   Transitivity is the ratio of 'triangles to triplets' in the network.
+%   Transitivity is the ratio of 'triangles to triplets' in the graph.
 %   (A classical version of the clustering coefficient).
 %
 %   Input:      A       binary directed connection matrix

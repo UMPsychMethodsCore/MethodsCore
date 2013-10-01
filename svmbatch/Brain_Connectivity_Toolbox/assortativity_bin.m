@@ -17,7 +17,7 @@ function   r = assortativity_bin(CIJ,flag)
 %
 %   Outputs:    r,      assortativity coefficient
 %
-%   Notes: The function accepts weighted networks, but all connection
+%   Notes: The function accepts weighted graphs, but all connection
 %   weights are ignored. The main diagonal should be empty. For flag 1
 %   the function computes the directed assortativity described in Rubinov
 %   and Sporns (2010) NeuroImage.

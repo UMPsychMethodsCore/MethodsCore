@@ -3,7 +3,7 @@ function T=transitivity_wu(W)
 %
 %   T = transitivity_wu(W);
 %
-%   Transitivity is the ratio of 'triangles to triplets' in the network.
+%   Transitivity is the ratio of 'triangles to triplets' in the graph.
 %   (A classical version of the clustering coefficient).
 %
 %   Input:      W       weighted undirected connection matrix

@@ -4,11 +4,11 @@ function [Ci Q]=modularity_dir(A)
 %   Ci = modularity_dir(W);
 %   [Ci Q] = modularity_dir(W);
 %
-%   The optimal community structure is a subdivision of the network into
+%   The optimal community structure is a subdivision of the graph into
 %   nonoverlapping groups of nodes in a way that maximizes the number of
 %   within-group edges, and minimizes the number of between-group edges. 
 %   The modularity is a statistic that quantifies the degree to which the
-%   network may be subdivided into such clearly delineated groups. 
+%   graph may be subdivided into such clearly delineated groups. 
 %
 %   Input:      W,      directed (weighted or binary) connection matrix.
 %

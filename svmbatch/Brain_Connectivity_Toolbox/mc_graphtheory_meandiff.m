@@ -1,4 +1,4 @@
-function [ permresults ] = mc_graphtheory_meandiff( network,input,nNet,nMetric )
+function [ permresults ] = mc_graphtheory_meandiff( graph,input,nNet,nMetric )
 % MC_GRAPHTHEORY_MEANDIFF 
 % Calculating group mean difference for permutation test use
 % INPUT
@@ -16,12 +16,12 @@ function [ permresults ] = mc_graphtheory_meandiff( network,input,nNet,nMetric )
 %             input.types        -   nSub x 1 vector with info of subject type
 %             input.unitype      -   number of subject types
 %
-%       network
-%             network.covtype    -   0 -- alphabetically, control group name 
+%       graph
+%             graph.covtype    -   0 -- alphabetically, control group name 
 %                                         in the front, like 'H' and 'O'
 %                                    1 -- alphabetically, experiment group 
 %                                         name in the front, like 'A' and 'H'
-%             network.netinclude -   Which networks to include
+%             graph.netinclude -   Which networks to include
 %                                    -1 -- Whole Brain;
 %                                    Array of intergers ranging from 1 to 13 -- SubNetworks
 %   
@@ -43,8 +43,8 @@ function [ permresults ] = mc_graphtheory_meandiff( network,input,nNet,nMetric )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Initialization %%%%%%%%%%%%%%%
-covtype=network.covtype;
-netinclude=network.netinclude;
+covtype=graph.covtype;
+netinclude=graph.netinclude;
 unitype    =input.unitype;
 data   =input.subdata;
 Label  = input.types;

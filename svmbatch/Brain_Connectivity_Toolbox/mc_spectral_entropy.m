@@ -1,5 +1,5 @@
 function H = mc_spectral_entropy( CIJ )
-%MC_SPECTRAL_ENTROPY    spectral entropy of a network
+%MC_SPECTRAL_ENTROPY    spectral entropy of a graph
 %
 %   H = mc_spectral_entropy(CIJ)
 % 

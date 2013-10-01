@@ -6,8 +6,8 @@ function  [lambda,efficiency,ecc,radius,diameter] = charpath(D)
 %   [lambda,ecc,radius,diameter] = charpath(D);
 %
 %   The characteristic path length is the average shortest path length in 
-%   the network. The global efficiency is the average inverse shortest path
-%   length in the network.
+%   the graph. The global efficiency is the average inverse shortest path
+%   length in the graph.
 %
 %   Input:      D,              distance matrix
 %

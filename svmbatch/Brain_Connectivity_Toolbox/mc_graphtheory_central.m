@@ -26,24 +26,24 @@ display(sprintf('The global csv will be outputed to: %s', OutputPathFile));
 % 0 - do not include this measure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ~isfield(network,'measures')
-    network.measures = 'E';
+if ~isfield(graph,'measures')
+    graph.measures = 'E';
     warning('Measure not selected, so only measure degree');
 end
 
-Flag.smallworld    = any(strfind(upper(network.measures),'S'));
-Flag.density       = any(strfind(upper(network.measures),'D'));
-Flag.transitivity  = any(strfind(upper(network.measures),'T'));
-Flag.efficiency    = any(strfind(upper(network.measures),'F'));
-Flag.modularity    = any(strfind(upper(network.measures),'M'));
-Flag.assortativity = any(strfind(upper(network.measures),'A'));
-Flag.pathlength    = any(strfind(upper(network.measures),'P'));
-Flag.degree        = any(strfind(upper(network.measures),'E'));
-Flag.clustering    = any(strfind(upper(network.measures),'C'));
-Flag.betweenness   = any(strfind(upper(network.measures),'B'));
-Flag.entropy       = any(strfind(upper(network.measures),'Y'));
-Flag.eccentricity  = any(strfind(upper(network.measures),'N'));
-Flag.eigenvector   = any(strfind(upper(network.measures),'V'));
+Flag.smallworld    = any(strfind(upper(graph.measures),'S'));
+Flag.density       = any(strfind(upper(graph.measures),'D'));
+Flag.transitivity  = any(strfind(upper(graph.measures),'T'));
+Flag.efficiency    = any(strfind(upper(graph.measures),'F'));
+Flag.modularity    = any(strfind(upper(graph.measures),'M'));
+Flag.assortativity = any(strfind(upper(graph.measures),'A'));
+Flag.pathlength    = any(strfind(upper(graph.measures),'P'));
+Flag.degree        = any(strfind(upper(graph.measures),'E'));
+Flag.clustering    = any(strfind(upper(graph.measures),'C'));
+Flag.betweenness   = any(strfind(upper(graph.measures),'B'));
+Flag.entropy       = any(strfind(upper(graph.measures),'Y'));
+Flag.eccentricity  = any(strfind(upper(graph.measures),'N'));
+Flag.eigenvector   = any(strfind(upper(graph.measures),'V'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Load Name and Type Info 
@@ -58,7 +58,7 @@ MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE',:);
 
 switch class(MDFInclude.(MDF.Subject))
     case 'double'
-        Names = cellstr(strcat(MDF.NamePre,num2str(MDFInclude.(MDF.Subject))));
+        Names = cellstr(strcat(NamePre,num2str(MDFInclude.(MDF.Subject))));
     case 'cell'
         Names = MDFInclude.(MDF.Subject);
 end  
@@ -69,11 +69,10 @@ Types = char(MDFInclude.(MDF.Type));
 %%%%%%%%%%%%%%%%%%%%%%%
 
 clear CombinedOutput
-clear NetworkPath
 
-nNet = length(network.netinclude);
+nNet = length(graph.netinclude);
 nSub = length(Names);
-nThresh = length(network.thresh);
+nThresh = length(graph.thresh);
 
 CombinedOutput = cell(nThresh,length(Names),nNet);
 OutputMatPath = mc_GenPath( struct('Template',OutputMat,...
@@ -84,8 +83,8 @@ OutputMatPath = mc_GenPath( struct('Template',OutputMat,...
 %%% Figure out Network Structure 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ~isfield(network,'netinclude')
-    network.netinclude = -1;
+if ~isfield(graph,'netinclude')
+    graph.netinclude = -1;
     warning('Network not selected, so do wholebrain measurement');
 end
 
@@ -115,23 +114,30 @@ SubUseMark = ones(1,length(Names));
         SubjWiseThreshPath = mc_GenPath('SubjWiseFile.[ThreshField]');
         eval(sprintf('%s=%s;','SubjWiseEdge',SubjWiseEdgePath));
         eval(sprintf('%s=%s;','SubjWiseThresh',SubjWiseThreshPath));
+               
+        if (graph.amplify~=1)
+            SubjWiseEdge   = SubjWiseEdge/graph.amplify;
+            SubjWiseThresh = SubjWiseThresh/graph.amplify;
+        end   
         
-        if (network.amplify~=1)
-            SubjWiseEdge   = SubjWiseEdge/network.amplify;
-            SubjWiseThresh = SubjWiseThresh/network.amplify;
-        end        
+        % Exclude out of range(-1 ~ 1) values 
+        SubjWiseEdge(abs(SubjWiseEdge)>1)=0;
+        SubjWiseThresh(abs(SubjWiseThresh)>1)=0;        
         
         % Exclude the NaN elements
         SubjWiseEdge(isnan(SubjWiseEdge)) = 0;           
         SubjWiseThresh(isnan(SubjWiseThresh))=0;
         
-        if ~isfield(network,'positive')
-            network.positive = 1;
+        if ~isfield(graph,'positive')
+            graph.positive = 1;
             warning('Default to use positive values only');
         end
-        switch network.positive
+        switch graph.positive
+            case -1
+                % no change 
             case 0 % Take absolute value 
-                SubjWiseEdge = abs(SubjWiseEdge);  
+                SubjWiseEdge = abs(SubjWiseEdge); 
+                SubjWiseThresh = abs(SubjWiseThresh);
             case 1 % Only keep positive correlations
                 SubjWiseEdge(SubjWiseEdge<0)=0;       
                 SubjWiseThresh(SubjWiseEdge<0)=0;   
@@ -144,82 +150,87 @@ SubUseMark = ones(1,length(Names));
         
         % partial and ztransform options only apply to pearson's r
         % correlation
-        if ~isfield(network,'partial')
-            network.partial=0;
+        if ~isfield(graph,'partial')
+            graph.partial=0;
             warning('Default not to use partial correlation');
         end
-        if ~isfield(network,'ztransform')
-            network.ztransform = 1;
+        if ~isfield(graph,'ztransform')
+            graph.ztransform = 1;
             warning('Default to do z transform');
         end
-        switch network.partial
+        switch graph.partial
             case 0
-                if (network.ztransform == 1 && network.ztransdone == 0)
+                if (graph.ztransform == 1 && graph.ztransdone == 0)
+                    SubjWiseEdge(SubjWiseEdge==1)=0.99999; % avoid Inf after z-trans
+                    SubjWiseEdge(SubjWiseEdge==-1)=-0.99999; % avoid -Inf after z-trans
                     SubjWiseEdge  = mc_FisherZ(SubjWiseEdge);   % Fisher'Z transform
-                    SubjWiseThresh  = mc_FisherZ(SubjWiseThresh);
                 end                
             case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                 SubjWiseEdge = pinv(SubjWiseEdge);
                 SubjWiseThresh  = pinv(SubjWiseThresh);
         end  
         
-        if ~isfield(network,'weighted')
-            network.weighted = 0;
+        if ~isfield(graph,'weighted')
+            graph.weighted = 0;
             warning('Default to create binary graph');
         end
               
-        for kNetwork = 1:length(network.netinclude)
-            if (network.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
-                NetworkConnectRaw = SubjWiseEdge;
-                NetworkThresh     = SubjWiseThresh;
+        for kNetwork = 1:length(graph.netinclude)
+            if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
+                GraphConnectRaw = SubjWiseEdge;
+                GraphThresh     = SubjWiseThresh;
             else
-                networklabel = network.netinclude(kNetwork);
-                NetworkConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
-                NetworkThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
+                networklabel = graph.netinclude(kNetwork);
+                GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
+                GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
             end
             for tThresh = 1:nThresh
                 fprintf('Computing number %s Subject',num2str(Sub));
-                fprintf(' under threshold %.2f',network.thresh(tThresh));
-                fprintf(' in network %d\n',network.netinclude(kNetwork));
-                              
-                NetworkConnect      = zeros(size(NetworkConnectRaw));
+                fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                if (graph.netinclude == -1)
+                    fprintf('in whole brain');
+                else
+                    fprintf(' in network %d\n',networklabel);
+                end
                 
-                if network.weighted
+                GraphConnect      = zeros(size(GraphConnectRaw));
+                
+                if graph.weighted
                     % Create weighted matrix
-                    NetworkConnect(NetworkThresh>network.thresh(tThresh))=NetworkConnectRaw(NetworkThresh>network.thresh(tThresh));
+                    GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));
                 else
                     % Create binary matrix
-                    NetworkConnect(NetworkThresh>network.thresh(tThresh))=1;
+                    GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
                 end
                
-                if nnz(NetworkConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
+                if nnz(GraphConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                     
-                    [NetworkMeasures]   = mc_graphtheory_measures(NetworkConnect,network,Flag);   %%%% MAIN MEASURE PART %%%
-                    Output                   = NetworkMeasures;
+                    [GraphMeasures]   = mc_graphtheory_measures(GraphConnect,graph,Flag);   %%%% MAIN MEASURE PART %%%
+                    Output                   = GraphMeasures;
                                 
                     % Comupte the smallworldness
                     if Flag.smallworld
                         randcluster    = zeros(100,1);
                         randpathlength = zeros(100,1);
-                        % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested network with the
+                        % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested graph with the
                         % preserved degree distribution, which is used in the smallworldness computing.
                         for k = 1:100
                             display(sprintf('loop %d',k));
-                            [NetworkRandom,~] = randmio_und(NetworkConnect,5); % random graph with preserved degree distribution
-                            drand         = distance_bin(NetworkRandom);
+                            [GraphRandom,~] = randmio_und(GraphConnect,5); % random graph with preserved degree distribution
+                            drand         = distance_bin(GraphRandom);
                             [lrand,~]     = charpath(drand);
-                            if network.directed
-                                crand = clustering_coef_bd(NetworkRandom);
+                            if graph.directed
+                                crand = clustering_coef_bd(GraphRandom);
                             else
-                                crand = clustering_coef_bu(NetworkRandom);
+                                crand = clustering_coef_bu(GraphRandom);
                             end
                             randcluster(k)    = mean(crand);
                             randpathlength(k) = lrand;
                         end
                         RandomMeasures.cluster    = mean(randcluster);
                         RandomMeasures.pathlength = mean(randpathlength);
-                        gamma                     = NetworkMeasures.cluster / RandomMeasures.cluster;
-                        lambda                    = NetworkMeasures.pathlength / RandomMeasures.pathlength;
+                        gamma                     = GraphMeasures.cluster / RandomMeasures.cluster;
+                        lambda                    = GraphMeasures.pathlength / RandomMeasures.pathlength;
                         Output.smallworld         = gamma / lambda;
                     end
                 else
@@ -249,12 +260,12 @@ SubUseMark = ones(1,length(Names));
                 CombinedOutput{tThresh,Sub,kNetwork} = Output;
                 toc
             end
-            clear NetworkConnectRaw
+            clear GraphConnectRaw
         end
         
     end        
        
-SubUse = repmat(SubUseMark,1,length(network.netinclude)*nThresh);
+SubUse = repmat(SubUseMark,1,length(graph.netinclude)*nThresh);
 
 display('Saving first level global measure results');
 
@@ -284,7 +295,7 @@ if Flag.pathlength
 end
 if Flag.degree
     fprintf(theFID,',GlobalDegree');
-    if network.weighted
+    if graph.weighted
         fprintf(theFID,',GlobalStrength');
     end
 end
@@ -319,9 +330,12 @@ for tThresh = 1:nThresh
     for iSubject = 1:nSub        
         Subject = Names{iSubject};
         Type    = Types(iSubject);        
-        for kNetwork = 1:length(network.netinclude);            
-            fprintf(theFID,'%s,%s,%s,%s',Subject,Type,num2str(network.netinclude(kNetwork)),num2str(network.thresh(tThresh)));                      
-            
+        for kNetwork = 1:length(graph.netinclude);
+            if (graph.netinclude == -1)
+                fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
+            else
+                fprintf(theFID,'%s,%s,%s,%s',Subject,Type,num2str(networklabel),num2str(graph.thresh(tThresh)));
+            end
             if Flag.smallworld
                 fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.smallworld);
             end
@@ -336,7 +350,7 @@ for tThresh = 1:nThresh
             
             if Flag.degree
                 fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.glodeg);
-                if network.weighted
+                if graph.weighted
                     fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.glostr);
                 end
             end
@@ -389,23 +403,23 @@ fclose(theFID);
 %%% 2. t-test; 3. permutation test.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ~isfield(network,'ttest')
-    network.ttest = 0;
+if ~isfield(graph,'ttest')
+    graph.ttest = 0;
     warning('No t-test for global measure if not assigned');
 end
-if ~isfield(network,'perm')
-    network.perm = 0;
+if ~isfield(graph,'perm')
+    graph.perm = 0;
     warning('No permutation test for global measure if not assigned');
 end
-if (network.ttest || network.perm)
+if (graph.ttest || graph.perm)
        
     % Column of network
-    MatNet        = repmat(network.netinclude,length(CombinedOutput)*nThresh,1);
+    MatNet        = repmat(graph.netinclude,length(CombinedOutput)*nThresh,1);
     ColNet        = MatNet(:);
     ColNet        = ColNet(SubUse==1);
     
     % Column of threshold
-    ColThresh     = repmat(network.thresh,1,length(CombinedOutput)*nNet)';
+    ColThresh     = repmat(graph.thresh,1,length(CombinedOutput)*nNet)';
     ColThresh     = ColThresh(SubUse==1);
     
     % Initialization
@@ -429,6 +443,23 @@ if (network.ttest || network.perm)
         ColDeg = ColDeg(SubUse==1);
         data   = [data ColDeg];
         Metrics{end+1} ='GlobalDegree';
+    end
+    
+    % Column of Strength
+    if (Flag.degree && graph.weighted)
+        OutStrength = zeros(nThresh,nSub,nNet);
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutStrength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glostr;
+                end
+            end
+        end
+        ColStr = OutStrength(:);      
+        ColStr = ColStr(SubUse==1);
+        data   = [data ColStr];
+        Metrics{end+1} ='GlobalStrength';
+        
     end
                 
     % Column of Density
@@ -606,7 +637,7 @@ end
 %%% t-test of global measure data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if network.ttest
+if graph.ttest
     
     p      = zeros(nThresh,nNet,nMetric);
     t      = zeros(nThresh,nNet,nMetric);
@@ -617,8 +648,8 @@ if network.ttest
     
     display('t-test for global measures');
     for iThresh = 1:nThresh
-        input.subdata = data(data(:,input.threshcol)==network.thresh(iThresh),:);
-        [tresults]=mc_graphtheory_ttest(network,input,nNet,nMetric);
+        input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
+        [tresults]=mc_graphtheory_ttest(graph,input,nNet,nMetric);
         p(iThresh,:,:)      = tresults.p;
         t(iThresh,:,:)      = tresults.t;
         meancl(iThresh,:,:) = tresults.meancontrol;
@@ -630,19 +661,24 @@ if network.ttest
     
     display('Saving t-test results of global measures');
     [r,c,v]=ind2sub(size(p),find(p<siglevel));
-    result.sigloc=[r c v];
-    result.siglevel=siglevel;
-    result.p=p;
-    result.t=t;
-    result.meanpb=meancl;
-    result.meandg=meanep;
-    result.direction=sign(meanep-meancl);
-    result.sepb=secl;
-    result.sedg=seep;
-    result.metricorder=Metrics;
-    result.networkorder=network.netinclude;
+    tOut.sigloc=[r c v];
+    tOut.siglevel=siglevel;
+    tOut.p=p;
+    tOut.t=t;
+    tOut.meancl=meancl;
+    tOut.meanep=meanep;
+    tOut.direction=sign(meanep-meancl);
+    tOut.secl=secl;
+    tOut.seep=seep;
+    tOut.metricorder=Metrics;
+    if (graph.netinclude==-1)
+        tOut.networkorder='-1 means WholeBrain';
+    else
+        tOut.networkorder=graph.netinclude;
+    end
+    tOut.RealSigMtxOrder='Column1-Threshold;Column2-BrainNetwork;Column3-Metrics';
     tresultsave=mc_GenPath(struct('Template',ttestOutMat,'mode','makeparentdir'));
-    save(tresultsave,'result','-v7.3');
+    save(tresultsave,'tOut','-v7.3');
     
     % output p value to csv
     ttestOutPath=mc_GenPath(struct('Template',ttestOutPathTemplate,'mode','makeparentdir'));
@@ -655,8 +691,12 @@ if network.ttest
     for i=1:nThresh
         for j=1:nNet
             for k=1:nMetric
-                fprintf(theFID,'%.4f,',network.thresh(i));
-                fprintf(theFID,'%d,',network.netinclude(j));
+                fprintf(theFID,'%.4f,',graph.thresh(i));
+                if (graph.netinclude(j)==-1)
+                    fprintf(theFID,'WholeBrain,');
+                else
+                    fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
+                end
                 fprintf(theFID,'%s,',result.metricorder{k});
                 fprintf(theFID,'%.4f,',result.t(i,j,k));
                 fprintf(theFID,'%.4f,',result.p(i,j,k));
@@ -679,18 +719,19 @@ end
 %%% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if network.perm
+if graph.perm
+    permOut.RealSig=[];
     for iThresh = 1:nThresh
-        ThreValue = num2str(network.thresh(iThresh));
+        ThreValue = num2str(graph.thresh(iThresh));
         meandiff = zeros(nThresh,nNet,nMetric);
         meancl   = zeros(nThresh,nNet,nMetric);
         meanep   = zeros(nThresh,nNet,nMetric);
         secl     = zeros(nThresh,nNet,nMetric);
         seep     = zeros(nThresh,nNet,nMetric);
         
-        input.subdata = data(data(:,input.threshcol)==network.thresh(iThresh),:);
+        input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
                
-        [permresults]=mc_graphtheory_meandiff(network,input,nNet,nMetric);
+        [permresults]=mc_graphtheory_meandiff(graph,input,nNet,nMetric);
         meandiff(iThresh,:,:) = permresults.meandiff;
         meancl(iThresh,:,:)   = permresults.meancl;
         meanep(iThresh,:,:)   = permresults.meanep;
@@ -709,20 +750,20 @@ if network.perm
                 try
                     matlabpool('open',permCores)
                     parfor i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(graph,input,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
                     matlabpool('close') 
                 catch
                     matlabpool('close')
                     for i = 1:nRep
-                        perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
+                        perm(:,:,i) = mc_graphtheory_permutation(graph,input,nNet,nMetric);
                         fprintf(1,'%g\n',i);
                     end
                 end
             else
                 for i = 1:nRep
-                    perm(:,:,i) = mc_graphtheory_permutation(network,input,nNet,nMetric);
+                    perm(:,:,i) = mc_graphtheory_permutation(graph,input,nNet,nMetric);
                     fprintf(1,'%g\n',i);
                 end
             end
@@ -765,20 +806,30 @@ if network.perm
                 end
             end
             
-        end                 
-        %%%%%%%%%%%%%% Display Significant difference subset %%%%%%%%%%%%%%%%%%%%%%%
-        disp(sprintf('Under threshold %.2f, The significant differences from permutation test happens in:\n',network.thresh(iThresh)));        
-        for i = 1:realn
-            disp(sprintf('Network %d with %s',network.netinclude(RealSigNet(i)),Metrics{RealSigMetric(i)}));
-            disp(sprintf('meanexp - meancontrol: %.5f',meandiff(iThresh,RealSigNet(i),RealSigMetric(i))));
-            disp(sprintf('Mean of control group: %.5f +/- %.5f',meancl(iThresh,RealSigNet(i),RealSigMetric(i)),secl(iThresh,RealSigNet(i),RealSigMetric(i))));
-            disp(sprintf('Mean of disease group: %.5f +/- %.5f \n',meanep(iThresh,RealSigNet(i),RealSigMetric(i)),seep(iThresh,RealSigNet(i),RealSigMetric(i))));
-        end
+        end  
+        SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
+        permOut.RealSig = [permOut.RealSig SigLoc];
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
+    permOut.pval = permpVal;
+    permOut.meancl=meancl;
+    permOut.meanep=meanep;
+    permOut.secl=secl;
+    permOut.seep=seep;
+    permOut.direction = permDirection;
+    permOut.siglevel = permlevel;
+    permOut.RealSig = [RealSigNet;RealSigMetric];
+    permOut.metricorder=Metrics;
+    if (graph.netinclude==-1)
+        permOut.networkorder='-1 means WholeBrain';
+    else
+        permOut.networkorder=graph.netinclude;
+    end
+    permOut.RealSigMtxOrder='Row1-Threshold;Row2-BrainNetwork;Row3-Metrics';
+    
     display('Saving permutation results of global measures');
     permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
-    save(permOutSave,'permpVal','-v7.3');
+    save(permOutSave,'permOut','-v7.3');
     permOutPath = mc_GenPath(struct('Template',permOutPathTemplate,'mode','makeparentdir'));
     theFID = fopen(permOutPath,'w');
     if theFID < 0
@@ -789,8 +840,12 @@ if network.perm
     for i=1:nThresh
         for j=1:nNet
             for k=1:nMetric
-                fprintf(theFID,'%.4f,',network.thresh(i));
-                fprintf(theFID,'%d,',network.netinclude(j));
+                fprintf(theFID,'%.4f,',graph.thresh(i));
+                if (graph.netinclude(j)==-1)
+                    fprintf(theFID,'WholeBrain,');
+                else
+                    fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
+                end
                 fprintf(theFID,'%s,',result.metricorder{k});
                 fprintf(theFID,'%.4f,',permpVal(i,j,k));
                 switch permDirection(i,j,k)
@@ -814,20 +869,20 @@ fprintf('Global Measures All Done\n\n')
 % node-wise measurements 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ~isfield(network,'node')
-    network.node = 0;
+if ~isfield(graph,'node')
+    graph.node = 0;
     warning('No node-wise measure analysis if not assigned');
 end
-if ~isfield(network,'nodettest')
-    network.nodettest = 0;
+if ~isfield(graph,'nodettest')
+    graph.nodettest = 0;
     warning('No t-test for node-wise measure if not assigned');
 end
-if ~isfield(network,'nodeperm')
-    network.nodeperm = 0;
+if ~isfield(graph,'nodeperm')
+    graph.nodeperm = 0;
     warning('No permutation test for node-wise measure if not assigned');
 end
-if network.node
-    if network.nodettest
+if graph.node
+    if graph.nodettest
         if ~exist('ttype','var')
             ttype='2-sample';
             warning('t-test type set to 2-sample ttest, please change ttype if this is not what you want');
@@ -835,7 +890,7 @@ if network.node
         input.ttype   = ttype;
     end
        
-    if (network.nodettest||network.nodeperm)
+    if (graph.nodettest||graph.nodeperm)
         input.col    = 1;  
         input.netcol = 1;
         input.types   = Types(SubUseMark==1);
@@ -846,20 +901,20 @@ if network.node
     TDmaskPath     = mc_GenPath(struct('Template',TDmask,'mode','makeparentdir'));
     
     for tThresh = 1:nThresh
-        ThreValue = ['threshold' num2str(network.thresh(tThresh))];
+        ThreValue = ['threshold' num2str(graph.thresh(tThresh))];
         for kNet=1:nNet
-            if network.netinclude==-1
-                Netnum = -1;
+            if graph.netinclude==-1
+                Netname = 'WholeBrain';
             else
-                Netnum  = network.netinclude(kNet);
+                Netname = ['network' num2str(graph.netinclude(kNet))];
             end
-            Netname = ['network' num2str(Netnum)];
-            for nMetric=1:length(network.voxelmeasures)
-                Metricname=network.voxelmeasures{nMetric};
-                if (network.netinclude==-1)
-                    SaveData = zeros(nSub,length(NetworkConnect));
+            
+            for nMetric=1:length(graph.voxelmeasures)
+                Metricname=graph.voxelmeasures{nMetric};
+                if (graph.netinclude==-1)
+                    SaveData = zeros(nSub,length(GraphConnect));
                 else
-                    SaveData = zeros(nSub,sum(nets==network.netinclude(kNet)));
+                    SaveData = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
                 for iSub = 1:nSub
                     if SubUse(iSub)
@@ -867,6 +922,8 @@ if network.node
                         switch Metricname
                             case 'degree'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
+                            case 'strength'
+                                OutData = CombinedOutput{tThresh,iSub,kNet}.strength;
                             case 'betweenness'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
                             case 'efficiency'
@@ -880,7 +937,7 @@ if network.node
                             otherwise
                                 display(sprintf('%s is not in the measure list yet, please add it',Metricname));
                         end
-                        if network.voxelzscore
+                        if graph.voxelzscore
                             meanv   = mean2(OutData);
                             sdv     = std2(OutData);
                             OutSave = (OutData - meanv)./sdv;
@@ -888,11 +945,11 @@ if network.node
                             OutSave = OutData;
                         end
                         %%%%%%%%%%%% save nii image of node wise measure results for doing second level in SPM %%%%%%%%%%%%%
-                        if ~(network.nodettest||network.nodeperm)
+                        if ~(graph.nodettest||graph.nodeperm)
                             fprintf('Writing out first level node-wise measure results');
                             group = Types(iSub);
                             TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir')); 
-                            if (network.netinclude==-1)
+                            if (graph.netinclude==-1)
                                 mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,OutSave,roiMNI);
                             else
                                 longOutSave = zeros(1,length(nets));
@@ -907,17 +964,17 @@ if network.node
                 save(NodeflSave,'SaveData','-v7.3');
                 nROI = size(SaveData,2);                  
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
-                if network.nodettest
+                if graph.nodettest
                     fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     nodet = zeros(1,nROI);
                     for iCol = 1:nROI
-                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1) SaveData(:,iCol)];                        
-                        [tresults]=mc_graphtheory_ttest(network,input,1,1);
+                        input.subdata = [ones(size(SaveData,1),1)*graph.netinclude(1) SaveData(:,iCol)];                        
+                        [tresults]=mc_graphtheory_ttest(graph,input,1,1);
                         nodet(iCol)=tresults.t;
                     end  
                     fprintf('saving t-test results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     TDttempPath = mc_GenPath(struct('Template',TDttemp,'mode','makeparentdir'));
-                    if (network.netinclude==-1)
+                    if (graph.netinclude==-1)
                         mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI);
                     else
                         longnodet=zeros(1,length(nets));
@@ -926,32 +983,32 @@ if network.node
                     end
                 end
                 %%%%%%%%%%% permutation %%%%%%%%%
-                if network.nodeperm
+                if graph.nodeperm
                     nodepermpval = zeros(1,nROI);
                     nodemeandiff = zeros(1,nROI);
                     nodeperm     = zeros(1,nRep);
                     fprintf('permutation test for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     for iCol = 1:nROI
                         fprintf(1,'ROI %g\n',iCol);
-                        input.subdata = [ones(size(SaveData,1),1)*network.netinclude(1) SaveData(:,iCol)];
-                        [permresults] = mc_graphtheory_meandiff(network,input,1,1);
+                        input.subdata = [ones(size(SaveData,1),1)*graph.netinclude(1) SaveData(:,iCol)];
+                        [permresults] = mc_graphtheory_meandiff(graph,input,1,1);
                         nodemeandiff(iCol) = permresults.meandiff;
                         if nodepermCores ~=1
                             try
                                 matlabpool('open',nodepermCores)
                                 parfor i = 1:nodenRep
-                                    nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                                    nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
                                 end
                                 matlabpool('close')
                             catch
                                 matlabpool('close')
                                 for i = 1:nodenRep
-                                    nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                                    nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
                                 end
                             end
                         else
                             for i = 1:nodenRep
-                                nodeperm(i) =mc_graphtheory_permutation(network,input,1,1);
+                                nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
                             end
                         end
                         vector = sort(abs(nodeperm),'descend');
@@ -964,7 +1021,7 @@ if network.node
                     end
                     fprintf('saving permutation results for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     TDpermtempPath = mc_GenPath(struct('Template',TDpermtemp,'mode','makeparentdir'));
-                    if (network.netinclude==-1)
+                    if (graph.netinclude==-1)
                         mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI);
                     else
                         longnpp=ones(1,length(nets));

@@ -8,15 +8,20 @@ function [ deg,glodeg,strength,glostr ] = degrees_wei( CIJ )
 %%% REST OF THE NETWORK'
 CIJ(eye(size(CIJ))~=0)=0;
 
-
 strength = sum(CIJ); % Exclude self connection
+
+strength = strength/(size(CIJ,1)-1); % averaging over number of other nodes
 
 CIJ = double(CIJ~=0); % convert to binary matrix
 
 deg = sum(CIJ);
 
+
+
+%
+
 %%% @Yu: Add a part of computing global degree
-n = size(CIJ,1);
+n = length(CIJ);
 glodeg = sum(deg)/n;
 glostr = sum(strength)/n;
 

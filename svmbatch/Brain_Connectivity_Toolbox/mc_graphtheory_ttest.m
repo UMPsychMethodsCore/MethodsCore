@@ -1,4 +1,4 @@
-function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
+function [tresults] = mc_graphtheory_ttest( graph,input,nNet,nMetric)
 % MC_GRAPHTHEORY_TTEST 
 % Doing t-test on graph theory measure results
 %
@@ -17,12 +17,12 @@ function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
 %             input.types        -   nSub x 1 vector with info of subject type
 %             input.unitype      -   number of subject types
 %
-%       network
-%             network.covtype    -   0 -- alphabetically, control group name 
+%       graph
+%             graph.covtype    -   0 -- alphabetically, control group name 
 %                                         in the front, like 'H' and 'O'
 %                                    1 -- alphabetically, experiment group 
 %                                         name in the front, like 'A' and 'H'
-%             network.netinclude -   Which networks to include
+%             graph.netinclude -   Which networks to include
 %                                    -1 -- Whole Brain;
 %                                    Array of intergers ranging from 1 to 13 -- SubNetworks
 %   
@@ -44,8 +44,8 @@ function [tresults] = mc_graphtheory_ttest( network,input,nNet,nMetric)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 %%%%%%%%%% Initialization %%%%%%%%%%%%%%%
-covtype=network.covtype;
-netinclude=network.netinclude;
+covtype=graph.covtype;
+netinclude=graph.netinclude;
 
 col = input.col;
 netcol = input.netcol;

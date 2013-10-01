@@ -1,14 +1,14 @@
-function [Ci Q]=modularity_und(A)
+function [Ci, Q]=modularity_und(A)
 %MODULARITY_UND     Optimal community structure and modularity
 %
 %   Ci = modularity_und(W);
 %   [Ci Q] = modularity_und(W);
 %
-%   The optimal community structure is a subdivision of the network into
+%   The optimal community structure is a subdivision of the graph into
 %   nonoverlapping groups of nodes in a way that maximizes the number of
 %   within-group edges, and minimizes the number of between-group edges.
 %   The modularity is a statistic that quantifies the degree to which the
-%   network may be subdivided into such clearly delineated groups.
+%   graph may be subdivided into such clearly delineated groups.
 %
 %   Input:      W,      undirected (weighted or binary) connection matrix.
 %   

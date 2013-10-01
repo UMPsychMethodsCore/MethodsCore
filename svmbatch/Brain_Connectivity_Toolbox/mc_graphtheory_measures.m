@@ -1,11 +1,11 @@
-function [Output] = mc_graphtheory_measures(mtrx,network,Flag)
+function [Output] = mc_graphtheory_measures(mtrx,graph,Flag)
 % mc_graphtheory_measures: Do the computation of graph theory measurements
 % INPUT:
-%         mtrx         - A binary 2D network that undergoes the computation
-%         network
-%                 network.directed     - The indicator that shows if the matrix is directed
+%         mtrx         - A binary 2D graph that undergoes the computation
+%         graph
+%                 graph.directed     - The indicator that shows if the matrix is directed
 %                                        or not ( 0 is undirected, 1 is directed)
-%                 network.weighted     - The indicator that shows if the
+%                 graph.weighted     - The indicator that shows if the
 %                                        matrix is weighted or not ( 0 is unweighted,i.e. binary, 1 is weighted)
 %        
 %         Flag         - A logical flag that contains whether or not a
@@ -22,9 +22,35 @@ function [Output] = mc_graphtheory_measures(mtrx,network,Flag)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Convert input
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-directed = network.directed;
-weighted = network.weighted;
+directed = graph.directed;
+weighted = graph.weighted;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Node Degree-
+% The number of edges connected to the node
+% -Network Degree-
+% The average degree over all nodes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.degree
+    display('Calculating degree');
+    if directed
+        deg = degrees_dir(mtrx);
+    else
+        if weighted
+            [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
+            if graph.ztransform
+                strength=mc_inverse_FisherZ(strength);  % convert back to Pearson's r values
+            end
+            Output.strength = strength;
+            Output.glostr   = glostr;            
+                
+        else
+            [deg,glodeg] = degrees_und(mtrx);
+        end
+    end
+    Output.deg    = deg;
+    Output.glodeg = glodeg;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Density-
@@ -49,11 +75,12 @@ end
 % Clustering coefficient is the fraction of triangles around a
 % node, equivalent to the fraction of node's neighbors that are neighbors
 % of each other.
-% Clustering coefficient of a network is the average of the
+% Clustering coefficient of a graph is the average of the
 % clustering coefficients over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if Flag.clustering
+    display('Calculating clustering coefficient');
     if directed
         cluster = clustering_coef_bd(mtrx);
     else
@@ -72,7 +99,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Transitivity-
 % (alternative to the clustering coefficient, a classical version) 
-% The ratio of triangles to triplets in the network.
+% The ratio of triangles to triplets in the graph.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.transitivity
     if directed
@@ -90,12 +117,13 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Global Efficiency-
-% It is the average inverse shortest path length in the network, and it is
+% It is the average inverse shortest path length in the graph, and it is
 % inversely related to the characeristic path length
 % -Local Efficiency-
 % The global efficiency of the neighborhood of a node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.efficiency
+    display('Calculating efficiency');
     if directed
 %         eglob = 0; % no code for directed matrix
         eloc = [];
@@ -119,12 +147,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Modularity- 
 % An optimal community structure is a subdivision of the
-% network into nonoverlapping groups of nodes in a way that maximizes the
+% graph into nonoverlapping groups of nodes in a way that maximizes the
 % number of within-group edges, and minimizes the number of between-group
 % edges. Modularity is a statistic that quantifies the degree to which the
-% network may be subdivided into such clearly delineated groups.
+% graph may be subdivided into such clearly delineated groups.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.modularity
+    display('Calculating modularity');
     if directed
         [~,modu] = modularity_dir(mtrx);
     else
@@ -144,13 +173,13 @@ end
 % if directed: out-degree/in-degree correlation
 if Flag.assortativity
     assort = assortativity_bin(mtrx,directed); 
-    % The function accepts weighted networks, but all connection weights are ignored.  
+    % The function accepts weighted graphs, but all connection weights are ignored.  
     Output.assort = assort;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Characteristic path length-
-% The average shortest path length in the network.
+% The average shortest path length in the graph.
 % -radius-
 % min eccentricity
 % -diameter-
@@ -159,7 +188,7 @@ end
 if Flag.pathlength
     if weighted
         % distance_wei function asks for connection-length matrix, as in a
-        % weighted correlation network, typically higher correlations are
+        % weighted correlation graph, typically higher correlations are
         % interpreted as shorter distances, here we use the inverse of the
         % weighted connection matrix as the connection-length matrix,
         % except for that at the diagonal the lengths are set to 0.
@@ -170,30 +199,31 @@ if Flag.pathlength
     else
         D = distance_bin(mtrx);
     end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % -Eccentricity-
+    % The maximal shortest path length between a node and any other node 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if Flag.eccentricity
+        Output.ecc=max(D.*(D~=Inf),[],2);
+    end
     [lambda,~,~,~,~] = charpath(D); % same code for weighted and unweighted matrix
     Output.pathlength = lambda;
 
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Eccentricity-
-% The maximal shortest path length between a node and any other node 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if Flag.eccentricity
-    D=distance_bin(mtrx);
-    Output.ecc=max(D.*(D~=Inf),[],2);
-end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Eigenvector Centrality-
-% A measure of the influence of a node in a network. It assigns relative scores to all nodes
-% in the network based on the concept that connections to high-scoring nodes contribute more 
+% A measure of the influence of a node in a graph. It assigns relative scores to all nodes
+% in the graph based on the concept that connections to high-scoring nodes contribute more 
 % to the score of the node in question than equal connections to low-scoring nodes.(Wiki)
 % The solution is the eigenvector corresponding to the greates eigenvalue.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Power Method
 if Flag.eigenvector
+    display('Calculating eigenvector centrality');
     n=length(mtrx);
     v=ones(n,1);
     for i=1:100
@@ -208,7 +238,7 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -Betweenness Centrality-
-% The fraction of all shortest paths in the network that contain a given
+% The fraction of all shortest paths in the graph that contain a given
 % node. Nodes with high values of betweenness centrality participate in a
 % large number of shortest paths.
 % The global betweenness centrality is the average of centralities of all nodes
@@ -216,7 +246,7 @@ end
 if Flag.betweenness
     if weighted
         % betweenness_wei function asks for connection-length matrix, as in a
-        % weighted correlation network, typically higher correlations are
+        % weighted correlation graph, typically higher correlations are
         % interpreted as shorter distances, here we use the inverse of the
         % weighted connection matrix as the connection-length matrix,
         % except for that at the diagonal the lengths are set to 0.
@@ -240,35 +270,7 @@ end
 if Flag.entropy
     Output.etpy = mc_spectral_entropy(mtrx);
 end
-    
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -Node Degree-
-% The number of edges connected to the node
-% -Network Degree-
-% The average degree over all nodes
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.degree
-    if directed
-        deg = degrees_dir(mtrx);
-    else
-        if weighted
-            [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
-            Output.strength = strength;
-            Output.glostr   = glostr;
-        else
-            [deg,glodeg] = degrees_und(mtrx);
-        end
-    end
-    Output.deg    = deg;
-    Output.glodeg = glodeg;
-end
-    
-
-    
+  
     
 end
 

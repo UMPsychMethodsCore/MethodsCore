@@ -4,7 +4,7 @@ function BC=betweenness_bin(G)
 %   BC = betweenness_bin(A);
 %
 %   Node betweenness centrality is the fraction of all shortest paths in 
-%   the network that contain a given node. Nodes with high values of 
+%   the graph that contain a given node. Nodes with high values of 
 %   betweenness centrality participate in a large number of shortest paths.
 %
 %   Input:      A,      binary (directed/undirected) connection matrix.
@@ -12,7 +12,7 @@ function BC=betweenness_bin(G)
 %   Output:     BC,     node betweenness centrality vector.
 %
 %   Note: Betweenness centrality may be normalised to the range [0,1] as
-%   BC/[(N-1)(N-2)], where N is the number of nodes in the network.
+%   BC/[(N-1)(N-2)], where N is the number of nodes in the graph.
 %   
 %
 %   Reference: Kintali (2008) arXiv:0809.1906v2 [cs.DS]

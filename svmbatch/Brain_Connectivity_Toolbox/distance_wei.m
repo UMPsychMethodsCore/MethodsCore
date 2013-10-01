@@ -7,7 +7,7 @@ function [D B]=distance_wei(G)
 %   The distance matrix contains lengths of shortest paths between all
 %   pairs of nodes. An entry (u,v) represents the length of shortest path 
 %   from node u to node v. The average shortest path length is the 
-%   characteristic path length of the network.
+%   characteristic path length of the graph.
 %
 %   Input:      L,      Directed/undirected connection-length matrix.
 %
@@ -17,7 +17,7 @@ function [D B]=distance_wei(G)
 %   Notes:
 %       The input matrix must be a connection-length matrix, typically
 %   obtained via a mapping from weight to length. For instance, in a
-%   weighted correlation network higher correlations are more naturally
+%   weighted correlation graph higher correlations are more naturally
 %   interpreted as shorter distances and the input matrix should
 %   consequently be some inverse of the connectivity matrix. 
 %       The number of edges in shortest weighted paths may in general 
