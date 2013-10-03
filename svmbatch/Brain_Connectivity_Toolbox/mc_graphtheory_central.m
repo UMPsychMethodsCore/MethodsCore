@@ -63,21 +63,6 @@ switch class(MDFInclude.(MDF.Subject))
         Names = MDFInclude.(MDF.Subject);
 end  
 Types = char(MDFInclude.(MDF.Type));
-  
-%%%%%%%%%%%%%%%%%%%%%%%
-%%% Initialization
-%%%%%%%%%%%%%%%%%%%%%%%
-
-clear CombinedOutput
-
-nNet = length(graph.netinclude);
-nSub = length(Names);
-nThresh = length(graph.thresh);
-
-CombinedOutput = cell(nThresh,length(Names),nNet);
-OutputMatPath = mc_GenPath( struct('Template',OutputMat,...
-        'suffix','.mat',...
-        'mode','makeparentdir'))
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure out Network Structure 
@@ -98,11 +83,40 @@ param = load(ParamPath);
 roiMNI = param.parameters.rois.mni.coordinates;
 nets = mc_NearestNetworkNode(roiMNI,5);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Load Files one by one and do the calculation
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%%% Initialization
+%%%%%%%%%%%%%%%%%%%%%%%
 
-SubUseMark = ones(1,length(Names));
+clear CombinedOutput
+
+nNet = length(graph.netinclude);
+nSub = length(Names);
+nThresh = length(graph.thresh);
+
+OutputMatPath = mc_GenPath(OutputMat);
+existflag=0;
+
+% Check if the measure has already been done
+if exist(OutputMatPath,'file')
+    LoadResult=load(OutputMatPath);
+    if (isfield(LoadResult,'CombinedOutput') && isfield(LoadResult,'SubUse'))
+        existflag=1;
+    end
+end
+    
+if existflag   % Use existing results if there is one   
+    fprintf('Found existing file at %s, will use this directly',OutputMatPath);
+    
+    CombinedOutput = LoadResult.CombinedOutput;
+    SubUse         = LoadResult.SubUse;
+else  % Start fresh new calculation
+    CombinedOutput = cell(nThresh,length(Names),nNet);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Load Files one by one and do the calculation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    SubUseMark = ones(1,length(Names));
     for Sub = 1:nSub
         tic
         Subject = Names{Sub};
@@ -114,18 +128,18 @@ SubUseMark = ones(1,length(Names));
         SubjWiseThreshPath = mc_GenPath('SubjWiseFile.[ThreshField]');
         eval(sprintf('%s=%s;','SubjWiseEdge',SubjWiseEdgePath));
         eval(sprintf('%s=%s;','SubjWiseThresh',SubjWiseThreshPath));
-               
+        
         if (graph.amplify~=1)
             SubjWiseEdge   = SubjWiseEdge/graph.amplify;
             SubjWiseThresh = SubjWiseThresh/graph.amplify;
-        end   
+        end
         
-        % Exclude out of range(-1 ~ 1) values 
+        % Exclude out of range(-1 ~ 1) values
         SubjWiseEdge(abs(SubjWiseEdge)>1)=0;
-        SubjWiseThresh(abs(SubjWiseThresh)>1)=0;        
+        SubjWiseThresh(abs(SubjWiseThresh)>1)=0;
         
         % Exclude the NaN elements
-        SubjWiseEdge(isnan(SubjWiseEdge)) = 0;           
+        SubjWiseEdge(isnan(SubjWiseEdge)) = 0;
         SubjWiseThresh(isnan(SubjWiseThresh))=0;
         
         if ~isfield(graph,'value')
@@ -134,15 +148,15 @@ SubUseMark = ones(1,length(Names));
         end
         switch graph.value
             case -1
-                % no change 
-            case 0 % Take absolute value 
-                SubjWiseEdge = abs(SubjWiseEdge); 
+                % no change
+            case 0 % Take absolute value
+                SubjWiseEdge = abs(SubjWiseEdge);
                 SubjWiseThresh = abs(SubjWiseThresh);
             case 1 % Only keep positive correlations
-                SubjWiseEdge(SubjWiseEdge<0)=0;       
-                SubjWiseThresh(SubjWiseEdge<0)=0;   
+                SubjWiseEdge(SubjWiseEdge<0)=0;
+                SubjWiseThresh(SubjWiseEdge<0)=0;
             case 2 % Only keep negative correlations
-                SubjWiseEdge(SubjWiseEdge>0)=0;       
+                SubjWiseEdge(SubjWiseEdge>0)=0;
                 SubjWiseThresh(SubjWiseEdge>0)=0;
                 SubjWiseEdge = abs(SubjWiseEdge);     % Then take the absolute value
                 SubjWiseThresh = abs(SubjWiseThresh);
@@ -161,20 +175,22 @@ SubUseMark = ones(1,length(Names));
         switch graph.partial
             case 0
                 if (graph.ztransform == 1 && graph.ztransdone == 0)
-                    SubjWiseEdge(SubjWiseEdge==1)=0.99999; % avoid Inf after z-trans
-                    SubjWiseEdge(SubjWiseEdge==-1)=-0.99999; % avoid -Inf after z-trans
-                    SubjWiseEdge  = mc_FisherZ(SubjWiseEdge);   % Fisher'Z transform
-                end                
+                    if graph.weighted
+                        SubjWiseEdge(SubjWiseEdge==1)=0.99999; % avoid Inf after z-trans
+                        SubjWiseEdge(SubjWiseEdge==-1)=-0.99999; % avoid -Inf after z-trans
+                    end
+                    SubjWiseEdge  = mc_FisherZ(SubjWiseEdge);   % Fisher'Z transform                    
+                end
             case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
                 SubjWiseEdge = pinv(SubjWiseEdge);
                 SubjWiseThresh  = pinv(SubjWiseThresh);
-        end  
+        end
         
         if ~isfield(graph,'weighted')
             graph.weighted = 0;
             warning('Default to create binary graph');
         end
-              
+        
         for kNetwork = 1:length(graph.netinclude)
             if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                 GraphConnectRaw = SubjWiseEdge;
@@ -202,12 +218,12 @@ SubUseMark = ones(1,length(Names));
                     % Create binary matrix
                     GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
                 end
-               
+                
                 if nnz(GraphConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
                     
                     [GraphMeasures]   = mc_graphtheory_measures(GraphConnect,graph,Flag);   %%%% MAIN MEASURE PART %%%
                     Output                   = GraphMeasures;
-                                
+                    
                     % Comupte the smallworldness
                     if Flag.smallworld
                         randcluster    = zeros(100,1);
@@ -249,6 +265,9 @@ SubUseMark = ones(1,length(Names));
                     Output.glodeg     = 0;
                     Output.eigvalue   = 0;
                     Output.deg        = [];
+                    if graph.weighted
+                        Output.strength = [];
+                    end
                     Output.nodebtwn   = [];
                     Output.eloc       = [];
                     Output.nodecluster= [];
@@ -263,15 +282,16 @@ SubUseMark = ones(1,length(Names));
             clear GraphConnectRaw
         end
         
-    end        
-       
-SubUse = repmat(SubUseMark,1,length(graph.netinclude)*nThresh);
-
-display('Saving first level global measure results');
-
-%%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
-
-save(OutputMatPath,'CombinedOutput','-v7.3');
+    end
+    
+    SubUse = repmat(SubUseMark,1,length(graph.netinclude)*nThresh);
+    
+    display('Saving first level global measure results');
+    
+    %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
+    
+    save(OutputMatPath,'CombinedOutput','SubUse','-v7.3');
+end
 
 %%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%
 
@@ -700,7 +720,7 @@ if graph.ttest
                 fprintf(theFID,'%s,',tOut.metricorder{k});
                 fprintf(theFID,'%.4f,',tOut.t(i,j,k));
                 fprintf(theFID,'%.4f,',tOut.p(i,j,k));
-                switch result.direction(i,j,k)
+                switch tOut.direction(i,j,k)
                     case 1
                         fprintf(theFID,'%s\n','increase');
                     case -1
@@ -722,7 +742,7 @@ end
 if graph.perm
     permOut.RealSig=[];
     for iThresh = 1:nThresh
-        ThreValue = num2str(graph.thresh(iThresh));
+        ThreValue = ['threshold' num2str(graph.thresh(iThresh))];
         meandiff = zeros(nThresh,nNet,nMetric);
         meancl   = zeros(nThresh,nNet,nMetric);
         meanep   = zeros(nThresh,nNet,nMetric);
@@ -846,7 +866,7 @@ if graph.perm
                 else
                     fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
                 end
-                fprintf(theFID,'%s,',result.metricorder{k});
+                fprintf(theFID,'%s,',permOut.metricorder{k});
                 fprintf(theFID,'%.4f,',permpVal(i,j,k));
                 switch permDirection(i,j,k)
                     case 1
@@ -912,9 +932,9 @@ if graph.node
             for nMetric=1:length(graph.voxelmeasures)
                 Metricname=graph.voxelmeasures{nMetric};
                 if (graph.netinclude==-1)
-                    SaveData = zeros(nSub,length(GraphConnect));
+                    NodeFL = zeros(nSub,length(GraphConnect));
                 else
-                    SaveData = zeros(nSub,sum(nets==graph.netinclude(kNet)));
+                    NodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
                 for iSub = 1:nSub
                     if SubUse(iSub)
@@ -940,9 +960,9 @@ if graph.node
                         if graph.nodezscore
                             meanv   = mean2(OutData);
                             sdv     = std2(OutData);
-                            OutSave = (OutData - meanv)./sdv;
+                            NodeFLsub = (OutData - meanv)./sdv;
                         else
-                            OutSave = OutData;
+                            NodeFLsub = OutData;
                         end
                         %%%%%%%%%%%% save nii image of node wise measure results for doing second level in SPM %%%%%%%%%%%%%
                         if ~(graph.nodettest||graph.nodeperm)
@@ -950,25 +970,23 @@ if graph.node
                             group = Types(iSub);
                             TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir')); 
                             if (graph.netinclude==-1)
-                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,OutSave,roiMNI);
+                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,NodeFLsub,roiMNI);
                             else
                                 longOutSave = zeros(1,length(nets));
-                                longOutSave(nets==Netnum)=OutSave;
+                                longOutSave(nets==Netnum)=NodeFLsub;
                                 mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
                             end
                         end              
-                        SaveData(iSub,:)=OutSave;
+                        NodeFL(iSub,:)=NodeFLsub;
                     end                    
                 end
-                NodeflSave=mc_GenPath(struct('Template',NodeflMat,'mode','makeparentdir'));
-                save(NodeflSave,'SaveData','-v7.3');
-                nROI = size(SaveData,2);                  
+                nROI = size(NodeFL,2);                  
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
                 if graph.nodettest
                     fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     nodet = zeros(1,nROI);
                     for iCol = 1:nROI
-                        input.subdata = [ones(size(SaveData,1),1)*graph.netinclude(1) SaveData(:,iCol)];                        
+                        input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) NodeFL(:,iCol)];                        
                         [tresults]=mc_graphtheory_ttest(graph,input,1,1);
                         nodet(iCol)=tresults.t;
                     end  
@@ -990,7 +1008,7 @@ if graph.node
                     fprintf('permutation test for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     for iCol = 1:nROI
                         fprintf(1,'ROI %g\n',iCol);
-                        input.subdata = [ones(size(SaveData,1),1)*graph.netinclude(1) SaveData(:,iCol)];
+                        input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) NodeFL(:,iCol)];
                         [permresults] = mc_graphtheory_meandiff(graph,input,1,1);
                         nodemeandiff(iCol) = permresults.meandiff;
                         if nodepermCores ~=1
@@ -1030,7 +1048,7 @@ if graph.node
                     end
                 end
                 
-                clear SaveData
+                clear NodeFL
             end
         end
     end   

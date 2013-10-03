@@ -6,9 +6,9 @@ function [ deg,glodeg,strength,glostr ] = degrees_wei( CIJ )
 %%% from the 2009 review paper: 
 %%% 'The degree of a node is the number of connections that linke it to the
 %%% REST OF THE NETWORK'
-CIJ(eye(size(CIJ))~=0)=0;
+CIJ(eye(size(CIJ))~=0)=0;  % Exclude self connection
 
-strength = sum(CIJ); % Exclude self connection
+strength = sum(CIJ);
 
 strength = strength/(size(CIJ,1)-1); % averaging over number of other nodes
 
