@@ -156,6 +156,8 @@ switch matrixtype
     
     a.values = max([b.values; c.values],[],1); % take the max. This should preserve 2s or 3s over 1s
     a.values(disagreeID) = 4; % in places with disagreements, set it to yellow
+    a.values(overlap & a.values==2) = 5; % set places with two 2's to 5 to enable twin shading
+    a.values(overlap & a.values==3) = 6; % set places with two 3's to 6 to enable twin shading
     a.NetworkLabels = nets;
     a = mc_Network_FeatRestruct(a); % get stuff resorted
     
@@ -184,6 +186,8 @@ a.colormap = [1 1 1; % make 1 white
               1 0 0; % make 2 red
               0 0 1; % make 3 blue
               1 1 0; % make 4 yellow (blended)
+             .5 0 0; % make 5 dark red
+              0 0 .5; % make 6 dark blue
                     ];
 if TakGraphNetSubsetEnable == 1
     a.mediator.NetSubset = TakGraphNetSubset;
