@@ -14,6 +14,9 @@ function [ a ] = mc_TakGraph_plot( a )
 %                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot
 %                       a.mediator.pad          -       OPTIONAL - Number of blank rows and columns to draw around the figure for better graphics.
 %                                                       If unspecified, this will default to 10
+%               a.dotenable                    -        0 - No dot shading, plot dots with binary colors
+%                                                       1 - Do dot shading, plot dots with gradual changing colors
+%              
 %
 %       OUTPUTS
 %               a.h                             -       Handle to the graphics object
@@ -30,6 +33,10 @@ if ~isfield(a,'colormap')
     a.colormap=[1 1 1; 1 0 0; 0 0 1];
 end
 
+if ~isfield(a,'edgeenable')
+    a.dotenable=0;
+end
+
 sorted = a.mediator.sorted;
 graphtitle=a.title;
 
@@ -40,7 +47,7 @@ if isfield(a.mediator,'NetSubset')
 end
 
 a.h = figure;
-if a.edgeenable==1
+if a.dotenable==1
     % add the padding to square and sorted
     square_pad = zeros(size(square) + a.mediator.pad*2);
     square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = square;

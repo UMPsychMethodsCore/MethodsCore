@@ -123,7 +123,7 @@ if (~exist('DotShadingEnable','var'))
     DotShadingEnable = 0;
 end
 
-a.edgeenable=DotShadingEnable;
+a.dotenable=DotShadingEnable;
 if (DotShadingEnable==1)
     ts = t(des.FxCol,:);
     ts(~prune) = 0; 

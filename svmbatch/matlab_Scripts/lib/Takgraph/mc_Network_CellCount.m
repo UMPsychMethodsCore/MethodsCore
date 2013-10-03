@@ -9,6 +9,9 @@ function [ a ] = mc_Network_CellCount( a )
 %               a.mediator                      -       See output of mc_network_FeatRestruct
 %                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
+%                       a.dotenable            -       0 - No dot shading, do regular cell counting
+%                                                       1 - Do dot shading, regular cell counting is not quite useful
+%
 % 
 % Output(New subfield of a)
 % 
@@ -25,7 +28,7 @@ sorted = a.mediator.sorted;
 
 
 % Make sure square doesn't have any element with value other than 1, 2 or 3
-if (a.edgeenable==0&&numel(setdiff(mc_flatten_upper_triangle(square),[1 2 3]))>0);
+if (a.dotenable==0&&numel(setdiff(mc_flatten_upper_triangle(square),[1 2 3]))>0);
     error('Unexpected elements in square: we only want  1, 2 and 3')
 end
 
