@@ -1,5 +1,5 @@
-function netmask = mc_BuildNetmask(roiMNI,nets,matrixtype)
-sq_blanks = zeros(size(roiMNI,1));
+function netmask = mc_BuildNetmask(~,nets,matrixtype)
+sq_blanks = zeros(numel(nets));
 
 
 %%% Build Netmask
@@ -32,7 +32,7 @@ switch matrixtype
             csq_blanks(nets==iNet,nets==jNet) = 1;
             csq_blanks(nets==jNet,nets==iNet) = 1;
             csq_blanks = csq_blanks - diag(diag(csq_blanks)); % zero out the diagonal
-            csq = reshape(csq_blanks,size(roiMNI,1)^2,1);
+            csq = reshape(csq_blanks,numel(nets)^2,1);
             netmask{iN,jN} = logical(csq);
         end
     end
