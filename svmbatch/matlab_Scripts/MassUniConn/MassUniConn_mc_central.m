@@ -186,8 +186,8 @@ a.colormap = [1 1 1; % make 1 white
               1 0 0; % make 2 red
               0 0 1; % make 3 blue
               1 1 0; % make 4 yellow (blended)
-             .5 0 0; % make 5 dark red
-              0 0 .5; % make 6 dark blue
+             .9 0 0; % make 5 dark red
+              0 0 .9; % make 6 dark blue
                     ];
 if TakGraphNetSubsetEnable == 1
     a.mediator.NetSubset = TakGraphNetSubset;
