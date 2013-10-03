@@ -90,7 +90,6 @@ ZTrans = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 outputPath = '/net/data4/MyStudy/SweetNewOutput';
-GraphTitle = 'SweetNewOutput';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also need to find just ONE parameter file that has info on where the     %
@@ -104,19 +103,20 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do you want to add shading?                                             %
 % Yes --- 1; No --- 0;                                                    %
-% ShadingEnable is for the entire cell and                                %
-% EdgeShadingEnable is only for the edges                                 %
+% ShadingEnable is for the entire cell, defaults to 1                     %
+% DotShadingEnable is only for the dots, defaults to 0                    %
+% (Note: can only choose one of them.)                                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ShadingEnable = 1;
-EdgeShadingEnable=1;
+DotShadingEnable=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do you want to enlarge the edges in the TakGraph                        %
 % Yes --- 1; No --- 0;                                                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-EdgeEnlarge=1;
+DotEnlarge=1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Permutation Settings (Will only be effective if ShadingEnable == 1)                                                                      %

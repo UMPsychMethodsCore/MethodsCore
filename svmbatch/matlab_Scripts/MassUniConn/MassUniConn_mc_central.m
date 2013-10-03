@@ -118,8 +118,13 @@ end
 
 ps = p(des.FxCol,:);
 prune = ps < thresh;
-a.edgeenable=EdgeShadingEnable;
-if (EdgeShadingEnable==1)
+
+if (~exist('DotShadingEnable','var'))
+    DotShadingEnable = 0;
+end
+
+a.edgeenable=DotShadingEnable;
+if (DotShadingEnable==1)
     ts = t(des.FxCol,:);
     ts(~prune) = 0; 
 
@@ -203,12 +208,7 @@ a = mc_TakGraph_enlarge(a); % enlarge dots
 
 %%% plot the actual graph
 
-if(~exist('GraphTitle','var'))
-    GraphTitle='';
-end
-
-a.title = GraphTitle;
-
+[~,a.title,~]=fileparts(outputPath);
 
 a = mc_TakGraph_plot(a);
 
@@ -216,11 +216,14 @@ a = mc_TakGraph_plot(a);
 %% Permutations
 
 % If Shading is disabled, then reset nRep to 1 no matter what value it was given.
+
+
 if (~exist('ShadingEnable','var'))
     ShadingEnable = 1;
 end
 
-if ShadingEnable == 0
+
+if (~ShadingEnable || DotShadingEnable)
     nRep = 1;
 end
 
@@ -304,13 +307,13 @@ if TakGraphNetSubsetEnable == 1
     a.mediator.NetSubset = TakGraphNetSubset;
 end
 
-if EdgeEnlarge==1
-    a = mc_TakGraph_enlarge(a); % enlarge dots
+if (~exist('DotEnlarge','var'))
+    DotEnlarge = 0;
 end
 
-%%% plot the actual graph
-
-a = mc_TakGraph_plot(a);
+if DotEnlarge==1
+    a = mc_TakGraph_enlarge(a); % enlarge dots
+end
 
 %%% add shading
 

@@ -47,20 +47,20 @@ if a.edgeenable==1
     sorted_pad=zeros(1,numel(sorted) + a.mediator.pad*2);
     % Plot the edges
     imshow(square_pad);
-    colormap(b2r(min(square(:)),max(square(:))));
+    a.colormap=b2r(min(square(:)),max(square(:)));
+    colormap(a.colormap);
+    colorbar;
 else
     square_pad = ones(size(square) + a.mediator.pad*2);
     square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = square;
-    map=a.colormap;
     sorted_pad=ones(1,numel(sorted) + a.mediator.pad*2);
     image(square_pad);
-    colormap(map);
+    colormap(a.colormap);    
 end
 
 sorted_pad(1:a.mediator.pad) = -Inf;
 sorted_pad((end - a.mediator.pad + 1) : end) = Inf;
 sorted_pad((a.mediator.pad+1):(end - a.mediator.pad)) = sorted;
-colormap(map);
 title(graphtitle,'Interpreter','none'); % Ignore any possible underscore
 axis off;
 
