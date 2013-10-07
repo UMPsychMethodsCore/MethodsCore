@@ -85,9 +85,9 @@ for iNet = 1:nNet
         % t-test
         switch input.ttype
             case '2-sample'
-                [~,tresults.p(iNet,jMetric),~,tval]=ttest2(testcontrol,testexp);
+                [~,tresults.p(iNet,jMetric),~,tval]=ttest2(testexp,testcontrol);
             case 'paired'
-                [~,tresults.p(iNet,jMetric),~,tval]=ttest(testcontrol,testexp);
+                [~,tresults.p(iNet,jMetric),~,tval]=ttest(testexp,testcontrol);
         end
         tresults.t(iNet,jMetric)=tval.tstat;
     end

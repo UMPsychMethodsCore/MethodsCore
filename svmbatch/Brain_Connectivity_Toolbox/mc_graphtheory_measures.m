@@ -57,6 +57,7 @@ end
 % The fraction of present connections to possible connections
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.density
+    display('Calculating density');
     if directed
         [kden,~] = density_dir(mtrx);
     else
@@ -102,6 +103,7 @@ end
 % The ratio of triangles to triplets in the graph.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.transitivity
+    display('Calculating transitivity');
     if directed
         trans = transitivity_bd(mtrx);
     else
@@ -172,6 +174,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if directed: out-degree/in-degree correlation
 if Flag.assortativity
+    display('Calculating assortativity');
     assort = assortativity_bin(mtrx,directed); 
     % The function accepts weighted graphs, but all connection weights are ignored.  
     Output.assort = assort;
@@ -186,6 +189,7 @@ end
 % max eccentricity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.pathlength
+    display('Calculating characteristic path length');
     if weighted
         % distance_wei function asks for connection-length matrix, as in a
         % weighted correlation graph, typically higher correlations are
@@ -204,6 +208,7 @@ if Flag.pathlength
     % The maximal shortest path length between a node and any other node 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if Flag.eccentricity
+        display('Calculating eccentricity');
         Output.ecc=max(D.*(D~=Inf),[],2);
     end
     [lambda,~,~,~,~] = charpath(D); % same code for weighted and unweighted matrix
@@ -244,6 +249,7 @@ end
 % The global betweenness centrality is the average of centralities of all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.betweenness
+    display('Calculating betweenness');
     if weighted
         % betweenness_wei function asks for connection-length matrix, as in a
         % weighted correlation graph, typically higher correlations are
@@ -268,9 +274,9 @@ end
 % Spectral Entropy is a measure of the 'uncertainty' of the graph
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if Flag.entropy
+    display('Calculating entropy');
     Output.etpy = mc_spectral_entropy(mtrx);
-end
-  
+end  
     
 end
 

@@ -28,7 +28,7 @@ display(sprintf('The global csv will be outputed to: %s', OutputPathFile));
 
 if ~isfield(graph,'measures')
     graph.measures = 'E';
-    warning('Measure not selected, so only measure degree');
+    warning('Measure not selected, only measure degree, change the settings in template script if this is not correct');
 end
 
 Flag.smallworld    = any(strfind(upper(graph.measures),'S'));
@@ -70,10 +70,10 @@ Types = char(MDFInclude.(MDF.Type));
 
 if ~isfield(graph,'netinclude')
     graph.netinclude = -1;
-    warning('Network not selected, so do wholebrain measurement');
+    warning('Network not selected, do wholebrain measurement');
 end
 
-%%% Load parameter File
+%%% Load parameter File   
 
 ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
 ParamPath = mc_GenPath(ParamPathCheck);
@@ -81,6 +81,8 @@ param = load(ParamPath);
 
 %%% Look up ROI Networks
 roiMNI = param.parameters.rois.mni.coordinates;
+
+% add if graph.net
 nets = mc_NearestNetworkNode(roiMNI,5);
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +101,7 @@ existflag=0;
 % Check if the measure has already been done
 if exist(OutputMatPath,'file')
     LoadResult=load(OutputMatPath);
-    if (isfield(LoadResult,'CombinedOutput') && isfield(LoadResult,'SubUse'))
+    if (isfield(LoadResult,'CombinedOutput') && isfield(LoadResult,'SubUse') && isfield(LoadResult,'nROI'))
         existflag=1;
     end
 end
@@ -109,8 +111,49 @@ if existflag   % Use existing results if there is one
     
     CombinedOutput = LoadResult.CombinedOutput;
     SubUse         = LoadResult.SubUse;
+    SubUseMark     = SubUse(1:length(Names));
+    nROI           = LoadResult.nROI;
 else  % Start fresh new calculation
     CombinedOutput = cell(nThresh,length(Names),nNet);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Initialize some graph default settings
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if ~isfield(graph,'directed')
+        graph.directed = 0;
+        warning('Defaults to undirected graph, change the settings in template script if this is not correct.');
+    end    
+    
+    if ~isfield(graph,'weighted')
+        graph.weighted = 0;
+        warning('Defaults to create binary graph, change the settings in template script if this is not correct');
+    end
+    
+    if ~isfield(graph,'partial')
+        graph.partial=0;
+        warning('Defaults not to use partial correlation, change the settings in template script if this is not correct');
+    end
+    
+    if ~isfield(graph,'ztransform')
+        graph.ztransform = 1;
+        warning('Defaults to do z transform, change the settings in template script if this is not correct');
+    end
+    
+    if ~isfield(graph,'ztransdone')
+        graph.ztransdone = 0;
+        warning('Assuming z transform not being done yet, change the settings in template script if this is not correct');
+    end
+    
+    if ~isfield(graph,'value')
+        graph.value = 1;
+        warning('Defaults to use positive values only, change the settings in template script if this is not correct');
+    end
+    
+    if ~isfield(graph,'thresh')
+        graph.thresh = -Inf;
+        warning('Thresholding value not assigned, use unthresholded graph, change the settings in template script if this is not correct');
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Load Files one by one and do the calculation
@@ -142,36 +185,25 @@ else  % Start fresh new calculation
         SubjWiseEdge(isnan(SubjWiseEdge)) = 0;
         SubjWiseThresh(isnan(SubjWiseThresh))=0;
         
-        if ~isfield(graph,'value')
-            graph.value = 1;
-            warning('Default to use positive values only');
-        end
-        switch graph.value
-            case -1
+        
+        switch graph.value   
+            case 0
                 % no change
-            case 0 % Take absolute value
+            case 2 % Take absolute value
                 SubjWiseEdge = abs(SubjWiseEdge);
                 SubjWiseThresh = abs(SubjWiseThresh);
             case 1 % Only keep positive correlations
                 SubjWiseEdge(SubjWiseEdge<0)=0;
                 SubjWiseThresh(SubjWiseEdge<0)=0;
-            case 2 % Only keep negative correlations
+            case -1 % Only keep negative correlations
                 SubjWiseEdge(SubjWiseEdge>0)=0;
                 SubjWiseThresh(SubjWiseEdge>0)=0;
                 SubjWiseEdge = abs(SubjWiseEdge);     % Then take the absolute value
                 SubjWiseThresh = abs(SubjWiseThresh);
         end
         
-        % partial and ztransform options only apply to pearson's r
-        % correlation
-        if ~isfield(graph,'partial')
-            graph.partial=0;
-            warning('Default not to use partial correlation');
-        end
-        if ~isfield(graph,'ztransform')
-            graph.ztransform = 1;
-            warning('Default to do z transform');
-        end
+        % partial and ztransform options only apply to pearson's r correlation
+        
         switch graph.partial
             case 0
                 if (graph.ztransform == 1 && graph.ztransdone == 0)
@@ -185,12 +217,7 @@ else  % Start fresh new calculation
                 SubjWiseEdge = pinv(SubjWiseEdge);
                 SubjWiseThresh  = pinv(SubjWiseThresh);
         end
-        
-        if ~isfield(graph,'weighted')
-            graph.weighted = 0;
-            warning('Default to create binary graph');
-        end
-        
+                
         for kNetwork = 1:length(graph.netinclude)
             if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                 GraphConnectRaw = SubjWiseEdge;
@@ -226,11 +253,16 @@ else  % Start fresh new calculation
                     
                     % Comupte the smallworldness
                     if Flag.smallworld
+                        display('Calculating Smallworldness');
                         randcluster    = zeros(100,1);
                         randpathlength = zeros(100,1);
                         % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested graph with the
                         % preserved degree distribution, which is used in the smallworldness computing.
-                        for k = 1:100
+                        if ~exist('smallworlditer','var')
+                            smallworlditer = 100;
+                            warning('Smallworldness iteration time set to 100');
+                        end
+                        for k = 1:smallworlditer   
                             display(sprintf('loop %d',k));
                             [GraphRandom,~] = randmio_und(GraphConnect,5); % random graph with preserved degree distribution
                             drand         = distance_bin(GraphRandom);
@@ -286,11 +318,13 @@ else  % Start fresh new calculation
     
     SubUse = repmat(SubUseMark,1,length(graph.netinclude)*nThresh);
     
+    nROI = length(GraphConnect);
+    
     display('Saving first level global measure results');
     
     %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
     
-    save(OutputMatPath,'CombinedOutput','SubUse','-v7.3');
+    save(OutputMatPath,'CombinedOutput','SubUse','nROI','-v7.3');
 end
 
 %%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%
@@ -425,11 +459,11 @@ fclose(theFID);
 
 if ~isfield(graph,'ttest')
     graph.ttest = 0;
-    warning('No t-test for global measure if not assigned');
+    warning('No t-test for global measure if not assigned, change the settings in template script if this is not correct');
 end
 if ~isfield(graph,'perm')
     graph.perm = 0;
-    warning('No permutation test for global measure if not assigned');
+    warning('No permutation test for global measure if not assigned, change the settings in template script if this is not correct');
 end
 if (graph.ttest || graph.perm)
        
@@ -692,11 +726,11 @@ if graph.ttest
     tOut.seep=seep;
     tOut.metricorder=Metrics;
     if (graph.netinclude==-1)
-        tOut.networkorder='-1 means WholeBrain';
+        tOut.networkorder='WholeBrain';
     else
         tOut.networkorder=graph.netinclude;
     end
-    tOut.RealSigMtxOrder='Column1-Threshold;Column2-BrainNetwork;Column3-Metrics';
+    tOut.SigMtxOrder='Column1 - Threshold;Column2 - BrainNetwork;Column3 - Metrics';
     tresultsave=mc_GenPath(struct('Template',ttestOutMat,'mode','makeparentdir'));
     save(tresultsave,'tOut','-v7.3');
     
@@ -742,7 +776,11 @@ end
 if graph.perm
     permOut.RealSig=[];
     for iThresh = 1:nThresh
-        ThreValue = ['threshold' num2str(graph.thresh(iThresh))];
+        if graph.thresh(iThresh)==-Inf
+            ThreValue='NoThreshold';
+        else
+            ThreValue = ['threshold' num2str(graph.thresh(iThresh))];
+        end
         meandiff = zeros(nThresh,nNet,nMetric);
         meancl   = zeros(nThresh,nNet,nMetric);
         meanep   = zeros(nThresh,nNet,nMetric);
@@ -828,7 +866,7 @@ if graph.perm
             
         end  
         SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
-        permOut.RealSig = [permOut.RealSig SigLoc];
+        permOut.sigloc = [permOut.sigloc SigLoc];
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
     permOut.pval = permpVal;
@@ -838,18 +876,19 @@ if graph.perm
     permOut.seep=seep;
     permOut.direction = permDirection;
     permOut.siglevel = permlevel;
-    permOut.RealSig = [RealSigNet;RealSigMetric];
     permOut.metricorder=Metrics;
     if (graph.netinclude==-1)
-        permOut.networkorder='-1 means WholeBrain';
+        permOut.networkorder='WholeBrain';
     else
         permOut.networkorder=graph.netinclude;
     end
-    permOut.RealSigMtxOrder='Row1-Threshold;Row2-BrainNetwork;Row3-Metrics';
+    permOut.siglocOrder='Row1 - Threshold;Row2 - BrainNetwork;Row3 - Metrics';
     
     display('Saving permutation results of global measures');
     permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
     save(permOutSave,'permOut','-v7.3');
+    
+    
     permOutPath = mc_GenPath(struct('Template',permOutPathTemplate,'mode','makeparentdir'));
     theFID = fopen(permOutPath,'w');
     if theFID < 0
@@ -891,17 +930,22 @@ fprintf('Global Measures All Done\n\n')
 
 if ~isfield(graph,'node')
     graph.node = 0;
-    warning('No node-wise measure analysis if not assigned');
+    warning('No node-wise measure analysis as it is not assigned, change the settings in template script if this is not correct');
 end
-if ~isfield(graph,'nodettest')
-    graph.nodettest = 0;
-    warning('No t-test for node-wise measure if not assigned');
-end
-if ~isfield(graph,'nodeperm')
-    graph.nodeperm = 0;
-    warning('No permutation test for node-wise measure if not assigned');
-end
+
 if graph.node
+    if ~isfield(graph,'nodezscore')
+        graph.nodezscore = 1;
+        warning('Defaultly use z score for nodewise measures, change the settings in template script if this is not correct');
+    end
+    if ~isfield(graph,'nodettest')
+        graph.nodettest = 0;
+        warning('No t-test for node-wise measure as it is not assigned, change the settings in template script if this is not correct');
+    end
+    if ~isfield(graph,'nodeperm')
+        graph.nodeperm = 0;
+        warning('No permutation test for node-wise measure as it is not assigned, change the settings in template script if this is not correct');
+    end
     if graph.nodettest
         if ~exist('ttype','var')
             ttype='2-sample';
@@ -919,9 +963,14 @@ if graph.node
     
     TDtemplatePath = mc_GenPath(struct('Template',TDtemplate,'mode','makeparentdir'));
     TDmaskPath     = mc_GenPath(struct('Template',TDmask,'mode','makeparentdir'));
+        
     
     for tThresh = 1:nThresh
-        ThreValue = ['threshold' num2str(graph.thresh(tThresh))];
+        if graph.thresh(tThresh)==-Inf
+            ThreValue = 'NoThreshold';
+        else
+            ThreValue = ['threshold' num2str(graph.thresh(tThresh))];
+        end
         for kNet=1:nNet
             if graph.netinclude==-1
                 Netname = 'WholeBrain';
@@ -930,30 +979,37 @@ if graph.node
             end
             
             for nMetric=1:length(graph.voxelmeasures)
-                Metricname=graph.voxelmeasures{nMetric};
+                MetricLabel=graph.voxelmeasures(nMetric);
                 if (graph.netinclude==-1)
-                    NodeFL = zeros(nSub,length(GraphConnect));
+                    NodeFL = zeros(nSub,nROI);
                 else
                     NodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
                 for iSub = 1:nSub
                     if SubUse(iSub)
                         Subjname=Names{iSub};
-                        switch Metricname
-                            case 'degree'
+                        switch MetricLabel
+                            case 'E'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
-                            case 'strength'
+                                Metricname = 'degree';
+                            case 'G'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.strength;
-                            case 'betweenness'
+                                Metricname = 'strength';
+                            case 'B'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
-                            case 'efficiency'
+                                Metricname = 'betweenness';
+                            case 'F'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
-                            case 'clustering'
+                                Metricname = 'efficiency';
+                            case 'C'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
-                            case 'eigenvector'
+                                Metricname = 'clustering';
+                            case 'V'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
-                            case 'eccentricity'
+                                Metricname = 'eigenvector';
+                            case 'N'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
+                                Metricname = 'eccentricity';
                             otherwise
                                 display(sprintf('%s is not in the measure list yet, please add it',Metricname));
                         end
@@ -964,23 +1020,20 @@ if graph.node
                         else
                             NodeFLsub = OutData;
                         end
-                        %%%%%%%%%%%% save nii image of node wise measure results for doing second level in SPM %%%%%%%%%%%%%
-                        if ~(graph.nodettest||graph.nodeperm)
-                            fprintf('Writing out first level node-wise measure results');
-                            group = Types(iSub);
-                            TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir')); 
-                            if (graph.netinclude==-1)
-                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,NodeFLsub,roiMNI);
-                            else
-                                longOutSave = zeros(1,length(nets));
-                                longOutSave(nets==Netnum)=NodeFLsub;
-                                mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
-                            end
-                        end              
+                        %%%%%%%%%%%% save nii image of first level node wise measure results %%%%%%%%%%%%%
+                        fprintf('Writing out first level node-wise measure results');
+                        group = Types(iSub);
+                        TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir'));
+                        if (graph.netinclude==-1)
+                            mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,NodeFLsub,roiMNI);
+                        else
+                            longOutSave = zeros(1,length(nets));
+                            longOutSave(nets==Netnum)=NodeFLsub;
+                            mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
+                        end                        
                         NodeFL(iSub,:)=NodeFLsub;
-                    end                    
+                    end
                 end
-                nROI = size(NodeFL,2);                  
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
                 if graph.nodettest
                     fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
