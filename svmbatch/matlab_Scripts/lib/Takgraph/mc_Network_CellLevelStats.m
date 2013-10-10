@@ -84,7 +84,7 @@ if a.stats.FDR.Enable == 1 % only if asked to do FDR Correction
     elseif size(a.stats.FDR.NetIn,1) == 1 % row vector, mode a
         NetIncludeLogic = ismember(nets,a.stats.FDR.NetIn); % figure out which of networks we want to keep
         NetSelect(NetIncludeLogic,NetIncludeLogic) = 1; % grab all cells for implicated networks
-    elseif (size(a.stats.FDR.NetIn,1) == size(a.stats.FDR.NetIn,2)) & numel(size(a.stats.FDR.NetIn)) == 2 % square matrix
+    elseif (size(a.stats.FDR.NetIn,1) == size(a.stats.FDR.NetIn,2)) && numel(size(a.stats.FDR.NetIn)) == 2 % square matrix
         NetSelect = a.stats.FDR.NetIn; % use NetIn as is
     else
         error('Something seems wrong with a.stats.FDR.NetIn. Check the help');
