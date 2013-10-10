@@ -42,7 +42,10 @@ out = enlarge;
 [hotx, hoty] = find(enlarge~=1 & enlarge ~=0); % ID all non (1 or 0) (non sigifnicant) points
 [maxx, maxy] = size(enlarge);
 
-for ihot = 1:size(hotx,1) % Loop over values to enlarge
+
+hotIterator = 1:size(hotx,1);
+hotIterator = randsample(hotIterator,numel(hotIterator));
+for ihot = hotIterator % Loop over values to enlarge
     curVal = enlarge(hotx(ihot),hoty(ihot)); % Grab the value of the current thing to expand
     
     for ioff = 1:size(mat,1) % Loop over enlargements
