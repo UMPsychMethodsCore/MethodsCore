@@ -411,7 +411,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     OutputDir = mc_GenPath(OutputTemplate);
-    if (exist(OutputDir,'dir')) %if outputdir already exists, remove it for new results
+    if (exist(OutputDir,'dir') && Mode == 1) %if outputdir already exists, remove it for new results
         result = rmdir(OutputDir,'s');
         if (result == 0)
             mc_Error('Output directory %s\nalready exists and cannot be removed. Please check you permissions.',OutputDir);
@@ -649,9 +649,7 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
 
 
     SPM.xM.VM = [];
-    if (~isempty(explicitmask))
-        SPM.xM.VM = spm_vol(explicitmask);
-    end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Configure design matrix %%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -659,6 +657,11 @@ for iSubject = 1:NumSubject %First level fixed effect, subject by subject
         SPM = spm_fmri_spm_ui(SPM);
     end
 
+    if (exist('explicitmask','var') && ~isempty(explicitmask))
+        SPM.xM.VM = spm_vol(explicitmask);
+        SPM.xM.xs.Masking = [SPM.xM.xs.Masking '+explicit mask'];
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%% Estimation %%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
