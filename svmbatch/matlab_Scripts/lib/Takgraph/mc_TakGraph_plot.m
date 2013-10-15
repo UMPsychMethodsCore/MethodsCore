@@ -16,6 +16,7 @@ function [ a ] = mc_TakGraph_plot( a )
 %                                                       If unspecified, this will default to 10
 %               a.dotenable                    -        0 - No dot shading, plot dots with binary colors
 %                                                       1 - Do dot shading, plot dots with gradual changing colors
+%                                                       If enabled to 1, a.colormap will be disregared, instead the colormap will be calculated based on dot values.
 %              
 %
 %       OUTPUTS
@@ -33,7 +34,7 @@ if ~isfield(a,'colormap')
     a.colormap=[1 1 1; 1 0 0; 0 0 1];
 end
 
-if ~isfield(a,'edgeenable')
+if ~isfield(a,'dotenable')
     a.dotenable=0;
 end
 

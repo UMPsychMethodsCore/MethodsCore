@@ -90,6 +90,7 @@ ZTrans = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 outputPath = '/net/data4/MyStudy/SweetNewOutput';
+GraphTitle = 'SweetNewOutput';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also need to find just ONE parameter file that has info on where the     %
@@ -103,9 +104,13 @@ ParamTemplate = '/net/data4/FirstLevel/FirstLevel_1080/SiteCatLinks/[SampleSubje
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do you want to add shading?                                             %
 % Yes --- 1; No --- 0;                                                    %
-% ShadingEnable is for the entire cell, defaults to 1                     %
-% DotShadingEnable is only for the dots, defaults to 0                    %
-% (Note: can only choose one of them.)                                    %
+%                                                                         %  
+% ShadingEnable is for the entire cell, defaults to 1.                    %
+% DotShadingEnable is only for the dots, defaults to 0.                   %
+%                                                                         %                  
+% The two are mutually exclusive, and ShadingEnable owns higher priority, %
+% so if you want to do Dot shading, be sure to set ShadingEnable to 0 in  %
+% in advance. Otherwise it will only do cell shading.                     %                                          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ShadingEnable = 1;

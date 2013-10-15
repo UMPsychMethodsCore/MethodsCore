@@ -119,7 +119,11 @@ end
 ps = p(des.FxCol,:);
 prune = ps < thresh;
 
-if (~exist('DotShadingEnable','var'))
+if (~exist('ShadingEnable','var'))
+    ShadingEnable = 1;
+end
+
+if ((ShadingEnable == 1) || ~exist('DotShadingEnable','var')) % Cell shading owns higher priority over dot shading
     DotShadingEnable = 0;
 end
 
@@ -139,11 +143,6 @@ else
     ts(ts==-1) = 3; % map the negative values to 3 per mc_network_FeatRestruct standard
     ts(ts==+0) = 1; % map the nonsig values to 1 per mc_network_FeatRestruct standard
 end
-
-
-
-
-
 
 %%% Do CellCounting
 switch matrixtype
@@ -192,23 +191,41 @@ edgemat = a.mediator.square; %snag edgemat for use down in network contingency s
 %%% Enlarge Dots
 
 a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
-                   -1 1; 1 1; -1 -1; 1 -1; %fill out square
-                   -2 0; 0 2; 2 0; 0 -2]; % cross around square
+    -1 1; 1 1; -1 -1; 1 -1; %fill out square
+    -2 0; 0 2; 2 0; 0 -2]; % cross around square
+
 
 a.colormap = [1 1 1; % make 1 white
-              1 0 0; % make 2 red
-              0 0 1; % make 3 blue
-              1 1 0; % make 4 yellow (blended)
+    1 0 0; % make 2 red
+    0 0 1; % make 3 blue
+    1 1 0; % make 4 yellow (blended)
                     ];
 if TakGraphNetSubsetEnable == 1
     a.mediator.NetSubset = TakGraphNetSubset;
 end
 
-a = mc_TakGraph_enlarge(a); % enlarge dots
+if (~exist('DotEnlarge','var'))
+    DotEnlarge = 0;
+end
+
+if DotEnlarge==1
+    a = mc_TakGraph_enlarge(a); % enlarge dots
+end
 
 %%% plot the actual graph
 
-[~,a.title,~]=fileparts(outputPath);
+if ( ~exist('GraphTitle','var') || isempty(GraphTitle) )
+    if (exist('outputPath','var') && ~isempty(strfind(outputPath,'/')))
+        paths = regexp(outputPath,'/','split');
+        emptyCells = cellfun(@isempty,paths);%# remove empty cells
+        paths(emptyCells) = [];
+        a.title = paths{end};
+    else
+        a.title = 'TakGraph';
+    end
+else
+    a.title = GraphTitle;
+end
 
 a = mc_TakGraph_plot(a);
 
@@ -216,12 +233,6 @@ a = mc_TakGraph_plot(a);
 %% Permutations
 
 % If Shading is disabled, then reset nRep to 1 no matter what value it was given.
-
-
-if (~exist('ShadingEnable','var'))
-    ShadingEnable = 1;
-end
-
 
 if (~ShadingEnable || DotShadingEnable)
     nRep = 1;
@@ -290,30 +301,7 @@ a.stats.FDR.CalcP    = CalcP;
 
 a = mc_Network_CellLevelStats(a);
 
-%% Generate TakGraph
-
-%%% Enlarge Dots
-
-a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1]; % cross
-%                    -1 1; 1 1; -1 -1; 1 -1; %fill out square
-%                    -2 0; 0 2; 2 0; 0 -2]; % cross around square
-
-a.colormap = [1 1 1; % make 1 white
-              1 0 0; % make 2 red
-              0 0 1; % make 3 blue
-              1 1 0; % make 4 yellow (blended)
-                    ];
-if TakGraphNetSubsetEnable == 1
-    a.mediator.NetSubset = TakGraphNetSubset;
-end
-
-if (~exist('DotEnlarge','var'))
-    DotEnlarge = 0;
-end
-
-if DotEnlarge==1
-    a = mc_TakGraph_enlarge(a); % enlarge dots
-end
+%% Add shading to TakGraph
 
 %%% add shading
 
