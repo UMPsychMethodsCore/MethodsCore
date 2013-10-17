@@ -57,65 +57,85 @@ if strcmpi(svmtype,'unpaired')
     fprintf('\nLooping over all files to identify those with valid values....');
     nSubs=size(SubjDir,1);
 
-    for iSub=1:size(SubjDir,1)
-
-        Subject = SubjDir{iSub,1};
-        conPath=mc_GenPath(conPathTemplate);
-        conmat=load(conPath);
-        rmat=conmat.rMatrix;
-        if iSub==1
-            censor_square=zeros(size(rmat));
-            nfeat=size(rmat(:));
-        end
-        censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
+    switch DataType
+      case '3D'
+        maskhdr = spm_vol(MaskPath);
+        maskdata = spm_read_vols(maskhdr);
+        maskidx = find(maskdata);
+        nfeat = nnz(maskdata);
+        superflatmat = zeros(nSubs,nfeat);
         
-        if (strcmp(matrixtype,'nodiag'))
-            censor_square = censor_square + eye(size(censor_square));
+        for iSub = 1:nSubs
+            Subject = SubjDir{iSub,1};
+            conPath=mc_GenPath(conPathTemplate);
+            chdr = spm_vol(conPath);
+            cvol = spm_read_vols(chdr);
+            superflatmat(iSub,:) = cvol(maskidx);
         end
-    end
 
-    fprintf('Done\n');
-
-    % Flatten censor matrix
-    
-    if (strcmp(matrixtype,'upper'))
-        censor_flat = mc_flatten_upper_triangle(censor_square);
-    else
-        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
-    end
-    
-    %% Read and flatten valid features
-    
-    fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
-
-    superlabel=zeros(nSubs,1);
-
-    for iSub=1:size(SubjDir,1)
-        Subject = SubjDir{iSub,1};
-        Example=SubjDir{iSub,2};
-        conPath=mc_GenPath(conPathTemplate);
-        conmat=load(conPath);
-        rmat=conmat.rMatrix;
-        %     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
-        if iSub==1
-            superflatmat=zeros(nSubs,size(censor_flat,2));
+      case 'Matrix'
+        
+        for iSub=1:size(SubjDir,1)
+            
+            Subject = SubjDir{iSub,1};
+            conPath=mc_GenPath(conPathTemplate);
+            conmat=load(conPath);
+            rmat=conmat.rMatrix;
+            if iSub==1
+                censor_square=zeros(size(rmat));
+                nfeat=size(rmat(:));
+            end
+            censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
+            
+            if (strcmp(matrixtype,'nodiag'))
+                censor_square = censor_square + eye(size(censor_square));
+            end
         end
-        if(strcmp(matrixtype,'upper'))
-            superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+        
+
+        fprintf('Done\n');
+
+% Flatten censor matrix
+        
+        if (strcmp(matrixtype,'upper'))
+            censor_flat = mc_flatten_upper_triangle(censor_square);
         else
-            superflatmat(iSub,:) = reshape(rmat,1,prod(size(rmat)));
+            censor_flat = reshape(censor_square,1,prod(size(censor_square)));
         end
-        superlabel(iSub,1)=Example;
+        
+        %% Read and flatten valid features
+        
+        fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
 
+        superlabel=zeros(nSubs,1);
+
+        for iSub=1:size(SubjDir,1)
+            Subject = SubjDir{iSub,1};
+            Example=SubjDir{iSub,2};
+            conPath=mc_GenPath(conPathTemplate);
+            conmat=load(conPath);
+            rmat=conmat.rMatrix;
+%     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
+            if iSub==1
+                superflatmat=zeros(nSubs,size(censor_flat,2));
+            end
+            if(strcmp(matrixtype,'upper'))
+                superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+            else
+                superflatmat(iSub,:) = reshape(rmat,1,prod(size(rmat)));
+            end
+            superlabel(iSub,1)=Example;
+
+        end
+        
+% Zero out censored elements
+        superflatmat(:,logical(censor_flat))=0;
+        
+        if ztrans == 1
+            superflatmat = mc_FisherZ(superflatmat);
+        end
     end
-    
-    % Zero out censored elements
-    superflatmat(:,logical(censor_flat))=0;
-    
-    if ztrans == 1
-        superflatmat = mc_FisherZ(superflatmat);
-    end
-    
+
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
