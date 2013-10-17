@@ -33,6 +33,10 @@ if (~exist('binarize','var'))
     binarize = 0;
 end
 
+if (~exist('DataType','var'))
+    DataType = 'Matrix';
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
