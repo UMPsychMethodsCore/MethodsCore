@@ -17,6 +17,7 @@ function checkedFiles = qc_CheckFrameOpt(Opt)
 %   checkedFiles{:,2} - subject name
 %   checkedFiles{:,3} - run names
 %
+Exp = Opt.Exp; % do this first, since LogDirectory assignment calls GenPath, and requires that Exp be defined in workspace
 nsubjects = size(Opt.List.Subjects,1);
 tempRuns = numel([Opt.List.Subjects{:,3}]);
 checkedFiles = cell(tempRuns,3);
@@ -36,7 +37,6 @@ if Opt.Thresh < 0
 end
 
 fileExp = ['^' Opt.FileExp '.*nii'];
-Exp = Opt.Exp;
 check.Template = Opt.ImageTemplate;
 check.mode = 'check';
 for i = 1:nsubjects
