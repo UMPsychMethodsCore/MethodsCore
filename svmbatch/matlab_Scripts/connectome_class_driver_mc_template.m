@@ -17,6 +17,31 @@ Exp = '/net/data4/DEA_Resting/';
 
 svmtype='paired';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DataType Mode. This script can accept the following types of data                        %
+%                                                                                          %
+% Matrix  -       This is the approach most commonly used for connectomic data.            %
+%                 You can more specifically specify which part of the data to use          %
+%                 by looking at the `matrixtype` option below. Here, each of your          %
+%                 template paths should resolve to a .mat file that contains a rMatrix     %
+%                 field.                                                                   %
+%                                                                                          %
+% 3D      -       You can also run this code on 3D data. Now, each of your files will need %
+%                 to either point to a .nii file or a .hdr file. If you specify 3D mode    %
+%                 the `matrixtype` setting does not matter. This is a relatively new mode, %
+%                 so there is not yet much support for automatic visualizations, but this  %
+%                 may be added soon.                                                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DataType = '3D'
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MaskPath: If operating in 3D DataType mode, you must also provide a mask. %
+% The mask must be in the same space as your 3D data.                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+MaskPath = '';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Portion of the matrix to use for features
 %%%     'upper'     - upper section (above the diagonal)

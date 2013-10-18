@@ -33,6 +33,15 @@ if (~exist('binarize','var'))
     binarize = 0;
 end
 
+if (~exist('DataType','var'))
+    DataType = 'Matrix';
+end
+
+%disable visualization if using 3D mode
+if (exist('DataType','var') && strcmp(DataType,'3D')
+    Vizi = 0;
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
@@ -53,65 +62,85 @@ if strcmpi(svmtype,'unpaired')
     fprintf('\nLooping over all files to identify those with valid values....');
     nSubs=size(SubjDir,1);
 
-    for iSub=1:size(SubjDir,1)
-
-        Subject = SubjDir{iSub,1};
-        conPath=mc_GenPath(conPathTemplate);
-        conmat=load(conPath);
-        rmat=conmat.rMatrix;
-        if iSub==1
-            censor_square=zeros(size(rmat));
-            nfeat=size(rmat(:));
-        end
-        censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
+    switch DataType
+      case '3D'
+        maskhdr = spm_vol(MaskPath);
+        maskdata = spm_read_vols(maskhdr);
+        maskidx = find(maskdata);
+        nfeat = nnz(maskdata);
+        superflatmat = zeros(nSubs,nfeat);
         
-        if (strcmp(matrixtype,'nodiag'))
-            censor_square = censor_square + eye(size(censor_square));
+        for iSub = 1:nSubs
+            Subject = SubjDir{iSub,1};
+            conPath=mc_GenPath(conPathTemplate);
+            chdr = spm_vol(conPath);
+            cvol = spm_read_vols(chdr);
+            superflatmat(iSub,:) = cvol(maskidx);
         end
-    end
 
-    fprintf('Done\n');
-
-    % Flatten censor matrix
-    
-    if (strcmp(matrixtype,'upper'))
-        censor_flat = mc_flatten_upper_triangle(censor_square);
-    else
-        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
-    end
-    
-    %% Read and flatten valid features
-    
-    fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
-
-    superlabel=zeros(nSubs,1);
-
-    for iSub=1:size(SubjDir,1)
-        Subject = SubjDir{iSub,1};
-        Example=SubjDir{iSub,2};
-        conPath=mc_GenPath(conPathTemplate);
-        conmat=load(conPath);
-        rmat=conmat.rMatrix;
-        %     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
-        if iSub==1
-            superflatmat=zeros(nSubs,size(censor_flat,2));
+      case 'Matrix'
+        
+        for iSub=1:size(SubjDir,1)
+            
+            Subject = SubjDir{iSub,1};
+            conPath=mc_GenPath(conPathTemplate);
+            conmat=load(conPath);
+            rmat=conmat.rMatrix;
+            if iSub==1
+                censor_square=zeros(size(rmat));
+                nfeat=size(rmat(:));
+            end
+            censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; % For all bad elements, flag with 1 in censor_square
+            
+            if (strcmp(matrixtype,'nodiag'))
+                censor_square = censor_square + eye(size(censor_square));
+            end
         end
-        if(strcmp(matrixtype,'upper'))
-            superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+        
+
+        fprintf('Done\n');
+
+% Flatten censor matrix
+        
+        if (strcmp(matrixtype,'upper'))
+            censor_flat = mc_flatten_upper_triangle(censor_square);
         else
-            superflatmat(iSub,:) = reshape(rmat,1,prod(size(rmat)));
+            censor_flat = reshape(censor_square,1,prod(size(censor_square)));
         end
-        superlabel(iSub,1)=Example;
+        
+        %% Read and flatten valid features
+        
+        fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
 
+        superlabel=zeros(nSubs,1);
+
+        for iSub=1:size(SubjDir,1)
+            Subject = SubjDir{iSub,1};
+            Example=SubjDir{iSub,2};
+            conPath=mc_GenPath(conPathTemplate);
+            conmat=load(conPath);
+            rmat=conmat.rMatrix;
+%     sprintf('Subject %s has variance %s',Subject,var(rmat(~isnan(rmat))))
+            if iSub==1
+                superflatmat=zeros(nSubs,size(censor_flat,2));
+            end
+            if(strcmp(matrixtype,'upper'))
+                superflatmat(iSub,:)=mc_flatten_upper_triangle(rmat);
+            else
+                superflatmat(iSub,:) = reshape(rmat,1,prod(size(rmat)));
+            end
+            superlabel(iSub,1)=Example;
+
+        end
+        
+% Zero out censored elements
+        superflatmat(:,logical(censor_flat))=0;
+        
+        if ztrans == 1
+            superflatmat = mc_FisherZ(superflatmat);
+        end
     end
-    
-    % Zero out censored elements
-    superflatmat(:,logical(censor_flat))=0;
-    
-    if ztrans == 1
-        superflatmat = mc_FisherZ(superflatmat);
-    end
-    
+
     fprintf('Done\n');
     
     %% Regress out Nuisance Regressors
@@ -243,93 +272,122 @@ if strcmpi(svmtype,'paired')
     fprintf('\nLooping over all files to identify those with valid values....');
     nSubs=size(SubjDir,1);
 
-    unsprung=0; %counter to identify when you encounter the first valid case
+    switch DataType
+      case '3D'
+        maskhdr = spm_vol(MaskPath);
+        maskdata = spm_read_vols(maskhdr);
+        maskidx = find(maskdata);
+        nfeat = nnz(maskdata);
+        superflatmat_grouped = zeros(nSubs,nfeat);
+        
+        condNum = size(SubjDir{1,2},2);
 
-    condNum = size(SubjDir{1,2},2);
+        condAvail = zeros(nSubs,condNum);
 
-    condAvail = zeros(nSubs,condNum);
+        for iSub=1:size(SubjDir,1)
 
-    for iSub=1:size(SubjDir,1)
-
-        Subject = SubjDir{iSub,1};
-        for iCond = 1:condNum
-            curRunID = SubjDir{iSub,2}(iCond);
-            if curRunID ~= 0
-                Run = RunDir{curRunID};
-                conPath=mc_GenPath(conPathTemplate);
-                conmat=load(conPath);
-                rmat=conmat.rMatrix;
-                if ~exist('unsprung','var') || unsprung==0
-                    censor_square=zeros(size(rmat));
-                    nfeat=size(rmat(:));
-                    unsprung=1;
+            Subject = SubjDir{iSub,1};
+            for iCond = 1:condNum
+                curRunID = SubjDir{iSub,2}(iCond);
+                if curRunID ~= 0
+                    Run = RunDir{curRunID};
+                    conPath=mc_GenPath(conPathTemplate);
+                    chdr = spm_vol(conPath);
+                    cvol = spm_read_vols(chdr);
+                    superflatmat_grouped(iSub,:,iCond) = cvol(maskidx);
+                    condAvail(iSub,iCond)=1;
                 end
-                condAvail(iSub,iCond)=1;
+            end
+        end
+        
+      case 'Matrix'
+        unsprung=0; %counter to identify when you encounter the first valid case
 
+        condNum = size(SubjDir{1,2},2);
+
+        condAvail = zeros(nSubs,condNum);
+
+        for iSub=1:size(SubjDir,1)
+
+            Subject = SubjDir{iSub,1};
+            for iCond = 1:condNum
+                curRunID = SubjDir{iSub,2}(iCond);
+                if curRunID ~= 0
+                    Run = RunDir{curRunID};
+                    conPath=mc_GenPath(conPathTemplate);
+                    conmat=load(conPath);
+                    rmat=conmat.rMatrix;
+                    if ~exist('unsprung','var') || unsprung==0
+                        censor_square=zeros(size(rmat));
+                        nfeat=size(rmat(:));
+                        unsprung=1;
+                    end
+                    condAvail(iSub,iCond)=1;
+
+
+                end
+                censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; %For all indices in rmat that are NaN, zero out cleanconMat
+                
 
             end
-            censor_square(isnan(rmat) | isinf(rmat) | rmat==0) = 1; %For all indices in rmat that are NaN, zero out cleanconMat
+
+% Flatten censor matrix
             
 
-        end
 
-        % Flatten censor matrix
+
+        end
+        if (strcmp(matrixtype,'nodiag'))
+            censor_square(logical(eye(size(censor_square)))) = 1;
+        end
         
-
-
-
-    end
-    if (strcmp(matrixtype,'nodiag'))
-        censor_square(logical(eye(size(censor_square)))) = 1;
-    end
-    
-    if (strcmp(matrixtype,'upper'))
-        censor_flat = mc_flatten_upper_triangle(censor_square);
-    else
-        censor_flat = reshape(censor_square,1,prod(size(censor_square)));
-    end
-    fprintf('Done\n');
-
-
-
-    %% Read and flatten valid features
-
-    fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
-
-    unsprung=0;
-
-    % ID Number of Groups
-    condNum = size(SubjDir{1,2},2);
-
-
-    for iSub=1:size(SubjDir,1)
-        Subject = SubjDir{iSub,1};
-        for iCond = 1:condNum
-            curRunID = SubjDir{iSub,2}(iCond);
-            if curRunID ~= 0
-                Run = RunDir{curRunID};
-                conPath=mc_GenPath(conPathTemplate);
-                conmat=load(conPath);
-                rmat=conmat.rMatrix;
-                if ~exist('unsprung','var') || unsprung==0
-                    superflatmat_grouped=zeros(nSubs,size(censor_flat,2),condNum);
-                    unsprung=1;
-                end
-                
-                if (strcmp(matrixtype,'upper'))
-                    superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
-                else
-                    superflatmat_grouped(iSub,:,iCond) = reshape(rmat,1,prod(size(rmat)));
-                end
-            end
-
+        if (strcmp(matrixtype,'upper'))
+            censor_flat = mc_flatten_upper_triangle(censor_square);
+        else
+            censor_flat = reshape(censor_square,1,prod(size(censor_square)));
         end
-    end
+        fprintf('Done\n');
 
-    %Zero out censored elements
-    
-    superflatmat_grouped(:,logical(censor_flat),:)=0;
-    
+
+
+        %% Read and flatten valid features
+
+        fprintf('\nLooping over all files to flatten the matrices into one super matrix....');
+
+        unsprung=0;
+
+% ID Number of Groups
+        condNum = size(SubjDir{1,2},2);
+
+
+        for iSub=1:size(SubjDir,1)
+            Subject = SubjDir{iSub,1};
+            for iCond = 1:condNum
+                curRunID = SubjDir{iSub,2}(iCond);
+                if curRunID ~= 0
+                    Run = RunDir{curRunID};
+                    conPath=mc_GenPath(conPathTemplate);
+                    conmat=load(conPath);
+                    rmat=conmat.rMatrix;
+                    if ~exist('unsprung','var') || unsprung==0
+                        superflatmat_grouped=zeros(nSubs,size(censor_flat,2),condNum);
+                        unsprung=1;
+                    end
+                    
+                    if (strcmp(matrixtype,'upper'))
+                        superflatmat_grouped(iSub,:,iCond) = mc_flatten_upper_triangle(rmat);
+                    else
+                        superflatmat_grouped(iSub,:,iCond) = reshape(rmat,1,prod(size(rmat)));
+                    end
+                end
+
+            end
+        end
+
+        %Zero out censored elements
+        
+        superflatmat_grouped(:,logical(censor_flat),:)=0;
+    end    
     if ztrans == 1
         superflatmat_grouped = mc_FisherZ(superflatmat_grouped);
     end
