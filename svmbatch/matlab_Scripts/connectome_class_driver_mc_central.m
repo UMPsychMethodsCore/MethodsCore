@@ -37,6 +37,11 @@ if (~exist('DataType','var'))
     DataType = 'Matrix';
 end
 
+%disable visualization if using 3D mode
+if (exist('DataType','var') && strcmp(DataType,'3D')
+    Vizi = 0;
+end
+
 %% Confirm that you are running on an allowed host
 
 goodlist={
