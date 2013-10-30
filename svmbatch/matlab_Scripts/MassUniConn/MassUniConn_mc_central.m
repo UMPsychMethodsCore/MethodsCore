@@ -114,10 +114,13 @@ end
 %% Fit Real Model
 
 %%% Do the GLM
-[~, ~, ~, ~, t, p] = mc_CovariateCorrection(data,s.design,3,des.FxCol);
+[~, ~, beta , ~, t, p] = mc_CovariateCorrection(data,s.design,3,des.FxCol);
 
 ps = p(des.FxCol,:);
 prune = ps < thresh;
+
+betas = beta(des.FxCol,:);
+betas(isinf(betas))=0; % Exclude Inf
 
 if (~exist('ShadingEnable','var'))
     ShadingEnable = 1;
@@ -142,20 +145,26 @@ else
     ts(ts==+1) = 2; % map the positive values to 2 per mc_network_FeatRestruct standard
     ts(ts==-1) = 3; % map the negative values to 3 per mc_network_FeatRestruct standard
     ts(ts==+0) = 1; % map the nonsig values to 1 per mc_network_FeatRestruct standard
+    
 end
 
-%%% Do CellCounting
+
+%% Do CellCounting
 switch matrixtype
   case 'upper'
-    a.values = ts;
+    a.tvalues = ts;
+    a.bvalues = betas;
     a.NetworkLabels = nets;
     a = mc_Network_CellCount(mc_Network_FeatRestruct(a));
     
   case 'nodiag'
     ts_twin = mc_twinstack(ts);
-    b.values = squeeze(ts_twin(:,:,1));
+    betas_twin = mc_twinstack(betas);
+    b.tvalues = squeeze(ts_twin(:,:,1));
+    b.bvalues = squeeze(betas_twin(:,:,1));
     b.NetworkLabels = nets;
-    c.values = squeeze(ts_twin(:,:,2));
+    c.tvalues = squeeze(ts_twin(:,:,2));
+    c.bvalues = squeeze(betas_twin(:,:,2));
     c.NetworkLabels = nets;
     b = mc_Network_CellCount(mc_Network_FeatRestruct(b));
     c = mc_Network_CellCount(mc_Network_FeatRestruct(c));
@@ -168,8 +177,9 @@ switch matrixtype
     disagree(~overlap) = 0; % throw out disagreements where there is no overlap
     disagreeID = find(disagree);
     
-    a.values = max([b.values; c.values],[],1); % take the max. This should preserve 2s or 3s over 1s
-    a.values(disagreeID) = 4; % in places with disagreements, set it to yellow
+    a.tvalues = max([b.tvalues; c.tvalues],[],1); % take the max. This should preserve 2s or 3s over 1s
+    a.tvalues(disagreeID) = 4; % in places with disagreements, set it to yellow
+    a.bvalues = (b.bvalues + c.cvalues)./2; % take the mean
     a.NetworkLabels = nets;
     a = mc_Network_FeatRestruct(a); % get stuff resorted
     
@@ -178,14 +188,16 @@ switch matrixtype
     a.cellcount.celltot = b.cellcount.celltot + c.cellcount.celltot;
     a.cellcount.cellpos = b.cellcount.cellpos + c.cellcount.cellpos;
     a.cellcount.cellneg = b.cellcount.cellneg + c.cellcount.cellneg;
+    a.cellcount.cellmean = (b.cellcount.cellmean + c.cellcount.cellmean)./2;
 end
     
 
 celltot = a.cellcount.celltot; % Count Edges Per Cell
 cellpos = a.cellcount.cellpos; % count of positive
 cellneg = a.cellcount.cellneg; % count of negative
+cellmean = a.cellcount.cellmean; % cellwise mean of betas
 
-edgemat = a.mediator.square; %snag edgemat for use down in network contingency stuff
+edgemat = a.mediator.tsquare; %snag edgemat for use down in network contingency stuff
 
 %% Generate unshaded TakGraph
 %%% Enlarge Dots
@@ -200,6 +212,11 @@ a.colormap = [1 1 1; % make 1 white
     0 0 1; % make 3 blue
     1 1 0; % make 4 yellow (blended)
                     ];
+                
+if (~exist('TakGraphNetSubsetEnable','var'))
+    TakGraphNetSubsetEnable = 0;
+end
+
 if TakGraphNetSubsetEnable == 1
     a.mediator.NetSubset = TakGraphNetSubset;
 end
@@ -229,7 +246,7 @@ end
 
 a = mc_TakGraph_plot(a);
 
-
+print -dbmp -r300 TakGraph_unshaded.bmp
 %% Permutations
 
 % If Shading is disabled, then reset nRep to 1 no matter what value it was given.
@@ -284,6 +301,7 @@ end
 
 
 a.perms = squeeze(perms.count(:,:,1,:)); % only give it one threshold to work with
+a.meanbperms = squeeze(perms.meanB(:,:,1,:));
 %% Cell-Level Statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Calc Cell-Level Statistics %%%%%
@@ -307,17 +325,29 @@ a = mc_Network_CellLevelStats(a);
 
 if ShadingEnable
     
-    a = mc_TakGraph_CalcShadeColor(a);
+    a = mc_TakGraph_CalcShadeColor(a,1);
     
-    a = mc_TakGraph_AddShading(a);
+    a = mc_TakGraph_AddShading(a,1);
+    
+    %%% Save the Figure
+    
+    print -dbmp -r300 TakGraph_shaded_cellcount.bmp
+    
+    a = mc_TakGraph_plot(a);
+    
+    a = mc_TakGraph_CalcShadeColor(a,2);
+    
+    a = mc_TakGraph_AddShading(a,2);
+    
+    print -dbmp -r300 TakGraph_shaded_cellmean.bmp
     
 end
 
-%%% Save the Figure
 
-print -dbmp -r300 TakGraph.bmp
+
 
 %% Network Contingency Visualizations
+n = 1;
 
 %%% Grab the final edgemat and roiMat
 % edgemat was snagged way above, before risk of dilation
@@ -327,7 +357,7 @@ nets_sorted = nets(a.mediator.sortIDX);
 nROI = size(roimat,1);
 
 %%% Identify the cells that survived FDR (and were actually included in FDR)
-[GoodX GoodY] = find(a.stats.FDR.hypo==1);
+[GoodX GoodY] = find(a.stats.FDR.hypo{n}==1);
 
 edgemat(edgemat==1) = 0; % set all of the nonsig edges to zero
 
@@ -351,13 +381,13 @@ end
 if strcmp(matrixtype,'nodiag') % if cPPI
     uplatin.roiMM = roimat(:,1:3);
     uplatin.nets = b.mediator.sorted;
-    uplatin.edgemat = b.mediator.square ~= 0 & b.mediator.square ~=1;
+    uplatin.edgemat = b.mediator.tsquare ~= 0 & b.mediator.tsquare ~=1;
     
     uplat = mc_LateralityCrossTabs(uplatin);
     
     dnlatin.roiMM = roimat(:,1:3);
     dnlatin.nets = c.mediator.sorted;
-    dnlatin.edgemat = c.mediator.square ~= 0 & c.mediator.square ~=1;
+    dnlatin.edgemat = c.mediator.tsquare ~= 0 & c.mediator.tsquare ~=1;
     
     dnlat = mc_LateralityCrossTabs(dnlatin);
     

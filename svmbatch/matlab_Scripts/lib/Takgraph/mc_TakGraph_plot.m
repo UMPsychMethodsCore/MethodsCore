@@ -9,7 +9,7 @@ function [ a ] = mc_TakGraph_plot( a )
 %               a.colormap                      -       A colormap object that will be directly indexed by a.values.
 %                                                       Defaults to 1 - white, 2 - red, 3 - blue
 %               a.mediator                      -       A set of variables that are useful for the following functions, and these variables contain:
-%                       a.mediator.square       -       Transform a.pruneColor.values from a 1 x nFeat matrix to a sorted upper triangular matrix.
+%                       a.mediator.tsquare      -       Transform a.tvalues from a 1 x nFeat matrix to a sorted upper triangular matrix.
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels.
 %                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot
 %                       a.mediator.pad          -       OPTIONAL - Number of blank rows and columns to draw around the figure for better graphics.
@@ -28,7 +28,7 @@ if ~isfield(a.mediator,'pad')
     a.mediator.pad = 10;
 end
 
-square = a.mediator.square;
+tsquare = a.mediator.tsquare;
 
 if ~isfield(a,'colormap')
     a.colormap=[1 1 1; 1 0 0; 0 0 1];
@@ -43,24 +43,24 @@ graphtitle=a.title;
 
 if isfield(a.mediator,'NetSubset')
     NetLogic = ismember(sorted,a.mediator.NetSubset);
-    square = square(NetLogic,NetLogic);
+    tsquare = tsquare(NetLogic,NetLogic);
     sorted = sorted(NetLogic);
 end
 
 a.h = figure;
 if a.dotenable==1
     % add the padding to square and sorted
-    square_pad = zeros(size(square) + a.mediator.pad*2);
-    square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = square;
+    square_pad = zeros(size(tsquare) + a.mediator.pad*2);
+    square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = tsquare;
     sorted_pad=zeros(1,numel(sorted) + a.mediator.pad*2);
     % Plot the edges
     imshow(square_pad);
-    a.colormap=b2r(min(square(:)),max(square(:)));
+    a.colormap=b2r(min(tsquare(:)),max(tsquare(:)));
     colormap(a.colormap);
     colorbar;
 else
-    square_pad = ones(size(square) + a.mediator.pad*2);
-    square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = square;
+    square_pad = ones(size(tsquare) + a.mediator.pad*2);
+    square_pad((a.mediator.pad+1):(end - a.mediator.pad),(a.mediator.pad+1):(end - a.mediator.pad) ) = tsquare;
     sorted_pad=ones(1,numel(sorted) + a.mediator.pad*2);
     image(square_pad);
     colormap(a.colormap);    
