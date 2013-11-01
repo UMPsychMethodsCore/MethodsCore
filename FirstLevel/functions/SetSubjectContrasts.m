@@ -243,13 +243,17 @@ function [CondScaling RegScaling] = CreateContrastScales(Subject, NumCond, MaxNu
             if Subject.sess(i).cond(k).usePMod > 0
 
                 NumParaForCond = size(Subject.sess(i).cond(k).pmod, 2);
-                CondScaling(k).pmod(NumParaForCond) = struct('weight', [], 'order', []);
-                for l = 1:NumParaForCond
-                    CondScaling(k).pmod(l).weight = 0;
+                
+                % initialize for first run only
+                if i == 1
+                    CondScaling(k).pmod(NumParaForCond) = struct('weight', [], 'order', []);
+                    for l = 1:NumParaForCond
+                        CondScaling(k).pmod(l).weight = 0;
+                    end
                 end
 
+                % take care of parametric scaling
                 for iPar = 1:NumParaForCond
-
                     if ~isempty(Subject.sess(i).cond(k).pmod(iPar).param) == 1
                         CondScaling(k).pmod(iPar).weight = CondScaling(k).pmod(iPar).weight + 1;
                     end

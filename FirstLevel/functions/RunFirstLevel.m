@@ -133,6 +133,9 @@ function RunFirstLevel(AllSubjects, opt)
         end
         matlabbatch{3}.spm.stats.con.delete = 0;
 
+        % save matlabbatch job
+        save(fullfile(OutputDir, 'JobFile.mat'), 'matlabbatch');
+
         spm_jobman('initcfg');
         spm('defaults', 'FMRI');
         spm_jobman('run_nogui', matlabbatch);

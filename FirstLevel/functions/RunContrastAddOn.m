@@ -6,7 +6,7 @@ function RunContrastAddOn(Subjects, opt)
 
     % Check to make sure spm mat files exist
     for i = 1:NumSubjects
-        SpmCheck.Template = fullfile(Subjects(i).OutputDir, 'SPM.mat');
+        SpmCheck.Template = fullfile(Subjects(i).outputDir, 'SPM.mat');
         SpmCheck.mode = 'check';
         SubjSpmMatFiles{i} = mc_GenPath(SpmCheck);
     end
@@ -14,15 +14,15 @@ function RunContrastAddOn(Subjects, opt)
     % Run contrast add-on now
     for i = 1:NumSubjects
         matlabbatch{1}.spm.stats.con.spmmat = { SubjSpmMatFiles{i} };
-        for k = 1:size(AllSubjects(i).contrasts, 1)
+        for k = 1:size(Subjects(i).contrasts, 1)
 
             % check to make sure we have a valid contrast
-            if all( AllSubjects(i).contrasts(k, :) == 0 )
+            if all( Subjects(i).contrasts(k, :) == 0 )
 
                 % enter in dummy contrast and log it
                 msg = sprintf(['SUBJECT : %s' ...
                                ' INVALID CONTRAST NUMBER %d.  Inserting dummy contrast.\n'], ...
-                               AllSubjects(i).name, k);
+                               Subjects(i).name, k);
                 fprintf(1, msg);
                 mc_Logger(msg);
 
@@ -32,7 +32,7 @@ function RunContrastAddOn(Subjects, opt)
             else
                                  
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
-                matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = AllSubjects(i).contrasts(k, :);
+                matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = Subjects(i).contrasts(k, :);
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             end
         end
