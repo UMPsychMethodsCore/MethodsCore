@@ -35,7 +35,12 @@ if isfield(a.shading,'shademask') % if a shademask is given, only use that when 
     if ~isfield(a,'stats') || ~isfield(a.stats,'FDR') || ~isfield(a.stats.FDR,'hypo') || (size(a.stats.FDR.hypo,2)<flag)
         shademask = a.shading.shademask;
     else
-        shademask = a.stats.FDR.hypo{flag} == 1;
+        if size(a.stats.FDR.hypo,2)>=flag
+            shademask = a.stats.FDR.hypo{flag} == 1;
+        else
+            warning('No mask provided, will shade all!')
+            shademask = ones(numel(unique(a.NetworkLabels)));
+        end
     end
 else
     if size(a.stats.FDR.hypo,2)>=flag
