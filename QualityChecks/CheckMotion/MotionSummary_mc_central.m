@@ -32,6 +32,7 @@ for iSubject = 1:size(SubjDir,1)
         end
         
         % Pre-Scrubbing Summary of FD
+        Output.length       = length(FD);
         Output.meanFD       = mean(FD);
         Output.maxFD        = max(FD);
         Output.stdFD        = std(FD);
@@ -96,7 +97,7 @@ switch OutputMode
     case 1
         %%%%%%%%% Output Values for each Run of each Subject%%%%%%%%%%%%%%%%
         
-        fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD\n'); %header
+        fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD,TotalVolume,ScrubRatio\n'); %header
         for iSubject = 1:size(SubjDir,1)
             Subject = SubjDir{iSubject,1};
             for jRun = 1:size(SubjDir{iSubject,3},2)
@@ -114,22 +115,24 @@ switch OutputMode
                 fprintf(theFID,'%s,%s,',Subject,RunString);
                 fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxSpace);
                 fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanSpace);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.sumSpace);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.sumSpace);
                 fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.maxAngle);
                 fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanAngle);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.sumAngle);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFD);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.sumAngle);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.maxFD);
                 fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.meanFD);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFD);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.maxFDpost);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.meanFDpost);
-                fprintf(theFID,'%.4f,', CombinedOutput{iSubject, jRun}.stdFDpost);
-                fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.nonzeroFD);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.stdFD);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.maxFDpost);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.meanFDpost);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject, jRun}.stdFDpost);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.nonzeroFD);
+                fprintf(theFID,'%.4f,',CombinedOutput{iSubject,jRun}.length);
+                fprintf(theFID,'%.4f\n',CombinedOutput{iSubject,jRun}.nonzeroFD/CombinedOutput{iSubject,jRun}.length);
             end
         end
     case 2        
         %%%%%%%%%%%%%%%% Output averaged values along runs for each Subject %%%%%
-        fprintf(theFID,'Subject,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD\n'); %header
+        fprintf(theFID,'Subject,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD,TotalVolume,ScrubRatio\n'); %header
         for iSubject = 1:size(SubjDir,1)
             Subject = SubjDir{iSubject,1};
             
@@ -151,6 +154,7 @@ switch OutputMode
             
             % the total excluded points over runs
             FinalOutput.nonzeroFD = sum([temp(:).nonzeroFD]);
+            FinalOutput.length = sum([temp(:).length]);
             
             fprintf(theFID,'%s,',Subject);
             fprintf(theFID,'%.4f,',FinalOutput.maxSpace);
@@ -165,7 +169,9 @@ switch OutputMode
             fprintf(theFID,'%.4f,',FinalOutput.maxFDpost);
             fprintf(theFID,'%.4f,',FinalOutput.meanFDpost);
             fprintf(theFID,'%.4f,',FinalOutput.stdFDpost);
-            fprintf(theFID,'%.4f\n',FinalOutput.nonzeroFD);
+            fprintf(theFID,'%.4f,',FinalOutput.nonzeroFD);
+            fprintf(theFID,'%.4f,',FinalOutput.length);
+            fprintf(theFID,'%.4f\n',FinalOutput.nonzeroFD/FinalOutput.length);
             
             
             
