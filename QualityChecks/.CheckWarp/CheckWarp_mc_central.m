@@ -12,7 +12,7 @@ fprintf(1, '*****************************************************************');
 fprintf(1, 'Starting Check Warp to examine registration of canonical template and first five functional.');
 fprintf(1, '*****************************************************************');
 
-ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
+ImageTemplate = strcat(ImageTemplate, FilePrefix, '*',FileSuffix);
 for iSubject = 1:size(SubjDir,1)
 
     Subject=SubjDir{iSubject};
