@@ -1,11 +1,18 @@
-function mc_Usage(str,funcFolder)
+function result = mc_Usage(str,funcFolder)
 %
 % Input:
 %   str - message to be printed in text file
 %   funcFolder - name of function folder
 %
 
+% Output: 
+%   result - true if successful, false if not.
+% 
+
 global mcRoot;
+
+result = false;
+
 if isempty(mcRoot)
     temp = mfilename('fullpath');
     [mcRoot fileName ext] = fileparts(temp);
@@ -28,7 +35,12 @@ end
 
 fileDate = datestr(clock,'yymmdd_HH_MM_SS');
 outputfile = [fileDate '_' userName '_' hostName];
-fid = fopen(fullfile(outputDir,outputfile),'w');
+fid = fopen(fullfile(outputDir,outputfile),'a+');
 if fid == -1; return; end;
+
+result = true;
+
 fprintf(fid,str);
 fclose(fid);
+
+return
