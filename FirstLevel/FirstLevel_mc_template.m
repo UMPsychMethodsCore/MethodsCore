@@ -44,12 +44,12 @@ RunDir = {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
-%%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
+%%% The format is 'subjectfolder',[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-     'PM103_EUR/Active',1301,[1 2 3 4 5 6];
-     'PM103_EUR/Inactive',1032,[1 2 3 4 5];
-     'PF104_EUR/Active',1041,[1 2 3 4 5 6];
+     'PM103_EUR/Active',[1 2 3 4 5 6];
+     'PM103_EUR/Inactive',[1 2 3 4 5];
+     'PF104_EUR/Active',[1 2 3 4 5 6];
 };
 
 
@@ -63,12 +63,6 @@ SubjDir = {
 %%% MasterTemplate='[Exp]/Scripts/MasterData/EurekaDM_Master.csv';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MasterDataFilePath = '/oracle7/Researchers/heffjos/MethodsCore/FirstLevel/testCases/MasterDataFiles/EurekaDM_Master.csv';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%Number of rows and columns to skip when reading the MasterData csv file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MasterDataSkipRows = 2;
-MasterDataSkipCols = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Column number in the MasterData file where subject numbers are located
