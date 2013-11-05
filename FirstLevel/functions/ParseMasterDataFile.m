@@ -1,4 +1,4 @@
-function SubjectMasterData = ParseMasterDataFile(opt)
+function [SubjectMasterData opt] = ParseMasterDataFile(opt)
 %   SubjectMasterData = ParserMasterDataFile(opt)
 %
 %   REQUIRED INPUT
@@ -32,41 +32,9 @@ function SubjectMasterData = ParseMasterDataFile(opt)
 %               RunData         - matrix, contains all the subject data from the master data file 
 %                                 for run y
 %
-    Exp = opt.Exp;
-    MasterDataFileCheck.Template = opt.MasterDataFilePath;
-    MasterDataFileCheck.Mode = 'check';
-    MasterDataFile = mc_GenPath(MasterDataFileCheck);
 
-    % read in master data file
-    try
-        AllData = csvread(MasterDataFile, opt.MasterDataSkipRows, opt.MasterDataSkipCols);
-    catch err
-        error(['ERROR: Failed to read master data file %s.\n' ...
-               ' Check that the headers are skipped using MasterDataSkipRows and MasterDataSkipCols.\n' ...
-               ' Current values MasterDataSkipRows : %d MasterDataSkipCols %d'], ...
-               MasterDataFile, opt.MasterDataSkipRows, opt.MasterDataSkipCols);
-    end
-
-    % check none of the columns exceed columns present in master data file
-    ColumnsInMasterDataFile = size(AllData, 2);
-    if opt.SubjColumn > ColumnsInMasterDataFile
-        error(['ERROR: Corrected SubjColumn value exceeds the number of columns present in the master data file.  Expected a value less than or equal to %d'], ColumnsInMasterDataFile);
-    end
-
-    if opt.RunColumn > ColumnsInMasterDataFile
-        error(['ERROR: Corrected RunColumn value exceeds the number of columns present in the master data file.  Expected a value less than or equal to %d'], ColumnsInMasterDataFile);
-    end
-        
-    if any([opt.CondColumn opt.TimeColumn opt.DurationColumn] > ColumnsInMasterDataFile) == 1
-        error('ERROR: CondColumn TimeColumn and DurationColumn must contain values less than or equal to the number of columns in the master data file.  Expected a value less than or equal to %d', ColumnsInMasterDataFile);
-    end
-
-    % do the same for parametric regressors
-    for i = 1:size(opt.ParametricList)
-        if opt.ParametricList{i, 2} > ColumnsInMasterDataFile
-            error('ERROR: Master data file column specified for parametric regressor %s exceeds the number of column in the master data file.  Expected a value less than or equal to %d.', ColumnsInMasterDataFile);
-        end
-    end
+    % Read in data and do checks on it
+    [AllData Subjects opt] = MasterDataFileRead(opt);
 
     % do a simple check to make sure times and durations are not in milliseconds
     for i = 1:length(opt.TimeColumn)
@@ -89,17 +57,36 @@ function SubjectMasterData = ParseMasterDataFile(opt)
     for i = 1:NumSubjects
 
         if opt.IdenticalModels == 1
+            if opt.TotalTrials > size(AllData, 1)
+                msg = sprintf(['ERROR: TotalTrials is greater than the number of rows present after excluding comments.\n'...
+                               'Expected TotalTrials <= %d\n'], size(AllData, 1));
+                error(msg);
+            end
             SubjectData = AllData(1:opt.TotalTrials, :);
         else
-            SubjectIndex = AllData(:, opt.SubjColumn) == opt.SubjDir{i, 2};
+            SubjectIndex = strcmp(opt.SubjDir{i, 1}, Subjects);
             SubjectData = AllData(SubjectIndex, :);
+            if isempty(SubjectData) == 1
+                msg = sprintf(['SUBJECT %s : No data present in master data file.\n'...
+                              'Either remove or comment the subject from the SubjDir list.\n'],...
+                              opt.SubjDir{i, 1});
+                error(msg);
+            end
         end
 
-        NumRuns = length( opt.SubjDir{i, 3} );
+        NumRuns = length( opt.SubjDir{i, 2} );
 
         for k = 1:NumRuns
 
-            RunIndex = SubjectData(:, opt.RunColumn) == opt.SubjDir{i, 3}(k);
+            RunIndex = SubjectData(:, opt.RunColumn) == opt.SubjDir{i, 2}(k);
+            if isempty(SubjectData(RunIndex, :))
+                TmpRun = opt.RunDir{ opt.SubjDir{i, 2}(k) };
+                msg = sprintf(['\nSUBJECT %s RUN %s\n'...
+                               'No data present in master data file.\n'...
+                               '* * * CANNOT PROCEED * * *\n'],...
+                               opt.SubjDir{i, 1}, TmpRun);
+                error(msg);
+            end
             SubjectMasterData(i).sess(k).RunData = SubjectData(RunIndex, :);
 
         end
