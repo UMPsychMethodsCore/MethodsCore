@@ -198,6 +198,7 @@ function [AllData Subjects opt] = MasterDataFileRead(opt)
             end
         end
     end
+    fclose(fid);
 
     % now parse our pointer files
     TmpOpt = opt;
