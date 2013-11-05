@@ -6,7 +6,7 @@ function FirstLevelMain(opt)
     fprintf(1, '~~~Done with options~~~\n\n');
 
     fprintf(1, '~~~Parsing master data file~~~\n\n');
-    SubjectMasterData = ParseMasterDataFile(opt);
+    [SubjectMasterData opt] = ParseMasterDataFile(opt);
     fprintf(1, '~~~Done paring master data file~~~\n\n');
 
     fprintf(1, '~~~Creating all subjects~~~\n\n');
@@ -43,10 +43,10 @@ function opt = CheckOpt(opt)
     LogDirectory = mc_GenPath(LogCheck);
     mc_Logger('setup', LogDirectory);
 
-    % check run nubmers are valid for each subject
+    % check run numbers are valid for each subject
     NumRuns = size(opt.RunDir, 1);
     for i = 1:size(opt.SubjDir, 1)
-        SubjectRuns = opt.SubjDir{i, 3};
+        SubjectRuns = opt.SubjDir{i, 2};
         if any(SubjectRuns > NumRuns)
             error('Subject %s : Runs to include exceed the number of possible runs.\n', opt.SubjDir{i, 1});
         end
@@ -57,31 +57,13 @@ function opt = CheckOpt(opt)
         error('Variables CondColumn TimeColumn DurationColumn must all have equal lengths');
     end
 
-    % correct for master data file headers
-    opt.SubjColumn = opt.SubjColumn - opt.MasterDataSkipCols;
-    opt.RunColumn = opt.RunColumn - opt.MasterDataSkipCols;
-    opt.CondColumn = opt.CondColumn - opt.MasterDataSkipCols;
-    opt.TimeColumn = opt.TimeColumn - opt.MasterDataSkipCols;
-    opt.DurationColumn = opt.DurationColumn - opt.MasterDataSkipCols;
-
-    if any([opt.SubjColumn opt.RunColumn opt.CondColumn opt.TimeColumn opt.DurationColumn] <= 0) == 1
-        error('SubjColumn RunColumn CondColumn TimeColumn or DurationColumn are less than zero after correcting for MasterDataSkipCols');
-    end
-
-    % do the same for ParametricList if it is being used
+    % ParametricList checks
     if ~isempty(opt.ParametricList) == 1
     
         NumCond = size(opt.ConditionName, 1);
 
         for i = 1:size(opt.ParametricList, 1)
     
-            opt.ParametricList{i, 2}  = opt.ParametricList{i, 2} - opt.MasterDataSkipCols;
-           
-            % check valid column number 
-            if opt.ParametricList{i, 2} <= 0
-                error(['ERROR: The parametric column for parametric regressor %s is less than zero.\nCheck this value and the MasterDataSkipCols variable.\n'], opt.ParametricList{i, 1});
-            end
-
             % check valid polynomial order for the parametric regressor
             if any( opt.ParametricList{i, 4} == [1 2 3 4 5 6] ) == 0
                 error(['ERROR: The parametric regressor %s has an invalid polynomial order of %d.  Valid values are 1 2 3 4 5 or 6.'], opt.ParametricList{i, 1}, opt.ParametricList{i, 4});
@@ -95,55 +77,17 @@ function opt = CheckOpt(opt)
         end
     end
 
-    % check that specified columns are valid in the master data file
-    MasterCheck.Template = opt.MasterDataFilePath;
-    MasterCheck.mode = 'check';
-    MasterDataFile = mc_GenPath(MasterCheck);
-
-    try
-        Data = csvread(MasterDataFile, opt.MasterDataSkipRows, opt.MasterDataSkipCols);
-    catch
-        error('ERROR: Unable to read the master data file %s.  Check the headers are skipped using MasterDataSkipRows and MasterDataSkipCols.\n  Current values MasterDataSkipRows : %d MasterDataSkipCols %d', MasterDataFile, opt.MasterDataSkipRows, opt.MasterDataSkipCols);
-    end
-
-    % check single vector column specifications
-    MasterDataCols = size(Data, 2);
-    MasterDataRows = size(Data, 1);
-    if any(opt.SubjColumn > MasterDataCols) == 1
-        error('ERROR: Corrected SubjColumn exceeds columns in master data file.  Columns in master data file: %d', MasterDataCols);
-    elseif any(opt.RunColumn > MasterDataCols) == 1
-        error('ERROR: Correctued RunColumn exceeds columns in master data file.  Columns in master data file: %d', MasterDataCols');
-    elseif any(opt.CondColumn > MasterDataCols) == 1
-        error('ERROR: Corrected CondColumn exceeds columns in master data file.  Columns in master data file: %d', MasterDataCols');
-    elseif any(opt.TimeColumn > MasterDataCols) == 1
-        error('ERROR: Corrected TimeColumn exceeds columns in master data file.  Columns in master data file: %d', MasterDataCols');
-    elseif any(opt.DurationColumn > MasterDataCols) == 1
-        error('ERROR: Corrected DurationColumn exceeds columns in master data file.  Columns in master data file: %d', MasterDataCols');
-    end
-
-    % check parametric columns if any are used
-    if ~isempty(opt.ParametricList) == 1
-        for i = 1:size(opt.ParametricList, 1)
-            if opt.ParametricList{i, 2} > MasterDataCols
-                error('ERROR: Parametric regressor #%d name %s user specifiec column in master data file is greater than the number of columns present in the master data file. Columnes in master data file: %d', i, opt.ParametricList{i, 1}, MasterDataCols);
-            end
-        end
-    end
-
     % handle ConditionModifier
     if opt.ConditionModifier > 0
-        
         if opt.ConditionModifier >= size(ConditionName, 1)
             error('ERROR: ConditionModifier should strictly be less than the number of conditions present.');
         end
-
         opt.ConditionName = opt.ConditionName(1:opt.ConditionModifier);
-
     end
 
     % simple check for IdenticalModels and TotalTrials
-    if opt.IdenticalModels == 1 && (opt.TotalTrials <= 0 || opt.TotalTrials > MasterDataRows)
-        error('When using IdenticalModels, TotalTrials must be a positive value and less than or equal to the number of columns in the mastetr data file %d.', MasterDataCols);
+    if opt.IdenticalModels == 1 && opt.TotalTrials <= 0
+        error('When using IdenticalModels, TotalTrials must be a positive value.\n');
     end
 
     % handle RegFilesTemplate

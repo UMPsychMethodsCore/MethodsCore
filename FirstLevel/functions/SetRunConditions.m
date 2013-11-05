@@ -47,6 +47,14 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
 %   P = number of parametric regressors
 %   Z = number of conditions
 %
+% This function assigns the conditions for a subject's single run.
+% NOTE: CondColumn, TimeColumn, and DurationColumn can be vectors.  If they are vectors, each are
+% associated to each other by the column index.  For instance, the conditions in CondColumn(1)
+% have onsets at TimeColumn(1) and duration DurationColumn(1), CondColumn(2) have onsets at 
+% TimeColumn(2) and durations DurationColumn(2), etc.  If parametric regressors are present,
+% then the condition number assigned to the parametric regressor is searched in each CondColumn 
+% and is used for each column where the condition number is present.
+% 
 
     NumCond = size(opt.ConditionName, 1);
     
@@ -74,7 +82,7 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
             CondIndex = RunData(:, opt.CondColumn(m)) == l;
             CondOnsets = RunData(CondIndex, opt.TimeColumn(m));
             RunConditions(l).onset(end+1:end+length(CondOnsets)) = CondOnsets;
-            CondDurations = RunData(CondIndex, opt.DurationColumn);
+            CondDurations = RunData(CondIndex, opt.DurationColumn(m));
             RunConditions(l).duration(end+1:end+length(CondDurations)) = CondDurations;
 
         end
