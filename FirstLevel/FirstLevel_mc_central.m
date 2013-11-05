@@ -10,8 +10,6 @@ try
     opt.BaseFileSpmFilter = BaseFileSpmFilter;
     
     opt.MasterDataFilePath = MasterDataFilePath;
-    opt.MasterDataSkipRows = MasterDataSkipRows;
-    opt.MasterDataSkipCols = MasterDataSkipCols;
     opt.SubjColumn = SubjColumn;
     opt.RunColumn = RunColumn;
     opt.CondColumn  = CondColumn;
