@@ -38,7 +38,7 @@ if (~exist('DataType','var'))
 end
 
 %disable visualization if using 3D mode
-if (exist('DataType','var') && strcmp(DataType,'3D')
+if (exist('DataType','var') && strcmp(DataType,'3D'))
     Vizi = 0;
 end
 
