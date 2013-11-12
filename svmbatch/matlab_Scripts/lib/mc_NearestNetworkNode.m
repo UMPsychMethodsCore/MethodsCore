@@ -17,7 +17,7 @@ function [ labels ] = mc_NearestNetworkNode(voxlist, radius, refimage)
 
 
 %% Get the space
-if ~exist('refimageg','var')
+if ~exist('refimage','var')
     refimage='/net/data4/MAS/ROIS/Yeo/YeoPlus.hdr';
 end
     
