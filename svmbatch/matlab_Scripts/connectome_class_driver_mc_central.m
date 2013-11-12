@@ -64,7 +64,7 @@ if strcmpi(svmtype,'unpaired')
 
     switch DataType
       case '3D'
-        maskhdr = spm_vol(MaskPath);
+        maskhdr = spm_vol(mc_GenPath(MaskPath));
         maskdata = spm_read_vols(maskhdr);
         maskidx = find(maskdata);
         nfeat = nnz(maskdata);
