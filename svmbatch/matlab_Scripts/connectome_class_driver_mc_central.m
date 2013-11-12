@@ -38,7 +38,7 @@ if (~exist('DataType','var'))
 end
 
 %disable visualization if using 3D mode
-if (exist('DataType','var') && strcmp(DataType,'3D')
+if (exist('DataType','var') && strcmp(DataType,'3D'))
     Vizi = 0;
 end
 
@@ -64,7 +64,7 @@ if strcmpi(svmtype,'unpaired')
 
     switch DataType
       case '3D'
-        maskhdr = spm_vol(MaskPath);
+        maskhdr = spm_vol(mc_GenPath(MaskPath));
         maskdata = spm_read_vols(maskhdr);
         maskidx = find(maskdata);
         nfeat = nnz(maskdata);
