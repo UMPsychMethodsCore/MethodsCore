@@ -35,7 +35,10 @@ for iSub = 1:length(UMBatchSubjs)
        % cd into the directory for the segmentation.
        %
        cd(fP);       
-       UMBatchSegment([fN fE],UMTestFlag,UMNormedFlag);
+       results = UMBatchSegment([fN fE],UMTestFlag,UMNormedFlag);
+       if UMCheckFailure(results)
+	 exit(abs(resutls))
+       end
     end
 end
 

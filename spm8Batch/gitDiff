@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# A command to look for a Dependencies directory and then
+# run git diff for each file listed.
+#
+
+THECOMMAND=$1
+THEOPTION=$2
+THEDATE=`date`
+
+if [ -z "${THECOMMAND}" ]
+then
+    echo
+    echo "Usage : gitDiff root_file [N]"
+    echo 
+    echo "      'root_file' is the file in the Depenencies/ folder to scan"
+    echo "      for files to then display with the git difftool command."
+    echo 
+    echo "      If you specify the 'N' parameter (actually anything other then 'D' or 'd')"
+    echo "      then 'git difftool' will not be called."
+    echo
+    echo "Copyright - Robert C. Welsh, 2012"
+    echo
+    exit
+fi
+
+GITTHERE=`which git`
+
+if [ -z "${GITTHERE}" ] 
+then
+    echo
+    echo "You need to have git installed."
+    echo
+    exit 0
+fi
+
+if [ -z "${THEOPTION}" ]
+then
+    THEOPTION=D
+fi
+
+if [ "${THEOPTION}" == "d" ]
+then
+    THEOPTION=D
+fi
+
+echo
+echo "Running checks at ${THEDATE} for the command : ${THECOMMAND}"
+echo "-----------------------------------------------------------------------------"
+
+if [ ! -d Dependencies ] 
+then
+    echo 
+    echo "I can't find the Depedencies/ directory"
+    echo
+    exit 0
+fi
+
+if [ ! -e ${THECOMMAND} ]
+then
+    echo 
+    echo "The command ${THECOMMAND} does not exist."
+    echo
+    exit 0
+fi
+
+if [ ! -e Dependencies/${THECOMMAND} ]
+then
+    echo 
+    echo "I can't find the dependencies file for ${THECOMMAND}"
+    echo
+    exit 0
+fi
+
+for FILE in `cat Dependencies/${THECOMMAND}`
+do
+    if [ ! -e $FILE ]
+    then
+	echo 
+	echo "File $FILE does not exist"
+	echo
+    else
+	echo 
+	echo -n "Checking $FILE "
+	GITSTATUS=`git status HEAD $FILE | grep -e "${FILE}" | awk '{print $2}' | awk -F: '{print $1}'`
+	if [ "${GITSTATUS}" == "new" ] 
+	then
+	    echo new
+	else
+	    if [ -z  "${GITSTATUS}" ]
+	    then
+		echo stable
+	    else
+		echo modified
+		if [ "${THEOPTION}" == "D" ]
+		then
+		    git difftool -y HEAD $FILE
+		fi
+	    fi
+	fi
+    fi
+done
+
+echo
+	
+	
