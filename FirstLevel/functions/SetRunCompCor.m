@@ -5,10 +5,9 @@ function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
 %
 %       opt.
 %           Exp                 - string
-%           SubjDir             - cell(N, 3)
+%           SubjDir             - cell(N, 2)
 %                                 column1 = subject name
-%                                 column2 = subject number in master data file
-%                                 column3 = vector of runs to include
+%                                 column2 = vector of runs to include
 %           RunDir              - cell(R, 1), list of run folders
 %           CompCorTemplate     - cell(A, 2)
 %                                 column1 = string, run specific comp cor prefix file template
