@@ -8,10 +8,9 @@ function RunImages = SetRunImages(SubjectNumber, RunNumber, opt)
 %           ImagePathTemplate   - string template to run images
 %           BaseFileSpmFilter   - spm_filter used to acquire images
 %           RunDir              - cell(M, 1)
-%           SubjDir             - cell(N, 3)
+%           SubjDir             - cell(N, 2)
 %                                 column1 = subject name
-%                                 column2 = subject number in master data file
-%                                 column3 = vector of runs to include
+%                                 column2 = vector of runs to include
 %
 %
 %   OUTPUT

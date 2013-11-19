@@ -5,15 +5,12 @@ function [SubjectMasterData opt] = ParseMasterDataFile(opt)
 %
 %       opt.
 %           Exp                 - string
-%           SubjDir             - cell(N, 3)
+%           SubjDir             - cell(N, 2)
 %                                 column1 = subject name
-%                                 column2 = subject number in master data file
-%                                 column3 = vector of runs to include
+%                                 column2 = vector of runs to include
 %           RunDir              - cell(R, 1), list of run folders
 %           MasterDataFilePath  - string, path to master data file
 %                                 templates permitted : [Exp]
-%           MasterDataSkipRows  - number of rows to skip in master data file
-%           MasterDataSkipCols  - number of columns to skip in master data file
 %           SubjColumn          - vector
 %           RunColumn           - vector
 %           CondColumn          - vector

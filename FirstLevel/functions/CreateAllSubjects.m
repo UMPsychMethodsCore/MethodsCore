@@ -5,10 +5,9 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %   
 %       opt.
 %           Exp                 - string
-%           SubjDir             - cell(N, 3)
+%           SubjDir             - cell(N, 2)
 %                                 column1 = subject name
-%                                 column2 = subject number in master data file
-%                                 column3 = vector of runs to include
+%                                 column2 = vector of runs to include
 %           RunDir              - cell(M, 1)
 %
 %
@@ -18,8 +17,6 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %
 %           MasterDataFilePath  - string, path to master data file
 %                                 templates permitted : [Exp]
-%           MasterDataSkipRows  - number of rows to skip in master data file
-%           MasterDataSkipCols  - number of columns to skip in master data file
 %           SubjColumn          - vector
 %           RunColumn           - vector
 %           CondColumn          - vector
@@ -38,20 +35,26 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 %                                 column4 = order
 %
 %
-%           RegFilesTemplate    - cell(Z, 3)
+%           RegFilesTemplate    - cell(Z, 4)
 %                                 column1 = run specific regressor file template
 %                                 column2 = number of regressors to inclucde from file
 %                                           a value of inf includes all regressors
 %                                 column3 = number of derivatives to calculate for regressor
 %                                           a value equal to or less than 0 does not calculate
 %                                           any derivatives for the regressor
+%                                 column4 = polynomial term to include for regressor
+%                                           affects both the regressor and its derivatives
+%                                           1 = regressor alone
+%                                           2 = include quadratic
+%                                           3 = cubic .... and so on
 %                                 Templates : Exp Subject Run
-%           CompCorTemplate     - cell(A, 2)
+%           CompCorTemplate     - cell(A, 4)
 %                                 column1 = string, run specific comp cor prefix file template
 %                                 column2 = scalar flag [1 2 3], regressors used 
 %                                 column3 = scalar flag [1 2], component inclusion method
-%                                 column4 = scalar, # of components  OR  minimal fractional variance explained
-%                                 Template  : Exp Subject Run
+%                                 column4 = scalar, # of components  OR  minimal fractional 
+%                                           variance explained
+%                                 Templates : Exp Subject Run
 %
 %
 %           ContrastList        - cell(L, C+2)

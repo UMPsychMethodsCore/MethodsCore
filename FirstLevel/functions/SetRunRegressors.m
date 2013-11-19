@@ -5,10 +5,9 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
 %
 %       opt.
 %           Exp                 - string
-%           SubjDir             - cell(N, 3)
+%           SubjDir             - cell(N, 2)
 %                                 column1 = subject name
-%                                 column2 = subject number in master data file
-%                                 column3 = vector of runs to include
+%                                 column2 = vector of runs to include
 %           RunDir              - cell(R, 1), list of run folders
 %           RegFilesTemplate    - cell(M, 2)
 %                                 column1 = run specific regressor file template
@@ -17,6 +16,11 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
 %                                 column3 = number of derivatives to calculate for regressor
 %                                           a value equal to or less than 0 does not calculate
 %                                           any derivatives for the regressor
+%                                 column4 = polynomial term to include for regressor
+%                                           affects both the regressor and its derivatives
+%                                           1 = regressor alone
+%                                           2 = include quadratic
+%                                           3 = cubic .... and so on
 %                                 Templates : Exp Subject Run
 %  
 %   OUTPUT
@@ -102,7 +106,7 @@ function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
     else
 
         msg = sprintf(['SUBJECT %s RUN %s :\n'...
-                       ' All regressor files were trimmed to nothing.'], Subjec, Run);
+                       ' All regressor files were trimmed to nothing.'], Subject, Run);
         fprintf(msg);
         mc_Logger('log', msg, 2);
 
