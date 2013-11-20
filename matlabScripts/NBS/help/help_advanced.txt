@@ -1,0 +1,20 @@
+EXCHANGE BLOCKS [optional]:
+Specify exchange blocks to constrain permutation for repeated measures (within-subject) designs. Specified as a numeric vector containing as many rows as there are observations/subjects. Exchange blocks given either as a: 
+1. Valid Matlab expression (type the expression)
+2. Text file (*.txt), where each line is an observation/subject 
+3. Matlab file (*.mat) containing a single variable 
+For example, an exchange block given as [1 2 3 1 2 3] confines permutation between observations 1 and 4, 2 and 5, 3 and 6. That is, observation 4 and 2, for example, will never be permuted.
+
+PERMUTATIONS:
+Specify the number of permutations to generate. For FDR, at least 10,000 permutations should be generated.  
+
+SIGNIFICANCE:
+Specify significance (alpha threshold)
+
+METHOD:
+Select a method to correct for multiple comparisons. Note that SPC is not available as part of v1.1. 
+
+COMPONENT SIZE [not required for FDR]:
+Use the menu to specify whether the size of a network component is measured based on its total number of connections (extent) or the sum over the test statistic values (minus the primary threshold) of each connection in the component (intensity). 
+
+	
