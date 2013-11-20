@@ -36,6 +36,9 @@ Please give us your feedback about how we're doing.
 
 Release Notes:
 
+11/20/2013 - Release 1.7
+	     This release adds an advanced tool (svmbatch) to support Paired SVM Analyses.
+
 10/1/2013  - Release 1.6
              This release adds a tool (ConnTool) to support Connectivity Analyses.
 
