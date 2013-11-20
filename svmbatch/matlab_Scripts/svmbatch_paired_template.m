@@ -63,7 +63,7 @@ Opt.matrixtype = 'nodiag';
 Opt.pruneMethod = 'ttest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  Path where your images are located
+%  Path where your data (either matrices or 3D data) are located
 %
 %  Variables you can use in your template are:
 %       Exp = path to your experiment directory
@@ -77,9 +77,10 @@ Opt.pruneMethod = 'ttest';
 % ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Opt.ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
-% ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
+% the data itself
+Opt.DataTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
 
+% if running in connectome mode, you must also specify a path to the "parameters" file that SOM produces
 Opt.ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_parameters.mat';
 
 % OututTemplate should point to a directory where results will be stored.
@@ -108,7 +109,7 @@ Opt.ztrans = 0;
 % performs with binary features. In this case, feature selection will       %
 % proceed in the usual manner using your continuously valued features,      %
 % but SVM training and testing will occur on data whose features have       %
-% been reassigned to be either -1 or + 1 or 0. Set binarize to 1 to enable. %
+% been reassigned to be -1 or + 1 or 0. Set binarize to 1 to enable.        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Opt.binarize = 0;

@@ -5,17 +5,17 @@
 %%%	These options are the same between Preprocessing and First level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/DEA_Resting/';
+Opt.Exp = '/net/data4/DEA_Resting/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SVM mode. Can be either paired or unpaired
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-svmtype='paired';
+Opt.svmtype='paired';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DataType Mode. This script can accept the following types of data                        %
@@ -33,14 +33,14 @@ svmtype='paired';
 %                 may be added soon.                                                       %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DataType = '3D'
+Opt.DataType = '3D'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MaskPath: If operating in 3D DataType mode, you must also provide a mask. %
 % The mask must be in the same space as your 3D data.                       %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-MaskPath = '';
+Opt.MaskPath = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Portion of the matrix to use for features
@@ -48,7 +48,7 @@ MaskPath = '';
 %%%     'nodiag'    - both upper and lower section but exclude diagonal
 %%%     'full'      - use the full matrix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-matrixtype = 'nodiag';
+Opt.matrixtype = 'nodiag';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,7 +65,7 @@ matrixtype = 'nodiag';
 %%%         'PearsonR'  -   Use p-values resulting from Pearson R's between data and labels
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pruneMethod = 'ttest';
+Opt.pruneMethod = 'ttest';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Path where your images are located
@@ -82,22 +82,22 @@ pruneMethod = 'ttest';
 % ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
+Opt.ConnTemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_corr.mat';
 % ConnTemplate = '[Exp]/FirstLevel/[Subject]/12mmGrid_19/12mmGrid_19_corr.mat';
 
-ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_parameters.mat';
+Opt.ROITemplate = '[Exp]/FirstLevel/[Subject]/[Run]/Grid/Grid_parameters.mat';
 
 % OututTemplate should point to a directory where results will be stored.
 % For now these include a SVMResults object which will contain many of the
 % intermediates
 
-OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
+Opt.OutputTemplate = '[Exp]/SVM/Connectome/Test/' ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% How many features of each LOOCV iteration should be retained after
 %%% pruning? Set to 0 to disable feature pruning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nFeatPrune = 50;
+Opt.nFeatPrune = 50;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,7 +106,7 @@ nFeatPrune = 50;
 % Enable this by setting the below option to 1. Set to 0 to disable.  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ztrans = 0;
+Opt.ztrans = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In some cases, it may be interesting to test how your classifier          %
@@ -116,7 +116,7 @@ ztrans = 0;
 % been reassigned to be either -1 or + 1 or 0. Set binarize to 1 to enable. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-binarize = 0;
+Opt.binarize = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Of your consensus number of features, what proportion do you want to be
@@ -124,13 +124,13 @@ binarize = 0;
 %%% nFeatConsensus will be used instead.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-nFeatPlot = 25 ;
+Opt.nFeatPlot = 25 ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Would you like the program to also write out node and edge files for
 %%% visualization with BrainNet Viewer? If so, set Vizi to 1.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Vizi = 1;
+Opt.Vizi = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +141,7 @@ Vizi = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-NearestNetworkNodeRad = 0; 
+Opt.NearestNetworkNodeRad = 0; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If you are planning to later make a TakGraph, you can set DilateMat %
@@ -153,18 +153,18 @@ NearestNetworkNodeRad = 0;
 % Activate this by setting ColorizeTakGraph to 1                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% DilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
+% Opt.DilateMat = [1 0; -1 0; 0 1; 0 -1; % cross
 %                    -1 1; 1 1; -1 -1; 1 -1; %fill out square
 %                    -2 0; 0 2; 2 0; 0 -2]; % cross around square
 
-%ColorizeTakGraph = 1
+% Opt.ColorizeTakGraph = 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Do you have multiple runs (or something run-like to iterave over?) If
 %%%% so, specify it here.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-RunDir= {
+Opt.RunDir= {
     'rest_1'
     'rest_2'
     'rest_3'
@@ -179,13 +179,13 @@ RunDir= {
 %%%% to name results files (e.g. the .mat file, .nodes, .edges, etc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ContrastVec= [
+Opt.ContrastVec= [
      1 0 -1 ; % PBO - High
      1 -1 0 ; % PBO - Low
      0 1 -1 ; % PBO - Mid
      ];
 
-ContrastNames = {
+Opt.ContrastNames = {
     'PbO vs High'
     'PbO vs Low'
     'Low vs High'
@@ -202,7 +202,7 @@ ContrastNames = {
 %%% condition one is present in Run 3, condition two is present in run 1,
 %%% and condition three is missing. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjDir = {
+Opt.SubjDir = {
 
 '081119mk',[2 1 3];
 '090108ad',[1 3 2];
@@ -243,14 +243,14 @@ SubjDir = {
 %%% you should only have one level in the third dimension.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 
-DoNuisanceCorrection=0;
+Opt.DoNuisanceCorrection=0;
 
-NuisanceRegressors(:,:,1)=[
+Opt.NuisanceRegressors(:,:,1)=[
     1, 2, 1;
     0, 1, 4;
     ];
 
-NuisanceRegressors(:,:,2)=[
+Opt.NuisanceRegressors(:,:,2)=[
     5, 1, 6;
     2, 6, 2;
     ];
@@ -258,7 +258,7 @@ NuisanceRegressors(:,:,2)=[
 % SVM Library
 % 1 - svmlight (Default)
 % 2 - LIBSVM (NEW! Supports regression using advancedkernel flags)
-svmlib=1;
+Opt.svmlib=1;
    
 
 
@@ -271,7 +271,7 @@ svmlib=1;
 %   2. Training models will no longer be stored in order to cut down on
 %   memory
 %   3. You MUST specify a kernel AND either gridstruct or searchgrid
-advancedkernel = 0;
+Opt.advancedkernel = 0;
    
 
 % Choose your kernel
@@ -280,28 +280,28 @@ advancedkernel = 0;
 %   2   -   Radial Basis Function 
 %   3   -   Sigmoid tanh
 
-kernel = 0;
+Opt.kernel = 0;
 
 % Do you want to manually specify the searchgrid, or let the script find
 % all combinations of your tuning parameters for you?
 %   0   -   Manually specify searchgrid
 %   1   -   Semi-automatic build of searchgrid
 % Define your search area. 
-kernelsearchmode = 1;
+Opt.kernelsearchmode = 1;
 
 % If you set kernelsearchmode to 1, define your gridstruct here
 % See mc_svm_define_searchgrid help for details. Use this to enable
 % regression mode.
 
-gridstruct(1).arg=' -c ';
-gridstruct(1).value=logspace(1,10,10);
-gridstruct(2).arg=' -r ';
-gridstruct(2).value=logspace(1,5,5);
+Opt.gridstruct(1).arg=' -c ';
+Opt.gridstruct(1).value=logspace(1,10,10);
+Opt.gridstruct(2).arg=' -r ';
+Opt.gridstruct(2).value=logspace(1,5,5);
 
 % If you set kernelsearchmode to 0, manually define your searchgrid here.
 % See mc_svm_gridsearch help for details
 
-searchgrid =   ...
+Opt.searchgrid =   ...
 {   ' -d ', 1, 1, 2, 2;
     ' -r ', 0, 1, 0, 1;};
 
@@ -309,6 +309,9 @@ searchgrid =   ...
 
 
 %DEVSTART
+
+global mcRoot;
+
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
 %DEVSTOP
 

@@ -1,7 +1,7 @@
 function out = svmbatch_paired_central(Opt);
 %% Central Part
 
-conPathTemplate.Template = Opt.ConnTemplate;
+conPathTemplate.Template = Opt.DataTemplate;
 conPathTemplate.mode='check';
 
 %% Set defaults
@@ -24,7 +24,7 @@ switch DataType
     superflatmat_grouped = load_3D();
     
   case 'Matrix'
-    [superflatmat_grouped savail] = mc_load_connectomes_paired(Opt.SubjDir,Opt.ConnTemplate,Opt.RunDir,Opt.matrixtype);
+    [superflatmat_grouped savail] = mc_load_connectomes_paired(Opt.SubjDir,Opt.DataTemplate,Opt.RunDir,Opt.matrixtype);
     superflatmat_grouped = mc_connectome_clean(superflatmat_grouped);
 end
 
@@ -281,7 +281,6 @@ function [data nfeat] = load_matrix()
     %Zero out censored elements
     
     superflatmat_grouped(:,logical(censor_flat),:)=0;
-end    
 end
 
 
@@ -329,3 +328,5 @@ prune = zeros(1,nfeat);
             test = sign(test);
         end
     end
+end
+end
