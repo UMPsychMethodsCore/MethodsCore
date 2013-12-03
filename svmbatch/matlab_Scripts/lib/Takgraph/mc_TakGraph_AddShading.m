@@ -1,4 +1,4 @@
-function [ a ] =  mc_TakGraph_AddShading( a )
+function [ a ] =  mc_TakGraph_AddShading( a,flag )
 %MC_TAKGRAPH_ADDSHADING 
 % Based on the result of stats analysis, add shading over the TakGraph at
 % the stats significant area
@@ -7,6 +7,10 @@ function [ a ] =  mc_TakGraph_AddShading( a )
 %                                                       Alternatively, a RGB row vector to to be used as color for all cells    
 %                       a.mediator.sorted       -       1 x nROI matrix of sorted network labels, which will help with finding the start and end point of each cell.
 %                       a.stats.FDR.hypo        -       We will only shade cells where this value is 1    
+%                       flag                    -       A flag that indicating which parameter decides shading color
+%                                                       1: cell count
+%                                                       2: cell mean
+%                                                       Defaults to 1. 
 %               OPTIONAL
 %                       a.shading.transparency  -       nNet x nNet matrix of opacity values for shading. 0 is transparent, 1 opaque.
 %                                                       Alternatively, provide a scalar, and all cells will have identical shading.
@@ -18,11 +22,35 @@ function [ a ] =  mc_TakGraph_AddShading( a )
 set(0,'currentfigure',a.h)
 hold on;
 
-if isfield(a.shading,'shademask') % if a shademask is given, use that
-    shademask = a.shading.shademask;
-else
-    shademask = a.stats.FDR.hypo == 1;
+if ~exist('flag','var')
+    flag = 1;
 end
+
+if flag~=1 && flag~=2
+    warning('Could not recognize flag, default to 1: cellcount')
+    flag = 1;
+end
+
+if isfield(a.shading,'shademask') % if a shademask is given, only use that when no FDR guided mask is available.
+    if ~isfield(a,'stats') || ~isfield(a.stats,'FDR') || ~isfield(a.stats.FDR,'hypo') || (size(a.stats.FDR.hypo,2)<flag)
+        shademask = a.shading.shademask;
+    else
+        if size(a.stats.FDR.hypo,2)>=flag
+            shademask = a.stats.FDR.hypo{flag} == 1;
+        else
+            warning('No mask provided, will shade all!')
+            shademask = ones(numel(unique(a.NetworkLabels)));
+        end
+    end
+else
+    if size(a.stats.FDR.hypo,2)>=flag
+        shademask = a.stats.FDR.hypo{flag} == 1;
+    else
+        warning('No mask provided, will shade all!')
+        shademask = ones(numel(unique(a.NetworkLabels)));
+    end
+end
+
 
 if numel(size(a.shading.color)) < 3; % if only one color, replicate it
     shadecolor(1,1,:) = a.shading.color;

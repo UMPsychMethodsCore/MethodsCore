@@ -1,6 +1,6 @@
 function [ a ] = mc_TakGraph_enlarge( a )
 % MC_TAKGRAPH_ENLARGE 
-% If the enlarge option is "on" (when a.DotDilateMat exists), this function is needed to update a.mediator.square
+% If the enlarge option is "on" (when a.DotDilateMat exists), this function is needed to update a.mediator.tsquare
 % to make it as a matrix represents enlarged edge dots.
 % Need to run mc_Network_mediator.m first
 %
@@ -12,16 +12,16 @@ function [ a ] = mc_TakGraph_enlarge( a )
 %                                                       For example, to enlarge the dots by adding dots above, below, and to either side, use:
 %                                                       a.DotDilateMat = [1 0; -1 0; 0 1; 0 -1];
 %               a.mediator                      -       See mc_Network_FeatRestruct for details
-%                       a.mediator.square       -       
+%                       a.mediator.tsquare      -       Transform a.tvalues from a 1 x nFeat matrix to a sorted upper triangular matrix. 
 %                       a.mediator.NetSubset    -       OPTIONAL - Contiguous vector of network labels to plot. We will only dilate edges in these networks                                                       
 %       OUTPUT
 %               a.mediator
-%                       a.mediator.square       -       Updated matrix representing enlarged dots.
+%                       a.mediator.tsquare      -       Updated matrix representing enlarged dots.
 %
 %
 
 
-enlarge = a.mediator.square;
+enlarge = a.mediator.tsquare;
 
 if isfield(a.mediator,'NetSubset')
     NetLogic = ismember(a.mediator.sorted,a.mediator.NetSubset);
@@ -29,7 +29,7 @@ else
     NetLogic = logical(ones(size(a.mediator.sorted)));
 end
 
-NetLogicSquare = zeros(size(a.mediator.square));
+NetLogicSquare = zeros(size(a.mediator.tsquare));
 NetLogicSquare(NetLogic,NetLogic) = 1;
 NetLogicIdx = find(NetLogicSquare);
 enlarge = enlarge(NetLogic,NetLogic);
@@ -61,9 +61,9 @@ for ihot = hotIterator % Loop over values to enlarge
     end
 end
 
-a.mediator.square(NetLogicIdx) = out;
+a.mediator.tsquare(NetLogicIdx) = out;
 
-a.mediator.square = triu(a.mediator.square,1); % zero out any dilations below diag
+a.mediator.tsquare = triu(a.mediator.tsquare,1); % zero out any dilations below diag
 
 end
 
