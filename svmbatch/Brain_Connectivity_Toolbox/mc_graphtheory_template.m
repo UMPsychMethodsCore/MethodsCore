@@ -241,10 +241,23 @@ nRep     = 10000;
 permDone = 0;
 permCores = 1;
 
-graph.nodeperm = 0;   %%% ?
+graph.nodeperm = 0;   %%% keep or not?
 
 nodenRep = 100;
 nodepermCores = 1;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - FDR correction - 
+%
+% This is for nodewise measurements.
+% 
+% graph.FDR: 1 - Enable FDR Correction
+%             0 - Disable FDR Correction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+graph.FDR = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Metric Selection -
@@ -311,6 +324,9 @@ addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Advanced Input Settings  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%% (Usually don't change) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -364,6 +380,26 @@ permlevel = 0.05;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 smallworlditer = 100;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - FDR correction - 
+% 
+% FDR.rate:  The desired false discovery rate. 
+% FDR.mode:  'pdep' - the original Bejnamini & Hochberg FDR procedure is used, 
+%                     which is guaranteed to be accurate if the individual 
+%                     tests are independent or positively dependent (e.g., 
+%                     Gaussian variables that are positively correlated or
+%                     independent).
+%            'dep'  - the FDR procedure described in Benjamini & Yekutieli (2001) 
+%                     that is guaranteed to be accurate for any test dependency 
+%                     structure (e.g.,Gaussian variables with any covariance 
+%                     matrix) is used. 'dep' is always appropriate to use 
+%                     but is less powerful than 'pdep.
+%             Default 'dep'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+FDR.rate  = 0.05;
+FDR.mode  = 'dep';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Advanced Output Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%

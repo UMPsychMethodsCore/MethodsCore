@@ -466,6 +466,8 @@ if ~isfield(graph,'perm')
     warning('No permutation test for global measure if not assigned, change the settings in template script if this is not correct');
 end
 if (graph.ttest || graph.perm)
+    
+%%%% begin of reorganizing data %%%%
        
     % Column of network
     MatNet        = repmat(graph.netinclude,length(CombinedOutput)*nThresh,1);
@@ -477,15 +479,20 @@ if (graph.ttest || graph.perm)
     ColThresh     = ColThresh(SubUse==1);
     
     % Initialization
-    data    = [ColNet ColThresh];
+    data = [];
+    FrontCol = [ColNet ColThresh];
     Metrics = {};
-    input.netcol    = 1;
-    input.threshcol = 2; 
-    input.col = 2;
+    nMetric = 0;
+    
+    input.netcol    = 1;  % in reorganized data, first column is network number
+    input.threshcol = 2;  % in reorganized data, second column is threshold
+    input.metcol    = 3;  % in reorganized data, third column is metric 
+    input.col = 3;
     
     % Column of Degree
     if Flag.degree
-        OutDegree     = zeros(nThresh,nSub,nNet);
+        OutDegree = zeros(nThresh,nSub,nNet);
+        nMetric   = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -495,13 +502,16 @@ if (graph.ttest || graph.perm)
         end
         ColDeg = OutDegree(:);      
         ColDeg = ColDeg(SubUse==1);
-        data   = [data ColDeg];
+        ColMetric = repmat(nMetric,1,length(ColDeg));
+        SecDeg = [FrontCol ColMetric ColDeg];        
+        data   = [data;SecDeg];
         Metrics{end+1} ='GlobalDegree';
     end
     
     % Column of Strength
     if (Flag.degree && graph.weighted)
         OutStrength = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -511,14 +521,16 @@ if (graph.ttest || graph.perm)
         end
         ColStr = OutStrength(:);      
         ColStr = ColStr(SubUse==1);
-        data   = [data ColStr];
-        Metrics{end+1} ='GlobalStrength';
-        
+        ColMetric = repmat(nMetric,1,length(ColStr));
+        SecStr = [FrontCol ColMetric ColStr];        
+        data   = [data;SecStr];
+        Metrics{end+1} ='GlobalStrength';        
     end
                 
     % Column of Density
     if Flag.density
         OutDensity    = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -528,13 +540,16 @@ if (graph.ttest || graph.perm)
         end
         ColDens = OutDensity(:);     
         ColDens = ColDens(SubUse==1);
-        data    = [data ColDens];
+        ColMetric = repmat(nMetric,1,length(ColDens));
+        SecDens = [FrontCol ColMetric ColDens];        
+        data   = [data;SecDens];
         Metrics{end+1} ='Density';
     end
     
     % Column of Clustering
     if Flag.clustering
         OutCluster    = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -544,13 +559,16 @@ if (graph.ttest || graph.perm)
         end
         ColCluster = OutCluster(:);     
         ColCluster = ColCluster(SubUse==1);
-        data       = [data ColCluster];
+        ColMetric = repmat(nMetric,1,length(ColCluster));
+        SecCluster = [FrontCol ColMetric ColCluster];        
+        data   = [data;SecCluster];
         Metrics{end+1} = 'Clustering';
     end
     
     % Column of CharacteristicPathLength
     if Flag.pathlength
         OutPathLength = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -560,13 +578,16 @@ if (graph.ttest || graph.perm)
         end
         ColPathLength = OutPathLength(:);  
         ColPathLength = ColPathLength(SubUse==1);
-        data          = [data ColPathLength];
+        ColMetric = repmat(nMetric,1,length(ColPathLength));
+        SecPathLength = [FrontCol ColMetric ColPathLength];        
+        data   = [data;SecPathLength];
         Metrics{end+1} = 'CharPathLength';
     end
     
     % Column of Transitivity
     if Flag.transitivity
         OutTrans      = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -576,13 +597,16 @@ if (graph.ttest || graph.perm)
         end
         ColTrans = OutTrans(:);       
         ColTrans = ColTrans(SubUse==1);
-        data     = [data ColTrans];
+        ColMetric = repmat(nMetric,1,length(ColTrans));
+        SecTrans = [FrontCol ColMetric ColTrans];        
+        data   = [data;SecTrans];
         Metrics{end+1} = 'Transitivity';
     end
     
     % Column of GlobalEfficiency
     if Flag.efficiency
         OutEglob      = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -592,13 +616,16 @@ if (graph.ttest || graph.perm)
         end
         ColEglob = OutEglob(:);       
         ColEglob = ColEglob(SubUse==1);
-        data     = [data ColEglob];
+        ColMetric = repmat(nMetric,1,length(ColEglob));
+        SecEglob = [FrontCol ColMetric ColEglob];        
+        data   = [data;SecEglob];
         Metrics{end+1} = 'GlobEfficiency';
     end
     
     % Column of Modularity
     if Flag.modularity
         OutModu       = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -608,13 +635,16 @@ if (graph.ttest || graph.perm)
         end
         ColModu = OutModu(:);        
         ColModu = ColModu(SubUse==1);
-        data    = [data ColModu];
+        ColMetric = repmat(nMetric,1,length(ColModu));
+        SecModu = [FrontCol ColMetric ColModu];        
+        data   = [data;SecModu];
         Metrics{end+1} = 'Modularity';
     end
     
     % Column of Assortativity
     if Flag.assortativity
         OutAssort     = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -624,13 +654,16 @@ if (graph.ttest || graph.perm)
         end
         ColAssort = OutAssort(:);      
         ColAssort = ColAssort(SubUse==1);
-        data      = [data ColAssort];
+        ColMetric = repmat(nMetric,1,length(ColAssort));
+        SecAssort = [FrontCol ColMetric ColAssort];        
+        data   = [data;SecAssort];
         Metrics{end+1} = 'Assortativity';
     end
     
     % Column of Betweenness
     if Flag.betweenness
         OutBtwn       = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -640,13 +673,16 @@ if (graph.ttest || graph.perm)
         end
         ColBtwn = OutBtwn(:);        
         ColBtwn = ColBtwn(SubUse==1);
-        data    = [data ColBtwn];
+        ColMetric = repmat(nMetric,1,length(ColBtwn));
+        SecBtwn = [FrontCol ColMetric ColBtwn];        
+        data   = [data;SecBtwn];
         Metrics{end+1} = 'Betweenness';
     end
     
     % Column of Entropy
     if Flag.entropy
         OutEtpy       = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -656,13 +692,16 @@ if (graph.ttest || graph.perm)
         end
         ColEtpy = OutEtpy(:);        
         ColEtpy = ColEtpy(SubUse==1);
-        data    = [data ColEtpy];
+        ColMetric = repmat(nMetric,1,length(ColEtpy));
+        SecEtpy = [FrontCol ColMetric ColEtpy];        
+        data   = [data;SecEtpy];
         Metrics{end+1} = 'Entropy';
     end
     
     % Column of Eigenvector
     if Flag.eigenvector
         OutEigValue   = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
         for iThresh = 1:nThresh
             for iSub = 1:nSub
                 for jNet = 1:nNet
@@ -672,11 +711,13 @@ if (graph.ttest || graph.perm)
         end
         ColEig = OutEigValue(:);    
         ColEig = ColEig(SubUse==1);
-        data   = [data ColEig];
+        ColMetric = repmat(nMetric,1,length(ColEig));
+        SecEig = [FrontCol ColMetric ColEig];        
+        data   = [data;SecEig];
         Metrics{end+1} = 'EigValue';
     end       
     
-    nMetric = length(Metrics);
+%%%% end of reorganizing data %%%%
     
     input.types=Types(SubUseMark==1);
     input.unitype=unique(input.types);
@@ -775,6 +816,7 @@ end
 
 if graph.perm
     permOut.RealSig=[];
+    permpVal = zeros(nThresh,nNet,nMetric);
     for iThresh = 1:nThresh
         if graph.thresh(iThresh)==-Inf
             ThreValue='NoThreshold';
@@ -832,44 +874,26 @@ if graph.perm
             load(permLoc);
         end            
         
-        %%%%%%%%%%%%%%%%%% See the order %%%%%%%%%%%%%%%%%%
-        permOrder = zeros(nThresh,nNet,nMetric);
-        permpVal = zeros(nThresh,nNet,nMetric);
+        %%%%%%%%%%%%%%%%%% See the order and find significant difference subset%%%%%%%%%%%%%%%%%%
+        realn = 0;
         for i = 1:nNet
-            for j = 1:nMetric
-                vector = sort(abs(squeeze(perm(i,j,:))),'descend');
-                N      = length(vector);
-                for kperm = 1:nRep
-                    if abs(meandiff(iThresh,i,j))>vector(kperm)
-                        permOrder(iThresh,i,j)=kperm;
-                        permpVal(iThresh,i,j)=kperm/N;                        
-                        break
-                    end                    
-                end
-            end
-        end
-        permDirection = sign(meandiff);
-        
-        %%%%%%%%%%%%%% Find significant difference subset %%%%%%%%%%%%%%%%%%%%%%%
-        realn=0;
-        for i = 1:nNet
-            for j = 1:nMetric                
-                vector = sort(squeeze(perm(i,j,:)),'descend');
-                N      = length(vector);
-                pos    = floor(permlevel*N)+1;
-                if abs(meandiff(iThresh,i,j))>abs(vector(pos))
+            for j = 1:nMetric          
+                permpVal(iThresh,i,j) = sum(abs(meandiff(iThresh,i,j))<=abs(squeeze(perm(i,j,:))))/nRep;
+                if permpVal(iThresh,i,j)<permlevel
                     realn = realn+1;
                     RealSigNet(realn)=i;
                     RealSigMetric(realn)=j;
                 end
             end
-            
-        end  
+        end
+        permDirection = sign(meandiff);        
+         
         SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
         permOut.sigloc = [permOut.sigloc SigLoc];
+        
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
-    permOut.pval = permpVal;
+    permOut.rawp = permpVal;
     permOut.meancl=meancl;
     permOut.meanep=meanep;
     permOut.secl=secl;
@@ -895,7 +919,7 @@ if graph.perm
         fprintf(1,'Error opening the csv file!\n');
         return;
     end
-    fprintf(theFID,'Threshold,Network,Metric,permpVal,direction\n');
+    fprintf(theFID,'Threshold,Network,Metric,rawpVal,direction\n');
     for i=1:nThresh
         for j=1:nNet
             for k=1:nMetric
@@ -955,8 +979,9 @@ if graph.node
     end
        
     if (graph.nodettest||graph.nodeperm)
-        input.col    = 1;  
+        input.col    = 2;  
         input.netcol = 1;
+        input.metcol = 2;
         input.types   = Types(SubUseMark==1);
         input.unitype = unique(Types);        
     end
@@ -1037,12 +1062,9 @@ if graph.node
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
                 if graph.nodettest
                     fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
-                    nodet = zeros(1,nROI);
-                    for iCol = 1:nROI
-                        input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) NodeFL(:,iCol)];                        
-                        [tresults]=mc_graphtheory_ttest(graph,input,1,1);
-                        nodet(iCol)=tresults.t;
-                    end  
+                    input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) ones(size(NodeFL,1),1) NodeFL];
+                    [tresults]=mc_graphtheory_ttest(graph,input,1,1);
+                    nodet=squeeze(tresults.t);
                     fprintf('saving t-test results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     TDttempPath = mc_GenPath(struct('Template',TDttemp,'mode','makeparentdir'));
                     if (graph.netinclude==-1)
@@ -1057,38 +1079,53 @@ if graph.node
                 if graph.nodeperm
                     nodepermpval = zeros(1,nROI);
                     nodemeandiff = zeros(1,nROI);
-                    nodeperm     = zeros(1,nRep);
+                    nodeperm     = zeros(nRep,nROI);
                     fprintf('permutation test for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
-                    for iCol = 1:nROI
-                        fprintf(1,'ROI %g\n',iCol);
-                        input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) NodeFL(:,iCol)];
-                        [permresults] = mc_graphtheory_meandiff(graph,input,1,1);
-                        nodemeandiff(iCol) = permresults.meandiff;
-                        if nodepermCores ~=1
-                            try
-                                matlabpool('open',nodepermCores)
-                                parfor i = 1:nodenRep
-                                    nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
-                                end
-                                matlabpool('close')
-                            catch
-                                matlabpool('close')
-                                for i = 1:nodenRep
-                                    nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
-                                end
+                    % calculate real mean difference
+                    input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) ones(size(NodeFL,1),1) NodeFL];
+                    [permresults] = mc_graphtheory_meandiff(graph,input,1,1);
+                    nodemeandiff(iCol) = permresults.meandiff;
+                    
+                    if nodepermCores ~=1
+                        try
+                            matlabpool('open',nodepermCores)
+                            parfor i = 1:nodenRep
+                                fprintf(1,'perm %g\n',i);
+                                nodeperm(i,:) = squeeze(mc_graphtheory_permutation(graph,input,1,1));
                             end
-                        else
+                            matlabpool('close')
+                        catch
+                            matlabpool('close')
                             for i = 1:nodenRep
-                                nodeperm(i) =mc_graphtheory_permutation(graph,input,1,1);
+                                fprintf(1,'perm %g\n',i);
+                                nodeperm(i,:) = squeeze(mc_graphtheory_permutation(graph,input,1,1));
+                            end              
+                        end
+                    else
+                        for i = 1:nodenRep
+                            fprintf(1,'perm %g\n',i);
+                            nodeperm(i,:) = squeeze(mc_graphtheory_permutation(graph,input,1,1));
+                        end
+                    end
+                    
+                    for iCol = 1:nROI
+                        nodepermpval(iCol) = sum(abs(nodemeandiff(iCol))<=abs(nodeperm(:,iCol)))/nodenRep;
+                    end
+                                       
+                    if graph.FDR
+                        if ~exist('FDR','var')
+                            FDR.rate = 0.05;
+                            FDR.mode = 'dep';
+                        else
+                            if ~isfield(FDR,'rate')
+                                FDR.rate = 0.05;
+                            end
+                            if ~isfield(FDR,'mode')
+                                FDR.mode = 'dep';
                             end
                         end
-                        vector = sort(abs(nodeperm),'descend');
-                        for kperm = 1:nodenRep
-                            if abs(nodemeandiff(iCol))>vector(kperm)
-                                nodepermpval(iCol)=kperm/nodenRep;
-                                break
-                            end
-                        end
+                        [~,~,nodepermadjp]=fdr_bh(nodepermpval,FDR.rate,FDR.mode,[],1);
+                        nodepermpval = nodepermadjp;
                     end
                     fprintf('saving permutation results for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     TDpermtempPath = mc_GenPath(struct('Template',TDpermtemp,'mode','makeparentdir'));
