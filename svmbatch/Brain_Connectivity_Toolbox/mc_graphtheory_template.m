@@ -156,12 +156,27 @@ graph.value    = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Thresholding -
 % 
+% graph.threshmode: 'value'      - thresholding based on value, in this
+%                                  case, the number/s in graph.thresh
+%                                  indicates the value threshold;
+%                   'percent'    - in this case, the number/s listed in
+%                                  graph.thresh indicates how many
+%                                  percentage edges you want to keep, e.g.
+%                                  10 means you want to keep top 10%
+%                                  edges; all numbers bigger than 100 will
+%                                  be treated as 100, smaller than 0 will
+%                                  be treated as 0.
+%                   Defaults to 'value'.
+%
 % graph.thresh - A number or a vector of numbers representing the
 %                threshold/s that decides which edges to keep in the graph;
-%                If do not want the graph to be thresholded, set it to -Inf;
-%                Defaults to -Inf if not assigned.
+%                
+% If do not want the graph to be thresholded, you can either: set
+% threshomode to 'value' and set thresh to '-Inf'; or : set threshmode to
+% 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+graph.threshmode = 'value';
 % graph.thresh  = 0.25;
 graph.thresh = -Inf;
 

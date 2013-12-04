@@ -219,6 +219,7 @@ else  % Start fresh new calculation
         end
                 
         for kNetwork = 1:length(graph.netinclude)
+            
             if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
                 GraphConnectRaw = SubjWiseEdge;
                 GraphThresh     = SubjWiseThresh;
@@ -227,23 +228,50 @@ else  % Start fresh new calculation
                 GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
                 GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
             end
+            
             for tThresh = 1:nThresh
+                
                 fprintf('Computing number %s Subject',num2str(Sub));
-                fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                switch graph.threshmode
+                    case 'value'
+                        fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                    case 'percent'
+                        if graph.thresh(tThresh)>100
+                            density = 1;
+                        elseif graph.thresh(tThresh)<0
+                            density = 0;
+                        else
+                            density = graph.thresh(tThresh)/100;
+                        end
+                        fprintf('with target density %.2f',density);
+                end
                 if (graph.netinclude == -1)
                     fprintf(' in whole brain\n');
                 else
                     fprintf(' in network %d\n',networklabel);
-                end
+                end    
                 
                 GraphConnect      = zeros(size(GraphConnectRaw));
-                
-                if graph.weighted
-                    % Create weighted matrix
-                    GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));
-                else
-                    % Create binary matrix
-                    GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
+                switch graph.threshmode
+                    case 'value'
+                        if graph.weighted
+                            % Create weighted matrix
+                            GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));
+                        else
+                            % Create binary matrix
+                            GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
+                        end
+                    case 'percent'
+                        nedge = numel(GraphThresh);
+                        keep  = round(nedge*density);
+                        [~,index] = sort(GraphThresh(:));
+                        if graph.weighted
+                            % Create weighted matrix
+                            GraphConnect(index(end-keep+1:end))=GraphConnectRaw(index(end-keep+1:end));
+                        else
+                            % Create binary matrix
+                            GraphConnect(index(end-keep+1:end))=1;
+                        end
                 end
                 
                 if nnz(GraphConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
