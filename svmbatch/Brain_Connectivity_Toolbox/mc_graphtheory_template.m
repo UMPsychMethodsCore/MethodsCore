@@ -156,8 +156,8 @@ graph.value    = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Thresholding -
 % 
-% graph.threshmode: 'value'      - thresholding based on value, in this
-%                                  case, the number/s in graph.thresh
+% graph.threshmode: 'value'      - thresholding based on edge value, in 
+%                                  this case, the number/s in graph.thresh
 %                                  indicates the value threshold;
 %                   'percent'    - in this case, the number/s listed in
 %                                  graph.thresh indicates how many
@@ -176,9 +176,9 @@ graph.value    = 0;
 % 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.threshmode = 'value';
+graph.threshmode = 'percent';
 % graph.thresh  = 0.25;
-graph.thresh = -Inf;
+graph.thresh = 10;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Nodewise Measure - 
@@ -220,7 +220,7 @@ TDmask     = '[Exp]/ROIS/4mm_rEPI_MASK_NOEYES_restspace.img';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 graph.ttest    = 1;
-graph.nodettest = 0;
+graph.nodettest = 1;
    
 ttype     = '2-sample';
 
@@ -256,10 +256,10 @@ nRep     = 10000;
 permDone = 0;
 permCores = 1;
 
-graph.nodeperm = 0;   %%% keep or not?
+graph.nodeperm = 1;   
 
-nodenRep = 100;
-nodepermCores = 1;
+nodenRep = 10000;
+nodepermCores = 3;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -325,7 +325,7 @@ graph.voxelmeasures = 'EG';
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OutputFolder = 'test';
+OutputFolder = 'test120513';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - set the path -

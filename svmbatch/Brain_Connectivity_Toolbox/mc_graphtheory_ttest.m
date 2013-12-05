@@ -67,7 +67,7 @@ tresults.seexp  = zeros(nNet,nMetric,nROI);
 for iNet = 1:nNet
     for jMetric = 1:nMetric
         % extract measured values of certain network and metric
-        testdata = data(data(:,netcol)==netinclude(iNet) && data(:,metcol)==jMetric,col+1:end); 
+        testdata = data(data(:,netcol)==netinclude(iNet) & data(:,metcol)==jMetric,col+1:end); 
         if covtype % like 'A' and 'H'
             testcontrol = testdata(Label==unitype(2),:);
             testexp = testdata(Label==unitype(1),:);

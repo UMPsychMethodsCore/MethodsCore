@@ -150,6 +150,11 @@ else  % Start fresh new calculation
         warning('Defaults to use positive values only, change the settings in template script if this is not correct');
     end
     
+    if ~isfield(graph,'threshmode')
+        graph.threshmode = 'value';
+        warning('Defaults to use edge value to threshold the graph, change the settings in template script if this is not correct');
+    end
+    
     if ~isfield(graph,'thresh')
         graph.thresh = -Inf;
         warning('Thresholding value not assigned, use unthresholded graph, change the settings in template script if this is not correct');
@@ -237,13 +242,15 @@ else  % Start fresh new calculation
                         fprintf(' under threshold %.2f',graph.thresh(tThresh));
                     case 'percent'
                         if graph.thresh(tThresh)>100
-                            density = 1;
+                            graph.thresh(tThresh) = 100;
                         elseif graph.thresh(tThresh)<0
-                            density = 0;
-                        else
-                            density = graph.thresh(tThresh)/100;
+                            graph.thresh(tThresh) = 0;
                         end
-                        fprintf('with target density %.2f',density);
+                        fprintf('with target density %.2f percent',graph.thresh(tThresh));
+                    otherwise
+                        graph.threshmode = 'value';
+                        fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                        warning('Cannot recognize threshold mode name, default to value mode');
                 end
                 if (graph.netinclude == -1)
                     fprintf(' in whole brain\n');
@@ -365,7 +372,12 @@ if theFID < 0
 end
 
 % header
-fprintf(theFID,'Subject,Type,Network,Threshold');
+switch graph.threshmode
+    case 'value'
+        fprintf(theFID,'Subject,Type,Network,Threshold');
+    case 'percent'
+        fprintf(theFID,'Subject,Type,Network,TargetDensity(in percent)');
+end
 if Flag.smallworld
     fprintf(theFID,',Smallworldness');
 end
@@ -530,7 +542,7 @@ if (graph.ttest || graph.perm)
         end
         ColDeg = OutDegree(:);      
         ColDeg = ColDeg(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColDeg));
+        ColMetric = repmat(nMetric,length(ColDeg),1);
         SecDeg = [FrontCol ColMetric ColDeg];        
         data   = [data;SecDeg];
         Metrics{end+1} ='GlobalDegree';
@@ -549,7 +561,7 @@ if (graph.ttest || graph.perm)
         end
         ColStr = OutStrength(:);      
         ColStr = ColStr(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColStr));
+        ColMetric = repmat(nMetric,length(ColStr),1);
         SecStr = [FrontCol ColMetric ColStr];        
         data   = [data;SecStr];
         Metrics{end+1} ='GlobalStrength';        
@@ -568,7 +580,7 @@ if (graph.ttest || graph.perm)
         end
         ColDens = OutDensity(:);     
         ColDens = ColDens(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColDens));
+        ColMetric = repmat(nMetric,length(ColDens),1);
         SecDens = [FrontCol ColMetric ColDens];        
         data   = [data;SecDens];
         Metrics{end+1} ='Density';
@@ -587,7 +599,7 @@ if (graph.ttest || graph.perm)
         end
         ColCluster = OutCluster(:);     
         ColCluster = ColCluster(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColCluster));
+        ColMetric = repmat(nMetric,length(ColCluster),1);
         SecCluster = [FrontCol ColMetric ColCluster];        
         data   = [data;SecCluster];
         Metrics{end+1} = 'Clustering';
@@ -606,7 +618,7 @@ if (graph.ttest || graph.perm)
         end
         ColPathLength = OutPathLength(:);  
         ColPathLength = ColPathLength(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColPathLength));
+        ColMetric = repmat(nMetric,length(ColPathLength),1);
         SecPathLength = [FrontCol ColMetric ColPathLength];        
         data   = [data;SecPathLength];
         Metrics{end+1} = 'CharPathLength';
@@ -625,7 +637,7 @@ if (graph.ttest || graph.perm)
         end
         ColTrans = OutTrans(:);       
         ColTrans = ColTrans(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColTrans));
+        ColMetric = repmat(nMetric,length(ColTrans),1);
         SecTrans = [FrontCol ColMetric ColTrans];        
         data   = [data;SecTrans];
         Metrics{end+1} = 'Transitivity';
@@ -644,7 +656,7 @@ if (graph.ttest || graph.perm)
         end
         ColEglob = OutEglob(:);       
         ColEglob = ColEglob(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColEglob));
+        ColMetric = repmat(nMetric,length(ColEglob),1);
         SecEglob = [FrontCol ColMetric ColEglob];        
         data   = [data;SecEglob];
         Metrics{end+1} = 'GlobEfficiency';
@@ -663,7 +675,7 @@ if (graph.ttest || graph.perm)
         end
         ColModu = OutModu(:);        
         ColModu = ColModu(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColModu));
+        ColMetric = repmat(nMetric,length(ColModu),1);
         SecModu = [FrontCol ColMetric ColModu];        
         data   = [data;SecModu];
         Metrics{end+1} = 'Modularity';
@@ -682,7 +694,7 @@ if (graph.ttest || graph.perm)
         end
         ColAssort = OutAssort(:);      
         ColAssort = ColAssort(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColAssort));
+        ColMetric = repmat(nMetric,length(ColAssort),1);
         SecAssort = [FrontCol ColMetric ColAssort];        
         data   = [data;SecAssort];
         Metrics{end+1} = 'Assortativity';
@@ -701,7 +713,7 @@ if (graph.ttest || graph.perm)
         end
         ColBtwn = OutBtwn(:);        
         ColBtwn = ColBtwn(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColBtwn));
+        ColMetric = repmat(nMetric,length(ColBtwn),1);
         SecBtwn = [FrontCol ColMetric ColBtwn];        
         data   = [data;SecBtwn];
         Metrics{end+1} = 'Betweenness';
@@ -720,7 +732,7 @@ if (graph.ttest || graph.perm)
         end
         ColEtpy = OutEtpy(:);        
         ColEtpy = ColEtpy(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColEtpy));
+        ColMetric = repmat(nMetric,length(ColEtpy),1);
         SecEtpy = [FrontCol ColMetric ColEtpy];        
         data   = [data;SecEtpy];
         Metrics{end+1} = 'Entropy';
@@ -739,7 +751,7 @@ if (graph.ttest || graph.perm)
         end
         ColEig = OutEigValue(:);    
         ColEig = ColEig(SubUse==1);
-        ColMetric = repmat(nMetric,1,length(ColEig));
+        ColMetric = repmat(nMetric,length(ColEig),1);
         SecEig = [FrontCol ColMetric ColEig];        
         data   = [data;SecEig];
         Metrics{end+1} = 'EigValue';
@@ -810,7 +822,12 @@ if graph.ttest
         fprintf(1,'Error opening the csv file!\n');
         return;
     end
+    switch graph.threshmode
+        case 'value'
     fprintf(theFID,'Threshold,Network,Metric,tVal,pVal,direction\n');
+        case 'percent'
+            fprintf(theFID,'TargetDensity(in percent),Network,Metric,tVal,pVal,direction\n');
+    end
     for i=1:nThresh
         for j=1:nNet
             for k=1:nMetric
@@ -846,10 +863,15 @@ if graph.perm
     permOut.RealSig=[];
     permpVal = zeros(nThresh,nNet,nMetric);
     for iThresh = 1:nThresh
-        if graph.thresh(iThresh)==-Inf
-            ThreValue='NoThreshold';
-        else
-            ThreValue = ['threshold' num2str(graph.thresh(iThresh))];
+        switch graph.threshmode
+            case 'value'
+                if graph.thresh(tThresh)==-Inf
+                    ThreValue = 'NoThreshold';
+                else
+                    ThreValue = ['threshold_' num2str(graph.thresh(tThresh))];
+                end
+            case 'percent'
+                ThreValue = ['TargetDensity_' num2str(graph.thresh(tThresh)) '%'];
         end
         meandiff = zeros(nThresh,nNet,nMetric);
         meancl   = zeros(nThresh,nNet,nMetric);
@@ -904,6 +926,8 @@ if graph.perm
         
         %%%%%%%%%%%%%%%%%% See the order and find significant difference subset%%%%%%%%%%%%%%%%%%
         realn = 0;
+        RealSigNet = [];
+        RealSigMetric = [];
         for i = 1:nNet
             for j = 1:nMetric          
                 permpVal(iThresh,i,j) = sum(abs(meandiff(iThresh,i,j))<=abs(squeeze(perm(i,j,:))))/nRep;
@@ -915,9 +939,12 @@ if graph.perm
             end
         end
         permDirection = sign(meandiff);        
-         
-        SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
-        permOut.sigloc = [permOut.sigloc SigLoc];
+        
+        if (~isempty(RealSigNet) && ~isempty(RealSigMetric))
+            SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
+            permOut.sigloc = [permOut.sigloc SigLoc];
+            permOut.siglocOrder='Row1 - Threshold;Row2 - BrainNetwork;Row3 - Metrics';
+        end
         
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
@@ -934,7 +961,7 @@ if graph.perm
     else
         permOut.networkorder=graph.netinclude;
     end
-    permOut.siglocOrder='Row1 - Threshold;Row2 - BrainNetwork;Row3 - Metrics';
+    
     
     display('Saving permutation results of global measures');
     permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
@@ -947,7 +974,12 @@ if graph.perm
         fprintf(1,'Error opening the csv file!\n');
         return;
     end
-    fprintf(theFID,'Threshold,Network,Metric,rawpVal,direction\n');
+    switch graph.threshmode
+        case 'value'
+            fprintf(theFID,'Threshold,Network,Metric,rawpVal,direction\n');
+        case 'percent'
+            fprintf(theFID,'TargetDensity(in percent),Network,Metric,rawpVal,direction\n');
+    end
     for i=1:nThresh
         for j=1:nNet
             for k=1:nMetric
@@ -1019,11 +1051,18 @@ if graph.node
         
     
     for tThresh = 1:nThresh
-        if graph.thresh(tThresh)==-Inf
-            ThreValue = 'NoThreshold';
-        else
-            ThreValue = ['threshold' num2str(graph.thresh(tThresh))];
+        
+        switch graph.threshmode
+            case 'value'
+                if graph.thresh(tThresh)==-Inf
+                    ThreValue = 'NoThreshold';
+                else
+                    ThreValue = ['threshold_' num2str(graph.thresh(tThresh))];
+                end
+            case 'percent'
+                ThreValue = ['TargetDensity_' num2str(graph.thresh(tThresh)) '%'];
         end
+        
         for kNet=1:nNet
             if graph.netinclude==-1
                 Netname = 'WholeBrain';
@@ -1038,6 +1077,9 @@ if graph.node
                 else
                     NodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
+                
+                fprintf('Computing and saving results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
+                
                 for iSub = 1:nSub
                     if SubUse(iSub)
                         Subjname=Names{iSub};
@@ -1074,7 +1116,6 @@ if graph.node
                             NodeFLsub = OutData;
                         end
                         %%%%%%%%%%%% save nii image of first level node wise measure results %%%%%%%%%%%%%
-                        fprintf('Writing out first level node-wise measure results');
                         group = Types(iSub);
                         TDgptempPath = mc_GenPath(struct('Template',TDgptemp,'mode','makeparentdir'));
                         if (graph.netinclude==-1)
@@ -1083,7 +1124,7 @@ if graph.node
                             longOutSave = zeros(1,length(nets));
                             longOutSave(nets==Netnum)=NodeFLsub;
                             mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
-                        end                        
+                        end
                         NodeFL(iSub,:)=NodeFLsub;
                     end
                 end
@@ -1112,7 +1153,7 @@ if graph.node
                     % calculate real mean difference
                     input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) ones(size(NodeFL,1),1) NodeFL];
                     [permresults] = mc_graphtheory_meandiff(graph,input,1,1);
-                    nodemeandiff(iCol) = permresults.meandiff;
+                    nodemeandiff = squeeze(permresults.meandiff);
                     
                     if nodepermCores ~=1
                         try
