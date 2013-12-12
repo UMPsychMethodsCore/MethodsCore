@@ -269,6 +269,7 @@ else  % Start fresh new calculation
                             GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
                         end
                     case 'percent'
+                        density = graph.thresh(tThresh)/100;
                         nedge = numel(GraphThresh);
                         keep  = round(nedge*density);
                         [~,index] = sort(GraphThresh(:));
@@ -488,7 +489,7 @@ for tThresh = 1:nThresh
 end
 
 fclose(theFID);
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Second Level
 %%% 1.Re-arrangement of global measure data to a 2d matrix 
@@ -802,7 +803,7 @@ if graph.ttest
     tOut.t=t;
     tOut.meancl=meancl;
     tOut.meanep=meanep;
-    tOut.direction=sign(meanep-meancl);
+    tOut.direction = sign(meanep-meancl);
     tOut.secl=secl;
     tOut.seep=seep;
     tOut.metricorder=Metrics;
@@ -840,13 +841,17 @@ if graph.ttest
                 fprintf(theFID,'%s,',tOut.metricorder{k});
                 fprintf(theFID,'%.4f,',tOut.t(i,j,k));
                 fprintf(theFID,'%.4f,',tOut.p(i,j,k));
-                switch tOut.direction(i,j,k)
-                    case 1
-                        fprintf(theFID,'%s\n','increase');
-                    case -1
-                        fprintf(theFID,'%s\n','decrease');
-                    case 0
-                        fprintf(theFID,'%s\n','nodiff');
+                if tOut.p(i,j,k)<siglevel
+                    switch tOut.direction(i,j,k)
+                        case 1
+                            fprintf(theFID,'%s\n','increase');
+                        case -1
+                            fprintf(theFID,'%s\n','decrease');
+                        case 0
+                            fprintf(theFID,'%s\n','nodiff');
+                    end
+                else
+                    fprintf(theFID,'%s\n','nodiff');
                 end
                 
             end
@@ -854,7 +859,8 @@ if graph.ttest
     end
     fclose(theFID);    
 end
- 
+
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Permutation Test Stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -862,22 +868,22 @@ end
 if graph.perm
     permOut.RealSig=[];
     permpVal = zeros(nThresh,nNet,nMetric);
+    meandiff = zeros(nThresh,nNet,nMetric);
+    meancl   = zeros(nThresh,nNet,nMetric);
+    meanep   = zeros(nThresh,nNet,nMetric);
+    secl     = zeros(nThresh,nNet,nMetric);
+    seep     = zeros(nThresh,nNet,nMetric);
     for iThresh = 1:nThresh
         switch graph.threshmode
             case 'value'
-                if graph.thresh(tThresh)==-Inf
+                if graph.thresh(iThresh)==-Inf
                     ThreValue = 'NoThreshold';
                 else
-                    ThreValue = ['threshold_' num2str(graph.thresh(tThresh))];
+                    ThreValue = ['threshold_' num2str(graph.thresh(iThresh))];
                 end
             case 'percent'
-                ThreValue = ['TargetDensity_' num2str(graph.thresh(tThresh)) '%'];
-        end
-        meandiff = zeros(nThresh,nNet,nMetric);
-        meancl   = zeros(nThresh,nNet,nMetric);
-        meanep   = zeros(nThresh,nNet,nMetric);
-        secl     = zeros(nThresh,nNet,nMetric);
-        seep     = zeros(nThresh,nNet,nMetric);
+                ThreValue = ['TargetDensity_' num2str(graph.thresh(iThresh)) '%'];
+        end        
         
         input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
                
@@ -929,23 +935,17 @@ if graph.perm
         RealSigNet = [];
         RealSigMetric = [];
         for i = 1:nNet
-            for j = 1:nMetric          
-                permpVal(iThresh,i,j) = sum(abs(meandiff(iThresh,i,j))<=abs(squeeze(perm(i,j,:))))/nRep;
+            for j = 1:nMetric
+                perma = single(abs(meandiff(iThresh,i,j)));  % convert to single type to avoid very small differneces
+                permb = single(abs(squeeze(perm(i,j,:))));
+                permpVal(iThresh,i,j) = sum(perma<=permb)/nRep;
                 if permpVal(iThresh,i,j)<permlevel
                     realn = realn+1;
                     RealSigNet(realn)=i;
                     RealSigMetric(realn)=j;
                 end
             end
-        end
-        permDirection = sign(meandiff);        
-        
-        if (~isempty(RealSigNet) && ~isempty(RealSigMetric))
-            SigLoc = [repmat(graph.thresh(iThresh),realn);RealSigNet;RealSigMetric];
-            permOut.sigloc = [permOut.sigloc SigLoc];
-            permOut.siglocOrder='Row1 - Threshold;Row2 - BrainNetwork;Row3 - Metrics';
-        end
-        
+        end       
     end
     %%%%%%%%%%%%% Save results to mat file and csv file %%%%%%%%%%%%%%%%%%%%%%  
     permOut.rawp = permpVal;
@@ -953,7 +953,7 @@ if graph.perm
     permOut.meanep=meanep;
     permOut.secl=secl;
     permOut.seep=seep;
-    permOut.direction = permDirection;
+    permOut.direction = sign(meandiff);
     permOut.siglevel = permlevel;
     permOut.metricorder=Metrics;
     if (graph.netinclude==-1)
@@ -965,8 +965,7 @@ if graph.perm
     
     display('Saving permutation results of global measures');
     permOutSave = mc_GenPath(struct('Template',permOutMat,'mode','makeparentdir'));
-    save(permOutSave,'permOut','-v7.3');
-    
+    save(permOutSave,'permOut','-v7.3');    
     
     permOutPath = mc_GenPath(struct('Template',permOutPathTemplate,'mode','makeparentdir'));
     theFID = fopen(permOutPath,'w');
@@ -991,13 +990,17 @@ if graph.perm
                 end
                 fprintf(theFID,'%s,',permOut.metricorder{k});
                 fprintf(theFID,'%.4f,',permpVal(i,j,k));
-                switch permDirection(i,j,k)
-                    case 1
-                        fprintf(theFID,'%s\n','increase');
-                    case -1
-                        fprintf(theFID,'%s\n','decrease');
-                    case 0
-                        fprintf(theFID,'%s\n','nodiff');
+                if permOut.rawp(i,j,k)<permlevel
+                    switch permOut.direction(i,j,k)
+                        case 1
+                            fprintf(theFID,'%s\n','increase');
+                        case -1
+                            fprintf(theFID,'%s\n','decrease');
+                        case 0
+                            fprintf(theFID,'%s\n','nodiff');
+                    end
+                else
+                    fprintf(theFID,'%s\n','nodiff');
                 end
             end
         end
@@ -1007,7 +1010,7 @@ end
 
 fprintf('Global Measures All Done\n\n')
 
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % node-wise measurements 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1078,6 +1081,26 @@ if graph.node
                     NodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
                 
+                switch MetricLabel
+                    case 'E'
+                        Metricname = 'degree';
+                    case 'G'                       
+                        Metricname = 'strength';
+                    case 'B'                        
+                        Metricname = 'betweenness';
+                    case 'F'                        
+                        Metricname = 'efficiency';
+                    case 'C'                        
+                        Metricname = 'clustering';
+                    case 'V'                        
+                        Metricname = 'eigenvector';
+                    case 'N'                        
+                        Metricname = 'eccentricity';
+                    otherwise
+                        display(sprintf('%s is not in the measure list yet, please add it',MetricLabel));
+                end
+                    
+                
                 fprintf('Computing and saving results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                 
                 for iSub = 1:nSub
@@ -1086,27 +1109,20 @@ if graph.node
                         switch MetricLabel
                             case 'E'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.deg;
-                                Metricname = 'degree';
                             case 'G'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.strength;
-                                Metricname = 'strength';
                             case 'B'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.nodebtwn;
-                                Metricname = 'betweenness';
                             case 'F'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.eloc;
-                                Metricname = 'efficiency';
                             case 'C'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.nodecluster;
-                                Metricname = 'clustering';
                             case 'V'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.eigvector;
-                                Metricname = 'eigenvector';
                             case 'N'
                                 OutData = CombinedOutput{tThresh,iSub,kNet}.ecc;
-                                Metricname = 'eccentricity';
                             otherwise
-                                display(sprintf('%s is not in the measure list yet, please add it',Metricname));
+                                display(sprintf('%s is not in the measure list yet, please add it',MetricLabel));
                         end
                         if graph.nodezscore
                             meanv   = mean2(OutData);

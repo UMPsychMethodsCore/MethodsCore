@@ -33,7 +33,7 @@ function [ output ] = mc_graphtheory_permutation( graph,input,nNet,nMetric)
 
 Label = input.types;
 ind = randperm(length(Label));
-permLabel = Label(ind)';
+permLabel = Label(ind);
 input.types = permLabel;
 
 % mean difference

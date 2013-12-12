@@ -1,4 +1,4 @@
-function [ permresults ] = mc_graphtheory_meandiff( graph,input,nNet,nMetric )
+function [ results ] = mc_graphtheory_meandiff( graph,input,nNet,nMetric )
 % MC_GRAPHTHEORY_MEANDIFF 
 % Calculating group mean difference for permutation test use
 % INPUT
@@ -28,16 +28,16 @@ function [ permresults ] = mc_graphtheory_meandiff( graph,input,nNet,nMetric )
 %
 % OUTPUT
 %
-%       permresults
-%             permresults.meandiff -   nNet x nMetric x nROI matrix of group mean
+%       results
+%             results.meandiff -   nNet x nMetric x nROI matrix of group mean
 %                                      difference
-%             permresults.meancl   -   nNet x nMetric x nROI matrix of control
+%             results.meancl   -   nNet x nMetric x nROI matrix of control
 %                                      group mean
-%             permresults.meanep   -   nNet x nMetric x nROI matrix of experiment
+%             results.meanep   -   nNet x nMetric x nROI matrix of experiment
 %                                      group mean
-%             permresults.secl     -   nNet x nMetric x nROI matrix of control
+%             results.secl     -   nNet x nMetric x nROI matrix of control
 %                                      group standard error
-%             permresults.seep     -   nNet x nMetric x nROI matrix of experiment
+%             results.seep     -   nNet x nMetric x nROI matrix of experiment
 %                                      group standard error
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,11 +55,11 @@ metcol = input.metcol;
 
 nROI = size(data,2)-col;
 
-permresults.meandiff  = zeros(nNet,nMetric,nROI);
-permresults.meancl    = zeros(nNet,nMetric,nROI);
-permresults.meanep = zeros(nNet,nMetric,nROI);
-permresults.secl   = zeros(nNet,nMetric,nROI);
-permresults.seep   = zeros(nNet,nMetric,nROI);
+results.meandiff  = zeros(nNet,nMetric,nROI);
+results.meancl    = zeros(nNet,nMetric,nROI);
+results.meanep = zeros(nNet,nMetric,nROI);
+results.secl   = zeros(nNet,nMetric,nROI);
+results.seep   = zeros(nNet,nMetric,nROI);
 
 %%%%%%%%% Calculation %%%%%%%%%%%%%%%%%%
 for iNet = 1:nNet
@@ -77,11 +77,11 @@ for iNet = 1:nNet
             ncontrol = sum(Label==unitype(2));
             nexp = sum(Label==unitype(1));
         end
-        permresults.meancl(iNet,jMetric,:) = mean(testcl);
-        permresults.meanep(iNet,jMetric,:) = mean(testep);
-        permresults.secl(iNet,jMetric,:)   = std(testcl)/(sqrt(ncontrol));
-        permresults.seep(iNet,jMetric,:)   = std(testep)/(sqrt(nexp));
-        permresults.meandiff(iNet,jMetric,:) = mean(testep)-mean(testcl);
+        results.meancl(iNet,jMetric,:) = mean(testcl);
+        results.meanep(iNet,jMetric,:) = mean(testep);
+        results.secl(iNet,jMetric,:)   = std(testcl)/(sqrt(ncontrol));
+        results.seep(iNet,jMetric,:)   = std(testep)/(sqrt(nexp));
+        results.meandiff(iNet,jMetric,:) = mean(testep)-mean(testcl);
     end
 end
 

@@ -202,20 +202,33 @@ if Flag.pathlength
         D = distance_wei(lengthmtrx);     
     else
         D = distance_bin(mtrx);
-    end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % -Eccentricity-
-    % The maximal shortest path length between a node and any other node 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Flag.eccentricity
-        display('Calculating eccentricity');
-        Output.ecc=max(D.*(D~=Inf),[],2);
-    end
+    end    
     [lambda,~,~,~,~] = charpath(D); % same code for weighted and unweighted matrix
     Output.pathlength = lambda;
 
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Eccentricity-
+% The maximal shortest path length between a node and any other node
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.eccentricity
+    display('Calculating eccentricity');
+    if weighted
+        % distance_wei function asks for connection-length matrix, as in a
+        % weighted correlation graph, typically higher correlations are
+        % interpreted as shorter distances, here we use the inverse of the
+        % weighted connection matrix as the connection-length matrix,
+        % except for that at the diagonal the lengths are set to 0.
+        lengthmtrx                = 1./mtrx;  
+        nmtrx                     = size(mtrx);
+        lengthmtrx(1:nmtrx+1:end) = 0;
+        D = distance_wei(lengthmtrx);     
+    else
+        D = distance_bin(mtrx);
+    end    
+    Output.ecc=max(D.*(D~=Inf),[],2);
+end
 
 
 

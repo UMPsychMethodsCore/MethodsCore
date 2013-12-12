@@ -15,8 +15,8 @@ clear all;
 % Your main analysis folder
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp = '/net/data4/slab_OCD/';
-
+% Exp = '/net/data4/slab_OCD/';
+Exp = '/net/data4/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Input File -
@@ -42,7 +42,9 @@ Exp = '/net/data4/slab_OCD/';
 % The ones with values only in one triangular is not acceptable. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/4mmVoxel_Censor/gm_gp_corr.mat';
+% SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/4mmVoxel_Censor/gm_gp_corr.mat';
+
+SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/Tx1/RestingGrid1166/RestingGrid1166_corr.mat';
 
 ThreshField = 'rMatrix';
 EdgeField   = 'rMatrix';
@@ -58,7 +60,8 @@ EdgeField   = 'rMatrix';
 % NamePre  - Prefix of Subject Names, defaults to ''  %%% find a way to force avoiding the issue
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-MDF.path    = '[Exp]/Scripts/MDF/MDF_OCD.csv'; 
+% MDF.path    = '[Exp]/Scripts/MDF/MDF_OCD.csv'; 
+MDF.path    = '[Exp]/Scripts/slab/MDF/MDF_Rest_tx1.csv'; 
 
 NamePre = '';
 
@@ -73,7 +76,8 @@ NamePre = '';
 % enough.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NetworkParameter = '[Exp]/FirstLevel/080315jp/4mmVoxel_Censor/gm_gp_parameters.mat';
+% NetworkParameter = '[Exp]/FirstLevel/080315jp/4mmVoxel_Censor/gm_gp_parameters.mat';
+NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_parameters.mat';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Network Selection -
@@ -98,7 +102,7 @@ graph.netinclude = -1;
 %                     like 'A' and 'H'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.covtype = 0;
+graph.covtype = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Graph Type -
@@ -124,7 +128,8 @@ graph.weighted   = 1;
 %                                right range
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.amplify     = 10000;
+% graph.amplify     = 10000;
+graph.amplify     = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Calculation Options -
@@ -178,7 +183,7 @@ graph.value    = 0;
 
 graph.threshmode = 'percent';
 % graph.thresh  = 0.25;
-graph.thresh = 10;
+graph.thresh = [20 10 8 6 2];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Nodewise Measure - 
@@ -200,8 +205,11 @@ graph.thresh = 10;
 
 graph.node        = 1;
 
-TDtemplate = '[Exp]/Subjects_yanni_20120508/080222rt/func/run_01/4mmswrarun_01.nii';
-TDmask     = '[Exp]/ROIS/4mm_rEPI_MASK_NOEYES_restspace.img';
+% TDtemplate = '[Exp]/Subjects_yanni_20120508/080222rt/func/run_01/4mmswrarun_01.nii';
+% TDmask     = '[Exp]/ROIS/4mm_rEPI_MASK_NOEYES_restspace.img';
+
+TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_01/swrarestrun_01.nii';
+TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - t-test -
@@ -259,7 +267,7 @@ permCores = 1;
 graph.nodeperm = 1;   
 
 nodenRep = 10000;
-nodepermCores = 3;
+nodepermCores = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -281,6 +289,7 @@ graph.FDR = 1;
 % 
 %         A = assortativity
 %         B = betweenness [global/node-wise]
+%             (Note: Time-consuming)
 %         C = clustering coefficient [global/node-wise]
 %         D = density
 %         E = degree [global/node-wise]
@@ -313,9 +322,9 @@ graph.FDR = 1;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.measures = 'E';
+graph.measures = 'ADEFMNV';
 
-graph.voxelmeasures = 'EG';   
+graph.voxelmeasures = 'EFGV';   
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Output -
@@ -325,7 +334,7 @@ graph.voxelmeasures = 'EG';
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OutputFolder = 'test120513';
+OutputFolder = 'testdirection';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - set the path -
