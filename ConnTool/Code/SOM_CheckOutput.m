@@ -16,6 +16,8 @@
 %                               'images'   - save a single correlation image
 %                                           per ROI
 %                               'variance' - save a single variance map.
+%                               'falff'    - save the falff maps
+%                               'alff'     - save the alff maps
 %               .correlationType  - partial (maps), or full (maps and images)
 %               .directory    - full directory path to output
 %               .name         - name of output file (generic)
@@ -65,14 +67,18 @@ if isfield(Output,'correlation')
     if ischar(Output.correlation)
         Output.correlation = lower(Output.correlation);
         switch lower(Output.correlation(1))
-            case 'm'
-                Output.type = 0;   % Correlation map/mat file. This require more than 1 ROI!
-            case 'i'
+	 case 'm'
+      	        Output.type = 0;   % Correlation map/mat file. This require more than 1 ROI!
+	 case 'i'
                 Output.type = 1;   % r-image and z-image.
 		Output.correlationType = 'full';
 		SOM_LOG('WARNING : Output correlation type being forced to "full"');
 	 case 'v'
 	        Output.type = 2; % variance map.
+         case 'f' 
+	        Output.type = 3; % falff maps.
+         case 'a' 
+	        Output.type = 4; % alff maps
 	 otherwise
                 SOM_LOG('FATAL ERROR : Output type no specified');
                 return
@@ -157,6 +163,10 @@ if isfield(Output,'description') == 0
     Output.description = 'Correlation image';
    case 2
     Output.description = 'Variance image';    
+   case 3
+    Output.description = 'fALFF image';    
+   case 4
+    Output.description = 'ALFF image';    
    otherwise
     SOM_LOG('STATUS : Using generic file comment description.');
   end

@@ -15,8 +15,8 @@
 %     sample      = sample period (TR in fmri language)
 %
 %
-%     band1       = [fLow fHi]
-%     band2       = [fLow fHi]
+%     band1       = [fLow fHi]  (narrow band)
+%     band2       = [fLow fHi]  (broad band)
 %
 % NOTE band1 must be contained in band2
 %

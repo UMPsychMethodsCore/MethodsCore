@@ -141,6 +141,20 @@ switch parameters.Output.type
         SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
         results = SOM_CalculateVarianceImage(D0,parameters);
         
+    case 3
+        %
+        % fALFF image.
+        %
+        SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
+        results = SOM_CalculatefALFF(D0,parameters);
+        
+    case 4
+        %
+        % ALFF image.
+        %
+        SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
+        results = SOM_CalculateALFF(D0,parameters);
+        
     otherwise
         %
         % Error case, go ahead and save the parameter file, maybe will help with debug.

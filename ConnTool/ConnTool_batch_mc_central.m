@@ -331,6 +331,20 @@ if (RunMode(1) | sum(RunMode) == 0)
             parameters.TIME.run(iRun).DetrendOrder  = DetrendOrder;
             parameters.TIME.run(iRun).LowF          = LowFrequency;
             parameters.TIME.run(iRun).HiF           = HighFrequency;
+	    parameters.TIME.run(iRun).FreqBand1  = [0.0 1000.0];
+	    parameters.TIME.run(iRun).FreqBand2  = [0.0 1000.0];
+	    if exist('LowFreqBand1','var')
+	      parameters.TIME.run(iRun).FreqBand1(1)   = LowFreqBand1;
+	    end
+	    if exist('LowFreqBand2','var')
+	      parameters.TIME.run(iRun).FreqBand2(1)   = LowFreqBand2;
+	    end
+	    if exist('HighFreqBand1','var')
+	      parameters.TIME.run(iRun).FreqBand1(2)   = HighFreqBand1;
+	    end
+	    if exist('HighFreqBand2','var')
+	      parameters.TIME.run(iRun).FreqBand2(2)   = HighFreqBand2;
+	    end
             parameters.TIME.run(iRun).gentle        = Gentle;
             parameters.TIME.run(iRun).padding       = Padding;
             parameters.TIME.run(iRun).whichFilter   = BandpassFilter;

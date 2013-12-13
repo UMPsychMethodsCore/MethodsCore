@@ -358,6 +358,16 @@ Padding        = 10;
 BandpassFilter = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Bands 1 and 2 for ALFF (Band 1 needed) and fALFF (Band 1 and Band 2 needed)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LowFreqBand1   = 0.01;
+HighFreqBand1  = 0.10;
+LowFreqBand2   = 0.00001;
+HighFreqBand2  = 0.25;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% the order to perform the regressions etc
 %%%         D = detrend      - Nth order detrend
 %%%         S = despike      - by replacement
@@ -392,6 +402,10 @@ voxelIDX       = 1;
 %%% Type of input
 %%%         coordinates - provide the center of each seed and a radius
 %%%
+%%%                       at the moment if you are wanting alff or falff
+%%%                       then put in coordinates and put in something like
+%%%                       [0 0 0] to pass muster
+%%% 
 %%%         coordload   - load corridnate from the specified file
 %%%
 %%%         files       - provide a list of ROI files
@@ -506,6 +520,8 @@ OutputName      = 'ConnToolTest5';
 %%% Type of output
 %%%       images - output R and Z images of correlation with each seed
 %%%       maps   - output R,P, and Z matrices of correlations between seeds
+%%%       falff  - output the falff maps only.
+%%%       alff   - output the alff maps only.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputType     = 'images';
