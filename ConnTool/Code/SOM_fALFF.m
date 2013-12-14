@@ -20,6 +20,8 @@
 %
 % NOTE band1 must be contained in band2
 %
+% function results = SOM_fALFF(theData,sampleTR,band1,band2)
+%
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function results = SOM_fALFF(theData,sampleTR,band1,band2)

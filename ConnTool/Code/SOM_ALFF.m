@@ -17,7 +17,8 @@
 %
 %     band        = [fLow fHi]
 %
-% NOTE band1 must be contained in band2
+%
+% function results = SOM_ALFF(theData,sampleTR,band)
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -30,10 +31,13 @@ if band(1) >= band(2)
   return
 end
 
-band_data = SOM_Filter(theData,sampleTR,band(1),band(2),1,10,1);
+% Hard code to use gentle rolling and 10 padding and internal FFT as we 
+% need the power spectrum;
+
+band_data    = SOM_Filter(theData,sampleTR,band(1),band(2),2,10,1);
 
 band_data_ps = SOM_PowerSpect(band_data,sampleTR);
 
-results = sum(sqrt(band_data_ps),2);
+results      = sum(sqrt(band_data_ps),2);
 
 return

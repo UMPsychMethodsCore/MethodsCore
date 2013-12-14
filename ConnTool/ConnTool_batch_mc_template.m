@@ -353,7 +353,7 @@ Fraction            = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LowFrequency   = 0.01;
 HighFrequency  = 0.1;
-Gentle         = 1;
+Gentle         = 2;
 Padding        = 10;
 BandpassFilter = 1;
 
@@ -361,11 +361,19 @@ BandpassFilter = 1;
 %
 % Bands 1 and 2 for ALFF (Band 1 needed) and fALFF (Band 1 and Band 2 needed)
 %
+% For fALFF then band 2 should contain band 1
+% also the high frequency cutoff should no great than about, and maybe even
+% smaller: 
+%
+%   (1-2/nTimePoints)*1/(2*TR)-0.001
+%
+% Below the 0.0022 is a guess for 240 times points taken at 2 sec TR
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LowFreqBand1   = 0.01;
 HighFreqBand1  = 0.10;
-LowFreqBand2   = 0.00001;
-HighFreqBand2  = 0.25;
+LowFreqBand2   = 0.00;
+HighFreqBand2  = 1/(2*TR)-.0022;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% the order to perform the regressions etc
