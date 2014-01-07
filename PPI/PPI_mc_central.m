@@ -216,4 +216,13 @@ for iSubject = 1:size(SubjDir,1)
             end
         end
     end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%      Log usage information        %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    mcUsageReturn = mc_Usage([Subject ': PPI completed : ' num2str(size(ROIs,1)) ' ROIs'],'PPI');
+    if ~mcUsageReturn
+        mc_Logger('log','Unable to write some usage information',2);
+    end
+
 end

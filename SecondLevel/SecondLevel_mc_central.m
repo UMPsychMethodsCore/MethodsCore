@@ -246,6 +246,9 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
             clear savetemp job;
         end
 		n = n + 1;
+        
+
+        
         end
         if (~isempty(jobs))
             if (strcmp(options.spmver,'SPM8')==1)
@@ -257,8 +260,18 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
                 spm_jobman('run',jobs);
                 spm_jobman('run',jobs2);
             end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%   Log usage information                %%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            ModelTypes = {'One-Sample','Two-Sample','Paired T','Mult Reg','Full Factorial','Flexible Factorial'};
+            ModelString = ModelTypes{options.models(N).type};
+            mcUsageReturn = mc_Usage([ModelString ': SecondLevel completed'],'SecondLevel');
+            if ~mcUsageReturn
+                mc_Logger('log','Unable to write some usage information',2);
+            end
         end
     end
+
     mc_Logger('log',sprintf('Finshed processing %d models at %s',length(options.models),datestr(now)),3);
     
 

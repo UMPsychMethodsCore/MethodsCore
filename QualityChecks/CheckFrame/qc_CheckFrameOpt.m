@@ -10,16 +10,26 @@ function checkedFiles = qc_CheckFrameOpt(Opt)
 %       FileExp      - Regexp for file names
 %       OutlierText  - full path to output text file
 %       Thresh       - z-score threshold value
+%       LogTemplate  - directory path to log files
 %
 % Output:
 %   checkedFiles{:,1} - file names
 %   checkedFiles{:,2} - subject name
 %   checkedFiles{:,3} - run names
 %
+Exp = Opt.Exp; % do this first, since LogDirectory assignment calls GenPath, and requires that Exp be defined in workspace
 nsubjects = size(Opt.List.Subjects,1);
 tempRuns = numel([Opt.List.Subjects{:,3}]);
 checkedFiles = cell(tempRuns,3);
 index = 1;
+
+% handle logging
+LogDirectory = mc_GenPath(struct('Template',Opt.LogTemplate,'mode','makedir'));
+result = mc_Logger('setup', LogDirectory);
+if (~result)
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+global mcLog
 
 if Opt.Thresh < 0
     mc_Error(['Invalid threshold %f\n'...
@@ -27,7 +37,6 @@ if Opt.Thresh < 0
 end
 
 fileExp = ['^' Opt.FileExp '.*nii'];
-Exp = Opt.Exp;
 check.Template = Opt.ImageTemplate;
 check.mode = 'check';
 for i = 1:nsubjects
