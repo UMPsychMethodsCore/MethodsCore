@@ -49,5 +49,12 @@ function RunContrastAddOn(Subjects, opt)
         spm('defaults', 'FMRI');
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
+
+        % log usage
+        str = sprintf('Subject:%s FirstLevel complete\n', Subjects(i).name);
+        mcUsageReturn = mc_Usage(str,'FirstLevelContrast');
+        if ~mcUsageReturn
+            mc_Logger('log','Unable to write some usage information',2);
+        end
     end
 end

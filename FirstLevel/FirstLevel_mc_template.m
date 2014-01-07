@@ -322,9 +322,9 @@ VolumeSpecifier = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%ScaleOp - 'Scaling' = do proportonal scaling
-%%%          'none' = do standard grand mean scaling
+%%%          'None' = do standard grand mean scaling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ScaleOp = 'none';
+ScaleOp = 'None';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
