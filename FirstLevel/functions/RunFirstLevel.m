@@ -141,6 +141,13 @@ function RunFirstLevel(AllSubjects, opt)
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 
+        % log usage
+        str = sprintf('Subject:%s FirstLevel complete\n', AllSubjects(i).name);
+        mcUsageReturn = mc_Usage(str,'FirstLevel');
+        if ~mcUsageReturn
+            mc_Logger('log','Unable to write some usage information',2);
+        end
+
         % move from sandbox to correct output directory
         if opt.UseSandbox == 1
             MoveSandboxOutput(OutputDir, AllSubjects(i).OutputDir);           

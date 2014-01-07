@@ -145,6 +145,10 @@ RegFilesTemplate = {
 %%% The script will handle balancing it across runs
 %%% If using fir basis functions, condition vectors must be at least as
 %%% long as the number of bins being used.
+%%%
+%%% If you are using FIR basis functions, you can automatically generate
+%%% contrasts for each regressor using the FirDoContrasts flag  in the advanced
+%%% section.  Contrasts listed here are still generated.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {
 'UncertDraw_PostProb_Pos' [0 1 0] 0 0 0 0 [0 0 0 0 0 0];
@@ -257,6 +261,17 @@ FirDuration = 0;
 FirBins = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Only used if Basis = 'fir'
+%%% Flag used to automatically generate contrasts when FIR basis functions
+%%% are used.  The contrasts generated have a 1 at each FIR regressor
+%%% and zero everywher else.
+%%% Contrasts listed in ContrastList WILL still be generated
+%%% 0 - create no contrasts
+%%% 1 - create a contrast for each bin for all conditions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FirDoContrasts = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run-specific contrasts (NumContrasts rows each of NumRuns elements)
 %%% This allows you to set up a list of weights for each run for each
 %%% contrast. This combines with the ContrastList above. Leaving a
@@ -322,9 +337,9 @@ VolumeSpecifier = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%ScaleOp - 'Scaling' = do proportonal scaling
-%%%          'none' = do standard grand mean scaling
+%%%          'None' = do standard grand mean scaling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ScaleOp = 'none';
+ScaleOp = 'None';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.

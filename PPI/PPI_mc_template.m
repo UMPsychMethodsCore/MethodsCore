@@ -103,7 +103,7 @@ PPIType = 'standard';
 %%% contain only 0s and 1s and determines which conditions to include.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIs = {
-	'vmPFC',[8 42 -12],[5],[1 1 0];
+	'vmPFC',[8 42 -12],[5],[1 -1 0];
 };
 
 
