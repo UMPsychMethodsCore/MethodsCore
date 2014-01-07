@@ -118,7 +118,7 @@ function opt = CheckOpt(opt)
     end
 
     % handle contrasts
-    if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2)
+    if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
         NumCond = size(opt.ConditionName, 1);
         NumContrastCols = size(opt.ContrastList, 2);
         msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
@@ -166,6 +166,24 @@ function opt = CheckOpt(opt)
         end
     
     end 
+
+    % using BasesPerCondition let's make FIR contrast list if we need to
+    if strcmp(opt.Basis, 'fir') == 1 && opt.FirDoContrasts == 1
+        DummyRow = cell(1, length(BasesPerCondition) + 1);
+        for i = 1:length(BasesPerCondition)
+            DummyRow{1, i} = zeros(1, BasesPerCondition(i));
+        end
+
+        for i = 1:length(BasesPerCondition)
+            for k = 1:opt.FirBins
+                InsertRow = DummyRow;
+                InsertRow{1, i}(k) = 1;
+                TmpCondName = sprintf('%sBin%02d', opt.ConditionName{i}, k);
+                InsertRow = [TmpCondName InsertRow];
+                opt.ContrastList = [opt.ContrastList; InsertRow];
+            end
+        end
+    end
 
     % handle VolumeSpecifier
     if ~isempty(opt.VolumeSpecifier) == 1

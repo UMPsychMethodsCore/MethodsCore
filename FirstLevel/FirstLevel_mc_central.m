@@ -48,6 +48,7 @@ try
     elseif strcmp(opt.Basis, 'fir') == 1
         opt.FirDuration = FirDuration;
         opt.FirBins = FirBins;
+        opt.FirDoContrasts = FirDoContrasts;
     end
 
     opt.UseSandbox = UseSandbox;
