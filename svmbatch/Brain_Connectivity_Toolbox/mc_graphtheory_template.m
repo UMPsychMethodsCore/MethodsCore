@@ -20,26 +20,26 @@ Exp = '/net/data4/MAS/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Input File -
-% The script expects subject-wise input files. 
-% Each subject-wise file is a struct, and supposed to have 1 or 2 
-% subfields, each of them contains an nROIxnROI matrix. One subfield serves 
-% as thresholding matrix, for each pair of node, only when % its value in 
-% thresholding matrix higher than the threshold will it be considered as a 
-% connection. The other subfield serves as a edge matrix, which provides 
-% the actual value of the connections, could be either binary or weighted. 
-% ThreshField and EdgeField are not necessary to be different. 
-% For example, for pearson's r correlation, we suggest to use r matrix or 
-% p matrix as thresholding matrix and r matrix as edge matrix; for cPPI, we 
-% suggest to use t-score matrix as thresholding matrix and beta matrix as 
-% edge matrix.
+% This script expects subject-wise input files. 
+% Each subject-wise file is a struct, and should have 1 or 2 
+% subfields, each of them containing an nROIxnROI matrix. One subfield serves 
+% as thresholding matrix. For each edge, only when the value in ThreshField
+% is above the threshold value in graph.thresh will the edge be included.
+% The other subfield serves as a edge matrix, which provides 
+% the actual value of the connections (can be either binary or weighted). 
+% ThreshField and EdgeField can be the same or different fields. 
+% For example, for Pearson's r correlations, we suggest using the r matrix or 
+% p matrix as the threshold matrix and the r matrix as theedge matrix; 
+% for cPPI, we suggest using the t-score matrix as thresholding matrix and 
+% the beta matrix as edge matrix.
 %
-% SubjWiseTemp - Subject-wise input file
+% SubjWiseTemp - Subject-wise input file template
 % ThreshField  - Subfield with thresholding matrix
 % EdgeField    - Subfield with edge matrix
 % 
 % The matrices in both ThreshField and EdgeField should be nROI x nROI
-% matrix with symmetric or asymmetric values on upper and lower triangular
-% The ones with values only in one triangular is not acceptable. 
+% matrix with symmetric or asymmetric values on upper and lower triangle.
+% Values only being in one triangle is not acceptable. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/4mmVoxel_Censor/gm_gp_corr.mat';
@@ -51,13 +51,12 @@ EdgeField   = 'rMatrix';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - MasterData File -
-% By loading the pointed MDF, the script will extract subject name and type
+% By loading the referenced MDF, the script will extract subject name and type
 % lists. The users should create a MDF in advance with at least the
 % following columns: Subject, Type, Include_Overall
 %
-% MDF.path - Path of MasterDataFile, which provides subject list and
-%                  type list
-% NamePre  - Prefix of Subject Names, defaults to ''  %%% find a way to force avoiding the issue
+% MDF.path - Path of MasterDataFile, which provides subject and type lists
+% NamePre  - Prefix of Subject Names, defaults to ''  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % MDF.path    = '[Exp]/Scripts/MDF/MDF_OCD.csv'; 
@@ -83,8 +82,9 @@ NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_pa
 % - Network Selection -
 % To decide which brain network/s to include
 % 
-% graph.netinclude:               -1                        - Whole Brain;
-%                   Array of intergers ranging from 1 to 13 - SubNetworks
+% graph.netinclude:                             -1 - Whole Brain;
+%                   Array of integers from 1 to 13 - SubNetworks based on 
+%                                                    parcellation of Yeo
 %                   Defaults to -1 if not assigned.   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -96,7 +96,7 @@ graph.netinclude = -1;
 % A flag that helps the script to distinguish group types in second level
 % analysis
 %
-% graph.covetype: 0 - experiment group name is in the back alphabetically, 
+% graph.covtype:  0 - experiment group name is in the back alphabetically, 
 %                     like 'H' and 'O';
 %                 1 - experiment group name is in the front alphabetically, 
 %                     like 'A' and 'H'.
@@ -121,10 +121,10 @@ graph.weighted   = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Pre Calculation -
 %
-% graph.amplify: Intergers > 1 - Indicating the input correlations were 
+% graph.amplify: Integers > 1  - Indicating the input correlations were 
 %                                amplified by graph.amplify and need to 
 %                                be converted back to (-1,1);
-%                     1        - The input data value is already in the 
+%                           1  - The input data value is already in the 
 %                                right range
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -144,9 +144,9 @@ graph.amplify     = 1;
 %                      0 - Z transform not done yet.
 %                      Defaults to 0 if not assigned.
 % graph.value:         -1 - Only use negative value;
-%                      0 - Use original value.
-%                      1 - Only use positive value;
-%                      2 - Use absolute value;   
+%                      0  - Use original value.
+%                      1  - Only use positive value;
+%                      2  - Use absolute value;   
 %                      Defaults to 1 if not assigned.
 %
 % Partial and Z-transform aims at the case that input matrix is pearson's 
@@ -173,8 +173,8 @@ graph.value    = 0;
 %                                  be treated as 0.
 %                   Defaults to 'value'.
 %
-% graph.thresh - A number or a vector of numbers representing the
-%                threshold/s that decides which edges to keep in the graph;
+% graph.thresh - A number representing the threshold/s that decides which 
+%                edges to keep in the graph;
 %                
 % If do not want the graph to be thresholded, you can either: set
 % threshomode to 'value' and set thresh to '-Inf'; or : set threshmode to
@@ -214,17 +214,17 @@ TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - t-test -
 %
-% graph.ttest:     1 - To do t-test for global measures;  
-%                  0 - Not to do t-test for global measures.
+% graph.ttest:     1 - Do t-test for global measures;  
+%                  0 - Don't do t-test for global measures.
 %                  Defaults to 0 if not assigned.%
-% graph.nodettest: 1 - To do t-test for node-wise measures;
-%                  0 - Not to do t-test for global measures.
+% graph.nodettest: 1 - Do t-test for node-wise measures;
+%                  0 - Don't do t-test for global measures.
 %                  Defaults to 0 if not assigned.
 % ttype:           'paired' - paired t-test
 %                  '2-sample' - 2 sample t-test
 %
-% ttype needs to be defined only when graph.ttest or/and graph.nodettest 
-% is/are set to 1 
+% ttype needs to be defined only when graph.ttest and/or graph.nodettest 
+% are set to 1 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 graph.ttest    = 1;
@@ -235,8 +235,8 @@ ttype     = '2-sample';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Permutation test -
 %
-% graph.perm:     1 - To do permutation test for global measures; 
-%                 0 - Not to do permutation test for global measures.  
+% graph.perm:     1 - Do permutation test for global measures; 
+%                 0 - Don't do permutation test for global measures.  
 %                 Defaults to 0 if not assigned.
 % nRep          - Number of permutations to perform. 
 % permDone:       1 - Permutation already done;
@@ -245,8 +245,8 @@ ttype     = '2-sample';
 %                 but it often fails with big data, in which case we will       
 %                 fall back to just one core. 
 %
-% graph.nodeperm: 1 - To do permutation test for nodewise measures; 
-%                 0 - Not to do permutation test for nodewise measures.
+% graph.nodeperm: 1 - Do permutation test for nodewise measures; 
+%                 0 - Don't do permutation test for nodewise measures.
 %                 Defaults to 0 if not assigned.
 % nodenRep      - Number of permutations to perform.                
 % nodepermCores - How many CPU cores to use for permutations. We will try,      
@@ -289,8 +289,7 @@ graph.FDR = 0;
 % graph.measures - The metrics you want to select
 % 
 %         A = assortativity
-%         B = betweenness [global/node-wise]
-%             (Note: Time-consuming)
+%         B = betweenness [global/node-wise] (Note: Time-consuming)
 %         C = clustering coefficient [global/node-wise]
 %         D = density
 %         E = degree [global/node-wise]
@@ -302,8 +301,7 @@ graph.FDR = 0;
 %         M = modularity
 %         N = eccentricity
 %         P = characteristic path length
-%         S = small-worldness
-%             (Note: Time-consuming, need to select 'C' and 'P')
+%         S = small-worldness (Note: Time-consuming, need to select 'C' and 'P')
 %         T = transitivity
 %             (Note: transitivity is an alternative to the clustering
 %             coefficient. Therefore the users don't have to select both
@@ -313,13 +311,13 @@ graph.FDR = 0;
 %
 % graph.voxelmeasures  -  The node-wise metrics you want to analyze 
 % 
-%         B = betweenness  (need to also include 'B' in graph.measures when selecting it)
-%         C = clustering   (need to also include 'C' in graph.measures when selecting it)
-%         E = degree       (need to also include 'E' in graph.measures when selecting it)
-%         F = efficiency   (need to also include 'F' in graph.measures when selecting it)
-%         G = strength     (need to also include 'E' in graph.measures and only apply to weighted measure)
-%         N = eccentricity (need to include 'P' in graph.measures when selecting it)
-%         V = eigenvector  (need to also include 'V' in graph.measures when selecting it)
+%         B = betweenness  (need to include 'B' in graph.measures)
+%         C = clustering   (need to include 'C' in graph.measures)
+%         E = degree       (need to include 'E' in graph.measures)
+%         F = efficiency   (need to include 'F' in graph.measures)
+%         G = strength     (need to include 'E' in graph.measures and only apply to weighted measure)
+%         N = eccentricity (need to include 'P' in graph.measures)
+%         V = eigenvector  (need to include 'V' in graph.measures)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -336,18 +334,6 @@ graph.voxelmeasures = 'BE';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 OutputFolder = 'test011514';
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% - set the path -
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-mcRoot = '~/users/yfang/MethodsCore/';
-addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
-addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(genpath(fullfile(mcRoot,'svmbatch')))
-addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
-addpath(fullfile(mcRoot,'spm8Batch'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 
 
@@ -510,6 +496,30 @@ TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_
 TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_permtest.nii';
 
 graph.expand = 1;
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not edit below this line.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - set the path -
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mcRoot = '~/users/yfang/MethodsCore/';
+addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
+addpath(fullfile(mcRoot,'matlabScripts'))
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
+addpath(fullfile(mcRoot,'spm8Batch'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
