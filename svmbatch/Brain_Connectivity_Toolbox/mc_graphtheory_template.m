@@ -181,9 +181,9 @@ graph.value    = 0;
 % 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.threshmode = 'percent';
-% graph.thresh  = 0.25;
-graph.thresh = [20 10 8 6 2];
+graph.threshmode = 'value';
+
+graph.thresh = [0.25];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Nodewise Measure - 
@@ -276,10 +276,11 @@ nodepermCores = 1;
 % This is for nodewise measurements.
 % 
 % graph.FDR: 1 - Enable FDR Correction
-%             0 - Disable FDR Correction
+%            0 - Disable FDR Correction
+%            Defaults to 0.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.FDR = 1;
+graph.FDR = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -322,9 +323,9 @@ graph.FDR = 1;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-graph.measures = 'ADEFMNV';
+graph.measures = 'BEM';
 
-graph.voxelmeasures = 'EFGV';   
+graph.voxelmeasures = 'BE';   
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Output -
@@ -334,7 +335,7 @@ graph.voxelmeasures = 'EFGV';
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-OutputFolder = 'testdirection';
+OutputFolder = 'test011514';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - set the path -
@@ -489,6 +490,9 @@ permOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permt
 %              script
 % TDpermtemp - Necessary when intending to do second-level permutation test
 %              within script
+% graph.expand: 0 - no expansion in the 3d maps
+%               1 - expand voxel to cross in the 3d maps
+%               Defaults to 0.
 %
 % TDgptemp need to be defined only when graph.node is set to 1;
 % TDttemp need to be defined only when graph.node and graph.nodettest are 
@@ -504,6 +508,8 @@ TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/nodewise/[ThreValue]/[Ne
 
 TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_ttest.nii';
 TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_permtest.nii';
+
+graph.expand = 1;
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
