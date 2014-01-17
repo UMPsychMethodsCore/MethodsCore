@@ -160,6 +160,16 @@ else  % Start fresh new calculation
         warning('Thresholding value not assigned, use unthresholded graph, change the settings in template script if this is not correct');
     end
     
+    if ~isfield(graph,'FDR')
+        graph.FDR = 0;
+        warning('Defaults to turn off FDR correction');
+    end
+    
+    if ~isfield(graph,'expand')
+        graph.FDR = 0;
+        warning('Defaults to turn off voxel expansion in 3D maps');
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Load Files one by one and do the calculation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1153,11 +1163,11 @@ if graph.node
                     fprintf('saving t-test results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                     TDttempPath = mc_GenPath(struct('Template',TDttemp,'mode','makeparentdir'));
                     if (graph.netinclude==-1)
-                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI);
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,nodet,roiMNI,graph.expand);
                     else
                         longnodet=zeros(1,length(nets));
                         longnodet(nets==Netnum)=nodet;
-                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,longnodet,roiMNI);
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDttempPath,longnodet,roiMNI,graph.expand);
                     end
                 end
                 %%%%%%%%%%% permutation %%%%%%%%%
@@ -1194,7 +1204,9 @@ if graph.node
                     end
                     
                     for iCol = 1:nROI
-                        nodepermpval(iCol) = sum(abs(nodemeandiff(iCol))<=abs(nodeperm(:,iCol)))/nodenRep;
+                        perma = single(abs(nodemeandiff(iCol)));
+                        permb = single(abs(nodeperm(:,iCol)));
+                        nodepermpval(iCol) = sum(perma<=permb)/nodenRep;
                     end
                                        
                     if graph.FDR
@@ -1215,11 +1227,11 @@ if graph.node
                     fprintf('saving permutation results for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     TDpermtempPath = mc_GenPath(struct('Template',TDpermtemp,'mode','makeparentdir'));
                     if (graph.netinclude==-1)
-                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI);
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,nodepermpval,roiMNI,graph.expand);
                     else
                         longnpp=ones(1,length(nets));
                         longnpp(nets==Netnum)=nodepermpval;
-                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,longnpp,roiMNI);
+                        mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDpermtempPath,longnpp,roiMNI,graph.expand);
                     end
                 end
                 

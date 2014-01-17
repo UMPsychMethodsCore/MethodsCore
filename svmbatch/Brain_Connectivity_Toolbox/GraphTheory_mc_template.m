@@ -6,17 +6,15 @@
 %                                                                      %
 % Yu Fang 2013/01                                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Experiment Directory -
 % Your main analysis folder
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Exp = '/net/data4/slab_OCD/';
 Exp = '/net/data4/MAS/';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Input File -
@@ -41,13 +39,10 @@ Exp = '/net/data4/MAS/';
 % matrix with symmetric or asymmetric values on upper and lower triangle.
 % Values only being in one triangle is not acceptable. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/4mmVoxel_Censor/gm_gp_corr.mat';
-
 SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/Tx1/RestingGrid1166/RestingGrid1166_corr.mat';
-
 ThreshField = 'rMatrix';
 EdgeField   = 'rMatrix';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - MasterData File -
@@ -58,10 +53,9 @@ EdgeField   = 'rMatrix';
 % MDF.path - Path of MasterDataFile, which provides subject and type lists
 % NamePre  - Prefix of Subject Names, defaults to ''  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% MDF.path    = '[Exp]/Scripts/MDF/MDF_OCD.csv'; 
 MDF.path    = '[Exp]/Scripts/slab/MDF/MDF_Rest_tx1.csv'; 
 NamePre = '';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - MasterData File column names -
@@ -71,7 +65,6 @@ NamePre = '';
 % MDF.include - Column header of logicals in MDF for subsetting
 %               ('TRUE' or 'FALSE')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 MDF.Subject = 'Subject';
 MDF.Type    = 'Type';
 MDF.include = 'Include_Overall'; 
@@ -87,9 +80,8 @@ MDF.include = 'Include_Overall';
 % Usually one file from any one of the subjects in the list would be
 % enough.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% NetworkParameter = '[Exp]/FirstLevel/080315jp/4mmVoxel_Censor/gm_gp_parameters.mat';
 NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_parameters.mat';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Network Selection -
@@ -100,9 +92,8 @@ NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_pa
 %                                                    parcellation of Yeo
 %                   Defaults to -1 if not assigned.   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.netinclude = -1; 
-% graph.netinclude = 1:7; 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Subject type order -
@@ -114,8 +105,8 @@ graph.netinclude = -1;
 %                 1 - experiment group name is in the front alphabetically, 
 %                     like 'A' and 'H'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.covtype = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Graph Type -
@@ -127,9 +118,9 @@ graph.covtype = 1;
 %                 0 - unweighted matrix; 
 %                 Defaults to 0 if not assigned.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.directed   = 0;
 graph.weighted   = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Pre Calculation -
@@ -140,9 +131,8 @@ graph.weighted   = 1;
 %                           1  - The input data value is already in the 
 %                                right range
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% graph.amplify     = 10000;
 graph.amplify     = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Calculation Options -
@@ -165,11 +155,11 @@ graph.amplify     = 1;
 % Partial and Z-transform aims at the case that input matrix is pearson's 
 % r correlation matrix. In other cases, set them to 0.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.partial     = 0;
 graph.ztransform  = 1;
 graph.ztransdone  = 0; 
 graph.value    = 0;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Thresholding -
@@ -193,10 +183,9 @@ graph.value    = 0;
 % threshomode to 'value' and set thresh to '-Inf'; or : set threshmode to
 % 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.threshmode = 'value';
-
 graph.thresh = [0.25];
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Nodewise Measure - 
@@ -215,11 +204,10 @@ graph.thresh = [0.25];
 %              measure results or second level (t-test/permutation test) 
 %              results.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.node        = 1;
-
 TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_01/swrarestrun_01.nii';
 TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - t-test -
@@ -237,12 +225,11 @@ TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 % ttype needs to be defined only when graph.ttest and/or graph.nodettest 
 % are set to 1 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.ttest    = 1;
 graph.nodettest = 1;
-   
 ttype     = '2-sample';
 siglevel = 0.05;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Permutation test -
@@ -270,17 +257,12 @@ siglevel = 0.05;
 % set to 1; nodenRep and nodepermCores need to be defined only when
 % graph.nodeperm is set to 1.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.perm     = 1;        
-
 nRep     = 10000;
 permDone = 0;
 permCores = 1;
-
 permlevel = 0.05;
-
 graph.nodeperm = 1;   
-
 nodenRep = 10000;
 nodepermCores = 1;
 
@@ -294,7 +276,6 @@ nodepermCores = 1;
 %            0 - Disable FDR Correction
 %            Defaults to 0.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.FDR = 0;
 
 
@@ -335,10 +316,9 @@ graph.FDR = 0;
 %         V = eigenvector  (need to include 'V' in graph.measures)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.measures = 'BEM';
-
 graph.voxelmeasures = 'BE';   
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Output -
@@ -347,7 +327,6 @@ graph.voxelmeasures = 'BE';
 %               [Exp]/GraphTheory/
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 OutputFolder = 'test011514';
 
 
@@ -366,8 +345,8 @@ OutputFolder = 'test011514';
 %                   0 - Use original voxelwise measure values;
 %                   Defaults to 1 if not assigned.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 graph.nodezscore = 1;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Measure parameters -
@@ -376,8 +355,8 @@ graph.nodezscore = 1;
 %                  to be defined only when smallworldness is selected.
 %                  Defaults to 100.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 smallworlditer = 100;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - FDR correction - 
@@ -395,9 +374,9 @@ smallworlditer = 100;
 %                     but is less powerful than 'pdep.
 %             Default 'dep'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 FDR.rate  = 0.05;
 FDR.mode  = 'dep';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Advanced Output Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -416,8 +395,8 @@ FDR.mode  = 'dep';
 %                                correlation matrix).
 %             'nROI'           - Number of ROIs in the graph.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
 OutputMat = '[Exp]/GraphTheory/[OutputFolder]/AllMeasures.mat';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Global First Level -
@@ -425,8 +404,8 @@ OutputMat = '[Exp]/GraphTheory/[OutputFolder]/AllMeasures.mat';
 % OutputPathTemplate - The csv file containing first level graph theory 
 %                      results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/global/Measure.csv';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Global Second Level -
@@ -447,13 +426,13 @@ OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/global/Measure
 % touch 'iThresh' in the bracket, as 'ThreValue' is a variable in the central
 % script.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 ttestOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/ttest.mat';
 ttestOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/ttest.csv';
 
 permSave   = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/[ThreValue]_perms.mat';
 permOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permtest.mat';
 permOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permtest.csv';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Node-wise Second Level (3D maps) -
@@ -476,15 +455,10 @@ permOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permt
 % touch 'group', 'ThreValue','Netname' and 'Metricname' in the brackets, as 
 % they are variables in the central script.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 TDgptemp = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/nodewise/[ThreValue]/[Netname]/[Metricname]/[group]_[Subjname].nii';
-
 TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_ttest.nii';
 TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_permtest.nii';
-
 graph.expand = 1;
-
-
 
 
 
@@ -494,12 +468,17 @@ graph.expand = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - set the path -
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-mcRoot = '~/users/yfang/MethodsCore/';
+global mcRoot;
+
+%DEVSTART
+mcRoot = fullfile(fileparts(mfilename('fullpath')),'../..');
+%DEVSTOP
+
+%[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
@@ -512,7 +491,7 @@ addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Run central script -
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-mc_graphtheory_central
+GraphTheory_mc_central
 
 
 
