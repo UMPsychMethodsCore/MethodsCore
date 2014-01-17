@@ -61,8 +61,21 @@ EdgeField   = 'rMatrix';
 
 % MDF.path    = '[Exp]/Scripts/MDF/MDF_OCD.csv'; 
 MDF.path    = '[Exp]/Scripts/slab/MDF/MDF_Rest_tx1.csv'; 
-
 NamePre = '';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - MasterData File column names -
+%
+% MDF.Subject - Column header of Subject names
+% MDF.Type    - Column header of Subject types (one letter each)
+% MDF.include - Column header of logicals in MDF for subsetting
+%               ('TRUE' or 'FALSE')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+MDF.Subject = 'Subject';
+MDF.Type    = 'Type';
+MDF.include = 'Include_Overall'; 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Network Parameter File -
@@ -205,9 +218,6 @@ graph.thresh = [0.25];
 
 graph.node        = 1;
 
-% TDtemplate = '[Exp]/Subjects_yanni_20120508/080222rt/func/run_01/4mmswrarun_01.nii';
-% TDmask     = '[Exp]/ROIS/4mm_rEPI_MASK_NOEYES_restspace.img';
-
 TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_01/swrarestrun_01.nii';
 TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 
@@ -222,6 +232,7 @@ TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
 %                  Defaults to 0 if not assigned.
 % ttype:           'paired' - paired t-test
 %                  '2-sample' - 2 sample t-test
+% siglevel:        alpha threshold for T-test
 %
 % ttype needs to be defined only when graph.ttest and/or graph.nodettest 
 % are set to 1 
@@ -231,6 +242,7 @@ graph.ttest    = 1;
 graph.nodettest = 1;
    
 ttype     = '2-sample';
+siglevel = 0.05;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Permutation test -
@@ -244,6 +256,7 @@ ttype     = '2-sample';
 % permCores     - How many CPU cores to use for permutations. We will try,      
 %                 but it often fails with big data, in which case we will       
 %                 fall back to just one core. 
+% permLevel     - alpha value for permutation test
 %
 % graph.nodeperm: 1 - Do permutation test for nodewise measures; 
 %                 0 - Don't do permutation test for nodewise measures.
@@ -263,6 +276,8 @@ graph.perm     = 1;
 nRep     = 10000;
 permDone = 0;
 permCores = 1;
+
+permlevel = 0.05;
 
 graph.nodeperm = 1;   
 
@@ -339,24 +354,6 @@ OutputFolder = 'test011514';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%% Advanced Input Settings  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%% (Usually don't change) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% - MasterData File column names -
-%
-% MDF.Subject - Column header of Subject names
-% MDF.Type    - Column header of Subject types (one letter each)
-% MDF.include - Column header of logicals in MDF for subsetting
-%               ('TRUE' or 'FALSE')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-MDF.Subject = 'Subject';
-MDF.Type    = 'Type';
-MDF.include = 'Include_Overall'; 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%% Advanced Calculation Settings %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%% (Usually don't change) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -371,16 +368,6 @@ MDF.include = 'Include_Overall';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 graph.nodezscore = 1;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% - Second Level test -
-%
-% siglevel:      Significant level of t-test. 
-% permlevel:     significant level of permutation test
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-siglevel  = 0.05;
-permlevel = 0.05;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Measure parameters -
