@@ -111,7 +111,7 @@ if existflag   % Use existing results if there is one
     
     CombinedOutput = LoadResult.CombinedOutput;
     SubUse         = LoadResult.SubUse;
-    SubUseMark     = SubUse(1:length(Names));
+    SubUseMark     = SubUse(1:length(graph.thresh):length(graph.thresh)*length(Names));
     nROI           = LoadResult.nROI;
 else  % Start fresh new calculation
     CombinedOutput = cell(nThresh,length(Names),nNet);
@@ -175,6 +175,9 @@ else  % Start fresh new calculation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     SubUseMark = ones(1,length(Names));
+    if (graph.netinclude ~= -1)
+                subnROI = zeros(length(graph.netinclude),1);
+    end
     for Sub = 1:nSub
         tic
         Subject = Names{Sub};
@@ -243,6 +246,7 @@ else  % Start fresh new calculation
                 GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
                 GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
             end
+                       
             
             for tThresh = 1:nThresh
                 
@@ -280,8 +284,8 @@ else  % Start fresh new calculation
                         end
                     case 'percent'
                         density = graph.thresh(tThresh)/100;
-                        nedge = numel(GraphThresh);
-                        keep  = round(nedge*density);
+                        nedge = numel(GraphThresh)-length(GraphThresh); % Don't include diagonal while calculate how many real edges to include
+                        keep  = round(nedge*density)+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later 
                         [~,index] = sort(GraphThresh(:));
                         if graph.weighted
                             % Create weighted matrix
@@ -357,14 +361,20 @@ else  % Start fresh new calculation
                 CombinedOutput{tThresh,Sub,kNetwork} = Output;
                 toc
             end
+            
+            subnROI(kNetwork) = length(GraphConnect);
             clear GraphConnectRaw
         end
         
     end
     
-    SubUse = repmat(SubUseMark,1,length(graph.netinclude)*nThresh);
+    SubUse = repmat(kron(SubUseMark,ones(1,nThresh)),1,length(graph.netinclude))';
     
-    nROI = length(GraphConnect);
+    if graph.netinclude == -1
+        nROI = length(GraphConnect);
+    else
+        nROI = subnROI;
+    end
     
     display('Saving first level global measure results');
     
@@ -432,10 +442,11 @@ fprintf(theFID,'\n');
 
 % contents
 for tThresh = 1:nThresh
-    for iSubject = 1:nSub        
-        Subject = Names{iSubject};
-        Type    = Types(iSubject);        
-        for kNetwork = 1:length(graph.netinclude);
+    for kNetwork = 1:length(graph.netinclude);
+        networklabel = graph.netinclude(kNetwork);
+        for iSubject = 1:nSub
+            Subject = Names{iSubject};
+            Type    = Types(iSubject);
             if (graph.netinclude == -1)
                 fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
             else
@@ -526,8 +537,8 @@ if (graph.ttest || graph.perm)
     ColNet        = ColNet(SubUse==1);
     
     % Column of threshold
-    ColThresh     = repmat(graph.thresh,1,length(CombinedOutput)*nNet)';
-    ColThresh     = ColThresh(SubUse==1);
+    MatThresh     = repmat(graph.thresh',length(CombinedOutput)*nNet,1);
+    ColThresh     = MatThresh(SubUse==1);
     
     % Initialization
     data = [];
@@ -1081,14 +1092,15 @@ if graph.node
                 Netname = 'WholeBrain';
             else
                 Netname = ['network' num2str(graph.netinclude(kNet))];
+                Netnum = graph.netinclude(kNet);
             end
             
             for nMetric=1:length(graph.voxelmeasures)
                 MetricLabel=graph.voxelmeasures(nMetric);
                 if (graph.netinclude==-1)
-                    NodeFL = zeros(nSub,nROI);
+                    iniNodeFL = zeros(nSub,nROI(kNet));
                 else
-                    NodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
+                    iniNodeFL = zeros(nSub,sum(nets==graph.netinclude(kNet)));
                 end
                 
                 switch MetricLabel
@@ -1114,7 +1126,7 @@ if graph.node
                 fprintf('Computing and saving results for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
                 
                 for iSub = 1:nSub
-                    if SubUse(iSub)
+                    if SubUseMark(iSub)
                         Subjname=Names{iSub};
                         switch MetricLabel
                             case 'E'
@@ -1151,9 +1163,10 @@ if graph.node
                             longOutSave(nets==Netnum)=NodeFLsub;
                             mc_graphtheory_threedmap(TDtemplatePath,TDmaskPath,TDgptempPath,longOutSave,roiMNI);
                         end
-                        NodeFL(iSub,:)=NodeFLsub;
+                        iniNodeFL(iSub,:)=NodeFLsub;
                     end
                 end
+                NodeFL=iniNodeFL(SubUseMark==1,:);
                 %%%%%%%%%%%% t-test %%%%%%%%%%%%%
                 if graph.nodettest
                     fprintf('t-test for node-wise %s under %s in %s\n',Metricname,ThreValue,Netname);
@@ -1172,9 +1185,9 @@ if graph.node
                 end
                 %%%%%%%%%%% permutation %%%%%%%%%
                 if graph.nodeperm
-                    nodepermpval = zeros(1,nROI);
-                    nodemeandiff = zeros(1,nROI);
-                    nodeperm     = zeros(nRep,nROI);
+                    nodepermpval = zeros(1,nROI(kNet));
+                    nodemeandiff = zeros(1,nROI(kNet));
+                    nodeperm     = zeros(nRep,nROI(kNet));
                     fprintf('permutation test for node-wise %s under %s in %s with %d times\n',Metricname,ThreValue,Netname,nodenRep);
                     % calculate real mean difference
                     input.subdata = [ones(size(NodeFL,1),1)*graph.netinclude(1) ones(size(NodeFL,1),1) NodeFL];
@@ -1203,7 +1216,7 @@ if graph.node
                         end
                     end
                     
-                    for iCol = 1:nROI
+                    for iCol = 1:nROI(kNet)
                         perma = single(abs(nodemeandiff(iCol)));
                         permb = single(abs(nodeperm(:,iCol)));
                         nodepermpval(iCol) = sum(perma<=permb)/nodenRep;

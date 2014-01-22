@@ -76,4 +76,4 @@ for u=1:n
 end
 
 % % @Yu: add BC normalization
-BC = BC./((n-1)*(n-2));
+% BC = BC./((n-1)*(n-2));
