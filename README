@@ -36,6 +36,9 @@ Please give us your feedback about how we're doing.
 
 Release Notes:
 
+1/23/2014  - Release 1.8
+	     This release adds an advanced tool (GraphTheory) to support graph theoretic analyses.
+
 11/20/2013 - Release 1.7
 	     This release adds an advanced tool (svmbatch) to support Paired SVM Analyses.
 
