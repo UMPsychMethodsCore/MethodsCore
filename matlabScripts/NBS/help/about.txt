@@ -1,0 +1,22 @@
+NBS is a software package designed for testing hypotheses about the human connectome. It is made freely available to the neuroimaging community under the GNU General Public Licence. 
+
+NBS takes as input a series of connectivity matrices from different cohorts, or from the same subject during different experimental conditions. The connectivity matrices are typically derived from neuroimaging data processed with other software packages. The user specifies the hypothesis to be tested at every connection with the general linear model. One of three techniques can then be selected to test significance and identify specific connections/subnetworks for which the null hypothesis can be rejected:
+
+1. NETWORK-BASED STATISTIC
+Zalesky A, Fornito A, Bullmore ET. Network-based statistic: identifying differences in brain networks. NeuroImage. 2010. 53(4):1197-1207.
+
+2. SPATIAL PAIRWISE CLUSTERING
+Zalesky et al. Connectivity differences in brain networks. NeuroImage. 2012. 60(2):1055-1062. 
+
+3. FALSE DISCOVERY RATE
+Genovese CR, Lazar NA,  Nichols TE. Thresholding of statistical maps in functional neuroimaging using the false discovery rate. NeuroImage. 2002. 15(4):870-878.
+
+NBS written by Andrew Zalesky. The algorithms implemented in this software package were developed by Ed Bullmore, Luca Cocchi, Alex Fornito and Andrew Zalesky.   
+
+NBS is a collection of MATLAB functions. MATLAB is a commercial computing environment developed by MathWorks. NBS does not require any special MATLAB toolboxes or functions.  
+
+Please send queries, feedback and bug reports to: azalesky@unimelb.edu.au
+
+Please acknowledge the use of this software package by citing the relevant journal articles listed above. Refer to software as "NBS v1.2"
+	
+	

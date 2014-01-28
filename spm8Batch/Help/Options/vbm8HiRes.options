@@ -1,0 +1,42 @@
+%
+% This is a template for overriding the defaults that are 
+% used in UMBatchVBM8
+% 
+% USE AT YOUR OWN RISK -- READ THE WHOLE TEMPLATE PRIOR TO MAKING CHANGES.
+%
+% THERE IS NO ERROR CHECKING DONE ON THIS FILE
+%
+
+% The bias regulation -- default is 1.0e-4
+% opts.biasreg    = ?????;
+
+% Bias FWHM cut off -- default is 60
+% opts.biasfwhm   = ?????;
+
+% What type of brain, default is "mni", options are "eastern", "subj","none" 
+% opts.affreg     = ?????;
+
+% Warping regularization parameters, default is 4
+% opts.warpreg    = ?????;
+
+% Warping sampling, default is 3.
+% opts.samp       = ?????;
+
+% Default is 2
+% extopts.sanlm   = ?????;
+
+% Default is 0.15
+% extopts.mrf     = ?????;
+
+% Default is 1
+% extopts.cleanup = ?????;
+
+% You can also directly interact with the full structure of
+% 
+%   matlabbatch{1}.spm.tools.vbm8
+%
+% but that will require you to have a full undertsanding of the SPM code.
+%
+% -Robert Welsh
+% rcwelsh@med.umich.edu
+%

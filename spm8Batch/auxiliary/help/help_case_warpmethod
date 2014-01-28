@@ -1,3 +1,5 @@
     echo "    -W                   Enable VBM8 warping for fMRI, you need to run vbm8HiRes first."
     echo "                         Default is to use standard SPM8 normalization."
+    echo "                         This will set the output name to from 'w' to 'vbm8_' if you have not already"
+    echo "                         specified '-n' to change the prepend name."
     echo
