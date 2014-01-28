@@ -284,8 +284,10 @@ else  % Start fresh new calculation
                         end
                     case 'percent'
                         density = graph.thresh(tThresh)/100;
-                        nedge = numel(GraphThresh)-length(GraphThresh); % Don't include diagonal while calculate how many real edges to include
-                        keep  = round(nedge*density)+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later 
+                        lGraph = length(GraphThresh);
+                        nUpper = lGraph*(lGraph-1)/2;
+                        % want to make keep-lGraph to be even
+                        keep  = round(nUpper*density)*2+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later 
                         [~,index] = sort(GraphThresh(:));
                         if graph.weighted
                             % Create weighted matrix

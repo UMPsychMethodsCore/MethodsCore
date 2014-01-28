@@ -121,19 +121,6 @@ graph.covtype = 1;
 graph.directed   = 0;
 graph.weighted   = 1;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% - Pre Calculation -
-%
-% graph.amplify: Integers > 1  - Indicating the input correlations were 
-%                                amplified by graph.amplify and need to 
-%                                be converted back to (-1,1);
-%                           1  - The input data value is already in the 
-%                                right range
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-graph.amplify     = 1;
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Calculation Options -
 %
@@ -460,7 +447,16 @@ TDttemp    = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_
 TDpermtemp = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/nodewise/[ThreValue]_[Netname]_[Metricname]_permtest.nii';
 graph.expand = 1;
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - Pre Calculation -
+%
+% graph.amplify: Integers > 1  - Indicating the input correlations were 
+%                                amplified by graph.amplify and need to 
+%                                be converted back to (-1,1);
+%                           1  - The input data value is already in the 
+%                                right range
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+graph.amplify     = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
