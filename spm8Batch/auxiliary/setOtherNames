@@ -1,30 +1,53 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
 		  shift
 		  let argn++
-		  if (( $argn >= $args ))
-		      then
-		      echo "Missing parameter for other image name, aborting"
-	              . ${thisDir}/auxiliary/exit_w_removal
-		  else
-		      otherName[$iother]=$1
-		      let iother++
-		  fi
-		  if [ ${otherName:0:1} == "/" ]
-		  then
-		      otherDIR[$io]=1    # means that absolute path
-		  else
-		      otherDIR[$io]=0    # means relative path.
-		  fi
-                  BAD=0
-		  FILENAME=${otherName[$iother]}
-		  . ${thisDir}/fileExtensionDetermination
-		  if [ ${BAD} == "1" ] 
-		  then
-		      echo
-		      echo "We can not process ANALYZE img/hdr data, we only support NIFTI (.nii or .nii.gz)"
-		      echo
-		      echo "ABORTING"
-		      echo
-	              . ${thisDir}/auxiliary/exit_w_removal
-		  fi
-		  otherName[$iother]=${FILENAME}
-		  otherExt[$iother]=${FILEEXT}
+		  if [ "${thisCommand}" == "sliceTime8" ]
+                  then
+                    if (( $argn >= $args ))
+		        then
+		        echo "Missing parameter for slice time acquisition order, aborting"
+	                . ${thisDir}/auxiliary/exit_w_removal
+		    else
+		        sliceOrder=$1
+                    fi
+                  else
+                    #
+                    # Not sliceTime8 so must be a spatial operation command.
+                    #
+                    if (( $argn >= $args ))
+		        then
+		        echo "Missing parameter for other image name, aborting"
+	                . ${thisDir}/auxiliary/exit_w_removal
+		    else
+		        otherName[$iother]=$1
+		    fi
+		    if [ ${otherName:0:1} == "/" ]
+		    then
+		        otherDIR[$iother]=1    # means that absolute path
+		    else
+		        otherDIR[$iother]=0    # means relative path.
+		    fi
+                    BAD=0
+		    FILENAME=${otherName[$iother]}
+		    . ${thisDir}/fileExtensionDetermination
+		    if [ ${BAD} == "1" ] 
+		    then
+		        echo
+		        echo "We can not process ANALYZE img/hdr data, we only support NIFTI (.nii or .nii.gz)"
+		        echo
+		        echo "ABORTING"
+		        echo
+	                . ${thisDir}/auxiliary/exit_w_removal
+		    fi
+		    otherName[$iother]=${FILENAME}
+		    otherExt[$iother]=${FILEEXT}
+		    let iother++
+                  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

@@ -35,7 +35,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="ADdfiMntUv#"
+allowedOptions="ABDdFfGiMmntUv#!"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -53,6 +53,12 @@ allowedOptions="ADdfiMntUv#"
 . ${thisDir}/auxiliary/parse_arguments
 
 #
+
+if [ "${RUNSLICETIMEFSL}" == 0 ]
+then
+    . ${thisDir}/auxiliary/help/help_sliceTime_Caution
+    exit
+fi
 
 . ${thisDir}/auxiliary/superDebugStatus
 
@@ -115,7 +121,7 @@ echo "    cd ${fmriPATH}"                                                       
 
 if [ "${ALLRUNSFLAG}" == "1" ]
 then
-  echo "  for RUN in \`ls | grep run_ | awk -F_ '{print \$2}' \`"                                     >> ${FULLSCRIPTNAME}.sh
+  echo "    for RUN in \`ls | grep run_ | awk -F_ '{print \$2}' \`"                                   >> ${FULLSCRIPTNAME}.sh
 else
   echo -n "   for RUN in "                                                                            >> ${FULLSCRIPTNAME}.sh
   for (( ir=0 ; ir<$nRUN ; ir++ ))
@@ -141,15 +147,29 @@ echo "          CURRUN4D=\`ls ${volumeWILD}*.nii 2> /dev/null\`  "              
 echo "          if [ -e \"\${CURRUN4D}\" ] "                                                          >> ${FULLSCRIPTNAME}.sh
 echo "          then"                                                                                 >> ${FULLSCRIPTNAME}.sh
 echo "            FSLOUTPUTTYPE=NIFTI"                                                                >> ${FULLSCRIPTNAME}.sh
-echo "            echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} -r ${TR}  --tglobal=${TGLOBAL}\"">> ${FULLSCRIPTNAME}.sh
-echo "            slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} -r ${TR} --tglobal=${TGLOBAL}"          >> ${FULLSCRIPTNAME}.sh
-echo "            logTheUMProcess sliceTime ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}"            >> ${FULLSCRIPTNAME}.sh
+
+# 
+# Call slicetimer with tglobal?
+#
+
+if [ "$TGLOBALSET" == 1 ]
+then
+    echo "            echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} ${mcOPT} -r ${TR}  --tglobal=${TGLOBAL}\"">> ${FULLSCRIPTNAME}.sh
+    echo "            slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} ${mcOPT} -r ${TR} --tglobal=${TGLOBAL}"          >> ${FULLSCRIPTNAME}.sh
+else
+    echo "            echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} ${mcOPT} -r ${TR} \"">> ${FULLSCRIPTNAME}.sh
+    echo "            slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} ${mcOPT} -r ${TR}"          >> ${FULLSCRIPTNAME}.sh
+fi
+
+. ${thisDir}/auxiliary/doWeAbortFSL
+
+echo "            logTheUMProcess sliceTime ${FULLSCRIPTNAME} \${CURRUN4D} ${outputName}\${CURRUN4D}" >> ${FULLSCRIPTNAME}.sh
 echo "          else"                                                                                 >> ${FULLSCRIPTNAME}.sh
 echo "             echo \"Can't find a 4D ${volumeWILD}*.nii for this run \${CURRUN}\" "              >> ${FULLSCRIPTNAME}.sh
 echo "          fi"                                                                                   >> ${FULLSCRIPTNAME}.sh
 echo "       else"                                                                                    >> ${FULLSCRIPTNAME}.sh
 echo "          echo \"Test mode.\"  "                                                                >> ${FULLSCRIPTNAME}.sh
-echo "          echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} -r ${TR} --tglobal=${TGLOBAL}\" "  >> ${FULLSCRIPTNAME}.sh
+echo "          echo \"slicetimer -i \${CURRUN4D} -o ${outputName}\${CURRUN4D} ${mcOPT} -r ${TR} --tglobal=${TGLOBAL}\" "  >> ${FULLSCRIPTNAME}.sh
 echo "       fi"                                                                                      >> ${FULLSCRIPTNAME}.sh
 echo "       cd ../"                                                                                  >> ${FULLSCRIPTNAME}.sh
 echo "    done"                                                                                       >> ${FULLSCRIPTNAME}.sh

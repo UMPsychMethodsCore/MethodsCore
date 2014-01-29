@@ -14,6 +14,8 @@ echo "VBM8RefImage   = '${VBM8ReferenceImage}';"              >> ${FULLSCRIPTNAM
 
 echo "OutputName     = '${outputName}';"                      >> ${FULLSCRIPTNAME}.m
 
+echo "BIASFIELDFLAG  = ${BIASFIELDFLAG};"                     >> ${FULLSCRIPTNAME}.m
+
 # Use common in-line code #03 -- subject list.
 . ${thisDir}/auxiliary/buildMatlabScripts_03
 

@@ -1,0 +1,4 @@
+    echo "    -L                   Erosion flag."
+    echo "                         Instructs ${thisCommand} to do the erosion before resampling."
+    echo "                         Default is to erode after resampling."
+    echo 

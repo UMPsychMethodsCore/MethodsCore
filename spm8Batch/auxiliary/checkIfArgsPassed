@@ -1,5 +1,8 @@
 # Number of arguments passed.
 
+# We issue no error, because if the person gives no parameters then
+# they want help.
+
 if [ "$#" == "0" ]
     then
     . ${thisDir}/auxiliary/${thisCommand}_Help

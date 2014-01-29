@@ -27,22 +27,28 @@ isdigit()
 	fi
 }
 
+# New code for determining is an input is a number - 2012-07-27 - RCWelsh
+
 isnumber ()   # Test if the parameter is a number (integer or float)
 {
     retVal=1;
-    nPeriod=`echo $1 | awk -F . '{print NF}'`
-    if [ "$nPeriod" -ne "1" -a "$nPeriod" -ne "2" ]
-	then
-	return $FAILURE
-    fi
-    theNumber=`echo $1 | sed 's/\.//g' `
-    isdigit $theNumber
+    # do it by trying to printf the number fo get error if bad
+    printf "%2.2f" $1 2> /dev/null > /dev/null
     retVal=$?
-    if [ "$retVal" == "0"  ]
+    return $retVal
+}
+
+# Now check to see if an integer - just require no "."
+
+isinteger () # return a zero is success
+{
+    Z=`echo $1 | grep -e "\."`
+    if [ -z "$Z" ] 
 	then
-	return $SUCCESS
+	return 0
     else
-	return $FAILURE
+	return 1
     fi
 }
+
 

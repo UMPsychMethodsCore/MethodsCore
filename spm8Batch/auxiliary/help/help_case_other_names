@@ -1,8 +1,44 @@
-    echo "    -O OtherName         name of other file to process,"
-    echo "                         you can specify relative path or absolute path,"
-    echo "                         the path can also have generic with subject name"
-    echo "                         substitute wherever [S] is in filename/path."
-    echo "                         If relative path, then assume to look in the"
-    echo "                         anatomy [or coReg for warpHiRes] directory."
-    echo "                         default is none."
-    echo 
+
+case "${thisCommand}" in
+    "realignfMRI")
+	echo "    -O refName           name to give realignRefVolume"
+	echo "                         default : ${otherName[0]}"
+	echo " "
+	;;
+    "sliceTime8")
+        echo "    -O slice order       slice acquisition order"
+	echo "                         this can be an array which must be speficifed "
+	echo "                         with double set of quotes e.g. \"'[1:40]'\" "
+	echo " "
+	echo "                         can be ascending, descending, or a file name (custom)"
+	echo "                         that also needs the double set of quotes:"
+	echo "                            e.g."
+	echo "                                  \"'ascending'\""
+	echo "                                  \"'descending'\""
+	echo "                                  \"'/net/data4/MyExpt/mysliceorder.txt'\""
+	echo " "
+	echo "                         DEFAULT : \"'ascending'\""
+	echo " "
+	;;
+    "pcafMRI")
+        echo "    -O maskwild          start of the name to use for masking the time-series data"
+	echo "                         for extracting the data for PCA analysis."
+	echo "                         Typically this is WM_ero and CSF_ero." 
+	echo "                         You will need to specify both."
+	echo "                         If you want to override the defaults of \"WM_ero\" and \"CSF_ero\""
+	echo "                         the use this flag. The first instance will override the WM and the "
+	echo "                         second instance will override the CSF."
+	echo 
+	echo "              NOTE: IF YOU DO NOT WANT TO CALCULATE THEN PASS \"NONE\" as the option"
+	echo
+        ;;
+    *)
+       echo "    -O OtherName         coregOverlay/HiRes : name of other file to process,"
+       echo "                         you can specify relative path or absolute path,"
+       echo "                         the path can also have generic with subject name"
+       echo "                         substitute wherever [S] is in filename/path."
+       echo "                         If relative path, then assume to look in the"
+       echo "                         anatomy [or coReg for warpHiRes] directory."
+       echo "                         default is none."
+esac
+
