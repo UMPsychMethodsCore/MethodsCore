@@ -353,7 +353,7 @@ Fraction            = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LowFrequency   = 0.01;
 HighFrequency  = 0.1;
-Gentle         = 2;
+Gentle         = 1;
 Padding        = 10;
 BandpassFilter = 1;
 
