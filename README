@@ -36,6 +36,9 @@ Please give us your feedback about how we're doing.
 
 Release Notes:
 
+1/29/2014  - Release 1.9
+	     This release adds ALFF and fALFF ({fractional} Amplitude of Low Frequency Fluctations) support to ConnTool.
+
 1/23/2014  - Release 1.8
 	     This release adds an advanced tool (GraphTheory) to support graph theoretic analyses.
 
