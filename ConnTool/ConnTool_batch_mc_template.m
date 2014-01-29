@@ -358,6 +358,26 @@ Padding        = 10;
 BandpassFilter = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Bands 1 and 2 for ALFF (Band 1 needed) and fALFF (Band 1 and Band 2 needed)
+%
+% These are expressed in Hz
+%
+% For fALFF then band 2 should contain band 1
+% also the high frequency cutoff should no great than about, and maybe even
+% smaller: 
+%
+%   (1-2/nTimePoints)*1/(2*TR)-0.001
+%
+% Below the 0.0022 is a guess for 240 times points taken at 2 sec TR
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LowFreqBand1   = 0.01;
+HighFreqBand1  = 0.10;
+LowFreqBand2   = 0.00;
+HighFreqBand2  = 1/(2*TR)-.0022;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% the order to perform the regressions etc
 %%%         D = detrend      - Nth order detrend
 %%%         S = despike      - by replacement
@@ -392,6 +412,10 @@ voxelIDX       = 1;
 %%% Type of input
 %%%         coordinates - provide the center of each seed and a radius
 %%%
+%%%                       at the moment if you are wanting alff or falff
+%%%                       then put in coordinates and put in something like
+%%%                       [0 0 0] to pass muster
+%%% 
 %%%         coordload   - load corridnate from the specified file
 %%%
 %%%         files       - provide a list of ROI files
@@ -506,6 +530,8 @@ OutputName      = 'ConnToolTest5';
 %%% Type of output
 %%%       images - output R and Z images of correlation with each seed
 %%%       maps   - output R,P, and Z matrices of correlations between seeds
+%%%       falff  - output the falff maps only.
+%%%       alff   - output the alff maps only.
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputType     = 'images';
