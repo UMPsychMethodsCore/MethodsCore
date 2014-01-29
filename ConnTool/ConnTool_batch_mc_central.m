@@ -346,19 +346,31 @@ if (RunMode(1) | sum(RunMode) == 0)
                 parameters.TIME.run(iRun).FreqBand2(2)   = HighFreqBand2;
             end
             % 
-            % Sanity check on the high frequency cutoffs, Nyquist if trying
+            % Sanity check on the inputs, Nyquist if trying
             % to run ALFF or fALFF
             %
-            if strcmpi(Output(1),'f') || strcmpi(Output(1),'a')
-                if parameters.TIME.run(iRun).FreqBand1(2) > parameters.TIME.run(iRun).FreqBand2(2)                    
-                    SOM_LOG('FATAL : Your high frequencies are not workable');
+            if strcmpi(Output(1),'f') % fALGG checks
+                if parameters.TIME.run(iRun).FreqBand1(2) > parameters.TIME.run(iRun).FreqBand2(2)
+                    SOM_LOG('FATAL : Your high frequencies are not workable (FreqBand1 extends above FreqBand2');
                     return
                 end
+                if parameters.TIME.run(iRun).FreqBand1(1) < parameters.TIME.run(iRun).FreqBand2(1)
+                    SOM_LOG('FATAL : Your low frequencies are not workable (FreqBand1 extends below FreqBand2)');
+                    return
+                end
+
                 if parameters.TIME.run(iRun).FreqBand1(2) > (1/2/TR-.002) || parameters.TIME.run(iRun).FreqBand2(2) > (1/2/TR-.002)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
                     return
                 end
             end
+            if strcmpi(Output(1),'a')
+                if parameters.TIME.run(iRun).FreqBand1(2) > (1/2/TR-.002)
+                    SOM_LOG('FATAL : Your high frequencies violate Nyquist');
+                    return
+                end
+            end
+
             parameters.TIME.run(iRun).gentle        = Gentle;
             parameters.TIME.run(iRun).padding       = Padding;
             parameters.TIME.run(iRun).whichFilter   = BandpassFilter;
