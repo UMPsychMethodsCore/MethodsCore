@@ -363,7 +363,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
                     return
                 end
-                if parameters.TIME.run(iRun).FreqBand1(1) < parameters.TIME.run(iRun).FreqBand1(2) || parameters.TIME.run(iRun).FreqBand2(1) < parameters.TIME.run(iRun).FreqBand2(2);
+                if parameters.TIME.run(iRun).FreqBand1(1) >= parameters.TIME.run(iRun).FreqBand1(2) || parameters.TIME.run(iRun).FreqBand2(1) >= parameters.TIME.run(iRun).FreqBand2(2);
                     SOM_LOG('FATAL: Your low frequencies are not lower than your high frequencies');
                     return
                 end
