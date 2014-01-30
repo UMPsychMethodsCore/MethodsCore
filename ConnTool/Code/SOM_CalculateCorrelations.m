@@ -145,14 +145,14 @@ switch parameters.Output.type
         %
         % fALFF image.
         %
-        SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
+        SOM_LOG('STATUS : Calling SOM_CalculatefALFF');
         results = SOM_CalculatefALFF(D0,parameters);
         
     case 4
         %
         % ALFF image.
         %
-        SOM_LOG('STATUS : Calling SOM_CalculateVarianceImage');
+        SOM_LOG('STATUS : Calling SOM_CalculateALFF');
         results = SOM_CalculateALFF(D0,parameters);
         
     otherwise
