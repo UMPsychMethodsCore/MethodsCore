@@ -245,6 +245,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                     else %assume text file
                         cv = load(DeSpikeFile);
                     end
+                    if (size(cv,1)>NumScan(iRun))
+                        cv = cv(1:NumScan(iRun));
+                    end
                     parameters.data.run(iRun).despikeVector = cv;
                     % Now the parameters for despiking
                     
@@ -316,6 +319,11 @@ if (RunMode(1) | sum(RunMode) == 0)
                     else %assume text file
                         cv = load(CensorFile);
                     end
+                    
+                    if (size(cv,1)>NumScan(iRun))
+                        cv = cv(1:NumScan(iRun));
+                    end
+                    
                     parameters.data.run(iRun).censorVector = cv;
                     SOM_LOG(sprintf('STATUS : Censor vector found for this run : %d',iRun));
                 else
