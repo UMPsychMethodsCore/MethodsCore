@@ -349,7 +349,7 @@ if (RunMode(1) | sum(RunMode) == 0)
             % Sanity check on the inputs, Nyquist if trying
             % to run ALFF or fALFF
             %
-            if strcmpi(Output(1),'f') % fALFF checks
+            if strcmpi(OutputType(1),'f') % fALFF checks
                 if parameters.TIME.run(iRun).FreqBand1(2) > parameters.TIME.run(iRun).FreqBand2(2)
                     SOM_LOG('FATAL : Your high frequencies are not workable (FreqBand1 extends above FreqBand2');
                     return
@@ -368,7 +368,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     return
                 end
             end
-            if strcmpi(Output(1),'a') % ALFF checks
+            if strcmpi(OutputType(1),'a') % ALFF checks
                 if parameters.TIME.run(iRun).FreqBand1(2) > (1/2/TR-.002)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
                     return
