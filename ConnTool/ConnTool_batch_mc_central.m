@@ -355,6 +355,12 @@ if (RunMode(1) | sum(RunMode) == 0)
             % Sanity check on the inputs, Nyquist if trying
             % to run ALFF or fALFF
             %
+            if strcmpi(OutputType(1),'f') || strcmpi(OutputType(1),'a') % fALFF / ALFF checks
+                if ~isempty(regexpi(RegressOrder,'e')) % if running in "EDIT" mode
+                    SOM_LOG('FATAL: You are running in fALFF / ALFF mode, but you have specified option E in RegressOrder. This breaks spectral assumptions and is not allowed.');
+                    return
+                end
+            end
             if strcmpi(OutputType(1),'f') % fALFF checks
                 if ~isfield(parameters.TIME.run(iRun),'FreqBand1') || ~isfield(parameters.TIME.run(iRun),'FreqBand2')
                     SOM_LOG('FATAL: You are running in fALFF Mode, but have not set both frequency bands');
