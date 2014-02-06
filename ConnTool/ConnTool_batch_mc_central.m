@@ -331,8 +331,6 @@ if (RunMode(1) | sum(RunMode) == 0)
             parameters.TIME.run(iRun).DetrendOrder  = DetrendOrder;
             parameters.TIME.run(iRun).LowF          = LowFrequency;
             parameters.TIME.run(iRun).HiF           = HighFrequency;
-            parameters.TIME.run(iRun).FreqBand1  = [0.0 1/2/TR-.002];  % The 0.002 is a fudge factor it really 
-            parameters.TIME.run(iRun).FreqBand2  = [0.0 1/2/TR-.002];  % should be based on time points.
             if exist('LowFreqBand1','var')
                 parameters.TIME.run(iRun).FreqBand1(1)   = LowFreqBand1;
             end
