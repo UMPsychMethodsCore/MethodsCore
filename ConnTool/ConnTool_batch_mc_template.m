@@ -371,6 +371,7 @@ BandpassFilter = 1;
 %
 % Below the 0.0022 is a guess for 240 times points taken at 2 sec TR
 %
+% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LowFreqBand1   = 0.01;
 HighFreqBand1  = 0.10;
@@ -389,6 +390,7 @@ HighFreqBand2  = 1/(2*TR)-.0022;
 %%%         E = edit         - by removal
 %%%
 %%%         Suggested order is "DSM[G]CWB"
+%%% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RegressOrder = 'DMCWEB';
 
@@ -533,6 +535,7 @@ OutputName      = 'ConnToolTest5';
 %%%       falff  - output the falff maps only.
 %%%       alff   - output the alff maps only.
 %%%
+%%% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputType     = 'images';
 
