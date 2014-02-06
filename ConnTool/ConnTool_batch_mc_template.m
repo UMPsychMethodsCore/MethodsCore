@@ -364,7 +364,7 @@ BandpassFilter = 1;
 % These are expressed in Hz
 %
 % For fALFF then band 2 should contain band 1
-% also the high frequency cutoff should no great than about, and maybe even
+% also the high frequency cutoff should be no greater than about, and maybe even
 % smaller: 
 %
 %   (1-2/nTimePoints)*1/(2*TR)-0.001
