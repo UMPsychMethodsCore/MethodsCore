@@ -369,14 +369,12 @@ BandpassFilter = 1;
 %
 %   (1-2/nTimePoints)*1/(2*TR)-0.001
 %
-% Below the 0.0022 is a guess for 240 times points taken at 2 sec TR
-%
 % NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-LowFreqBand1   = 0.01;
+LowFreqBand1   = 0.05;
 HighFreqBand1  = 0.10;
-LowFreqBand2   = 0.00;
-HighFreqBand2  = 1/(2*TR)-.0022;
+LowFreqBand2   = 0.02;
+HighFreqBand2  = 0.50;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% the order to perform the regressions etc
