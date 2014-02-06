@@ -358,18 +358,18 @@ Padding        = 10;
 BandpassFilter = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Bands 1 and 2 for ALFF (Band 1 needed) and fALFF (Band 1 and Band 2 needed)
-%
-% These are expressed in Hz
-%
-% For fALFF then band 2 should contain band 1
-% also the high frequency cutoff should be no greater than about, and maybe even
-% smaller: 
-%
-%   (1-2/nTimePoints)*1/(2*TR)-0.001
-%
-% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
+%%%
+%%% Bands 1 and 2 for ALFF (Band 1 needed) and fALFF (Band 1 and Band 2 needed)
+%%%
+%%% These are expressed in Hz
+%%%
+%%% For fALFF then band 2 should contain band 1
+%%% also the high frequency cutoff should be no greater than about, and maybe even
+%%% smaller: 
+%%%
+%%%   (1-2/nTimePoints)*1/(2*TR)-0.001
+%%%
+%%% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 LowFreqBand1   = 0.05;
 HighFreqBand1  = 0.10;
