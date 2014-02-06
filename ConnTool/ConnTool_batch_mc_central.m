@@ -348,6 +348,14 @@ if (RunMode(1) | sum(RunMode) == 0)
             % to run ALFF or fALFF
             %
             if strcmpi(OutputType(1),'f') % fALFF checks
+                if ~isfield(parameters.TIME.run(iRun),'FreqBand1') || ~isfield(parameters.TIME.run(iRun),'FreqBand2')
+                    SOM_LOG('FATAL: You are running in fALFF Mode, but have not set both frequency bands');
+                    return
+                end
+                if numel(parameters.TIME.run(iRun).FreqBand1) ~= 2 || numel(parameters.TIME.run(iRun).FreqBand2) ~= 2
+                    SOM_LOG('FATAL: Your two frequency bands must have one lower and one upper bound');
+                    return
+                end
                 if parameters.TIME.run(iRun).FreqBand1(2) > parameters.TIME.run(iRun).FreqBand2(2)
                     SOM_LOG('FATAL : Your high frequencies are not workable (FreqBand1 extends above FreqBand2');
                     return
@@ -367,6 +375,14 @@ if (RunMode(1) | sum(RunMode) == 0)
                 end
             end
             if strcmpi(OutputType(1),'a') % ALFF checks
+                if ~isfield(parameters.TIME.run(iRun),'FreqBand1')
+                    SOM_LOG('FATAL: You are running in ALFF Mode, but have not set the frequency band');
+                    return
+                end
+                if numel(parameters.TIME.run(iRun).FreqBand1) ~= 2
+                    SOM_LOG('FATAL: Your frequency band must have one lower and one upper bound');
+                    return
+                end
                 if parameters.TIME.run(iRun).FreqBand1(2) > (1/2/TR-.002)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
                     return
