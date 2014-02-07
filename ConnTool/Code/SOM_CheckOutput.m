@@ -16,6 +16,8 @@
 %                               'images'   - save a single correlation image
 %                                           per ROI
 %                               'variance' - save a single variance map.
+%                               'falff'    - save the falff maps
+%                               'alff'     - save the alff maps
 %               .correlationType  - partial (maps), or full (maps and images)
 %               .directory    - full directory path to output
 %               .name         - name of output file (generic)
@@ -49,8 +51,8 @@ end
 Output = parameters.Output;
 
 if ~isfield(Output,'saveroiTC')
-   Output.saveroiTC = 0;
-   SOM_LOG('STATUS : Using saveroiTC = 0');
+    Output.saveroiTC = 0;
+    SOM_LOG('STATUS : Using saveroiTC = 0');
 end
 
 
@@ -69,11 +71,15 @@ if isfield(Output,'correlation')
                 Output.type = 0;   % Correlation map/mat file. This require more than 1 ROI!
             case 'i'
                 Output.type = 1;   % r-image and z-image.
-		Output.correlationType = 'full';
-		SOM_LOG('WARNING : Output correlation type being forced to "full"');
-	 case 'v'
-	        Output.type = 2; % variance map.
-	 otherwise
+                Output.correlationType = 'full';
+                SOM_LOG('WARNING : Output correlation type being forced to "full"');
+            case 'v'
+                Output.type = 2; % variance map.
+            case 'f'
+                Output.type = 3; % falff maps.
+            case 'a'
+                Output.type = 4; % alff maps
+            otherwise
                 SOM_LOG('FATAL ERROR : Output type no specified');
                 return
         end
@@ -89,30 +95,30 @@ end
 % Check for partial correlation, added 2013-02-06 RCWelsh
 
 if isfield(Output,'correlationType')
-  if ischar(Output.correlationType)
-    Output.correlationtype = lower(Output.correlationType);
-    switch Output.correlationType(1)
-     case 'p'
-      Output.correlationType = 'partial';
-     otherwise
-      Output.correlationType = 'full';
+    if ischar(Output.correlationType)
+        Output.correlationtype = lower(Output.correlationType);
+        switch Output.correlationType(1)
+            case 'p'
+                Output.correlationType = 'partial';
+            otherwise
+                Output.correlationType = 'full';
+        end
+    else
+        Output.correlationType = 'full';
+        SOM_LOG('WARNING : Output correlation type being forced to "full"');
     end
-  else
-    Output.correlationType = 'full';
-    SOM_LOG('WARNING : Output correlation type being forced to "full"');
-  end
 else
-  Output.correlationType = 'full';
-  if Output.type < 2
-    SOM_LOG('WARNING : Output correlation type being forced to "full"');
-  end 
+    Output.correlationType = 'full';
+    if Output.type < 2
+        SOM_LOG('WARNING : Output correlation type being forced to "full"');
+    end
 end
 
-% 
+%
 % Now check for the output directory, it must exist
 %
 
-if isfield(Output,'directory') 
+if isfield(Output,'directory')
     if exist(Output.directory,'dir') == 0
         SOM_LOG('WARNING : Output directory is not there, but will attempt to create');
         [mkS mkM mkID] = mkdir(Output.directory);
@@ -150,27 +156,31 @@ for iCHAR = 1:length(CHAROK)
 end
 
 if isfield(Output,'description') == 0
-  switch Output.type
-   case 0
-    Output.description = 'Correlaton map';
-   case 1
-    Output.description = 'Correlation image';
-   case 2
-    Output.description = 'Variance image';    
-   otherwise
-    SOM_LOG('STATUS : Using generic file comment description.');
-  end
+    switch Output.type
+        case 0
+            Output.description = 'Correlaton map';
+        case 1
+            Output.description = 'Correlation image';
+        case 2
+            Output.description = 'Variance image';
+        case 3
+            Output.description = 'fALFF image';
+        case 4
+            Output.description = 'ALFF image';
+        otherwise
+            SOM_LOG('STATUS : Using generic file comment description.');
+    end
 end
 
 % What about power spectrum
 
 if isfield(Output,'power') == 0
-  Output.power = 0;
+    Output.power = 0;
 else
-  if Output.power ~= 0 
-    Output.power = 1;
-    SOM_LOG('WARNING : You have enabled power spectrum saving of ROIs. Be aware that assumptions of a single run are made.');
-  end
+    if Output.power ~= 0
+        Output.power = 1;
+        SOM_LOG('WARNING : You have enabled power spectrum saving of ROIs. Be aware that assumptions of a single run are made.');
+    end
 end
 
 %
