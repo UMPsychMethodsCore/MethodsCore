@@ -1,0 +1,19 @@
+Opening NBS for the first time populates the user inputs to enable replication of the disrupted network reported in the originating NBS paper. This disrupted network represents reduced functional connectivity in a group of 12 people with schizophrenia, compared to 15 healthy controls. Functional connectivity was measured between pairs of nodes using the correlation between their wavelet-decomposed resting-state time series. 
+
+Zalesky A, Fornito A, Bullmore ET. Network-based statistic: identifying differences in brain networks. NeuroImage. 2010. 53(4):1197-1207.
+
+Other examples of the NBS can be found in the following articles: 
+
+Bai F, Shu N, Yuan Y, Shi Y, Yu H, Wu D, Wang J, Xia M, He Y, Zhang Z. Topologically convergent and divergent structural connectivity patterns between patients with remitted geriatric depression and amnestic mild cognitive impairment. J Neurosci. 2012. 32(12):4307-4018.
+
+Zhang J, Wang J, Wu Q, Kuang W, Huang X, He Y, Gong Q. Disrupted brain connectivity networks in drug-naive, first-episode major depressive disorder. Biol Psychiatry. 2011. 70(4):334-342.
+
+Verstraete E, Veldink JH, Mandl RCW, van den Berg LH, van den Heuvel MP. Impaired structural motor connectome in amyotrophic lateral sclerosis. PLoS ONE. 2011. 6:e24239.
+
+Fornito A, Yoon J, Zalesky A, Bullmore ET, Carter CS. General and specific functional connectivity disturbances in first episode schizophrenia during cognitive control performance. Biol Psychiatry. 2011. 70(1):64-72. 
+
+Li Y, Jewells V, Kim M, Chen Y, Moon A, Armao D, Troiani L, Markovic-Plese S, Lin W, Shen D. Diffusion tensor imaging based network analysis detects alterations in neuroconnectivity in patients with clinically early relapsing remitting multiple sclerosis. Hum Brain Mapp. In press.
+
+Li H, Xue Z, Ellmore T, Frye R, Wong S. Network-based analysis reveals stronger local diffusion-based connectivity and different correlations with oral language skills in brains of children with high functioning autism spectrum disorders. Hum Brain Mapp. In press. 
+
+	

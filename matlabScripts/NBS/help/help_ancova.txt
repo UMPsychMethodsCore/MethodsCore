@@ -1,0 +1,18 @@
+Example of a two-way ANCOVA with 4 observations/subjects per group and a nuisance covariate. The first column of the design matrix models the global mean (intercept term). The second and third columns model two groupings (main effects). The fourth column models the group-by-group interaction. The final column models the nuisance covariate. The contrast tests for a group-by-group interaction. 
+____________________________________
+DESIGN MATRIX:
+1 -1 -1  1  0.342 
+1 -1 -1  1  0.453
+1 -1  1 -1  0.482
+1 -1  1 -1  0.133
+1  1 -1 -1  0.453
+1  1 -1 -1  0.934
+1  1  1  1  0.543
+1  1  1  1  0.654
+
+CONTRAST:
+0 0 0 1 0
+
+STATISTICAL TEST:
+F-test
+___________________________________
