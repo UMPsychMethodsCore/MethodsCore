@@ -779,7 +779,26 @@ if (graph.ttest || graph.perm)
         SecEig = [FrontCol ColMetric ColEig];        
         data   = [data;SecEig];
         Metrics{end+1} = 'EigValue';
-    end       
+    end    
+    
+    % Column of smallworldness
+    if Flag.smallworld
+        OutSW  = zeros(nThresh,nSub,nNet);
+        nMetric     = nMetric+1;
+        for iThresh = 1:nThresh
+            for iSub = 1:nSub
+                for jNet = 1:nNet
+                    OutSW(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.smallworld;
+                end
+            end
+        end
+        ColSW = OutSW(:);    
+        ColSW = ColSW(SubUse==1);
+        ColMetric = repmat(nMetric,length(ColSW),1);
+        SecSW = [FrontCol ColMetric ColSW];        
+        data   = [data;SecSW];
+        Metrics{end+1} = 'SmallWorld';
+    end  
     
 %%%% end of reorganizing data %%%%
     
