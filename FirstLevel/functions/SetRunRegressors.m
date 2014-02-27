@@ -131,30 +131,32 @@ function RegMatrix = readRegFile(Exp, Subject, Run, RegFile)
 end
 
 function RegMatrix = trimRegressor(Subject, Run, RegFile, ColumnsToKeep, RegMatrix)
-
-    if ~isinf(ColumnsToKeep) == 1
-    
-        % check if number to keep is bigger then present
-        if ColumnsToKeep > size(RegMatrix, 2)
-            msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                           ' Regressor file %s\n has %d regressors which is less than %d regressors to keep.\n'...
-                           ' Keeping all regressors present.\n\n'], ...
-                           Subject, Run, RegFile, size(RegMatrix, 2), ColumnsToKeep);
-            fprintf(1, msg);
-            mc_Logger('log', msg, 2);
-        else
-            RegMatrix = RegMatrix(:, 1:RegNumCol);
+    if length(ColumnsToKeep) == 1
+        if ~isinf(ColumnsToKeep) == 1
+            % check if number to keep is bigger then present
+            if ColumnsToKeep > size(RegMatrix, 2)
+                msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                               ' Regressor file %s\n has %d regressors which is less than %d regressors to keep.\n'...
+                               ' Keeping all regressors present.\n\n'], ...
+                               Subject, Run, RegFile, size(RegMatrix, 2), ColumnsToKeep);
+                fprintf(1, msg);
+                mc_Logger('log', msg, 2);
+            else
+                RegMatrix = RegMatrix(:, 1:RegNumCol);
+            end
         end
-    
-        % handle if all regressors are removed
-        if isempty(RegMatrix) == 1
+    else
+        if any(ColumnsToKeep > size(RegMatrix, 2))
             msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                           ' Regressor file %s lost all regresors after user trimming.\n\n'], Subject, Ru, RegFile);
-            fprintf(1, msg);
-            mc_Logger('log', msg, 2);
+                           ' ColumnsToKeep exceed columns present in file %s.\n' ...
+                           ' Only %d columns present.\n'], ...
+                           Subject, Run, RegFile, size(RegMatrix, 2));
+            mc_Logger('log', msg, 1);
+            error(msg);
+        else
+            RegMatrix = RegMatrix(:, ColumnsToKeep);
         end
     end
-
 end
 
 function RegMatrix = removeConstantColumns(Subject, Run, RegFile, RegMatrix)
