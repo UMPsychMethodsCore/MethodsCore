@@ -1,7 +1,7 @@
 
 % check for using older first level template file
 if exist('TimColumn', 'var') == 1
-    addpath(fullfile(mcRoot, 'FirstLevel/functions/OldFirstLevel');
+    addpath(fullfile(mcRoot, 'FirstLevel/functions/OldFirstLevel'));
     OldFirstLevel_mc_central
 else
     try
