@@ -1,0 +1,207 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# A command to erode the p2 and p3 segments from VBM8
+# of the c2 and c3 segments from newSeg
+# in a directory and turn into WMMask and CSFMask
+#
+#
+#   p2 is WM
+#   p3 is CSF
+#
+#   c2 is WM
+#   c2 is CSF
+#
+#
+#                         Robert C. Welsh
+#                         Copyright 2005-2011
+#
+# erodeMask
+#
+# This command always runs in the foreground
+# as it won't write a script file.
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main erodeMask function.
+#
+
+VERSION="1.1"
+VERSIONDATE="2012-12-21"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="DdEhMLmnvw"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Make two loops, one to check that images p2 and p3 exist for all subjects, if they don't we will
+# bugger out.
+
+BAD=0
+
+# Set the erosion options
+
+WMEROSION_FACTOR=
+CSFEROSION_FACTOR=
+for iErosion in `seq 1 1 ${WMEROSION}`
+do
+    WMEROSION_FACTOR="${WMEROSION_FACTOR} -ero"
+done
+
+for iErosion in `seq 1 1 ${CSFEROSION}`
+do
+    CSFEROSION_FACTOR="${CSFEROSION_FACTOR} -ero"
+done
+
+echo
+echo "WM erosion factor  : ${WMEROSION_FACTOR}"
+echo
+echo "CSF erosion factor : ${CSFEROSION_FACTOR}"
+echo
+
+# Now determine the name of the images we are looking for to do the erosion
+
+if [ "${EROSIONLAST}" == 1 ]
+then
+    echo "Eroding the final segments."
+    WMSEG=${volumeWILD}p2${HIRESNAME}
+    CSFSEG=${volumeWILD}p3${HIRESNAME}
+    WMSEGALT=${volumeWILD}c2${HIRESNAME}
+    CSFSEGALT=${volumeWILD}c3${HIRESNAME}
+else
+    echo "Eroding the intermediate segments."
+    WMSEG=wrp2${HIRESNAME}
+    CSFSEG=wrp3${HIRESNAME}
+fi
+
+for WORK in 0 1
+do  
+    for (( is=1 ; is<=$nSubjects ; is++ ))
+    do
+	SUBJECTANATOMY=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${coregPATH}
+	if [ ! -d "${SUBJECTANATOMY}" ]
+	then
+	    echo
+	    echo "   FATAL ERROR, can't find directory ${SUBJECTANATOMY}"
+	    echo
+	    echo
+	    exit 0
+	fi
+	cd ${SUBJECTANATOMY}
+	# 
+	# Count the number present.
+	#
+	nP2PRESENT=`ls ${WMSEG}*.nii 2> /dev/null | wc -l `
+	nP3PRESENT=`ls ${CSFSEG}*.nii 2> /dev/null | wc -l `
+	if [ ${nP2PRESENT} -ne 1 ] 
+	then
+	    nP2PRESENT=`ls ${WMSEGALT}*.nii 2> /dev/null | wc -l`
+	    if [ ${nP2PRESENT} -ne 1 ] 
+	    then
+		BAD=1
+	    else
+		WMSEG=${WMSEGALT}
+	    fi
+	fi
+	if [ ${nP3PRESENT} -ne 1 ] 
+	then
+	    nP3PRESENT=`ls ${CSFSEGALT}*.nii 2> /dev/null | wc -l`
+	    if [ ${nP3PRESENT} -ne 1 ] 
+	    then
+		BAD=1
+	    else
+		CSFSEG=${CSFSEGALT}
+	    fi
+	fi
+	if [ ${BAD} == 1 ] 
+	then
+	    echo
+	    echo Can not find proper segments for ${SUBJECTANATOMY}
+	    echo
+	fi
+	if [ "${WORK}" == 1 ] 
+	    then
+	    echo Working on subject ${subjects[$is]}
+	    # 
+	    # erode the WM first
+	    #
+	    FILENAME=`ls ${WMSEG}* | awk -F.nii '{print $1}'`
+            echo "    WM ${FILENAME}"
+	    fslmaths ${FILENAME} ${mcOPT} -bin ${WMEROSION_FACTOR} WM_${outputName}${FILENAME}
+	    logTheUMProcess erodeMask erodeMask ${FILENAME} "-> ${mcOPT} ${WMEROSION_FACTOR} ->" WM_${outputName}${FILENAME}
+	    if [ "${EROSIONLAST}" == 0 ]
+	    then
+		. ${thisDir}/auxiliary/resampleSegSpace WM_${outputName}${FILENAME} WM_${outputName}${volumeWILD}${FILENAME} wrp2${HIRESNAME} ${volumeWILD}p2${HIRESNAME} 
+		logTheUMProcess erodeMask erodeMask WM_${outputName}${FILENAME} "Using  wrp2${HIRESNAME} -> ${volumeWILD}p2${HIRESNAME}" WM_${outputName}${volumeWILD}${FILENAME}
+	    fi
+	    #
+	    # Now the CSF
+	    #
+	    FILENAME=`ls ${CSFSEG}* | awk -F.nii '{print $1}'`
+            echo "    CSF ${FILENAME}"
+	    fslmaths ${FILENAME} ${mcOPT} -bin ${CSFEROSION_FACTOR} CSF_${outputName}${FILENAME}
+	    logTheUMProcess erodeMask erodeMask ${FILENAME} "-> ${mcOPT} ${CSFEROSION_FACTOR} ->" CSF_${outputName}${FILENAME}
+	    if [ "${EROSIONLAST}" == 0 ]
+	    then
+		. ${thisDir}/auxiliary/resampleSegSpace CSF_${outputName}${FILENAME} CSF_${outputName}${volumeWILD}${FILENAME} wrp3${HIRESNAME} ${volumeWILD}p3${HIRESNAME}
+		logTheUMProcess erodeMask erodeMask CSF_${outputName}${FILENAME} "Using  wrp3${HIRESNAME} -> ${volumeWILD}p3${HIRESNAME}" CSF_${outputName}${volumeWILD}${FILENAME}
+	    fi
+	    #
+	    echo
+	fi
+	cd ${thisDir}
+    done
+done
+
+#
+# All done.
+# 

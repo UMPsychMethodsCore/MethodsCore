@@ -1,0 +1,8 @@
+    echo " EXPERTS ONLY:"
+    echo
+    echo "     You can override options by specifying a file "${thisCommand}.options" in the directory"
+    echo "     where you issue this command. This file is a matlab template to override default"
+    echo "     options in the code. Use at your own risk!"
+    echo 
+    echo "     See MethodsCore/spm8Batch/Help/Options/ for templates"
+    echo
