@@ -123,18 +123,6 @@ graph.weighted   = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% - Pre Calculation -
-%
-% graph.amplify: Integers > 1  - Indicating the input correlations were 
-%                                amplified by graph.amplify and need to 
-%                                be converted back to (-1,1);
-%                           1  - The input data value is already in the 
-%                                right range
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-graph.amplify     = 1;
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Calculation Options -
 %
 % graph.partial:       1 - use partial correlation; 
@@ -338,6 +326,17 @@ OutputFolder = 'test011514';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - Pre Calculation -
+%
+% graph.amplify: Integers > 1  - Indicating the input correlations were 
+%                                amplified by graph.amplify and need to 
+%                                be converted back to (-1,1);
+%                           1  - The input data value is already in the 
+%                                right range
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+graph.amplify     = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Nodewise Measure -
 %
 % graph.nodezscore: 1 - Convert nodewise measure values to normalized 
@@ -479,15 +478,13 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'../..');
 %DEVSTOP
 
 %[DEVmcRootAssign]
-addpath(fullfile(mcRoot,'svmbatch','Brain_Connectivity_Toolbox/'));
+addpath(genpath(fullfile(mcRoot,'GraphTheory')));
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
-addpath(genpath(fullfile(mcRoot,'svmbatch','matlab_Scripts')))
 addpath(fullfile(mcRoot,'spm8Batch'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
 
 
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Run central script -
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
