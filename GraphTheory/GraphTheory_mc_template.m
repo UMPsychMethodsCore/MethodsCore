@@ -425,11 +425,11 @@ OutputPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/FirstLevel/global/Measure
 % touch 'iThresh' in the bracket, as 'ThreValue' is a variable in the central
 % script.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ttestOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/ttest.mat';
+ttestOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/backup/ttest.mat';
 ttestOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/ttest.csv';
 
-permSave   = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/[ThreValue]_perms.mat';
-permOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permtest.mat';
+permSave   = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/backup/[ThreValue]_perms.mat';
+permOutMat = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/backup/permtest.mat';
 permOutPathTemplate = '[Exp]/GraphTheory/[OutputFolder]/SecondLevel/global/permtest.csv';
 
 
