@@ -1,3 +1,13 @@
+% handle logging
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup', LogDirectory);
+if (~result)
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+global mcLog
+
+
+
 display ('-----')
 OutputPathFile = mc_GenPath(OutputPathTemplate);
 display('I am going to compute physio summary statistics');
@@ -82,6 +92,14 @@ for iSubject = 1:size(SubjDir,1)
             fprintf(theFID,'\n');
         end %iRow
     end %iRun
+
+    % Log usage
+    str = sprintf('Subject:%s Runs:%d PhysioSummary complete.\n', Subject, NumRun);
+    UsageResult = mc_Usage(str, 'PhysioSummary');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to log usage information.', 2);
+    end
+    
 end %iSubject
 
 fclose(theFID);
