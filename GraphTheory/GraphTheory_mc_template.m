@@ -86,12 +86,18 @@ NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_pa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Network Selection -
 % To decide which brain network/s to include
+% graph.nettype:                    
+%                                'Yeo'  -  YeoNetwork Parcellation
+%                                'WashU'-  WashU parcellation, either 264
+%                                          ROIs or 160 ROIs
 % 
 % graph.netinclude:                             -1 - Whole Brain;
 %                   Array of integers from 1 to 13 - SubNetworks based on 
 %                                                    parcellation of Yeo
 %                   Defaults to -1 if not assigned.   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+graph.nettype = 'WashU';
 graph.netinclude = -1; 
 
 

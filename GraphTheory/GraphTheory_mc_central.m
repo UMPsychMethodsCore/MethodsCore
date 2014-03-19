@@ -88,7 +88,8 @@ param = load(ParamPath);
 roiMNI = param.parameters.rois.mni.coordinates;
 
 % add if graph.net
-nets = mc_NearestNetworkNode(roiMNI,5);
+nets = mc_NearestNetworkNode(roiMNI,5);  % Yeo network
+nets = mc_WashUNetworkNode(length(roiMNI));  % WashU parcellation
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
