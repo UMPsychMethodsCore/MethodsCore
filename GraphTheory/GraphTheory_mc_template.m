@@ -155,7 +155,7 @@ graph.value    = 0;
 % graph.threshmode: 'value'      - thresholding based on edge value, in 
 %                                  this case, the number/s in graph.thresh
 %                                  indicates the value threshold;
-%                   'percent'    - in this case, the number/s listed in
+%                   'sparsity'   - in this case, the number/s listed in
 %                                  graph.thresh indicates how many
 %                                  percentage edges you want to keep, e.g.
 %                                  10 means you want to keep top 10%
@@ -172,7 +172,7 @@ graph.value    = 0;
 % 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 graph.threshmode = 'value';
-graph.thresh = [0.25];
+graph.thresh = [0.2,0.25,0.3,0.35];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

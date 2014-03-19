@@ -31,6 +31,11 @@ if ~isfield(graph,'measures')
     warning('Measure not selected, only measure degree, change the settings in template script if this is not correct');
 end
 
+FullMetrics = {'Smallworldness','Clustering','CharacteristicPathLength','GlobalDegree','GlobalStrength','Density','Transitivity',...
+    'GlobalEfficiency','Modularity','Assortativity','Betweenness','Entropy','EigValue'};    % A list of full names of possible global metrics
+FieldMetrics = {'smallworlk','cluster','pathlength','glodeg','glostr','density','trans',...
+    'eglob','modu','assort','btwn','etpy','eigvalue'};                      % The corresponding list of the fieldnames for each global metric
+
 Flag.smallworld    = any(strfind(upper(graph.measures),'S'));
 Flag.density       = any(strfind(upper(graph.measures),'D'));
 Flag.transitivity  = any(strfind(upper(graph.measures),'T'));
@@ -113,6 +118,7 @@ if existflag   % Use existing results if there is one
     SubUse         = LoadResult.SubUse;
     SubUseMark     = SubUse(1:length(graph.thresh):length(graph.thresh)*length(Names));
     nROI           = LoadResult.nROI;
+    AUC            = LoadResult.AUC;
 else  % Start fresh new calculation
     CombinedOutput = cell(nThresh,length(Names),nNet);
     
@@ -254,7 +260,7 @@ else  % Start fresh new calculation
                 switch graph.threshmode
                     case 'value'
                         fprintf(' under threshold %.2f',graph.thresh(tThresh));
-                    case 'percent'
+                    case 'sparsity'
                         if graph.thresh(tThresh)>100
                             graph.thresh(tThresh) = 100;
                         elseif graph.thresh(tThresh)<0
@@ -282,7 +288,7 @@ else  % Start fresh new calculation
                             % Create binary matrix
                             GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
                         end
-                    case 'percent'
+                    case 'sparsity'
                         density = graph.thresh(tThresh)/100;
                         lGraph = length(GraphThresh);
                         nUpper = lGraph*(lGraph-1)/2;
@@ -380,10 +386,20 @@ else  % Start fresh new calculation
     
     display('Saving first level global measure results');
     
+    %%%%%%%%%%%%%%% Calculate AUC for global metrics %%%%%%%%%%%%%%
+    AUC = mc_graphtheory_AUC(CombinedOutput,graph);
+    
     %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
     
-    save(OutputMatPath,'CombinedOutput','SubUse','nROI','-v7.3');
+    save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','AUC','-v7.3');
 end
+
+%%%%%%%%%%% Some heads-up steps %%%%%%%%%%%%%%%%%%
+sample = CombinedOutput{1,1,1};
+UsedMetrics = fieldnames(sample);
+statsMetrics = structfun(@numel,sample);
+lGMetrics = find(statsMetrics==1);
+nGMetrics = sum(statsMetrics==1);
 
 %%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%
 
@@ -398,115 +414,48 @@ end
 switch graph.threshmode
     case 'value'
         fprintf(theFID,'Subject,Type,Network,Threshold');
-    case 'percent'
+    case 'sparsity'
         fprintf(theFID,'Subject,Type,Network,TargetDensity(in percent)');
 end
-if Flag.smallworld
-    fprintf(theFID,',Smallworldness');
+
+for u = 1:nGMetrics
+    pMetric  = num2str(cell2mat(UsedMetrics(lGMetrics(u))));   % Metric to print, short name is pMetric
+    pFullMet = num2str(cell2mat(FullMetrics(strcmp(FieldMetrics,pMetric)==1)));   % Full name to print
+    fprintf(theFID,',');
+    fprintf(theFID,pFullMet);
 end
-if Flag.clustering
-    fprintf(theFID,',Clustering');
-end
-if Flag.pathlength
-    fprintf(theFID,',CharacteristicPathLength');
-end
-if Flag.degree
-    fprintf(theFID,',GlobalDegree');
-    if graph.weighted
-        fprintf(theFID,',GlobalStrength');
-    end
-end
-if Flag.density
-    fprintf(theFID,',Density');
-end
-if Flag.transitivity
-    fprintf(theFID,',Transitivity');
-end
-if Flag.efficiency
-    fprintf(theFID,',GlobalEfficiency');
-end
-if Flag.modularity
-    fprintf(theFID,',Modularity');
-end
-if Flag.assortativity
-    fprintf(theFID,',Assortativity');
-end
-if Flag.betweenness
-    fprintf(theFID,',Betweenness');
-end
-if Flag.entropy
-    fprintf(theFID,',Entropy');
-end
-if Flag.eigenvector
-    fprintf(theFID,',EigValue');
-end    
+ 
 fprintf(theFID,'\n');
 
 % contents
-for tThresh = 1:nThresh
+for tThresh = 1:(nThresh+1)  % Output results for each threshold and also AUC
     for kNetwork = 1:length(graph.netinclude);
         networklabel = graph.netinclude(kNetwork);
         for iSubject = 1:nSub
             Subject = Names{iSubject};
-            Type    = Types(iSubject);
-            if (graph.netinclude == -1)
-                fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
-            else
-                fprintf(theFID,'%s,%s,%s,%s',Subject,Type,num2str(networklabel),num2str(graph.thresh(tThresh)));
-            end
-            if Flag.smallworld
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.smallworld);
-            end
-            
-            if Flag.clustering
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.cluster);
-            end
-            
-            if Flag.pathlength
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.pathlength);
-            end
-            
-            if Flag.degree
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.glodeg);
-                if graph.weighted
-                    fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.glostr);
+            Type    = Types(iSubject);            
+            if tThresh~=(nThresh+1)
+                if (graph.netinclude == -1)
+                    fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
+                else
+                    fprintf(theFID,'%s,%s,%s,%s',Subject,Type,num2str(networklabel),num2str(graph.thresh(tThresh)));
                 end
-            end
-            
-            if Flag.density
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.density);
-            end
-            
-            if Flag.transitivity
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.trans);
-            end
-            
-            if Flag.efficiency
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.eglob);
-            end
-            
-            if Flag.modularity
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.modu);      
-            end
-            
-            if Flag.assortativity
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.assort);         
-            end
-            
-            if Flag.betweenness
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.btwn);
-            end
-            
-            if Flag.entropy
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.etpy);
-            end
-            
-            if Flag.eigenvector
-                fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.eigvalue);
-            end  
-            
-            fprintf(theFID,'\n');
-            
+                for u = 1:nGMetrics
+                    pMetric  = num2str(cell2mat(UsedMetrics(lGMetrics(u))));
+                    fprintf(theFID,',%.4f',CombinedOutput{tThresh,iSubject,kNetwork}.(pMetric));
+                end
+            else
+                if (graph.netinclude == -1)
+                    fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
+                else
+                    fprintf(theFID,'%s,%s,%s,AUC',Subject,Type,num2str(networklabel));
+                end
+                for u = 1:nGMetrics
+                    pMetric  = num2str(cell2mat(UsedMetrics(lGMetrics(u))));
+                    fprintf(theFID,',%.4f',AUC{iSubject,kNetwork}.(pMetric));
+                end                
+            end                        
+            fprintf(theFID,'\n');            
         end  
     end
 end
@@ -868,7 +817,7 @@ if graph.ttest
     switch graph.threshmode
         case 'value'
     fprintf(theFID,'Threshold,Network,Metric,tVal,pVal,direction\n');
-        case 'percent'
+        case 'sparsity'
             fprintf(theFID,'TargetDensity(in percent),Network,Metric,tVal,pVal,direction\n');
     end
     for i=1:nThresh
@@ -923,7 +872,7 @@ if graph.perm
                 else
                     ThreValue = ['threshold_' num2str(graph.thresh(iThresh))];
                 end
-            case 'percent'
+            case 'sparsity'
                 ThreValue = ['TargetDensity_' num2str(graph.thresh(iThresh)) '%'];
         end        
         
@@ -1018,7 +967,7 @@ if graph.perm
     switch graph.threshmode
         case 'value'
             fprintf(theFID,'Threshold,Network,Metric,rawpVal,direction\n');
-        case 'percent'
+        case 'sparsity'
             fprintf(theFID,'TargetDensity(in percent),Network,Metric,rawpVal,direction\n');
     end
     for i=1:nThresh
@@ -1104,7 +1053,7 @@ if graph.node
                 else
                     ThreValue = ['threshold_' num2str(graph.thresh(tThresh))];
                 end
-            case 'percent'
+            case 'sparsity'
                 ThreValue = ['TargetDensity_' num2str(graph.thresh(tThresh)) '%'];
         end
         
