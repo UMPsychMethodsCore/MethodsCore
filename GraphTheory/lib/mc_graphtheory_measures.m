@@ -31,7 +31,7 @@ weighted = graph.weighted;
 % -Network Degree-
 % The average degree over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.degree
+if Flag.glodeg
     display('Calculating degree');
     if directed
         deg = degrees_dir(mtrx);
@@ -102,7 +102,7 @@ end
 % (alternative to the clustering coefficient, a classical version) 
 % The ratio of triangles to triplets in the graph.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.transitivity
+if Flag.trans
     display('Calculating transitivity');
     if directed
         trans = transitivity_bd(mtrx);
@@ -124,7 +124,7 @@ end
 % -Local Efficiency-
 % The global efficiency of the neighborhood of a node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.efficiency
+if Flag.eglob
     display('Calculating efficiency');
     if directed
 %         eglob = 0; % no code for directed matrix
@@ -154,7 +154,7 @@ end
 % edges. Modularity is a statistic that quantifies the degree to which the
 % graph may be subdivided into such clearly delineated groups.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.modularity
+if Flag.modu
     display('Calculating modularity');
     if directed
         [~,modu] = modularity_dir(mtrx);
@@ -173,7 +173,7 @@ end
 % that nodes tend to link to other nodes with the same or similar degree.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if directed: out-degree/in-degree correlation
-if Flag.assortativity
+if Flag.assort
     display('Calculating assortativity');
     assort = assortativity_bin(mtrx,directed); 
     % The function accepts weighted graphs, but all connection weights are ignored.  
@@ -240,7 +240,7 @@ end
 % The solution is the eigenvector corresponding to the greates eigenvalue.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Power Method
-if Flag.eigenvector
+if Flag.eigvalue
     display('Calculating eigenvector centrality');
     n=length(mtrx);
     v=ones(n,1);
@@ -261,7 +261,7 @@ end
 % large number of shortest paths.
 % The global betweenness centrality is the average of centralities of all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.betweenness
+if Flag.btwn
     display('Calculating betweenness');
     if weighted
         % betweenness_wei function asks for connection-length matrix, as in a
@@ -286,7 +286,7 @@ end
 % -Spectral Entropy -
 % Spectral Entropy is a measure of the 'uncertainty' of the graph
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.entropy
+if Flag.etpy
     display('Calculating entropy');
     Output.etpy = mc_spectral_entropy(mtrx);
 end  

@@ -33,22 +33,21 @@ end
 
 FullMetrics = {'Smallworldness','Clustering','CharacteristicPathLength','GlobalDegree','GlobalStrength','Density','Transitivity',...
     'GlobalEfficiency','Modularity','Assortativity','Betweenness','Entropy','EigValue'};    % A list of full names of possible global metrics
-FieldMetrics = {'smallworlk','cluster','pathlength','glodeg','glostr','density','trans',...
-    'eglob','modu','assort','btwn','etpy','eigvalue'};                      % The corresponding list of the fieldnames for each global metric
+FieldMetrics = {'smallworld','cluster','pathlength','glodeg','glostr','density','trans',...
+    'eglob','modu','assort','btwn','etpy','eigvalue'};  % The corresponding list of the fieldnames for each global metric
+AbbMetrics = {'S','C','P','E','E','D','T',...
+    'F','M','A','B','Y','V'};
 
-Flag.smallworld    = any(strfind(upper(graph.measures),'S'));
-Flag.density       = any(strfind(upper(graph.measures),'D'));
-Flag.transitivity  = any(strfind(upper(graph.measures),'T'));
-Flag.efficiency    = any(strfind(upper(graph.measures),'F'));
-Flag.modularity    = any(strfind(upper(graph.measures),'M'));
-Flag.assortativity = any(strfind(upper(graph.measures),'A'));
-Flag.pathlength    = any(strfind(upper(graph.measures),'P'));
-Flag.degree        = any(strfind(upper(graph.measures),'E'));
-Flag.clustering    = any(strfind(upper(graph.measures),'C'));
-Flag.betweenness   = any(strfind(upper(graph.measures),'B'));
-Flag.entropy       = any(strfind(upper(graph.measures),'Y'));
+for m = 1:length(FullMetrics)
+    Fname = FieldMetrics{m};
+    Aname = AbbMetrics{m};
+    Flag.(Fname)=any(strfind(upper(graph.measures), Aname));
+end
 Flag.eccentricity  = any(strfind(upper(graph.measures),'N'));
-Flag.eigenvector   = any(strfind(upper(graph.measures),'V'));
+if ~graph.weighted
+    Flag.glostr=0;   % controlled by E, but not necessarily be true
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Load Name and Type Info 
@@ -78,18 +77,28 @@ if ~isfield(graph,'netinclude')
     warning('Network not selected, do wholebrain measurement');
 end
 
-%%% Load parameter File   
-
-ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
-ParamPath = mc_GenPath(ParamPathCheck);
-param = load(ParamPath);
-
-%%% Look up ROI Networks
-roiMNI = param.parameters.rois.mni.coordinates;
-
-% add if graph.net
-nets = mc_NearestNetworkNode(roiMNI,5);  % Yeo network
-nets = mc_WashUNetworkNode(length(roiMNI));  % WashU parcellation
+if graph.netinclude ~= -1
+    %%% Load parameter File
+    
+    ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
+    ParamPath = mc_GenPath(ParamPathCheck);
+    param = load(ParamPath);
+    
+    %%% Look up ROI Networks
+    roiMNI = param.parameters.rois.mni.coordinates;
+    
+    % add if graph.net
+    if ~isfield(graph,'nettype')
+        graph.nettype = 'Yeo';
+        warning('Network parcellation type not selected, defaults to Yeo network')
+    end
+    switch graph.nettype
+        case 'Yeo'
+            nets = mc_NearestNetworkNode(roiMNI,5);  % Yeo network
+        case 'WashU'
+            nets = mc_WashUNetworkNode(length(roiMNI));  % WashU parcellation
+    end
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
@@ -252,8 +261,7 @@ else  % Start fresh new calculation
                 networklabel = graph.netinclude(kNetwork);
                 GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
                 GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
-            end
-                       
+            end                       
             
             for tThresh = 1:nThresh
                 
@@ -283,11 +291,9 @@ else  % Start fresh new calculation
                 switch graph.threshmode
                     case 'value'
                         if graph.weighted
-                            % Create weighted matrix
-                            GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));
+                            GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));   % Create weighted matrix
                         else
-                            % Create binary matrix
-                            GraphConnect(GraphThresh>graph.thresh(tThresh))=1;
+                            GraphConnect(GraphThresh>graph.thresh(tThresh))=1;                                                    % Create binary matrix
                         end
                     case 'sparsity'
                         density = graph.thresh(tThresh)/100;
@@ -297,11 +303,9 @@ else  % Start fresh new calculation
                         keep  = round(nUpper*density)*2+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later 
                         [~,index] = sort(GraphThresh(:));
                         if graph.weighted
-                            % Create weighted matrix
-                            GraphConnect(index(end-keep+1:end))=GraphConnectRaw(index(end-keep+1:end));
+                            GraphConnect(index(end-keep+1:end))=GraphConnectRaw(index(end-keep+1:end));    % Create weighted matrix
                         else
-                            % Create binary matrix
-                            GraphConnect(index(end-keep+1:end))=1;
+                            GraphConnect(index(end-keep+1:end))=1;                                         % Create binary matrix
                         end
                 end
                 
@@ -340,21 +344,13 @@ else  % Start fresh new calculation
                         lambda                    = GraphMeasures.pathlength / RandomMeasures.pathlength;
                         Output.smallworld         = gamma / lambda;
                     end
-                else
-                    Output.smallworld = 0;
-                    Output.cluster    = 0;
-                    Output.pathlength = 0;
-                    Output.glodeg     = 0;
-                    Output.glostr     = 0;
-                    Output.density    = 0;
-                    Output.trans      = 0;
-                    Output.eglob      = 0;
-                    Output.modu       = 0;
-                    Output.assort     = 0;
-                    Output.btwn       = 0;
-                    Output.etpy       = 0;
-                    Output.glodeg     = 0;
-                    Output.eigvalue   = 0;
+                else 
+                    for m=1:length(FieldMetrics)
+                        Fname = FieldMetrics{m};
+                        if Flag.(Fname) == 1
+                            Output.(Fname)=0;
+                        end
+                    end
                     Output.deg        = [];
                     if graph.weighted
                         Output.strength = [];
@@ -503,252 +499,27 @@ if (graph.ttest || graph.perm)
     input.metcol    = 3;  % in reorganized data, third column is metric 
     input.col = 3;
     
-    % Column of Degree
-    if Flag.degree
-        OutDegree = zeros(nThresh,nSub,nNet);
-        nMetric   = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutDegree(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glodeg;
-                end
-            end
-        end
-        ColDeg = OutDegree(:);      
-        ColDeg = ColDeg(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColDeg),1);
-        SecDeg = [FrontCol ColMetric ColDeg];        
-        data   = [data;SecDeg];
-        Metrics{end+1} ='GlobalDegree';
-    end
     
-    % Column of Strength
-    if (Flag.degree && graph.weighted)
-        OutStrength = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutStrength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.glostr;
+    for m = 1:length(FullMetrics)
+        Fname = FieldMetrics{m};
+        if Flag.(Fname)
+            nMetric = nMetric + 1;
+            OutResult = zeros(nThresh,nSub,nNet);
+            for iThresh = 1:nThresh
+                for iSub = 1:nSub
+                    for jNet = 1:nNet
+                        OutResult(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.(Fname);
+                    end
                 end
             end
+            ColResult = OutResult(:);
+            ColResult = ColResult(SubUse==1);
+            ColMetric = repmat(nMetric,length(ColResult),1);
+            SecResult = [FrontCol ColMetric ColResult];
+            data = [data;SecResult];
+            Metrics{end+1} = FullMetrics{m};
         end
-        ColStr = OutStrength(:);      
-        ColStr = ColStr(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColStr),1);
-        SecStr = [FrontCol ColMetric ColStr];        
-        data   = [data;SecStr];
-        Metrics{end+1} ='GlobalStrength';        
-    end
-                
-    % Column of Density
-    if Flag.density
-        OutDensity    = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutDensity(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.density;
-                end
-            end
-        end
-        ColDens = OutDensity(:);     
-        ColDens = ColDens(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColDens),1);
-        SecDens = [FrontCol ColMetric ColDens];        
-        data   = [data;SecDens];
-        Metrics{end+1} ='Density';
-    end
-    
-    % Column of Clustering
-    if Flag.clustering
-        OutCluster    = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutCluster(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.cluster;
-                end
-            end
-        end
-        ColCluster = OutCluster(:);     
-        ColCluster = ColCluster(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColCluster),1);
-        SecCluster = [FrontCol ColMetric ColCluster];        
-        data   = [data;SecCluster];
-        Metrics{end+1} = 'Clustering';
-    end
-    
-    % Column of CharacteristicPathLength
-    if Flag.pathlength
-        OutPathLength = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutPathLength(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.pathlength;
-                end
-            end
-        end
-        ColPathLength = OutPathLength(:);  
-        ColPathLength = ColPathLength(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColPathLength),1);
-        SecPathLength = [FrontCol ColMetric ColPathLength];        
-        data   = [data;SecPathLength];
-        Metrics{end+1} = 'CharPathLength';
-    end
-    
-    % Column of Transitivity
-    if Flag.transitivity
-        OutTrans      = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutTrans(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.trans;
-                end
-            end
-        end
-        ColTrans = OutTrans(:);       
-        ColTrans = ColTrans(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColTrans),1);
-        SecTrans = [FrontCol ColMetric ColTrans];        
-        data   = [data;SecTrans];
-        Metrics{end+1} = 'Transitivity';
-    end
-    
-    % Column of GlobalEfficiency
-    if Flag.efficiency
-        OutEglob      = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutEglob(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eglob;
-                end
-            end
-        end
-        ColEglob = OutEglob(:);       
-        ColEglob = ColEglob(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColEglob),1);
-        SecEglob = [FrontCol ColMetric ColEglob];        
-        data   = [data;SecEglob];
-        Metrics{end+1} = 'GlobEfficiency';
-    end
-    
-    % Column of Modularity
-    if Flag.modularity
-        OutModu       = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutModu(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.modu;
-                end
-            end
-        end
-        ColModu = OutModu(:);        
-        ColModu = ColModu(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColModu),1);
-        SecModu = [FrontCol ColMetric ColModu];        
-        data   = [data;SecModu];
-        Metrics{end+1} = 'Modularity';
-    end
-    
-    % Column of Assortativity
-    if Flag.assortativity
-        OutAssort     = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutAssort(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.assort;
-                end
-            end
-        end
-        ColAssort = OutAssort(:);      
-        ColAssort = ColAssort(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColAssort),1);
-        SecAssort = [FrontCol ColMetric ColAssort];        
-        data   = [data;SecAssort];
-        Metrics{end+1} = 'Assortativity';
-    end
-    
-    % Column of Betweenness
-    if Flag.betweenness
-        OutBtwn       = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutBtwn(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.btwn;
-                end
-            end
-        end
-        ColBtwn = OutBtwn(:);        
-        ColBtwn = ColBtwn(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColBtwn),1);
-        SecBtwn = [FrontCol ColMetric ColBtwn];        
-        data   = [data;SecBtwn];
-        Metrics{end+1} = 'Betweenness';
-    end
-    
-    % Column of Entropy
-    if Flag.entropy
-        OutEtpy       = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutEtpy(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.etpy;
-                end
-            end
-        end
-        ColEtpy = OutEtpy(:);        
-        ColEtpy = ColEtpy(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColEtpy),1);
-        SecEtpy = [FrontCol ColMetric ColEtpy];        
-        data   = [data;SecEtpy];
-        Metrics{end+1} = 'Entropy';
-    end
-    
-    % Column of Eigenvector
-    if Flag.eigenvector
-        OutEigValue   = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutEigValue(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.eigvalue;
-                end
-            end
-        end
-        ColEig = OutEigValue(:);    
-        ColEig = ColEig(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColEig),1);
-        SecEig = [FrontCol ColMetric ColEig];        
-        data   = [data;SecEig];
-        Metrics{end+1} = 'EigValue';
-    end    
-    
-    % Column of smallworldness
-    if Flag.smallworld
-        OutSW  = zeros(nThresh,nSub,nNet);
-        nMetric     = nMetric+1;
-        for iThresh = 1:nThresh
-            for iSub = 1:nSub
-                for jNet = 1:nNet
-                    OutSW(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.smallworld;
-                end
-            end
-        end
-        ColSW = OutSW(:);    
-        ColSW = ColSW(SubUse==1);
-        ColMetric = repmat(nMetric,length(ColSW),1);
-        SecSW = [FrontCol ColMetric ColSW];        
-        data   = [data;SecSW];
-        Metrics{end+1} = 'SmallWorld';
-    end  
+    end     
     
 %%%% end of reorganizing data %%%%
     
