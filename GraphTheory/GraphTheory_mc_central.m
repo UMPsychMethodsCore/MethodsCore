@@ -32,11 +32,14 @@ if ~isfield(graph,'measures')
 end
 
 FullMetrics = {'Smallworldness','Clustering','CharacteristicPathLength','GlobalDegree','GlobalStrength','Density','Transitivity',...
-    'GlobalEfficiency','Modularity','Assortativity','Betweenness','Entropy','EigValue'};    % A list of full names of possible global metrics
+    'GlobalEfficiency','Modularity','Assortativity','Betweenness','Entropy','EigValue',...
+    'lambda','gamma','Hierarchy','Synchronization'};    % A list of full names of possible global metrics
 FieldMetrics = {'smallworld','cluster','pathlength','glodeg','glostr','density','trans',...
-    'eglob','modu','assort','btwn','etpy','eigvalue'};  % The corresponding list of the fieldnames for each global metric
+    'eglob','modu','assort','btwn','etpy','eigvalue',...
+    'lambda','gamma','hier','sync'};  % The corresponding list of the fieldnames for each global metric
 AbbMetrics = {'S','C','P','E','E','D','T',...
-    'F','M','A','B','Y','V'};
+    'F','M','A','B','Y','V',...
+    'L','G','H','O'};
 
 for m = 1:length(FullMetrics)
     Fname = FieldMetrics{m};
@@ -342,6 +345,12 @@ else  % Start fresh new calculation
                         RandomMeasures.pathlength = mean(randpathlength);
                         gamma                     = GraphMeasures.cluster / RandomMeasures.cluster;
                         lambda                    = GraphMeasures.pathlength / RandomMeasures.pathlength;
+                        if Flag.lambda
+                            Output.lambda = lambda;
+                        end
+                        if Flag.gamma
+                            Output.gamma = gamma;
+                        end
                         Output.smallworld         = gamma / lambda;
                     end
                 else 
@@ -373,7 +382,7 @@ else  % Start fresh new calculation
         
     end
     
-    SubUse = repmat(kron(SubUseMark,ones(1,nThresh)),1,length(graph.netinclude))';
+    SubUse = repmat(kron(SubUseMark,ones(1,nThresh+1)),1,length(graph.netinclude))'; % +1 for AUC
     
     if graph.netinclude == -1
         nROI = length(GraphConnect);
@@ -443,7 +452,7 @@ for tThresh = 1:(nThresh+1)  % Output results for each threshold and also AUC
                 end
             else
                 if (graph.netinclude == -1)
-                    fprintf(theFID,'%s,%s,WholeBrain,%s',Subject,Type,num2str(graph.thresh(tThresh)));
+                    fprintf(theFID,'%s,%s,WholeBrain,AUC',Subject,Type);
                 else
                     fprintf(theFID,'%s,%s,%s,AUC',Subject,Type,num2str(networklabel));
                 end
@@ -485,7 +494,7 @@ if (graph.ttest || graph.perm)
     ColNet        = ColNet(SubUse==1);
     
     % Column of threshold
-    MatThresh     = repmat(graph.thresh',length(CombinedOutput)*nNet,1);
+    MatThresh     = repmat([graph.thresh,200]',length(CombinedOutput)*nNet,1); % 200 is for AUC
     ColThresh     = MatThresh(SubUse==1);
     
     % Initialization
@@ -504,11 +513,15 @@ if (graph.ttest || graph.perm)
         Fname = FieldMetrics{m};
         if Flag.(Fname)
             nMetric = nMetric + 1;
-            OutResult = zeros(nThresh,nSub,nNet);
-            for iThresh = 1:nThresh
+            OutResult = zeros(nThresh+1,nSub,nNet);
+            for iThresh = 1:(nThresh+1)
                 for iSub = 1:nSub
                     for jNet = 1:nNet
-                        OutResult(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.(Fname);
+                        if iThresh~=(nThresh+1)
+                            OutResult(iThresh,iSub,jNet) = CombinedOutput{iThresh,iSub,jNet}.(Fname);
+                        else
+                            OutResult(iThresh,iSub,jNet) = AUC{iSub,jNet}.(Fname);
+                        end
                     end
                 end
             end
@@ -538,16 +551,20 @@ end
 
 if graph.ttest
     
-    p      = zeros(nThresh,nNet,nMetric);
-    t      = zeros(nThresh,nNet,nMetric);
-    meancl = zeros(nThresh,nNet,nMetric);
-    meanep = zeros(nThresh,nNet,nMetric);
-    secl   = zeros(nThresh,nNet,nMetric);
-    seep   = zeros(nThresh,nNet,nMetric);
+    p      = zeros(nThresh+1,nNet,nMetric);
+    t      = zeros(nThresh+1,nNet,nMetric);
+    meancl = zeros(nThresh+1,nNet,nMetric);
+    meanep = zeros(nThresh+1,nNet,nMetric);
+    secl   = zeros(nThresh+1,nNet,nMetric);
+    seep   = zeros(nThresh+1,nNet,nMetric);
     
     display('t-test for global measures');
-    for iThresh = 1:nThresh
-        input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
+    for iThresh = 1:(nThresh+1)
+        if iThresh~=(nThresh+1)
+            input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
+        else
+            input.subdata = data(data(:,input.threshcol)==200,:);  % 200 is for AUC
+        end
         [tresults]=mc_graphtheory_ttest(graph,input,nNet,nMetric);
         p(iThresh,:,:)      = tresults.p;
         t(iThresh,:,:)      = tresults.t;
@@ -592,10 +609,14 @@ if graph.ttest
         case 'sparsity'
             fprintf(theFID,'TargetDensity(in percent),Network,Metric,tVal,pVal,direction\n');
     end
-    for i=1:nThresh
+    for i=1:nThresh+1
         for j=1:nNet
             for k=1:nMetric
-                fprintf(theFID,'%.4f,',graph.thresh(i));
+                if i~=(nThresh+1)
+                    fprintf(theFID,'%.4f,',graph.thresh(i));
+                else
+                    fprintf(theFID,'AUC,');
+                end
                 if (graph.netinclude(j)==-1)
                     fprintf(theFID,'WholeBrain,');
                 else

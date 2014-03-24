@@ -80,7 +80,7 @@ end
 % clustering coefficients over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if Flag.clustering
+if Flag.cluster
     display('Calculating clustering coefficient');
     if directed
         cluster = clustering_coef_bd(mtrx);
@@ -237,18 +237,12 @@ end
 % A measure of the influence of a node in a graph. It assigns relative scores to all nodes
 % in the graph based on the concept that connections to high-scoring nodes contribute more 
 % to the score of the node in question than equal connections to low-scoring nodes.(Wiki)
-% The solution is the eigenvector corresponding to the greates eigenvalue.
+% The solution is the eigenvector corresponding to the greatest eigenvalue.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Power Method
 if Flag.eigvalue
     display('Calculating eigenvector centrality');
-    n=length(mtrx);
-    v=ones(n,1);
-    for i=1:100
-        v=mtrx*v;
-        v=v/norm(v);        
-    end
-    rho=v'*mtrx*v;
+    [v,rho] = find_greatest_eigvalue(mtrx,100);    
     Output.eigvector=v';
     Output.eigvalue =rho;
     
@@ -290,7 +284,34 @@ if Flag.etpy
     display('Calculating entropy');
     Output.etpy = mc_spectral_entropy(mtrx);
 end  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Hierarchy -
+% How likely it is that all nodes oscillate with the same wave pattern
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.hier
+    display('Calculating hierarchy');
+    logk = log(deg);
+    logc = log(cluster);
+    beta = polyfit(logk,logc,1);
+    Output.hier = -beta(1);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Hierarchy -
+% How likely it is that all nodes oscillate with the same wave pattern
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.sync     
+    G = -mtrx; %coupling matrix G          
+    if graph.weighted
+        G(eye(size(G))==1)=strength;
+    else
+        G(eye(size(G))==1)=deg;
+    end
+    [~,lambdan] = find_greatest_eigvalue(G,100);
     
+    Output.sync = lambda2/lambdan;
+end
 end
 
 
