@@ -80,16 +80,18 @@ if ~isfield(graph,'netinclude')
     warning('Network not selected, do wholebrain measurement');
 end
 
+
+%%% Load parameter File
+
+ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
+ParamPath = mc_GenPath(ParamPathCheck);
+param = load(ParamPath);
+
+%%% Look up ROI Networks
+roiMNI = param.parameters.rois.mni.coordinates;
+
+%%% Figure out network label
 if graph.netinclude ~= -1
-    %%% Load parameter File
-    
-    ParamPathCheck = struct('Template',NetworkParameter,'mode','check');
-    ParamPath = mc_GenPath(ParamPathCheck);
-    param = load(ParamPath);
-    
-    %%% Look up ROI Networks
-    roiMNI = param.parameters.rois.mni.coordinates;
-    
     % add if graph.net
     if ~isfield(graph,'nettype')
         graph.nettype = 'Yeo';
@@ -131,7 +133,9 @@ if existflag   % Use existing results if there is one
     SubUse         = LoadResult.SubUse;
     SubUseMark     = SubUse(1:length(graph.thresh):length(graph.thresh)*length(Names));
     nROI           = LoadResult.nROI;
-    AUC            = LoadResult.AUC;
+    if isfield(LoadResult,'AUC')
+        AUC            = LoadResult.AUC;
+    end
 else  % Start fresh new calculation
     CombinedOutput = cell(nThresh,length(Names),nNet);
     
@@ -382,7 +386,12 @@ else  % Start fresh new calculation
         
     end
     
-    SubUse = repmat(kron(SubUseMark,ones(1,nThresh+1)),1,length(graph.netinclude))'; % +1 for AUC
+    if length(graph.thresh)>=2        
+        AUC = mc_graphtheory_AUC(CombinedOutput,graph); % Calculate AUC for global metrics             
+        SubUse = repmat(kron(SubUseMark,ones(1,nThresh+1)),1,length(graph.netinclude))'; % +1 for AUC
+    else        
+        SubUse = repmat(kron(SubUseMark,ones(1,nThresh)),1,length(graph.netinclude))'; % +1 for AUC
+    end
     
     if graph.netinclude == -1
         nROI = length(GraphConnect);
@@ -392,12 +401,13 @@ else  % Start fresh new calculation
     
     display('Saving first level global measure results');
     
-    %%%%%%%%%%%%%%% Calculate AUC for global metrics %%%%%%%%%%%%%%
-    AUC = mc_graphtheory_AUC(CombinedOutput,graph);
     
     %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
-    
-    save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','AUC','-v7.3');
+    if length(graph.thresh)>=2
+        save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','AUC','-v7.3');
+    else
+        save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','-v7.3');
+    end
 end
 
 %%%%%%%%%%% Some heads-up steps %%%%%%%%%%%%%%%%%%
@@ -406,6 +416,11 @@ UsedMetrics = fieldnames(sample);
 statsMetrics = structfun(@numel,sample);
 lGMetrics = find(statsMetrics==1);
 nGMetrics = sum(statsMetrics==1);
+if length(graph.thresh)>=2
+    pThresh = nThresh+1;
+else
+    pThresh = nThresh;
+end
 
 %%%%%%% Output Global Measure Values for each Run of each Subject %%%%%%%%%%
 
@@ -434,7 +449,7 @@ end
 fprintf(theFID,'\n');
 
 % contents
-for tThresh = 1:(nThresh+1)  % Output results for each threshold and also AUC
+for tThresh = 1:(pThresh)  % Output results for each threshold and also AUC
     for kNetwork = 1:length(graph.netinclude);
         networklabel = graph.netinclude(kNetwork);
         for iSubject = 1:nSub
@@ -489,12 +504,16 @@ if (graph.ttest || graph.perm)
 %%%% begin of reorganizing data %%%%
        
     % Column of network
-    MatNet        = repmat(graph.netinclude,length(CombinedOutput)*nThresh,1);
+    MatNet        = repmat(graph.netinclude,length(CombinedOutput)*pThresh,1);
     ColNet        = MatNet(:);
     ColNet        = ColNet(SubUse==1);
     
     % Column of threshold
-    MatThresh     = repmat([graph.thresh,200]',length(CombinedOutput)*nNet,1); % 200 is for AUC
+    if length(graph.thresh)>=2
+        MatThresh     = repmat([graph.thresh,200]',length(CombinedOutput)*nNet,1); % 200 is for AUC
+    else
+        MatThresh     = repmat(graph.thresh',length(CombinedOutput)*nNet,1);
+    end
     ColThresh     = MatThresh(SubUse==1);
     
     % Initialization
@@ -513,8 +532,8 @@ if (graph.ttest || graph.perm)
         Fname = FieldMetrics{m};
         if Flag.(Fname)
             nMetric = nMetric + 1;
-            OutResult = zeros(nThresh+1,nSub,nNet);
-            for iThresh = 1:(nThresh+1)
+            OutResult = zeros(pThresh,nSub,nNet);
+            for iThresh = 1:(pThresh)
                 for iSub = 1:nSub
                     for jNet = 1:nNet
                         if iThresh~=(nThresh+1)
@@ -551,15 +570,15 @@ end
 
 if graph.ttest
     
-    p      = zeros(nThresh+1,nNet,nMetric);
-    t      = zeros(nThresh+1,nNet,nMetric);
-    meancl = zeros(nThresh+1,nNet,nMetric);
-    meanep = zeros(nThresh+1,nNet,nMetric);
-    secl   = zeros(nThresh+1,nNet,nMetric);
-    seep   = zeros(nThresh+1,nNet,nMetric);
+    p      = zeros(pThresh,nNet,nMetric);
+    t      = zeros(pThresh,nNet,nMetric);
+    meancl = zeros(pThresh,nNet,nMetric);
+    meanep = zeros(pThresh,nNet,nMetric);
+    secl   = zeros(pThresh,nNet,nMetric);
+    seep   = zeros(pThresh,nNet,nMetric);
     
     display('t-test for global measures');
-    for iThresh = 1:(nThresh+1)
+    for iThresh = 1:(pThresh)
         if iThresh~=(nThresh+1)
             input.subdata = data(data(:,input.threshcol)==graph.thresh(iThresh),:);
         else
@@ -609,7 +628,7 @@ if graph.ttest
         case 'sparsity'
             fprintf(theFID,'TargetDensity(in percent),Network,Metric,tVal,pVal,direction\n');
     end
-    for i=1:nThresh+1
+    for i=1:pThresh
         for j=1:nNet
             for k=1:nMetric
                 if i~=(nThresh+1)

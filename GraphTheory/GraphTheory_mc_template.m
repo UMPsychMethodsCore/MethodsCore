@@ -200,7 +200,7 @@ graph.thresh = [0.2,0.25,0.3,0.35];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 graph.node        = 1;
 TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_01/swrarestrun_01.nii';
-TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+TDmask     = '[Exp]/ROIS/rs_rEPI_MASK_NOEYES.img';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,11 +286,10 @@ graph.FDR = 0;
 %         F = efficiency [global/node-wise] (Note: global efficiency is inversely related to characteristic path length; local efficiency is related to
 %             clustering coefficient. Therefore the users don't have to select all of these measures.)
 %         G = gamma, i.e. normalized clustering coefficient, need to select 'C' and 'S'
-%         H = Hierarchy, need to select 'C' and 'E', also need to select 'C' and 'E' in graph.voxelmeasures
+%         H = hierarchy, need to select 'C' and 'E', also need to select 'C' and 'E' in graph.voxelmeasures
 %         L = lambda, i.e. normalized characteristic path length, need to select 'P' and 'S'
 %         M = modularity
 %         N = eccentricity
-%         O = synchronization
 %         P = characteristic path length
 %         S = small-worldness (Note: Time-consuming, need to select 'C' and 'P')
 %         T = transitivity (Note: transitivity is an alternative to the clustering coefficient. Therefore the users don't have to select both of these measures.)
@@ -305,7 +304,6 @@ graph.FDR = 0;
 %         F = efficiency   (need to include 'F' in graph.measures)
 %         G = strength     (need to include 'E' in graph.measures and only apply to weighted measure)
 %         N = eccentricity (need to include 'P' in graph.measures)
-%         P = participant coefficient
 %         V = eigenvector  (need to include 'V' in graph.measures)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
