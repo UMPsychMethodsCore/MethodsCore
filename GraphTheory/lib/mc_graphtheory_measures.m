@@ -31,7 +31,7 @@ weighted = graph.weighted;
 % -Network Degree-
 % The average degree over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.degree
+if Flag.glodeg
     display('Calculating degree');
     if directed
         deg = degrees_dir(mtrx);
@@ -80,7 +80,7 @@ end
 % clustering coefficients over all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if Flag.clustering
+if Flag.cluster
     display('Calculating clustering coefficient');
     if directed
         cluster = clustering_coef_bd(mtrx);
@@ -102,7 +102,7 @@ end
 % (alternative to the clustering coefficient, a classical version) 
 % The ratio of triangles to triplets in the graph.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.transitivity
+if Flag.trans
     display('Calculating transitivity');
     if directed
         trans = transitivity_bd(mtrx);
@@ -124,7 +124,7 @@ end
 % -Local Efficiency-
 % The global efficiency of the neighborhood of a node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.efficiency
+if Flag.eglob
     display('Calculating efficiency');
     if directed
 %         eglob = 0; % no code for directed matrix
@@ -154,7 +154,7 @@ end
 % edges. Modularity is a statistic that quantifies the degree to which the
 % graph may be subdivided into such clearly delineated groups.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.modularity
+if Flag.modu
     display('Calculating modularity');
     if directed
         [~,modu] = modularity_dir(mtrx);
@@ -173,7 +173,7 @@ end
 % that nodes tend to link to other nodes with the same or similar degree.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if directed: out-degree/in-degree correlation
-if Flag.assortativity
+if Flag.assort
     display('Calculating assortativity');
     assort = assortativity_bin(mtrx,directed); 
     % The function accepts weighted graphs, but all connection weights are ignored.  
@@ -237,18 +237,12 @@ end
 % A measure of the influence of a node in a graph. It assigns relative scores to all nodes
 % in the graph based on the concept that connections to high-scoring nodes contribute more 
 % to the score of the node in question than equal connections to low-scoring nodes.(Wiki)
-% The solution is the eigenvector corresponding to the greates eigenvalue.
+% The solution is the eigenvector corresponding to the greatest eigenvalue.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Power Method
-if Flag.eigenvector
+if Flag.eigvalue
     display('Calculating eigenvector centrality');
-    n=length(mtrx);
-    v=ones(n,1);
-    for i=1:100
-        v=mtrx*v;
-        v=v/norm(v);        
-    end
-    rho=v'*mtrx*v;
+    [v,rho] = find_greatest_eigvalue(mtrx,100);    
     Output.eigvector=v';
     Output.eigvalue =rho;
     
@@ -261,7 +255,7 @@ end
 % large number of shortest paths.
 % The global betweenness centrality is the average of centralities of all nodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.betweenness
+if Flag.btwn
     display('Calculating betweenness');
     if weighted
         % betweenness_wei function asks for connection-length matrix, as in a
@@ -286,11 +280,38 @@ end
 % -Spectral Entropy -
 % Spectral Entropy is a measure of the 'uncertainty' of the graph
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if Flag.entropy
+if Flag.etpy
     display('Calculating entropy');
     Output.etpy = mc_spectral_entropy(mtrx);
 end  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Hierarchy -
+% How likely it is that all nodes oscillate with the same wave pattern
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.hier
+    display('Calculating hierarchy');
+    logk = log(deg);
+    logc = log(cluster);
+    beta = polyfit(logk,logc,1);
+    Output.hier = -beta(1);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -Hierarchy -
+% How likely it is that all nodes oscillate with the same wave pattern
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if Flag.sync     
+    G = -mtrx; %coupling matrix G          
+    if graph.weighted
+        G(eye(size(G))==1)=strength;
+    else
+        G(eye(size(G))==1)=deg;
+    end
+    [~,lambdan] = find_greatest_eigvalue(G,100);
     
+    Output.sync = lambda2/lambdan;
+end
 end
 
 
