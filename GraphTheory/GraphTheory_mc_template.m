@@ -86,12 +86,18 @@ NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_pa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Network Selection -
 % To decide which brain network/s to include
+% graph.nettype:                    
+%                                'Yeo'  -  YeoNetwork Parcellation
+%                                'WashU'-  WashU parcellation, either 264
+%                                          ROIs or 160 ROIs
 % 
 % graph.netinclude:                             -1 - Whole Brain;
 %                   Array of integers from 1 to 13 - SubNetworks based on 
 %                                                    parcellation of Yeo
 %                   Defaults to -1 if not assigned.   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+graph.nettype = 'WashU';
 graph.netinclude = -1; 
 
 
@@ -155,7 +161,7 @@ graph.value    = 0;
 % graph.threshmode: 'value'      - thresholding based on edge value, in 
 %                                  this case, the number/s in graph.thresh
 %                                  indicates the value threshold;
-%                   'percent'    - in this case, the number/s listed in
+%                   'sparsity'   - in this case, the number/s listed in
 %                                  graph.thresh indicates how many
 %                                  percentage edges you want to keep, e.g.
 %                                  10 means you want to keep top 10%
@@ -172,7 +178,7 @@ graph.value    = 0;
 % 'percentage' and set thresh to '100'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 graph.threshmode = 'value';
-graph.thresh = [0.25];
+graph.thresh = [0.2,0.25,0.3,0.35];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -194,7 +200,7 @@ graph.thresh = [0.25];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 graph.node        = 1;
 TDtemplate = '[Exp]/Subjects/5001/Tx1/TASK/func/run_01/swrarestrun_01.nii';
-TDmask     = '[Exp]/ROIS/rEPI_MASK_NOEYES.img';
+TDmask     = '[Exp]/ROIS/rs_rEPI_MASK_NOEYES.img';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -277,19 +283,16 @@ graph.FDR = 0;
 %         C = clustering coefficient [global/node-wise]
 %         D = density
 %         E = degree [global/node-wise]
-%         F = efficiency [global/node-wise]
-%             (Note: global efficiency is inversely related to
-%             characteristic path length; local efficiency is related to
-%             clustering coefficient. Therefore the users don't have to 
-%             select all of these measures.)
+%         F = efficiency [global/node-wise] (Note: global efficiency is inversely related to characteristic path length; local efficiency is related to
+%             clustering coefficient. Therefore the users don't have to select all of these measures.)
+%         G = gamma, i.e. normalized clustering coefficient, need to select 'C' and 'S'
+%         H = hierarchy, need to select 'C' and 'E', also need to select 'C' and 'E' in graph.voxelmeasures
+%         L = lambda, i.e. normalized characteristic path length, need to select 'P' and 'S'
 %         M = modularity
 %         N = eccentricity
 %         P = characteristic path length
 %         S = small-worldness (Note: Time-consuming, need to select 'C' and 'P')
-%         T = transitivity
-%             (Note: transitivity is an alternative to the clustering
-%             coefficient. Therefore the users don't have to select both
-%             of these measures.)
+%         T = transitivity (Note: transitivity is an alternative to the clustering coefficient. Therefore the users don't have to select both of these measures.)
 %         V = eigenvector centrality
 %         Y = entropy
 %
