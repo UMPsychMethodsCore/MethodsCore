@@ -64,21 +64,7 @@ function PrintRun(sess, subjectName, fid)
     else
         fprintf(fid, '%s REGRESSORS  : 0\n', lineHeader);
     end
-
-    % print out CompCor information if being used
-    if sess.useCompCor == 1
-        numCompCor = size(sess.compCor, 2);
-        fprintf(fid, '%s NUMBER COMP COR   : %d\n', lineHeader, numCompCor);
-        fprintf(fid, '%s VARIANCE ACCOUNTED: ', lineHeader);
-        for i = 1:length(sess.varExplained)
-            fprintf(fid, '%0.3f ', sess.varExplained(i));
-        end
-        fprintf(fid, '\n');
-    else
-        fprintf(fid, '%s NO COMP COR\n', lineHeader);
-    end
     fprintf(fid, '\n');
-        
 end
 
 function PrintCondition(cond, subjectName, runName, fid)

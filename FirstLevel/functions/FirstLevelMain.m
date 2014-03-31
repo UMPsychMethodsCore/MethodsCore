@@ -270,33 +270,4 @@ function opt = CheckOpt(opt)
         opt.Sandbox = '';
         mc_Logger('log','Not using sandbox',3);
     end
-
-    % handle CompCor regressors
-    for iCompCor = 1:size(opt.CompCorTemplate, 1)
-        CompsUsed = opt.CompCorTemplate{iCompCor, 2};
-        CompIncMeth = opt.CompCorTemplate{iCompCor, 3};
-
-        % check for correct components used flag value
-        if CompsUsed ~= 1 && CompsUsed ~= 2 && CompsUsed ~=3
-            error('ERROR: Invalid components used value for file %s.  Expected [1 2 3], but found %d\n\n', opt.CompCorTemplate{iCompCor, 1}, CompsUsed);
-        end
-       
-        % if princlple components are being used, check for correct component inclusion mehtods 
-        if CompsUsed == 2 || CompsUsed == 3
-            if CompIncMeth == 1
-                CompsInc = opt.CompCorTemplate{iCompCor, 4};
-                if CompsInc < 0
-                    error('ERROR: # of components included must be > 0, but found %d.  Invalid # of components to include for file %s\n', CompsInc, opt.CompCorTemplate{iCompCor, 1});
-                end
-            elseif CompIncMeth == 2
-                MinVar = opt.CompCorTemplate{iCompCor, 4};
-                if MinVar <= 0 || MinVar >= 1
-                    error('ERROR: The minimum fractional variance explained by CompCor file %s is invalid.  Expected a value > 0 and < 1, but found %0.2f\n\n', opt.CompCorTemplate{iCompCor, 1}, minFracVar);
-                end
-            else
-                error('ERROR: Invalid component inclusion method for file %s.  Expected [1 2], but found %d.\n\n', opt.CompCorTemplate{iCompCor, 1}, CompIncMeth);
-            end
-        end
-    end
-
 end

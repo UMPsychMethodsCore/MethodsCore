@@ -151,16 +151,6 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
                 AllSubjects(i).sess(k).useRegress = 1;
             end
 
-            % handle CompCor for run
-            [Components VarAccounted] = SetRunCompCor(i, RunNumber, opt);
-            if isempty(Components) == 1
-                AllSubjects(i).sess(k).useCompCor = 0;
-            else
-                AllSubjects(i).sess(k).useCompCor = 1;
-                AllSubjects(i).sess(k).varExplained = VarAccounted;
-            end
-            AllSubjects(i).sess(k).compCor = Components;
-
             % handle timepoint trimming
             if ~isempty(opt.VolumeSpecifier) == 1 && size(opt.VolumeSpecifier, 2) <= k
                 AllSubjects(i).sess(k) = TrimRun(AllSubjects(i).sess(k), i, RunNumber, opt);

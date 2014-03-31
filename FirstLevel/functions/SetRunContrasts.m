@@ -175,13 +175,6 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
 
     end
 
-    % add in hidden comp cor contrasts, shhhhhhh
-    CompCorContrasts = [];
-    if sess.useCompCor == 1
-        CompCorContrasts = zeros(NumContrasts, size(sess.compCor, 2));
-    end
-    
-    RunContrasts = [RunContrasts RegressorContrasts CompCorContrasts];
-
+    RunContrasts = [RunContrasts RegressorContrasts];
 end
 
