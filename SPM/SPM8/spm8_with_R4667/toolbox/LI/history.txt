@@ -1,0 +1,141 @@
+% ==========================================================================================================
+%                                  Version history of the LI-toolbox
+% ==========================================================================================================
+
+1.2.5.
+Little Bugfix: adapted perc sampling rate in the bootstrap was unintentionally inherited to the following mask, leading to an inevitable k = 1 in later iterations. Thanks to Adrienn Mate for reporting this.
+
+1.2.4.
+Usability enhancement: do not ask for left/right mask in scripted mode, if passed (fix kindly suggested by Pieter Vandemaele).
+
+1.2.3.
+Usability enhancement: when using an asymmetrical mask, do not warn and ask every time when in scripted mode.
+
+1.2.2.
+Little Bugfix: when using iterative thresholding and variance weighting, the variance image was not correctly read in, leading to an error. Thanks to Dorian Pustina for reporting this.
+
+1.2.1.
+Bugfix: the masks as introduced with version 1.1.9. were faulty (straight gyrus was wrongly assigned to the parietal instead of frontal lobe); now recreated all masks and included the script (LI_make_mask) to do this. Updated documentation accordingly.
+
+1.2.
+Major update: the toolbox now assesses the handedness of the supplied images and, if deemed necessary, adjusts left/right mask image accordingly. This does not mean nothing can go wrong anymore ;) but it seems worth a try. As this uses functionality included in spm_orientations as introduced by spm8, the risk of problems with earlier versions seemed high enough to remove backward compatibility: it is spm8 and higher from now on! Adapted LI_test accordingly.
+
+1.1.9.
+Significant Update: included maks based on the Hammersmith population-based atlas instead of the single subject ones used up till now, with kind permission by Alexander Hammers; see the html help file in /man for more information. Note that the old masks, based on the single subject aal brain, are still included in /data in zipped format, so you can continue to use them if you want to.
+
+1.1.8.
+Added LI_mreslice, implementing in-memory-reslicing for provided input images (instead of writing to disk using imcalc and reloading); required modifying LI, LI_boot and LI_iter; also tidied code, using the more neutral "input" instead of "contrast"
+
+1.1.7.
+Thanks to Nerissa Ho who reported that LI_boot crashes if there is absolutely no data on one side. Changed the code to report an error if encountered.
+
+1.1.6.
+Arnold Skimminge kindly supplied a toolbox config file to be used with the spm8 batch editor, making the toolbox more flexible to use. Thanks for that!
+
+1.1.5.
+Removed LI_print (modified LI, LI_boot and LI_iter) due to issues with printing figures when the batch editor is open in spm8. Also included a sanity check when printing LI_(boot|curves).ps as, with larger collections, this may exceed the allowed file size limit; this error is now caught and reported without interrupting processing.
+
+1.1.4.
+Generated a mask for randbrain in order to further improve affine normalization ("Masked fine affine ...")
+
+1.1.3.
+Added a "short" option to the code of LI_boot (around line 30), allowing for a more minimalistic output (show only final results, easier to handle for larger collections); note that this is now enabled by default.
+
+1.1.2.
+Replaced occurrences of fileparts (4th output generated a warning in newer Matlab versions) with spm_fileparts
+
+1.1.1.
+Updated some files, replacing occurrences of finite (no longer supported in newer Matlab versions) with isfinite. Code tidied.
+
+1.1.
+Finally got around to implementing "scriptability" of the toolbox (in part based on kind suggestions by Dominik Bach!). Updated the help file and the html-manual.
+
+1.0.9.
+Based on user feedback and in keeping with a more logical way of doing things, first ask for method and then for masks
+
+1.0.8.
+Updated several files to allow running in SPM versions > 5, including more graceful handling of '.nii files
+
+1.0.7.
+Added option to specify custom output file to LI.m (enable around line 152); also explained how to generally change the output option in LI.m, around line 229
+
+1.0.6.
+Fixed issue of graphics popping up in the bootstrapping approach when analyzing larger collections, as again suggested by Mattias Ragnehed
+
+1.0.5.
+Added paths of analyzed files to output file. Minor "beautifications", fixed bug of repeatedly checking normalization status in LI.M
+
+1.0.4 
+As suggested by Mattias Ragnehed, edited the way the filenames are displayed and saved in LI.txt. Matlab also pointed out that 'pack' can only be used from the command line, so obeyed by removing it.
+
+1.0.3
+As correctly noted by Tom Taymans, the left/right graphical output of the bootstrap is not LIs but rather voxel data. Adapted ouput accordingly.
+
+1.0.2
+Torsten Baldeweg discovered an issue where, in special circumstances, spm_get is called from within LI_imcalc_ui.m; fixed to now call spm_select if found.
+
+1.0.1
+Fixed passing of arguments with native-space masks; bug detected and kindly fixed by Cyril Pernet :)
+
+1.0.0
+First official version of the toolbox. Added the finally accepted preprint and updated the documentation in general.
+
+0.9.7
+Realized that imshow (used in LI_test) is part of the proprietary image processing toolbox, so replaced with an openfig(...) call. Thanks to Rachel Mitchel for the feedback!
+
+0.9.6
+Based on input from Cyril Pernet, I updated the documentation to be clearer. Little bits of code-tweaking.
+
+0.9.5.1
+Included hidden option in li_iter to use voxel counting; not recommended but maybe useful for special comparisons.
+
+0.9.5
+Updated li_test.m to work with both spm2 and spm5 (spm5 interestingly does not read minc-files anymore...); now uses jpg.
+
+0.9.4
+Minor bugfixes (displaying of results in LI_iter, deblank contrast name); also tweaked bootstrap output
+
+0.9.3
+As suggested by Karsten Specht, the output now includes the contrast identifier when a spmT-image is analyzed
+
+0.9.2
+Implemented an easier and more robust approach to find and check voxel sizes that works for both spm2 and spm5 (based on Matthew Brett's suggestion on the spm-list)
+
+0.9.1
+Minor bug, now allow for selecting more than one custom mask in spm2; also updated the documentation
+
+0.9
+Finally got around to implementing spm5 compatibility (mostly spm_select instead of spm_get plus some code-tweaking and adding spm_close_vol to the distribution)
+
+0.8.9
+Removed source code sections from the documentation (avoids re-generating after each edit :)
+
+0.8.8
+Included bootstrap-preprint in the manual and the distribution
+
+0.8.7
+Fixed problem with screen resolution when displaying bootstrap results, now relative to screen size
+
+0.8.6.1
+Included HBM2006-poster in the manual and the distribution
+
+0.8.6
+Trimmed some bits of code, generated html-instructions and man-subfolder-structure
+
+0.8.5
+Replaced Xlim with xlim to avoid error messages in Matlab 7. Also found out that due to the use of the "warning" operator, Matlab 6.5 seems to be the minimum version necessary to run the toolbox "as is"
+
+0.8.4
+Added histogram of z-scores, tried several workarounds for gray histogram background but did not get around OpenGl-bug in Matlab; using the Painters Renderer works, but overall graphics quality is worse
+
+0.8.3
+Fixed bug in LI_boot_hf (need to sort jn_li prior to getting trimmed mean); implemented weighted mean
+
+0.8.2
+Fixed bug in LI_boot (re-used variable k towards the end so that for the second image, a larger cluster size was assumed)
+
+0.8.1
+Adjusted thresholding for variance-weighted images in the iterative procedures
+
+0.8
+Begin of tracking: Status when first submitting main paper; overall stable, but still working on the bootstrap implementation
