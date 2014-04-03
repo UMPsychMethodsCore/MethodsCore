@@ -1,0 +1,974 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+  <head>
+    <title>Welcome to the LI-Toolbox</title>
+    <meta name="keywords" content=".">
+    <meta http-equiv="Content-Type" content="text/html;
+      charset=ISO-8859-1">
+    <meta name="generator" content="m2html &copy; 2003 Guillaume
+      Flandin">
+    <meta name="robots" content="index, follow">
+    <link type="text/css" rel="stylesheet" href="../m2html.css">
+    <meta content="Marko Wilke" name="author">
+  </head>
+  <body>
+    <a name="_top"></a>
+    <table width="100%">
+      <tbody>
+        <tr>
+          <td align="left"><a
+              href="mailto:Marko.Wilke@med.uni-tuebingen.de">Mail the
+              author<br>
+            </a></td>
+          <td align="right"><a href="index.html">Index for
+              /toolbox/LI&nbsp;<img alt="&gt;" src="../right.png"
+                border="0"></a></td>
+        </tr>
+      </tbody>
+    </table>
+    <h1>Welcome to the LI-Toolbox</h1>
+    <span style="font-weight: bold;">***** MOST IMPORTANT *****</span><br>
+    Before doing anything else <span style="font-weight: bold;">PLEASE
+    </span>check if the handedness assumed in this toolbox conforms to
+    your local settings! Left and right are defined via LI_left and
+    LI_right in the /data-directory, such that in LI-left, all voxels
+    believed to define left are 1, all others are 0. You absolutely <span
+      style="font-weight: bold;">MUST make sure</span> that this is also
+    true for YOUR data. The function <span style="font-weight: bold;">LI_test</span>.m
+
+
+
+
+    has been included to do this: call LI_left in spm and see if the
+    left side is shown in white (a message box will explain that again
+    :). You should also do test-runs with data of known laterality. <span
+      style="font-weight: bold;">Please note that as of version 1.2, the
+      toolbox tries to gather the handedness from the data passed to it,
+      but this does not mean nothing can go wrong anymore, particularly
+      when using data from older spm-versions. For this reason, the
+      toolbox now only works in spm8 and later versions!</span> If
+    things still don't seem to be in order, you can, as a last resort,
+    rename LI_left to LI_right and vice versa (or make your own and pass
+    it to the function as custom images, see below).<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Introduction *****</span><br>
+    This is the readme-file for the LI-toolbox, an integrated software
+    package allowing for the investigation of laterality effects in
+    imaging data. It is made available to the scientific community to
+    explore aspects of hemispheric specialization. It was developed and
+    is intended for use within spm8 (statistical parametrical mapping,
+    Wellcome Department of Imaging Neuroscience, University College
+    London, UK: www.fil.ion.ucl.ac.uk/spm/) by Marko Wilke in
+    cooperation with Karen Lidzba from the Department of Pediatric
+    Neurology and Developmental Medicine at Tuebingen University
+    Children's Hospital, and Vincent Schmithorst, Imaging Research
+    Center, Cincinnati Children's Hospital Medical Center. For more
+    information (especially on our disclaimer), see below. For version
+    information, see history.txt<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Documentation *****</span><br>
+    This file :)&nbsp; The primary paper on this is<br>
+    <br>
+    <div style="text-align: center;">Wilke M, Lidzba K: LI-tool: A new
+      toolbox to assess lateralization in functional MR-data, J Neurosci
+      Meth 2007, <span class="volume">163</span><span class="issue"></span>:
+      <span class="pages">128-136</span><br>
+      click <a href="Wilke_Lidzba_LI-tool_final.pdf">here </a>to see
+      the pre-print.<br>
+    </div>
+    <br>
+    The bootstrap approach has been presented separately at HBM2006
+    (WilkeM &amp; Schmithorst J, A bootstrap approach for calculating
+    lateralization indices in functional imaging data, NeuroImage [2006]
+    31, Supplement 1: s45; click <a
+      href="Wilke_Schmithorst_HBM_2006.pdf">here </a>to see a pdf of
+    this poster) and was published as<br>
+    <br>
+    <div style="text-align: center;">Wilke M, Schmithorst VJ: A combined
+      bootstrap/histogram analysis approach for computing a
+      lateralization index from neuroimaging data, Neuroimage 2006, 33:
+      522-530;<br>
+      click <a href="Wilke_Schmithorst_bootstrapped_LI.pdf">here</a> to
+      see the pre-print.<br>
+    </div>
+    <br>
+    As laid out in the license agreement below, the authors expect you
+    to include a citation or acknowledgment if you present or publish
+    results obtained using this toolbox. For version information, see
+    the history.txt-file in the toolbox directory.<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Installation &amp;
+      Compatability *****</span><br>
+    The toolbox is available from the GUI if you unpack the files into
+    (spm-dir)\toolbox\LI. <strong style="font-weight: normal;"> The
+      directory structure should thus be \spm[8|&gt;8]\toolbox\LI\. </strong>Since
+a
+file
+
+
+
+
+    with the same name is found there, you are able to call the toolbox
+    by clicking on Toolboxes =&gt; LI. <strong style="font-weight:
+      normal;">There is now also a config file, allowing you to add
+      LI-jobs to the spm8-batch editor (courtesy of Arnold Skimminge!).
+      Within the LI-directory you should have the folders data and man.
+    </strong>Alternatively, you can call it from the command line as
+    "LI", which allows passing additional input arguments. Type "help
+    LI" or see below for more on these options. This version was written
+    to work with spm8 (when all updates are installed).<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Interactive vs. Scripted mode
+      *****</span><br>
+    If you call the toolbox via the command line with LI or via the
+    dropdown menu, it will start up in interactive mode, asking you what
+    it needs to know (see below, "The prompts explained"). However, the
+    toolbox now <span style="text-decoration: underline;">allows to be
+      run from the command line</span>. In order to do this, you need to
+    supply an input argument as in LI(out). Note the special case that,
+    "out" being the number 2 will "only" result in the toolbox output
+    being saved to a file (see below, "Hints"). However, if "out" is a
+    structure, then the following fields will be necessary: A (name and
+    path of image(s) to be analyzed), B1 (which inclusive mask to use),
+    C1 (which exclusive mask to use), and thr1 (which thresholding
+    approach to use). In scripted mode, graphic windows are suppressed
+    (but saved to a file), and a text file with the results will always
+    be saved. Options are:<br>
+    <br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;">A</td>
+          <td>char array (path or paths to contrast images, one image
+            per line)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">B1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+            <br>
+          </td>
+          <td style="vertical-align: top;">1 (frontal)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">2 (parietal)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">3 (temporal)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">4 (occipital)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">5 (cingulate)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">6 (central)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">7 (cerebellar)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">8 (gray matter)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">9 (all standard masks)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">10 (no mask)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">11 (custom, enables
+            interactive selection [somewhat besides the point of
+            scripting, but...])<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">char array (path or paths to
+            inclusive mask(s), one image per line)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span style="font-style:
+              italic;">C1</span><br>
+          </td>
+          <td style="vertical-align: top;">1 (standard exclusive mask,
+            midline -5 mm)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">2 (standard exclusive mask,
+            midline -10 mm)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">3 (no exclusive mask)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">4 (custom, enables
+            interactive selection)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">char array (path or paths to
+            exclusice mask(s), one image per line)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span style="font-style:
+              italic;">thr1</span><br>
+          </td>
+          <td style="vertical-align: top;">1 (use same threshold for all
+            images; needs to be supplied below)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">0 (individual thresholding
+            for all images; needs to be supplied below)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">-1 (adaptive thresholding<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">-2 (rank-based thresholding)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">-3 (iterative thresholding,
+            LI-curves)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">-4 (no threshold)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">-5 (bootstrapping)<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Such a minimal structure may be generated by using out =
+    struct('A','YOUR_IMAGE','B1',1,'C1',1,'thr1',-5), upon which LI(out)
+    will analyze YOUR_IMAGE in the frontal lobe (B1 = 1), excluding the
+    midline (C1 = 1), using the bootstrapping approach (thr1 = -5).<br>
+    <br>
+    There are also optional arguments which may or may not be supplied:
+    default values will be used if they are missing. Note that even when
+    scripting, you can still supply custom left and right mask images.<br>
+    <br>
+    <table style="width: 553px; height: 316px;">
+      <tbody>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border=""> pre<br>
+          </td>
+          <td>0 (default)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">1 (enables preprocessing for
+            custom masks, only necessary if B1 &gt; 10 or char)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">thr3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+            <br>
+          </td>
+          <td style="vertical-align: top;">0 (default; meaningless if
+            not thr1 = 1; if so, adapt value to your needs)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><br>
+          </td>
+          <td style="vertical-align: top;">[3 4 4 5] (supplies multiple
+            thresholds if thr1 = 2)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">op</td>
+          <td style="vertical-align: top;">1 (use optional data
+            clustering; may not be allowed)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">2 (use optional variance
+            weighting</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">3 (use combined clustering
+            and variance weighting; may not be allowed)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">4 (default; no optional
+            steps)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">vc</td>
+          <td style="vertical-align: top;">1 (use total voxel count; may
+            not be allowed)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">0 (use total voxel values;
+            default)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">ni</td>
+          <td style="vertical-align: top;">0 (images not normalized)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><br>
+          </td>
+          <td style="vertical-align: top;">1 (images normalized;
+            default)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span style="font-style:
+              italic;">outfile</span><br>
+          </td>
+          <td style="vertical-align: top;">string with name of a custom
+            output file (defaults to 'li.txt')<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    As you can see, some options only make sense in a certain
+    combination (for example, if you choose the ranking approach,
+    smoothing is disallowed; if you still supply out.op = 1, this will
+    be disregarded). Also, note that the toolbox by default <span
+      style="text-decoration: underline;">assumes the images that are
+      supplied as a structure are normalized</span>, so be mindful of
+    the fact that they will only be normalized if you specify out.ni =
+    0.<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** The prompts explained *****</span><br>
+    <span style="text-decoration: underline;">- Select Contrast Image(s)</span><br>
+    Here, you can select any image you wish to explore with regard to
+    laterality effects, but ideally this will be a spmT-image from an
+    spm8 analysis, normalized to the template space bounding box
+    (meaning <strong style="font-weight: normal;">91x109x91</strong>
+    voxels at 2x2x2mm resolution, see also below). There is no
+    limitation as to how many images can be selected.<br>
+    <br>
+    <span style="text-decoration: underline;">- Select thresholding
+      method</span><br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border=""> One threshold</td>
+          <td>one threshold will be applied to all contrast images in
+            the next step</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Individual
+
+
+
+
+            threshold</td>
+          <td style="vertical-align: top;">a threshold can be entered
+            for each contrast image in the next step</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Adaptive
+            threshold</td>
+          <td style="vertical-align: top;">computed average intensity of
+            all positive voxels and used it as the threshold</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Ranking</td>
+          <td style="vertical-align: top;">this will rank-transform and
+            weight an spmT-image</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Iterative</td>
+          <td style="vertical-align: top;">this will compute LIs at up
+            to 20 equally-spaced thresholds (0-max) and deliver
+            LI-curves</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">None</td>
+          <td style="vertical-align: top;">this will not threshold the
+            contrast image</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Bootstrap</td>
+          <td style="vertical-align: top;">this will employ a
+            boostrapping procedure<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Note: For what it's worth, I consider the bootstrap the currently
+    "best" compromise.<br>
+    <br>
+    <span style="text-decoration: underline;">- Select INclusive mask</span><br>
+    This allows for the optional selection of an anatomically predefined
+    mask (see below). If you want classical hemispheric lateralization,
+    choose "none". Note that you can choose a subject's individual gray
+    matter segment (or a standard gray matter mask) if you click on
+    "Gray Matter...". If you want to use more then one mask, choose "all
+    lobes" or "Custom", which allows for the selection of whatever masks
+    as you like (needless to say, masks should be in alignment with the
+    contrast image[s]). Since custom masks are not necessarily binary or
+    symmetrical (see below), the algorithm will then ask if the masks
+    should be preprocessed accordingly. If the mask is binary already,
+    you can click no, as slightly different mask sizes for each side
+    will be accounted for (i.e. it does not have to be symmetrical). If
+    you have only chosen standard masks from the LI\data directory, you
+    can also say "no" here. There is no limitation as to how many masks
+    can be selected: all possible mask-contrast combinations will be
+    explored.<br>
+    <br>
+    <span style="text-decoration: underline;">- Select EXclusive mask</span><br>
+    By default, masking out the midline (+/-5mm) is offered to avoid
+    flow artifacts in the large draining veins, but you can also choose
+    to mask out +/-11mm, "none" or a custom one. There is no
+    preprocessing option here since I have no clue what this custom mask
+    of yours may be like; so, please make sure that your custom
+    exclusion mask is in the correct format.<br>
+    <br>
+    <span style="text-decoration: underline;">- Select optional steps</span><br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;">Clustering</td>
+          <td>spatial smoothing of 3*voxel dimensions (X,Y,Z); removes
+            outliers (NB: this is not available for ranking)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Variance
+            weighting</td>
+          <td style="vertical-align: top;">uses ResMS.img to determine
+            "reliability" of activation</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">Both<br>
+          </td>
+          <td style="vertical-align: top;"> combines the above (NB: this
+            is not available for ranking)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">None</td>
+          <td style="vertical-align: top;">no optional steps<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Note: I suggest using one or more of these optional steps <span
+      style="font-weight: bold;">only</span> <span style="font-weight:
+      bold;">if </span>you&nbsp; have a really good reason to do so:
+    these are options with a potentially very severe impact on the data!<br>
+    <br>
+    <span style="text-decoration: underline;">- Is the contrast image
+      normalized?</span><br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;">Yes</td>
+          <td>select this if the analysis has been done on normalized
+            images</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span style="font-style:
+              italic;">No</span><br>
+          </td>
+          <td style="vertical-align: top;"> if not normalized, the
+            algorithm will do an affine matching.</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Note 1: this will not appear if the images are found to be in the
+    correct format, i.e. in template space and in 2x2x2mm<br>
+    Note 2: to avoid asking over and over again, the algorithm assumes
+    that you * <span style="font-weight: bold;">DO NOT MIX</span> *
+    normalized and un-normalized images; i.e., all contrast should be
+    normalized or all should be in native space. <br>
+    <br>
+    Also note that the normalization employed here is rather rough.
+    Results will be better if you do it properly, i.e. before submitting
+    data to the toolbox.<br>
+    <br>
+    <span style="text-decoration: underline;">- Delete temporary files?</span><br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;">Yes</td>
+          <td> this will delete all intermediate image files that have
+            been generated<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span style="font-style:
+              italic;">No</span><br>
+          </td>
+          <td style="vertical-align: top;">this will not</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Note: the result files will not be deleted.<br>
+    <br>
+    <br>
+    <span style="text-decoration: underline;">- Other prompts</span><br>
+    Optional prompts may appear based on special situations, which (I
+    hope) will be self-explaining.<br>
+    <br>
+    <br>
+    <span style="text-decoration: underline;">- Prompts from LI_iter.m</span><br>
+    LI_iter can be called separately. Most prompts will be the same, but
+    additionally you will be asked for the output option, whether
+    "Screen only, Screen &amp; File, or File only" (which I hope is
+    self-explaining). "File only" is helpful if you check large
+    collections, for your screen will not be cluttered with extra
+    figures (the graphics will still be generated and saved to
+    LI_curves.ps, but you will not see it :)<br>
+    <br>
+    <br>
+    <span style="text-decoration: underline;">- Prompts from LI_boot.m</span><br>
+    The bootstrapping algorithm can be told to only explore voxels above
+    a certain threshold (e.g., a significance threshold determined
+    before), what size (as percentage of the input data) the output data
+    should be and what the maximal size of this sample should be. These
+    values can be entered when asked here, they default to no lower
+    threshold, 25% and 10.000, respectively. Defaults will also be used
+    when scripting is used.<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Outputs *****<br>
+    </span><strong style="font-weight: normal;">The lateralization index
+      as implemented here relies on the basic computation LI = (Left -
+      Right) / (Left + Right). Therefore, a negative value indicates a
+      right hemispheric dominance and a positive value indicates a left
+      hemispheric dominance.</strong><br>
+    <span style="font-weight: bold;"><br>
+    </span>Some <span style="text-decoration: underline;">general
+      information</span> is given in the Matlab command window as a
+    summary of inputs, options, and results. Please note warning
+    messages about small clusters or insufficient numbers of voxels in
+    the command window; for ease of ensuing processing in a spreadsheet
+    program, these warnings are not included in a possibly resulting
+    text file!<br>
+    <br>
+    <span style="text-decoration: underline;">Graphical information</span>
+    about the masking is shown in the spm-graphics window (top left:
+    contrast image, top right: mask [or left mask, if no masking was
+    chosen], bottom left: masked left contrast, bottom right: masked
+    right contrast). Note that this window is cleared after you delete
+    the temporary files (so if you want to click around, do so before
+    hittting the yes-button).<br>
+    <br>
+    If you want to <span style="text-decoration: underline;">save the
+      information to a file</span>, call the toolbox from the command
+    line with LI(2) or re-enable the manual selection of this option by
+    re-enabling the explicit text-input in LI.m, at about line 93. This
+    will generate a tab-delimited text-file called li.txt in you current
+    work directory. Here, a file called LI_masking.ps will also be
+    saved, containing all the graphical masking information normally
+    shown on the screen for some approaches. This may be helpful when
+    larger collections of contrast/mask-combinations are investigated in
+    one run. If you chose to do iterative thresholding, the LI-curves
+    will be written to a file called LI_curves.ps, and the complete
+    output from LI_boot will go to LI_boot.ps. In these cases, li.txt
+    will also contain information from all thresholding steps.<br>
+    <br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Hints *****</span><br>
+    Please make sure you have all the <span style="text-decoration:
+      underline;">updates</span> for spm installed! If you do not want
+    to install the update globally, you may just put the file in the
+    toolbox directory.<br>
+    <br>
+    <span style="text-decoration: underline;">Inclusion masks</span> can
+    be any image defining your area of interest, but remember that they
+    should be binary and in register with the images to examine.
+    Flipping and binarization will be applied to the mask if you click
+    on "yes" if asked whether to preprocess masks. Note that when
+    selecting an individual GM segment, this should not be modulated gm
+    since the cutoff value used during binarization would be too high.<br>
+    <br>
+    <span style="text-decoration: underline;">Exclusionary masks</span>
+    should be 0 where tissue should be excluded and 1 everywhere else
+    (see LI-midline_ex.img as a hint). If you want to mask out a lesion
+    or tissue of no interest, be sure to investigate any interaction
+    between in- and exclusion masks.<br>
+    <br>
+    <span style="text-decoration: underline;">Custom output file names</span>
+    are now possible by editing LI.m at around line 153. The default is
+    'li.txt' but you can enter whatever name suits you best, for example
+    enable the inclusion of the date, as available as an alternative in
+    the line below. Custom names can now also be supplied in scripting
+    mode.<br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Credits *****</span><br>
+    As of version 1.2, the masks included in the LI\data directory are
+    based on a population-based atlas as described in Hammers et al.,
+    Hum Brain Mapp 9: 224-247, 2003, and Gousias et al., Neuroimage 40:
+    672-684, 2008. They were made symmetrical, slightly smoothed (FWHM =
+    6mm), and binarized at 0.25 in order to render them slightly more
+    inclusive. They have been included with kind permission by the
+    author. The toolbox now includes the script used to generate the
+    masks, so if you approach Dr. Hammers for the atlas, you can
+    recreate the masks using differnt compositions and/or settings.<br>
+    <br>
+    The masks originally included in the toolbox have been built based
+    on Tzourio-Mazoyer et al, Neuroimage 15:273-89, 2002, used with kind
+    permission by the author. They are still available within the
+    LI\data directory in a zip-file.<br>
+    <br>
+    The toolbox comes with a lot of modfied functions, most of which are
+    hacked spm-functions, changed to alter their naming conventions or
+    output options. They are: <br>
+    <br>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">LI_FDR.m</td>
+          <td>based on&nbsp;&nbsp;&nbsp; FDRill.m (v1.2, Tom Nichols)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">LI_global.m</td>
+          <td style="vertical-align: top;"> based on&nbsp;&nbsp;&nbsp;
+            calculate_global.m (v?, John Ashburner)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">LI_imcalc.m</td>
+          <td style="vertical-align: top;">based on&nbsp;&nbsp;&nbsp;
+            spm_imcalc_ui (v2.7, John Ashburner, Andrew Holmes)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">LI_normalise.m</td>
+          <td style="vertical-align: top;">based on&nbsp;&nbsp;&nbsp;
+            spm_normalise.m (v2.8, John Ashburner)</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">LI_write_sn.m</td>
+          <td style="vertical-align: top;">based on&nbsp;&nbsp;&nbsp;
+            spm_write_sn.m (v2.17, John Ashburner)</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    Additionally, many of the routines, calls, or syntax incorporated in
+    this toolbox have been inspired by numerous spm-functions, scripts
+    or hints from the mailbase. I am most indebted to those of you who
+    really know how to program (mainly John Ashburner, Volkmar Glauche,
+    Tom Nichols and many others) so I could steal, borrow and learn from
+    you.<br>
+    <br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Disclaimer ***** </span><br>
+    <span style="font-weight: bold;">The software provided here, the
+      accompanying files and the documentation are provided as is, and
+      no warranty whatsoever for its correctness or usefulness for any
+      purpose is made or implied by the authors. We do not accept any
+      liability for any defects in this software or its documentation,
+      or for any damages, incidental or otherwise, caused by download,
+      installation or use of this software.<br>
+      <br>
+      Clinical applications are not recommended; this software is
+      designed for research purposes only.&nbsp; This software should
+      not be used for medical diagnostic purposes and the authors
+      explicitely accept no responsibility for its use in any such
+      manner. The software has not been evaluated by or approved by the
+      United States Food and Drug Administration (FDA), or by any other
+      agency. There are no plans to have this software so evaluated.<br>
+      <br style="font-weight: bold; font-style: italic;">
+    </span> <span style="font-weight: bold; font-style: italic;">As we
+      would like to keep track of who uses the toolbox for our strictly
+      internal documentation purposes, we kindly ask you not to
+      re-distribute the toolbox yourself but instead to refer interested
+      scientists to our website. Alternatively, send us the name,
+      institution and e-mail address of the new user and we will include
+      him/her in our list.</span><br style="font-weight: bold;
+      font-style: italic;">
+    <br style="font-weight: bold;">
+    <span style="font-weight: bold;">By installing and using this
+      software, you agree to all the terms and conditions specified
+      above. If these conditions are not acceptable, do not use the
+      software.</span><br>
+    <br>
+    <br>
+    <br>
+    <span style="font-weight: bold;">***** Support *****</span><br>
+    This collection of files is not officially supported or developed
+    further since we do not have the resources to provide this service
+    on an acceptable and ongoing basis. Should there be the need for a
+    public announcement, it will be posted to the SPM-mailing list
+    (currently at www.jiscmail.ac.uk/lists/spm.html). Also, possible new
+    versions or updates will be sent out to registered users.<br>
+    <br>
+    We do, however, appreciate any comments and are open to suggestions.
+    Please contact us at<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+    <span style="font-weight: bold;">Marko.Wilke@med.uni-tuebingen.de</span><br>
+    <br>
+    <h2>Matlab files in the main directory:</h2>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI.html">LI</a></td>
+          <td>The main function of the LI-toolbox </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_FDR.html">LI_FDR</a></td>
+          <td>stripped-down function from Tom Nichols; see FDRill.m for
+            details; </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_boot.html">LI_boot</a></td>
+          <td>Function to iteratively calculate lateralization indices </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_boot_hf.html">LI_boot_hf</a></td>
+          <td>This bootstrap helper function employs a bootstrapping
+            approach </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_imcalc.html">LI_imcalc</a></td>
+          <td>Perform algebraic functions on images </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_iter.html">LI_iter</a></td>
+          <td>Iteratively calculates LIs and yields lateralization
+            curves<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><a
+              href="LI_make_mask.html">LI_make_mask<br>
+            </a></td>
+          <td style="vertical-align: top;">Re-create inclusion masks
+            (not usually necessary, but can be used to adapt settings);
+            backup masks before running this function!<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_normalise.html">LI_normalise</a></td>
+          <td>Spatial (stereotactic) normalization </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_rank.html">LI_rank</a></td>
+          <td>This function is used for ranking t-values in order to
+            avopid thresholding effects and to remove outliers<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;"><a
+              href="LI_mreslice.html">&nbsp;LI_mreslice</a></td>
+          <td style="vertical-align: top;">Reslicing of an image in
+            memory +/- disk, using functionality provided by
+            spm_slice_vol<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_test.html">LI_test</a></td>
+          <td>The left-right-helper function of the LI-toolbox: </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border="">&nbsp;<a href="LI_write_sn.html">LI_write_sn</a></td>
+          <td>Write Out Warped Images. </td>
+        </tr>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border=""> LI_close_vol</td>
+          <td>Closes image volumes (unchanged spm2-file, necessary for
+            LI_normalise)<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2><br>
+    </h2>
+    <h2>Subsequent directories:</h2>
+    <ul style="list-style-image: url(../matlabicon.gif);">
+      <li>data</li>
+    </ul>
+    <table>
+      <tbody>
+        <tr>
+          <td style="font-style: italic;"><img src="../matlabicon.gif"
+              alt="" border=""> LI-temporal-mask</td>
+          <td>temporal lobe mask </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-central-mask</td>
+          <td style="vertical-align: top;">central GM structures: basal
+            ganglia &amp; thalamus<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-cerebellar-mask</td>
+          <td style="vertical-align: top;">cerebellar mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-cingulate-mask</td>
+          <td style="vertical-align: top;">cingulate mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-frontal-mask</td>
+          <td style="vertical-align: top;">frontal lobe mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-gray-matter-mask</td>
+          <td style="vertical-align: top;">standard gray matter mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-occipital-mask</td>
+          <td style="vertical-align: top;">occipital lobe mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-parietal-mask</td>
+          <td style="vertical-align: top;">parietal lobe mask</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-right</td>
+          <td style="vertical-align: top;">mask defining the right of
+            the image; <span style="font-weight: bold;">CHECK IF THIS
+              CONFORMS TO YOUR DATA</span></td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-left</td>
+          <td style="vertical-align: top;">mask defining the left of the
+            image; <span style="font-weight: bold;">CHECK IF THIS
+              CONFORMS TO YOUR DATA</span></td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;randbrain</td>
+          <td style="vertical-align: top;">random data in mask size to
+            facilitate normalization</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;randmask</td>
+          <td style="vertical-align: top;">a mask for randbrain in order
+            to allow for a finer affine matching<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-midline_5_ex</td>
+          <td style="vertical-align: top;">default exclusive mask, masks
+            out 10 mm in the midline</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; font-style: italic;">&nbsp;LI-midline_11_ex</td>
+          <td style="vertical-align: top;">additional exclusive mask,
+            masks out 22 mm in the midline</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <ul>
+      <li>man</li>
+    </ul>
+    The directory containing these help files.<br>
+    <br>
+    <hr>
+    <address>Generated on Fri 16-Jun-2006 10:17:49 by <strong><a
+          href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong>
+      &copy; 2003; last updated December 7th, 2011<br>
+    </address>
+  </body>
+</html>
