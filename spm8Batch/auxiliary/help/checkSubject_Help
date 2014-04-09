@@ -1,0 +1,15 @@
+    echo
+    echo " A command line command to check the structure of the experiment"
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "     checkSubject 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options

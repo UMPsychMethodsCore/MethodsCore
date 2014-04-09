@@ -1,0 +1,4 @@
+debugout "- - - - - - - - - - -" $SuperDebugFLAG
+debugout "Super Debug Turned on" $SuperDebugFLAG
+debugout "- - - - - - - - - - -" $SuperDebugFLAG
+

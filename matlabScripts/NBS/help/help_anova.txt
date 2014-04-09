@@ -1,0 +1,16 @@
+Example of a one-way ANOVA with 2 observations/subjects for each of three groups. Each column of the design matrix models a group. The contrast tests for a difference in means between any of the three groups.
+____________________________________
+DESIGN MATRIX:
+1 0 0
+1 0 0
+0 1 0
+0 1 0
+0 0 1
+0 0 1
+
+CONTRAST:
+1 1 1
+
+STATISTICAL TEST:
+F-test
+___________________________________

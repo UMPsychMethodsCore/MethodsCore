@@ -1,0 +1,5 @@
+%Region,ImageFile,SubregionListTextFile,Offset
+%Offset 9000 is reserved for custom shape mask
+UNC Type,template_hardseg.nii,template_hardseg.txt,1000
+UNC Labels,template_parc.nii,template_parc.txt,2000
+UNC Subcortical Structures,SubCortical.nii,SubCortical.txt,3000

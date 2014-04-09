@@ -1,0 +1,39 @@
+echo "UMImgDIRS    = {..."                                                         >> ${FULLSCRIPTNAME}.m
+
+# Flag to determine if the command should abort due to lack of images.
+anyImagesFLAG=0
+
+# Loop on subjects.
+declare -i is
+declare -i ii
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+  echo "       --> ${subjects[$is]}"   
+  theDIRS=`findVols.sh "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}" "${volumeWILD}" "${SUBDIR}" "${FINDVOLEXT}"`
+  theDirectories=(`echo $theDIRS | sed 's/\,/\ /g'`)
+  if [ -z "$theDirectories" ]
+      then
+      AllDirs="{}"
+  else
+      AllDirs="{'${theDirectories[0]}'"
+      # We have found at least some directories so job can execute.
+      anyImagesFLAG=1
+      for (( ii=1;ii<${#theDirectories[@]};ii++ ))
+	do
+	  AllDirs="${AllDirs},'${theDirectories[$ii]}'"
+      done
+      AllDirs="${AllDirs}}"
+  fi
+  echo "                 $AllDirs;..."                                            >> ${FULLSCRIPTNAME}.m
+done
+
+if [ "${anyImagesFLAG}" == 0 ] 
+then 
+  echo 
+  echo " * * * * *  NO images to process with ${thisCommand} * * * * * "
+  echo
+  . ${thisDir}/auxiliary/exit_w_removal
+fi
+
+echo "                };"                                                         >> ${FULLSCRIPTNAME}.m
+

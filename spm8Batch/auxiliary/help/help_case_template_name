@@ -1,0 +1,6 @@
+    echo "    -T TEMPLATENAME      set the template to use for normalization, "
+    echo "                         you can specify relative to:"
+    echo "                             ${TemplateImageDir}, or."
+    echo "                         specify an absolute directory path."
+    echo "                         default is ${TemplateImage}"
+    echo 

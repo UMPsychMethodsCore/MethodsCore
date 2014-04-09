@@ -1,0 +1,23 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for subject directory."
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      SUBJDIR=$1
+		      if [ ! -d "${SUBJDIR}" ]
+			  then
+			  echo "The master subject directory that you have specified does not exist."
+	                  . ${thisDir}/auxiliary/exit_w_removal
+		      fi
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

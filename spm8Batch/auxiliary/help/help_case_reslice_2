@@ -1,0 +1,3 @@
+    echo "    -R                   set reslice flag to 2, reslice only"
+    echo "                         default 0, mutually exclusive with '-r'"
+    echo 

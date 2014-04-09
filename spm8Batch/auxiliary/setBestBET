@@ -1,0 +1,27 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for best BET threshold"
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      USEBETBEST=$1
+		      isnumber ${USEBETBEST}
+		      validNumber=$?
+		      if [ ! "$validNumber" == "$SUCCESS" ]
+		      then
+			  echo -e "\a"
+			  echo "Parameter $1 is not a valid number"
+			  echo "Buggering out"
+	                  . ${thisDir}/auxiliary/exit_w_removal
+		      fi
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

@@ -1,0 +1,3 @@
+    echo "    -s SUB-DIRECTORY     set sub-directory name under 'run_XX', "
+    echo "                         default is none."
+    echo 

@@ -1,0 +1,3 @@
+    echo "    -o OverlayName       name of overlay file, "
+    echo "                         default is 'eht1overlay'"
+    echo 

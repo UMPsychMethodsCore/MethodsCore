@@ -1,0 +1,11 @@
+.local
+.AppleDouble*
+.DS_Store*
+*.log
+Thumbs.db
+Icon?
+ehthumbs.db
+*#
+.#*
+*~
+TAGS

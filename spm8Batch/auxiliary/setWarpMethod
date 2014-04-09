@@ -1,0 +1,16 @@
+#
+# Set the flag to say we are using VBM8 for 
+# warping of fMRI data.
+#
+
+	WARPMETHOD=1
+
+# If using VBM8 then we can default to using the vbm8_ outputname
+# However, if they called "-w" then we leave the outputName alone.
+# Changed on 2012-08-22 - RCWelsh as per Mike Angstadts suggestion.
+
+        if [ "${setOutputNameCalledFLAG}" == "0" ]
+        then
+           outputName=vbm8_
+        fi
+

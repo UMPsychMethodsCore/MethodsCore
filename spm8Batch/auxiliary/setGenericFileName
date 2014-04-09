@@ -1,0 +1,28 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for overlay name, aborting"
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      FILENAME=$1
+		  fi
+		  . ${thisDir}/fileExtensionDetermination
+		  if [ ${BAD} == "1" ] 
+		  then
+		      echo
+		      echo "We can not process ANALYZE img/hdr data, we only support NIFTI (.nii or .nii.gz)"
+		      echo
+		      echo "ABORTING"
+		      echo
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

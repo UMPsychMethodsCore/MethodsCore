@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# A command to rummage about 
+# a subject and convert NIFTI files
+# into ANALYZE
+#
+# Note, images that exist in "NIFTI" directory 
+# will be ignored.
+# 
+#
+# run_XX/
+#    ANALZE/
+#      apimg/
+#         aprvol_XXXX.img, hdr
+#    NIFIT/
+#      aprun_XX.nii
+#
+# will turn into
+#
+# run_XX/
+#    aprun_XX.nii
+#
+# And anatomy directory this is
+#
+#   anatomy/
+#     NIFTI/
+#       ...
+#     ANALZE/
+#       ...
+#
+# will become
+#
+#   anatomy/
+#
+#                         Robert C. Welsh
+#                         Copyright 2007
+#
+#
+#
+#  Modified to do flipping by default.
+#
+# # # # # # # # # # # # # # # # # #
+
+# 
+# Main UNNIFTI function.
+#
+
+VERSION="2.0"
+VERSIONDATE="2011-09-14"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="fMV"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# Get the name of this experiment.
+
+expDIR=`pwd`
+
+# Now start building the automatic scripts.
+
+theDate=`date`
+
+HOSTCOMPUTER=`echo $HOSTNAME | awk -F. '{print $1}'`
+
+echo
+echo " UNNIFTI. Version ${VERSION} ${VERSIONDATE}"
+echo " Running on ${HOSTCOMPUTER} at ${theDate}"
+echo " Will perform move NIFTI back to where they need to be for spm8 processing."
+echo
+echo " Verify Flag     : ${verifyFLAG}"
+echo " fMRI Path       : ${fmriPATH}"
+echo " Subjects in     : ${SUBJDIR}"
+    
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Now do the work.
+
+echo 
+echo " Starting...."
+echo
+for (( ii=1 ; ii<=$nSubjects ; ii++ ))
+  do
+  echo 
+  echo " Processing subject : ${subjects[$ii]}"
+  echo
+  cd ${expDIR}/${SUBJDIR}/${subjects[$ii]}
+  echo "  ANATOMY"
+  echo
+  if [ -e "anatomy" ] 
+  then
+      cd anatomy
+	    # just go ahead and move the ginx format files.
+      mkdir -p ginx/
+      mv e????s*i* ginx/ 2> /dev/null
+      NNII=`ls *.nii 2> /dev/null| wc | awk '{print $1}'`
+      if [ ${NNII} -gt 0 ]
+      then
+	  echo 
+	  echo "    Found nifti files in anatomy directory"
+      fi
+      if [ ! -d NIFTI ]
+      then
+	  echo "    No anatomy/NIFTI directory"
+      else
+	  echo "      Found anatomy/NIFTI"
+	  cd NIFTI
+	  NNII=`ls *.nii 2> /dev/null| wc | awk '{print $1}'`
+	  if [ ${NNII} -gt 0 ]
+	  then
+	      echo 
+	      echo "        Found nifti files in anatomy/NIFTI directory"
+	      for FILE in `ls *.nii 2> /dev/null`
+	      do 
+		  if [ -e ../$FILE ]
+		  then
+		      echo
+		      echo "Potential conflict, found $FILE in anatomy/NIFTI and it also exists in anatomy"
+		      echo
+		      echo "ABORTING"
+		      echo
+		      exit 0
+		  fi
+	      done
+	      if [ "${verifyFLAG}" -eq 0 ]
+	      then
+		  mv *.nii ../
+	      else
+		  echo
+		  echo List of anatomy files to be moved : 
+		  for FILE in `ls *.nii 2> /dev/null`
+		  do
+		      echo "  $FILE"
+		  done
+	      fi
+	  else
+	      echo
+	      echo "      NO NIFTI FILES IN ANATOMY DIRECTORY"
+	      echo
+	  fi
+	  cd ../
+      fi
+      cd ..
+  else
+      echo
+      echo " * * * ANATOMY DIRECTORY IS MISSING * * * "
+      echo 
+  fi
+  
+  # Now the runs
+  
+  #
+  # now do the functional directories
+  #
+  echo
+  echo "  FUNCTIONALS"
+  echo
+  if [ -d "${fmriPATH}" ]
+  then
+      echo
+      echo "    Working on time-series NIFTI files."
+      echo
+      cd ${fmriPATH}
+      nRUNS=`ls 2> /dev/null | wc | awk '{print $1}'`
+      if [ $nRUNS -gt 0 ] 
+      then
+	  for RUN in `ls -l | grep drw | grep run | awk '{print $9}'`
+	  do
+	      if [ -d ${RUN} ]
+	      then
+		  echo "      Found run : ${RUN}"
+		  cd ${RUN}		    
+		  nRUNFILES=`ls *run*.nii 2> /dev/null | wc | awk '{print $1}'`
+		  echo "         has    : $nRUNFILES NIFTI files"
+		  if [ ! -d NIFTI ]
+		  then
+		      echo "             but no NIFTI subdirectory"
+		  else
+		      cd NIFTI
+		      nRUNFILES=`ls *run*.nii 2> /dev/null | wc | awk '{print $1}'`
+		      echo "             NIFTI/    : $nRUNFILES NIFTI files"
+		      if [ "${nRUNFILES}" != "0" ]
+		      then
+			  for FILE in `ls *run*.nii 2> /dev/null`
+			  do 
+			      if [ -e ../$FILE ]
+			      then
+				  echo
+				  echo "Potential conflict, found $FILE in ${RUN}/NIFTI and it also exists in ${RUN}"
+				  echo
+				  echo "ABORTING"
+				  echo
+				  exit 0
+			      fi
+			  done
+			  if [ "${verifyFLAG}" -eq 0 ]
+			  then
+			      mv *run*.nii ../
+			  else
+			      echo
+			      echo "          List of run files to be moved : "
+			      for FILE in `ls *run*.nii 2> /dev/null`
+			      do
+				  echo "            $FILE"
+			      done
+			  fi
+		      fi
+		      cd ../
+		  fi
+		  cd ../
+	      fi
+	  done
+      else
+	  echo
+	  echo "        NO RUN FILES PRESENT."
+	  echo
+      fi
+      cd ../
+  else
+      echo
+      echo " * * * FUNCTIONAL DIRECTORY IS MISSING * * * "
+      echo
+  fi
+done
+
+echo 
+echo " All done."
+echo

@@ -1,0 +1,18 @@
+Example of a one-sided t-test with 4 observations/subjects per group. The first column of the design matrix models Group 1, while the second models Group 2. 
+___________________________________
+DESIGN MATRIX:
+ 1  0
+ 1  0
+ 1  0
+ 1  0
+ 0  1
+ 0  1
+ 0  1
+ 0  1
+
+CONTRAST (Group 2 > Group 1):
+ -1 1
+
+STATISTICAL TEST:
+t-test
+___________________________________

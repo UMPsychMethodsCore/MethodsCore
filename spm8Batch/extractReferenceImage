@@ -1,0 +1,100 @@
+#!/bin/bash
+# # # # # # # # # # # # # # # # # # 
+#
+# 
+#
+# Robert C. Welsh
+# Copyright 2006-2011
+#
+#
+# Mofified to accept option for 
+# different reference file name as
+# output.
+#
+# # # # # # # # # # # # # # # # # # 
+
+# We need to know where we live.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+# Default error code
+
+SPM8BATCH_ERROR_CODE=65
+
+#
+
+CURPID=$$
+
+RUNDIR=$1
+VOLUME=$2
+N=$3
+
+# Get the name of the output for the reference volume.
+# must have default value if none speficied.
+# Added 2012-12-18 RCWelsh
+
+if [ -z "$4" ]
+then
+    REFNAME=realignRefVolume
+else
+    REFNAME=$4
+fi
+
+tmpfile=mcflirt_${CURPID}
+
+if [ ! -d "${RUNDIR}" ]
+then
+    echo "Missing run directory : $RUNDIR"
+    . ${thisDir}/auxiliary/exit_w_removal
+fi
+
+cd ${RUNDIR}
+
+VOLNII=`ls ${VOLUME}*.nii 2> /dev/null`
+
+if [ -z "${VOLNII}" ]
+then
+    echo "Missing nifti file in $RUNDIR for $VOLUME"
+    . ${thisDir}/auxiliary/exit_w_removal
+fi
+
+rm -r ${tmpfile} 2> /dev/null
+
+mkdir -p ${tmpfile}
+
+cd ${tmpfile}
+
+FSLOUTPUTTYPE=NIFTI_PAIR
+
+fslsplit ../${VOLNII} ${tmpfile}_ -t
+
+REFNO=`echo $N | awk '{printf "%04d",$1}'`
+
+REFFILE=${tmpfile}_${REFNO}
+
+if [ ! -e ${REFFILE}.img ]
+then
+    echo "Conversion failed, or coudn't find ${REFFILE}.img"
+    . ${thisDir}/auxiliary/exit_w_removal
+fi
+
+mv ${REFFILE}.img ../
+mv ${REFFILE}.hdr ../
+
+cd ../
+
+rm -r ${tmpfile}
+
+FSLOUTPUTTYPE=NIFTI
+
+fslmerge -t ../${REFNAME} ${REFFILE}
+
+rm ${REFFILE}.img
+rm ${REFFILE}.hdr
+
+exit 0
+
+#
+# all done
+#

@@ -1,0 +1,16 @@
+# Inialization.
+
+FSL_COMMENT_B="fsl check reging between best BET and original hi res"
+
+BATCHCOMMAND=0
+
+BETFILES="best_BET_hiRes.nii best_fast_pve_0.nii best_fast_pve_1.nii best_fast_pve_2.nii best_fast_mixeltype.nii"
+BETFILES="${BETFILES} BET_threshold.txt SEG_stats_0.dat SEG_stats_1.dat SEG_stats_2.dat BET_best.txt BET_best.mat"
+
+coregPATH=TARs
+
+FSL_COMMAND=fslview
+
+#
+# all done
+#

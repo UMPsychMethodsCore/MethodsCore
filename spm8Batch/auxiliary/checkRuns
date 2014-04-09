@@ -1,0 +1,20 @@
+#
+# Set the error code to bad parameter.
+#
+SPM8BATCH_ERROR_CODE=65
+#
+
+if [ $nRUN -le 0 ] && [ "${ALLRUNSFLAG}" -eq "0" ] 
+then
+    echo 
+    echo "* * * * No runs were specified, aborting, do '${thisCommand}' for help * * * *"
+    echo
+    echo "* * * * Try using the '-A' flag * * * *"
+    echo
+	. ${thisDir}/auxiliary/exit_w_removal
+fi
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

@@ -1,0 +1,11 @@
+case ${resliceFLAG} in
+    0)
+	echo "     Images will NOT BE resliced."
+	;;
+    1)
+	echo "     Images will BE resliced."
+	;;
+    2) 
+	echo "     Images will ONLY be resliced."
+	;;
+esac

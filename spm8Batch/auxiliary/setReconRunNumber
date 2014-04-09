@@ -1,0 +1,32 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      echo "Missing parameter for reconRunNumber/PCA Components, aborting"
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      isnumber $1
+		      retVal=$?
+		      if [ "$retVal" != "0" ]
+		      then
+			echo "reconRunNumber needs to be numeric, you entered : $1"
+			. ${thisDir}/auxiliary/exit_w_removal
+		      fi
+		      isinteger $1
+		      retVal=$?
+		      if [ "$retVal" != "0" ]
+		      then
+			echo "reconRunNumber needs to be an integer, you entered : $1"
+			. ${thisDir}/auxiliary/exit_w_removal
+		      fi
+		      reconRunNumber=$1
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

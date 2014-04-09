@@ -1,0 +1,66 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+                      echo
+		      echo "Missing physio options, aborting"
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      PHYSIOOPTIONS="$1"
+		  fi
+                  #
+                  # Now check it, to make sure everything is there.
+                  #
+                  TMPOPTIONS=( ${PHYSIOOPTIONS} )
+                  if [ "${#TMPOPTIONS[@]}" != "3" ]
+                  then
+                     echo
+                     echo "You need to specifiy three options: 'rate', 'disdaq' and 'down', aborting"
+ 	             . ${thisDir}/auxiliary/exit_w_removal
+                  fi
+                  for IELE in 0 1 2
+                  do                
+                    THISOPTION=${TMPOPTIONS[${IELE}]}
+		    Z=`echo $THISOPTION | grep "="`
+		    if [ -z "$Z" ]
+		    then 
+		       echo
+                       echo "Physio Option '$THISOPTION' missing assignment (=), aborting"
+		       echo
+	               . ${thisDir}/auxiliary/exit_w_removal
+                    fi
+                    OPTIONVARIABLE=`echo $THISOPTION | awk -F= '{print $1}'`
+		    OPTIONVALUE=`echo $THISOPTION | awk -F= '{print $2}'`
+		    Z=`echo $OPTIONVARIABLE | grep -e "rate" -e "down" -e "disdaq"`
+		    if [ -z "$Z" ]
+		    then 
+		       echo
+                       echo "Physio Option '$OPTIONVARIABLE' not recognized, needs to be either 'down', 'disdaq', or 'rate', aborting"
+		       echo
+     	               . ${thisDir}/auxiliary/exit_w_removal
+                    fi		    		    
+                  done
+		  #
+                  # Now make sure all three are there.
+                  #
+                  let nOPTIONS=0
+                  for OPT in rate down disdaq
+                  do
+                    Z=`echo $PHYSIOOPTIONS | grep $OPT`
+                    if [ -z "$Z" ]
+                    then                    
+                       echo
+                       echo "You need to specify three: 'rate','disdaq', and 'down', aborting"
+                       echo
+     	               . ${thisDir}/auxiliary/exit_w_removal
+                    fi
+                  done
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

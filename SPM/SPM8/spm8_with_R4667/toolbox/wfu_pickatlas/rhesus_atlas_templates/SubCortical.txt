@@ -1,0 +1,11 @@
+[ UNC Subcortical Structures]
+1	R Hippocampus
+2	R Amygdala
+3	R Caudate
+4	R Putamen
+5	L Hippocampus
+6	L Amygdala
+7	L Caudate
+8	L Putamen
+9	R Lat Ventricle
+10	L Lat Ventricle

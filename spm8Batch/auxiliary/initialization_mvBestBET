@@ -1,0 +1,19 @@
+# Inialization.
+
+FSL_COMMENT_B="Moving best BET for subject"
+
+BATCHCOMMAND=0
+
+# If this is a number then we use the number
+# else we use the number that is in the file
+# below, which is been created with "bestBET"
+
+USEBETBEST="BET_best.txt"
+
+# Hiresolution image
+HIRESNAME=ht1spgr
+HIRESEXT=
+
+#
+# all done
+#

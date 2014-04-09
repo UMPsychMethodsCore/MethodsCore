@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# 
+# Copyright Robert C. Welsh 2010
+# Ann Arbor
+#
+# after Scott Peltier's matlab code.
+#
+
+if [ $# == 0 ] 
+then
+   echo
+   echo "Usage : "
+   echo 
+   echo "    recursiveBET [intputImage] [F]"
+   echo
+   echo "The input image must be a NIFTI image (.nii) and leave off the .nii part please"
+   echo "add the 'F' option if you want to do 'fast' segmentation"
+   echo
+   echo "Copyright Robert C. Welsh, 2010, Ann Arbor MI"
+   echo
+   exit 0
+fi
+
+INPUTIMAGE=$1
+
+if [ $# > 1]
+then
+    FAST=1
+else
+    FAST=0
+fi
+
+if [ -e ${INPUTIMAGE}.nii ]
+then 
+  export FSLOUTPUTTYPE=NIFTI
+  for iLEVEL in `seq 1 25`
+  do
+     LEVEL=`echo $((iLEVEL*3)) | awk '{printf "%02d",$1}'`
+     echo "bet ${INPUTIMAGE} ${INPUTIMAGE}_frac_${LEVEL}_g15R -f 0.${LEVEL} -R -g .15 -m"
+     bet ${INPUTIMAGE} ${INPUTIMAGE}_frac_${LEVEL}_g15R -f 0.${LEVEL} -R -g .15 -m
+     if [ "${FAST}" == "1" ]
+     then
+	 echo "fast -v -o fast_${LEVEL} ${INPUTIMAGE}_frac_${LEVEL}_g15R"
+	 fast -v -o fast_${LEVEL} ${INPUTIMAGE}_frac_${LEVEL}_g15R	 
+     fi
+  done
+else
+  echo
+  echo "Can't find that file : ${INPUTIMAGE}"
+  echo
+  recursiveBET
+fi
+
+#
+# All done
+#

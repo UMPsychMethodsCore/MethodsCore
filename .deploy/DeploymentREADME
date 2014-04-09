@@ -1,0 +1,62 @@
+Hello friend!
+
+Thanks for cloning the MethodsCore repository. Many of the scripts in our library require some
+degree of localization, as they usually don't know where they've been cloned to. To help with this,
+you'll find some scripts and hooks in this directory. Follow the following instructions to enable
+this support.
+
+If this is a development repository, consider running
+setup_developer.sh. At present, this will just copy the hook from
+.deploy/src/post-checkout to .git/hooks/. 
+
+If this is a deployment repository, run setup_deployment.sh
+
+This will
+1. Add a remote called github/universe to point to the
+UMPsychMethodsCore/MethodsCore repo on github
+2. Copy the post-checkout hook up to where it will be active
+3. Make a .local directory in your repo (this is ignored by a
+.gitignore file)
+4. Create a file called deployment in .local (this affects behavior of
+the hook)
+5. Generate a keypair for you in .local called deploy and deploy.pub
+6. Create a file in .local called branch, and echo "public" into it
+
+After you run this, you need to 
+
+1. Grab the content of .local/deploy.pub and add it as a deployment
+key at Github.
+2. Edit .local/branch to contain the content of the branch that you
+want this repository to automatically update to
+3. Run at regular intervals, or schedule with cron, the process
+.deploy/src/self_update.sh which will automatically pull the latest
+version of the file specified in .local/branch from universe, update
+your working tree, and then run the hook to clean paths up for users.
+
+
+###Here is what the hook does###
+
+Once you've done this, you'll get the following behavior everytime you perform a checkout.
+
+a) A file will be created at .local/CurrentVersionSHA which will contain the SHA ID of the commit
+you most recently checked out. This can be useful to be read in for logging features.
+
+b) If you have some specific spm8Batch_Global and spm8Setup files, you can put them in
+.local/spm8Batch. If this directory exists, these files will be copied to spm8Batch/ so that things
+work properly for your clone.
+
+c) If you have touched the regular file .local/deployment, some other interesting things will
+happen. deploy.sh will scan all of the files in your repository to identify any that contain the
+string "*_mc_template*". It will the loop over these files and do the following
+       
+       1) Delete all content from %DEVSTART to %DEVSTOP (including these wildcards 
+
+       2) Replace all instances of %[DEVmcRootAssign] with mcRoot = 'pwd' where pwd signifies the
+       root of the current MethodsCore clone. This is appropriate for replacement in matlab scripts.
+
+       3) Replace all instances of %[DEVmcRoot] with pwd, where pwd signifies the root of the
+       current MethodsCore clone. This is handier for templates that use bash or other languages.
+
+This tool might get fancier in the future (e.g. strip off any leading comment characters in lines
+that contain the search string described in 2 or 3 to give you more flexibility in your use of
+wildcards, but for now this is all that is supported.

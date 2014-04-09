@@ -1,0 +1,13 @@
+#
+# Inialization.
+#
+
+# Output name
+outputName=w
+
+# Warping method
+WARPMETHOD=0
+
+#
+# all done
+#

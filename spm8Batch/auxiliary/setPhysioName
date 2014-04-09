@@ -1,0 +1,44 @@
+		  #
+		  # Set the error code to bad parameter.
+		  #
+		  SPM8BATCH_ERROR_CODE=64
+		  #
+		  shift
+		  let argn++
+		  if (( $argn >= $args ))
+		      then
+		      case "${thisCommand}" in
+ 		         "pcafMRI")
+ 			     echo "Missing parameter specifying number of PCA components"
+			     ;;
+			 *)
+		             echo "Missing parameter for physio xref table name, aborting"
+                      esac
+	              . ${thisDir}/auxiliary/exit_w_removal
+		  else
+		      case "${thisCommand}" in
+ 		         "pcafMRI")
+		             isnumber $1
+		             retVal=$?
+		             if [ "$retVal" != "0" ]
+		             then
+			        echo "Detrending polynomial order needs to be numeric, you entered : $1"
+			        . ${thisDir}/auxiliary/exit_w_removal
+		             fi
+		             isinteger $1
+		             retVal=$?
+		             if [ "$retVal" != "0" ]
+		             then
+			        echo "Detrending polynomial order needs to be an integer, you entered : $1"
+			        . ${thisDir}/auxiliary/exit_w_removal
+		             fi
+		             PCADETREND=$1
+                             ;;
+			 *)
+		             PHYSIOTABLE=$1
+                      esac
+		  fi
+		  # 
+		  # Change back to success
+		  #
+		  SPM8BATCH_ERROR_CODE=0

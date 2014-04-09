@@ -1,0 +1,4 @@
+    echo "    -P physiooptions     set physio options,"
+    echo "                         default=\"rate=0.002 down=12 disdaq=0\""
+    echo "                         you must use quotes (\") and specify all three"
+    echo 

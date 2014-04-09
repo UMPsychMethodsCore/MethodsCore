@@ -1,0 +1,42 @@
+#
+# This is inline code for spm8Batch commands
+# It determines if there is a file extension on the filename 
+# and removes it and places in another variable
+#
+
+# Return code
+
+BAD=0
+
+case $FILENAME in
+	#
+	# We do not support anything other than NIFTI and NIFTI_GZ
+	# 
+    *".img")
+        BAD=1
+	;;
+    *".hdr")
+	BAD=1
+	;;
+	#
+	# NIFTI extension?
+	#
+    *".nii")
+	BAD=0
+	FILEEXT=.nii
+	LEN=${#FILENAME}
+	let LEN=${LEN}-4
+	FILENAME=${FILENAME:0:${LEN}};
+	;;
+    *".nii.gz")
+	BAD=0
+	FILEEXT=.nii.gz
+	LEN=${#FILENAME}
+	let LEN=${LEN}-7
+	FILENAME=${FILENAME:0:${LEN}};
+	;;
+    *)
+	echo 
+	echo "Will assume .nii (1st) or .nii.gz (2nd) extension for FILE image type."
+	echo
+esac

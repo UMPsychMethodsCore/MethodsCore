@@ -1,0 +1,22 @@
+
+# This code snippet will determine if the current user has 
+# proper permission to run this command.
+
+#
+# return the error code of EX_NOPERM
+#
+SPM8BATCH_ERROR_CODE=77
+#
+
+if [ ! -e ~/.help.${thisCommand} ]
+then
+    date > ~/.help.${thisCommand}
+    . ${thisDir}/auxiliary/commandUserWarning
+    . ${thisDir}/${thisCommand}
+    . ${thisDir}/auxiliary/exit_w_removal
+fi
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

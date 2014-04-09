@@ -1,0 +1,3 @@
+    echo "    -u USEBETBEST        BET threshold, "
+    echo "                         default found in 'BET_best.txt'"
+    echo 

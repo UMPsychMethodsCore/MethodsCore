@@ -1,0 +1,82 @@
+    # Now lets find the source and move it into where we need it to be.
+    
+    cd ${fmriPATH}/${coregPATH}/
+    anatPATH=`pwd`
+
+    
+    destSOURCENAME=${SOURCENAME}
+
+  #
+  # Set the error code to bad input data
+  #
+  SPM8BATCH_ERROR_CODE=65
+  #
+
+  # 
+  # remove any current coregistation in that directory.
+  #
+    \rm ${destSOURCENAME}.* 2> /dev/null    
+
+  #
+  # now copy over the virgin copy of the anatomy, after we find it.
+  #
+    
+    USEEXT=
+    
+  #
+  # If no extension was specified so we will find one, and we can do this independently for each 
+  # subject, else we use the one specified and we stripped. But we also check to see if the overlay
+  # image really exists, else we bugger out with error.
+  #
+    
+    if [ -z ${SOURCEEXT} ] 
+    then
+	for EXT in .nii.gz .nii
+	do
+	    if [ -e "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/${SOURCENAME}${EXT}" ]
+	    then
+		USEEXT=${EXT}
+	    fi
+	done
+    else
+	USEEXT=${SOURCEEXT}
+    fi
+  #
+  # We did not find anything.
+  #
+    if [ -z ${USEEXT} ]
+    then
+	echo
+	echo "Scanning for source image : ${SOURCENAME} for subject : ${subjects[$is]} returned no result."
+	echo 
+	echo "ABORTING"
+	echo
+	. ${thisDir}/auxiliary/exit_w_removal
+    fi
+
+    if [ -e "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/${SOURCENAME}${USEEXT}" ]
+    then
+	cp ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/${SOURCENAME}${USEEXT} ${destSOURCENAME}${USEEXT}
+	debugout "- - - - - - - - - - - - - -" $SuperDebugFLAG
+	debugout "cp ${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/${SOURCENAME}.nii ${destSOURCENAME}.nii" $SuperDebugFLAG
+	debugout "- - - - - - - - - - - - - -" $SuperDebugFLAG
+    else
+	echo
+	echo "Scanning for source image : ${SOURCENAME}${USEEXT} for subject : ${subjects[$is]} returned no result."
+	echo 
+	echo "ABORTING"
+	echo
+	. ${thisDir}/auxiliary/exit_w_removal
+    fi
+
+    fileLIST=`ls -1 ${destSOURCENAME}* | wc |awk '{print $1}'`
+
+    debugout "- - - - - - - - - - - - - -" $SuperDebugFLAG
+    debugout "Total # of ${destSOURCENAME} is $fileLIST in directory ${anatPATH}" $SuperDebugFLAG
+
+    SOURCEIMG=${anatPATH}/${destSOURCENAME}${USEEXT}
+
+  # 
+  # Change back to success
+  #
+  SPM8BATCH_ERROR_CODE=0

@@ -1,0 +1,15 @@
+Joaquin Goni & Olaf Sporns - get_components.m 
+
+Ed Bullmore - schizophrenia data (Lynall et al. J Neuro. 2010. 30(28):9477-9487)
+
+Mika Rubinov & Olaf Sporns - NBS in Brain Connectivity Toolbox (BCT)
+
+Stephan Gerhard - NBS in Connectome Viewer
+
+MIP.mat (mask and grid for NBSview) sourced from SPM 
+
+glicons.mat (icons for NBSview) sourced from Graphviz4Matlab
+
+
+
+ 

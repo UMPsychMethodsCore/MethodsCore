@@ -1,0 +1,5 @@
+    echo "    -z VOXELSIZE/MATRIX  set the voxel size for resampling, or "
+    echo "                         reconstruction size (used in 'reconSpiral')."
+    echo "                         default is spm default for voxel-size or ${voxelSize} for recon matrix"
+    echo "                         See '-I' flag for overriding this for 'vbm8HiRes' and 'warpfMRI'."
+    echo 

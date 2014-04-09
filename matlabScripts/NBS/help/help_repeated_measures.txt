@@ -1,0 +1,21 @@
+Example of a paired t-test (repeated measures) with 4 observations/subjects. The first four columns of the design matrix each model a within-subject mean. The final column models the between-group difference.   
+____________________________________
+DESIGN MATRIX:
+   1  0  0  0  1
+   0  1  0  0  1
+   0  0  1  0  1 
+   0  0  0  1  1
+   1  0  0  0 -1
+   0  1  0  0 -1
+   0  0  1  0 -1
+   0  0  0  1 -1
+
+CONTRAST (Group 1 > Group 2):
+ 0 0 0 0 1
+
+STATISTICAL TEST:
+t-test
+
+EXCHANGE BLOCKS:
+1 2 3 4 1 2 3 4 
+___________________________________

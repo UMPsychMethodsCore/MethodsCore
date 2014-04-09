@@ -1,0 +1,24 @@
+    echo
+    echo "A command line interface to realignment procedures in FSL."
+    echo "This uses the FSL routines : fslmerge, fslsplit and mcflirt."
+    echo 
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo
+    echo " e.g."
+    echo 
+    echo "  To relign fmri volumes in runs 1,2,4 to 10th image in run 1 you would:"
+    echo 
+    echo "     relignfMRI -v vol -f func/MSIT -S 10 -# 1 -# 2 -# 4 060402rw"
+    echo 
+    echo "  To realign fmri volumes in inclusive range of 1-10, to 10th in first do:"
+    echo
+    echo "     realignfMRI -v vol -f func/MSIT -S 10 -i 1-10 060402rw"
+    echo 
+    echo " Current command default configuration is:"
+    echo 
+    echo
+    
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options
+

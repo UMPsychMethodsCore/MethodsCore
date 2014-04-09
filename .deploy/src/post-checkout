@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+
+#Run your checkout script
+if [ -f .deploy/src/checkout.sh ]; then
+.deploy/src/checkout.sh
+fi
+
+# Note - Be careful not to change working directory at all in this hook,
+# since the called script, checkout.sh, depends on `pwd` to figure out the
+# top of the git work tree

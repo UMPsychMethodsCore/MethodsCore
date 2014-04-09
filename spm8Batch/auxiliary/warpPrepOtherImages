@@ -1,0 +1,104 @@
+# Now write out the other images
+
+#
+# Set the error code to bad input data
+#
+SPM8BATCH_ERROR_CODE=65
+#
+
+echo " "                                                     >> ${FULLSCRIPTNAME}.m
+
+echo "UMOtherImages = {..."                                  >> ${FULLSCRIPTNAME}.m
+
+for (( is=1 ; is<=$nSubjects ; is++ ))
+do
+    echo "{"                                                 >> ${FULLSCRIPTNAME}.m
+    anatPATH=${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${fmriPATH}/${coregPATH}
+    cd ${anatPATH}
+    if [ $iother -gt 0 ]
+    then
+  # 
+  # remove any current coregistation in that directory of the other images.
+  #
+	for (( io=0; io<$iother ; io++ ))
+	do
+	    thisOther=${otherName[$io]}
+            # do the subject replacement.
+	    thisOther=`echo $thisOther | sed s/'\[S\]'/${subjects[$is]}/`
+	    destThisOther=`basename ${thisOther}`
+	    #
+	    # Did they specify an absolute or relative path to the other image.
+	    #
+	    if [ "${otherDIR[$io]}" == "1" ]
+	    then
+		otherSRCNAME=$thisOther
+	    else
+		otherSRCNAME=${anatPATH}/${thisOther}
+	    fi
+	    # 
+	    # We need to find if .nii.gz or .nii
+	    #
+	    if [ -z "${otherExt[$io]}" ]
+	    then
+		for EXT in .nii.gz .nii
+		do
+		    if [ -e "${otherSRCNAME}${EXT}" ]
+		    then
+			USEEXT=${EXT}
+		    fi
+		done
+	    else
+		USEEXT=${otherExt[$io]}
+	    fi
+	    
+  #
+  # Make sure that now the other image exists.
+  #
+	    
+	    if [ ! -e "${otherSRCNAME}${USEEXT}" ]
+	    then
+		echo
+		echo "FATAL ERROR, Can't find other image : ${otherSRCNAME}${USEEXT}"
+		echo
+		echo ABORTING
+		echo
+	        . ${thisDir}/auxiliary/exit_w_removal
+	    fi
+	    
+	    otherSOURCE=${otherSRCNAME}${USEEXT}
+  #
+	    debugout "Other name is : $otherSOURCE"    $SuperDebugFLAG
+	    debugout "- - - - - - - - - - - - - - - -" $SuperDebugFLAG
+	    
+	    
+	    if [ -e "${otherSOURCE}" ]
+	    then
+      # 
+      # set the names of the object and target image for co-registration.
+      #
+		objcIMG=${anatPATH}/${destThisOther}${USEEXT}
+		debugout "Object is : ${objcIMG}" $SuperDebugFLAG
+		debugout "- - - - - - - - - - - - - -" $SuperDebugFLAG
+		echo "'${objcIMG}';..."                            >> ${FULLSCRIPTNAME}.m
+	    else
+		echo
+		echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+		echo
+		echo "other image (${otherNAME}) for subject : ${subjects[$is]} is missing."
+		echo 
+		echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+		echo
+	        . ${thisDir}/auxiliary/exit_w_removal
+	    fi
+	done
+    fi
+    echo "};..."                                               >> ${FULLSCRIPTNAME}.m
+done
+
+echo "};"                                                      >> ${FULLSCRIPTNAME}.m
+echo " "                                                       >> ${FULLSCRIPTNAME}.m
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

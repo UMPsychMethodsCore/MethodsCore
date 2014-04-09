@@ -1,0 +1,13 @@
+# Inialization.
+
+FSL_COMMENT_B="bestBETing subject"
+
+# Hiresolution image
+HIRESNAME=ht1spgr
+HIRESEXT=
+
+FSL_COMMAND=bet
+
+#
+# all done
+#

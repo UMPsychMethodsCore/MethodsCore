@@ -1,0 +1,24 @@
+# validate that we have what we need.
+
+#
+# Set the error code to missing software
+#
+SPM8BATCH_ERROR_CODE=78
+#
+
+for CRITICALMATLAB in vbm8_part_01.m vbm8_part_02.m
+do
+    if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
+    then
+	echo
+        echo "Validate that you have 'vbm8_part_01.m' and 'vbm_part_02.m' "
+ 	echo "Missing a critical component '${CRITICALMATLAB}'"
+	echo     
+	. ${thisDir}/auxiliary/exit_w_removal
+    fi
+done
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

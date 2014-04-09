@@ -1,0 +1,48 @@
+echo "#"                                                                          >> ${FULLSCRIPTNAME}.sh
+
+echo "MATLAB_BASED_PROCESS=1   # We are indeed a matlab based process"            >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "${MATLAB} -nojvm -nodisplay <<EOF "                                         >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "% ${thisCommand} Script Created on $theDate"                                >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "fprintf('Coregistation Script Created on ${theDate}\n');"                   >> ${FULLSCRIPTNAME}.sh
+echo                                                                              >> ${FULLSCRIPTNAME}.sh
+echo "addpath $SPM8B1"                                                            >> ${FULLSCRIPTNAME}.sh
+echo "addpath $SPM8B2"                                                            >> ${FULLSCRIPTNAME}.sh
+
+# Add any other matlab we might need.
+
+if [ ! -z "${SPM8B3}" ]
+then
+    echo "addpath ${SPM8B3}"                                                     >> ${FULLSCRIPTNAME}.sh
+fi
+
+# Add any other matlab we might need.
+
+if [ ! -z "${AUXPATH}" ]
+then
+    echo "addpath ${AUXPATH}"                                                    >> ${FULLSCRIPTNAME}.sh
+fi
+
+# Add the path to the spiral reconstruction code. We need to make sure this does NOT interfer with 
+# any SPM paths.
+
+if [ ! -z "${RECONMLIB}" ]
+then
+    echo "addpath ${RECONMLIB} -END"                                             >> ${FULLSCRIPTNAME}.sh
+fi
+
+echo "addpath ${UMBatchMaster}/$MATLABDIR"                                       >> ${FULLSCRIPTNAME}.sh
+echo                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "global UMBatchJobName"                                                     >> ${FULLSCRIPTNAME}.sh
+echo "global UMBatchProcessName"                                                 >> ${FULLSCRIPTNAME}.sh
+echo "UMBatchJobName     = '${SCRIPTNAME}'"                                      >> ${FULLSCRIPTNAME}.sh
+echo "UMBatchProcessName = '${thisCommand}'"                                     >> ${FULLSCRIPTNAME}.sh
+echo                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "${SCRIPTNAME}"                                                             >> ${FULLSCRIPTNAME}.sh
+echo                                                                             >> ${FULLSCRIPTNAME}.sh
+echo "exit"                                                                      >> ${FULLSCRIPTNAME}.sh
+echo "EOF"                                                                       >> ${FULLSCRIPTNAME}.sh
+echo "MATLAB_RETURN_CODE=\$?"                                                    >> ${FULLSCRIPTNAME}.sh
+echo                                                                             >> ${FULLSCRIPTNAME}.sh

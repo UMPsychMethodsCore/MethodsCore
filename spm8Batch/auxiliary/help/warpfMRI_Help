@@ -1,0 +1,28 @@
+    echo
+    echo " A command line command to drive batch processing to warp the fMRI time series"
+    echo " to the standard template using normalization derived during the 'warpHiRes/vbm8HiRes' phase."
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+
+    echo " e.g. "
+    echo
+    echo "   To warp fmri using the 'het1spgr':"
+    echo 
+    echo "     warpfMRI -w func/MSIT 050126zz"
+    echo
+    echo 
+    echo "*NOTE:  This code will actually hunt out rapruns's (or those specified in the -v flag"
+    echo "        The code does not actually care where the files live and will attempt to warp "
+    echo "        any and all volumes using the specified SPGR (or default) volume. However you"
+    echo "        can narrow the search by supplying the '-s subdir' option which will then require"
+    echo "        that 'subdir' is a string contained in the list of directories returned for warping."
+    echo "        If this DOES NOT make sense to you please contact Robert before proceeding."
+    echo
+    echo "**NOTE: You can also use the VBM8 toolbox to process data, see vbm8HiRes"
+    echo
+    echo " Current command default configuration is:"
+    echo 
+    echo
+    
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options

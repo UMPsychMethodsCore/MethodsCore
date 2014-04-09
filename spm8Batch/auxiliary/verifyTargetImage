@@ -1,0 +1,61 @@
+  #
+  # Determine the extension for the target image.
+  #
+    
+    USEEXT=
+    
+  #
+  # If no extension was specified so we will find one, and we can do this independently for each 
+  # subject, else we use the one specified and we stripped. But we also check to see if the overlay
+  # image really exists, else we bugger out with error.
+  #
+    
+  #
+  # Set the error code to bad input data
+  #
+  SPM8BATCH_ERROR_CODE=65
+  #
+
+  # For now SPM8 can NOT handle nift-gz images, only nifti. - @rcwelsh
+
+    if [ -z ${TARGETEXT} ] 
+    then
+	for EXT in .nii
+	do
+	    if [ -e "${TARGETNAME}${EXT}" ]
+	    then
+		USEEXT=${EXT}
+	    fi
+	done
+    else
+	USEEXT=${TARGETEXT}
+    fi
+  #
+  # We did not find anything.
+  #
+    if [ -z ${USEEXT} ]
+    then
+	echo
+	echo "Scanning for target image : ${TARGETNAME}, could not determine extension. ${ERRORMESSAGE}"
+	echo 
+	echo "ABORTING"
+	echo
+	. ${thisDir}/auxiliary/exit_w_removal
+    fi
+
+    if [ ! -e "${TARGETNAME}${USEEXT}" ]
+    then
+	echo
+	echo "Scanning for target image : ${TARGETNAME}${USEEXT}. ${ERRORMESSAGE}"
+	echo 
+	echo "ABORTING"
+	echo
+	. ${thisDir}/auxiliary/exit_w_removal
+    fi
+
+    TARGETIMG=${TARGETNAME}${USEEXT}
+
+  # 
+  # Change back to success
+  #
+  SPM8BATCH_ERROR_CODE=0

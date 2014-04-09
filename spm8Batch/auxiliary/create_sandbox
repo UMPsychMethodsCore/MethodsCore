@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#
+# redudant code to re-create the sandbox 
+# in the event it got deleted and needs to be 
+# created again.
+#
+# creat_sandbox SANDBOXPID
+
+if [ "$#" == "0" ]
+    then
+    echo
+    echo "No sandbox specified"
+    echo
+    exit 0
+fi
+
+if [ "$#" != "1" ]
+    then
+    echo
+    echo "Wrong number of parameters"
+    echo
+    exit 0
+fi
+
+SANDBOXPID=$1
+
+if [ -d "${SANDBOXPID}" ]
+    then
+    echo
+    echo "Sandbox : ${SANDBOXPID} is present."
+    echo
+else
+    mkdir -p ${SANDBOXPID}
+    if [ -d "${SANDBOXPID}" ]
+	then
+	echo
+	echo "Sandbox : ${SANDBOXPID} is created."
+	echo
+    else
+	echo
+	echo "Sandbox : ${SANDBOXPID} create failed."
+	echo
+    fi
+fi
+
+#
+# all done.
+#

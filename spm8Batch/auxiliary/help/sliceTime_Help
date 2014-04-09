@@ -1,0 +1,25 @@
+    echo
+    echo "A command line interface to slice time correction procedures in FSL."
+    echo "This uses the FSL routines : slicetimer."
+    echo 
+    echo
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo
+    echo " e.g."
+    echo 
+    echo "  To slice-time correct fmri volumes in runs 1,2,4 you would:"
+    echo 
+    echo "     sliceTime -v prun -f func/MSIT -n 10 -# 1 -# 2 -# 4 060402rw"
+    echo 
+    echo "  To realign fmri volumes in inclusive range of 1-10, do:"
+    echo
+    echo "     sliceTime -v prun -f func/MSIT -n 10 -i 1-10 060402rw"
+    echo 
+    echo " Current command default configuration is:"
+    echo 
+    echo
+    
+    . ${thisDir}/auxiliary/help/help_${thisCommand}_Options
+

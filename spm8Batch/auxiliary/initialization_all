@@ -1,0 +1,127 @@
+#
+# Inialization.
+#
+
+# Default parameters.
+let args=$#
+let argn=0
+let nSubjects=0
+
+# Test and Debug Flags
+testFLAG=0
+debugFLAG=0
+SuperDebugFLAG=0
+
+# Default smoothing criteria
+Gx=5
+Gy=5
+Gz=5
+nParam=0
+FINDVOLEXT=nii
+
+# User email to send mail to at job completion.
+USEREMAIL=
+
+# Where are the subjects located with respect to the 
+# experimental directory.
+SUBJDIR=Subjects/
+
+# Look in the anatomy folder by default
+anatomyPATH=anatomy/
+
+# Directory where we are expecting to find the coregistration.
+coregPATH=coReg/
+
+# Where to find the time-series data.
+fmriPATH=func/
+
+# Which volume to look for.
+volumeWILD=raprun
+
+# Name of the anatomy to be co-registering.
+overlayNAME=ht1overlay
+OVERLAYEXT=
+
+# Hiresolution image
+HIRESNAME=ht1spgr
+HIRESEXT=
+
+# Array for other images to be drug into co-registration.
+iother=0
+otherName=
+otherExt=
+otherDIR=
+
+# Are we coreg only, coreg/reslice, or reslice only?
+resliceFLAG=0
+
+# Default voxel size
+voxelSize=0
+
+# Default to not only calculate bias field corrected image in VBM8
+BIASFIELDFLAG=1
+
+# standard volume for mcflirt
+standardVolume=10
+
+# FSL output mode
+FSLOUTPUTTYPE=NIFTI
+
+# Runs to process.
+nRUN=0
+runNAMES=
+
+# A flag to let us know if the user has called "-w"
+setOutputNameCalledFLAG=0
+
+# MCFLIRT defaults:
+
+mcOPT="-cost normcorr -stats -plots "
+
+# BET option
+BETGRADIENT=.15
+. ${thisDir}/auxiliary/calcBETname
+
+# Doing all runs?
+ALLRUNSFLAG=0
+
+# Volume TR
+TR=2.0
+
+# which slice to align time to?
+TGLOBAL=0.5
+# We default to tglobal not being set, only if it's set do we use the value.
+TGLOBALSET=0
+
+# you will need to make this different if you have interleaved, that is you'll
+# need to have SLICETIMEROPT="--odd ".
+# Also see the option "--ocustom" from slicetimer.
+SLICETIMEROPT=
+
+# Erosion Last Option
+EROSIONLASTOPT=
+
+# Set the flag that this is a batch command
+
+BATCHCOMMAND=1
+
+# Is this command to run in the background
+
+BACKGROUNDJOBFLAG=1
+
+# Sand Box override flag
+
+OverrideNoSandBoxFLAG=0
+
+# Are you running this command in qualitycheck mode?
+
+QUALITYCHECKFLAG=0
+# Flags needed to reconstruction
+
+reconRunNumber=1
+
+#
+# Now the process specific initialization
+#
+
+. ${thisDir}/auxiliary/initialization_${thisCommand}

@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+#
+# Routine to physio correct the 
+# time series data using home-grown 
+# matlab routines. 
+#
+# MATLAB source modeled after Scott Peltier and Luis Hernandez
+#
+#
+# Robert C. Welsh
+# Copyright 2006-2011
+#
+#
+# # # # # # # # # # # # # # # # # # 
+
+#
+# Main function of sliceTime
+#
+
+VERSION="2.1"
+VERSIONDATE="2011-10-25"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="ABDdfFiMnpPqtUv#"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# Ok, lets do the business.
+
+. ${thisDir}/auxiliary/checkRuns    # Check to make sure that runs were specified.
+
+echo "    Number of runs to physio correct          : ${nRUN}"
+
+. ${thisDir}/auxiliary/listRuns
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Now start building the automatic scripts.
+
+#
+# the following environmental variables are from spm8Batch_Global
+#
+#    HOSTCOMPUTER     - name of the computer.
+#    SCRIPTNAME       - name of the scripts to write.
+#    MATLABDIR        - location of the scripts.
+#    UMBatchMatcher   - present working directory.
+#    FULLSCRIPTNAME   - full path and name of scripts to write.
+# 
+
+. ${thisDir}/auxiliary/physioCorr_Part_01
+
+. ${thisDir}/auxiliary/shellScriptStart
+
+# Add the matlab code to the shell script
+
+. ${thisDir}/auxiliary/shellScriptMATLABCall
+
+echo "Finished building, launching...."
+
+# Finalize the shell script.
+
+. ${thisDir}/auxiliary/shellScriptFinalize
+
+# Now launch into the background if desired.
+
+. ${thisDir}/auxiliary/shellScriptLaunch
+
+#
+# all done.
+#
