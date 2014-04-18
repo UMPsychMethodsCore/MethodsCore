@@ -31,7 +31,9 @@ for iRun = 1:size(SPM.Sess,2)
 end
 
 %nummotion = size(parameters.data.run(1).MotionParameters,2);
-nummotion = size([parameters.data.run(:).MotionParameters],2);
+%nummotion = size([parameters.data.run(:).MotionParameters],2);
+[rr cc] = cellfun(@size,{parameters.data.run(:).MotionParameters},'UniformOutput',false);
+nummotion = sum(cell2mat(cc));
 domotion = parameters.cppi.domotion;
 numrun = size(parameters.data.run,2);
 numregressors = size(cppiregressors,2);
