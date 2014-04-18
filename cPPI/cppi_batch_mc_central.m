@@ -103,7 +103,7 @@ if (RunMode(1) | sum(RunMode) == 0)
             RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
             parameters.data.run(iRun).P = ImageFiles;
-            if (SubjDir{iSubject,4}(1) ~= 0)
+            if (size(SubjDir,2) > 3 && SubjDir{iSubject,4}(1) ~= 0)
                 parameters.data.run(iRun).nTIME = SubjDir{iSubject,4}(iRun);
             else
                 parameters.data.run(iRun).nTIME = NumScan(iRun);
@@ -278,7 +278,10 @@ if (RunMode(2))
                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
                 tempSubjDir{end,2} = SubjDir{iSubject,2};
                 tempSubjDir{end,3} = SubjDir{iSubject,3};
-                tempSubjDir{end,4} = SubjDir{iSubject,4};
+                if (size(SubjDir,2)>3)
+                    tempSubjDir{end,4} = SubjDir{iSubject,4};
+                end
+
             end
 %         else
 %             for iSubject = 1+offset:size(SubjDir,1)
@@ -293,7 +296,10 @@ if (RunMode(2))
             tempSubjDir{end+1,1} = SubjDir{iSubject,1};
             tempSubjDir{end,2} = SubjDir{iSubject,2};
             tempSubjDir{end,3} = SubjDir{iSubject,3};
-            tempSubjDir{end,4} = SubjDir{iSubject,4};
+            if (size(SubjDir,2)>3)
+                tempSubjDir{end,4} = SubjDir{iSubject,4};
+            end
+
             SubjRemain = SubjRemain - 1;
         end
             
