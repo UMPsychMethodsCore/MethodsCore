@@ -76,6 +76,19 @@ FDLeverArm = 50;
 FDcriteria = 0.2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% How do you want to report the results 
+%%% OutputMode
+%%%                  1   ----  report results for each run
+%%%                  2   ----  report average results over runs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+OutputMode = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogTemplate = '[Exp]/CheckMotion/Logs';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Other frames to exclude.
 %%% FramesBefore is the number of frames before a censored frame to create
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
@@ -84,6 +97,7 @@ FDcriteria = 0.2;
 FramesBefore = 1;
 FramesAfter = 2;
 
+global mcRoot;
 %DEVSTART
 mcRoot = '~/users/yfang/MethodsCore';
 %DEVSTOP
