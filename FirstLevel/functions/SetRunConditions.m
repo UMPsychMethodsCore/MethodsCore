@@ -109,73 +109,73 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
 
         for iPar = 1:size(opt.ParametricList, 1)
 
-            CondForPar = opt.ParametricList{iPar, 3};
-            RunConditions(CondForPar).usePMod = RunConditions(CondForPar).usePMod + 1;
-            ParIndex = RunConditions(CondForPar).usePMod;
-            RunConditions(CondForPar).pmod(ParIndex).name = opt.ParametricList{iPar, 1};
-            RunConditions(CondForPar).pmod(ParIndex).poly = opt.ParametricList{iPar, 4};
+            for iCondForPar = 1:length(opt.ParametricList{iPar, 3})
+                CondForPar = opt.ParametricList{iPar, 3}(iCondForPar);
+                RunConditions(CondForPar).usePMod = RunConditions(CondForPar).usePMod + 1;
+                ParIndex = RunConditions(CondForPar).usePMod;
+                RunConditions(CondForPar).pmod(ParIndex).name = opt.ParametricList{iPar, 1};
+                RunConditions(CondForPar).pmod(ParIndex).poly = opt.ParametricList{iPar, 4};
 
-            % check if corresponding condition is actually being used
-            if RunConditions(CondForPar).use == 0
+                % check if corresponding condition is actually being used
+                if RunConditions(CondForPar).use == 0
 
-                msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                               ' Omitting parametric regressor for %s for condition %s number %d.\n' ...
-                               ' The condition is not in this run.\n\n'], ...
-                               Subject, Run, opt.ParametricList{iPar, 1}, opt.ConditionsName{CondForPar}, CondForPar);
+                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                                   ' Omitting parametric regressor for %s for condition %s number %d.\n' ...
+                                   ' The condition is not in this run.\n\n'], ...
+                                   Subject, Run, opt.ParametricList{iPar, 1}, opt.ConditionsName{CondForPar}, CondForPar);
 
-                fprintf(1, msg);
-                mc_Logger('log', msg, 2);
-                RunConditions(CondForPar).pmod(ParIndex).param = [];
-                continue;
-            end
-
-            % now assign parametric values based on the number of CondColumns present.
-            % If CondColumn > 1, use the parametric regressors in the column assigned
-            % to it at each column where it equals the corresponding condition number.
-            if length(opt.CondColumn) == 1
-               
-                % easy case :)
-                CondIndex = RunData(:, opt.CondColumn) == CondForPar;
-                RunConditions(CondForPar).pmod(ParIndex).param = RunData(CondIndex, opt.ParametricList{iPar, 2});
-
-            else
-
-                % now we have to cycle through each condition and log usage
-                CondIndex = false(size(RunData, 1), 1);
-
-                msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                               ' Parametric regressor %s is being used with condition number' ...
-                               '%d from columns '], Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
-
-                for iCondCol = 1:legnth(opt.CondColumn)
-                    tmpIndex = RunData(:, opt.CondColumn(iCondCol)) == CondForPar;
-                    CondIndex = CondIndex | tmpIndex;
-                    msg = strcat(msg, sprintf('%d ', opt.CondColumn(iCondCol)));
+                    fprintf(1, msg);
+                    mc_Logger('log', msg, 2);
+                    RunConditions(CondForPar).pmod(ParIndex).param = [];
+                    continue;
                 end
 
-                msg = strcat(msg, sprintf('in the Master Data File\n\n'));
-                fprintf(1, msg);
-                mc_Logger('log', msg, 3);
+                % now assign parametric values based on the number of CondColumns present.
+                % If CondColumn > 1, use the parametric regressors in the column assigned
+                % to it at each column where it equals the corresponding condition number.
+                if length(opt.CondColumn) == 1
+                   
+                    % easy case :)
+                    CondIndex = RunData(:, opt.CondColumn) == CondForPar;
+                    RunConditions(CondForPar).pmod(ParIndex).param = RunData(CondIndex, opt.ParametricList{iPar, 2});
 
-                RunConditions(CondForPar).pmod(ParIndex).param = RunData(CondIndex, opt.ParametricList{iPar, 2});
+                else
 
+                    % now we have to cycle through each condition and log usage
+                    CondIndex = false(size(RunData, 1), 1);
+
+                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                                   ' Parametric regressor %s is being used with condition number' ...
+                                   '%d from columns '], Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
+
+                    for iCondCol = 1:legnth(opt.CondColumn)
+                        tmpIndex = RunData(:, opt.CondColumn(iCondCol)) == CondForPar;
+                        CondIndex = CondIndex | tmpIndex;
+                        msg = strcat(msg, sprintf('%d ', opt.CondColumn(iCondCol)));
+                    end
+
+                    msg = strcat(msg, sprintf('in the Master Data File\n\n'));
+                    fprintf(1, msg);
+                    mc_Logger('log', msg, 3);
+
+                    RunConditions(CondForPar).pmod(ParIndex).param = RunData(CondIndex, opt.ParametricList{iPar, 2});
+
+                end
+
+                % check if all values are equal
+                if all( RunConditions(CondForPar).pmod(ParIndex).param == RunConditions(CondForPar).pmod(ParIndex).param(1) )
+
+                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
+                                   ' All values for parametric regressor %s are equal.\n' ...
+                                   ' The parametric regressor will not be used with condition number %d.\n\n'], ...
+                                   Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
+                    fprintf(1, msg);
+                    mc_Logger('log', msg, 2);
+                    RunConditions(CondForPar).pmod(ParIndex).param = [];
+
+                end
             end
-
-            % check if all values are equal
-            if all( RunConditions(CondForPar).pmod(ParIndex).param == RunConditions(CondForPar).pmod(ParIndex).param(1) )
-
-                msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                               ' All values for parametric regressor %s are equal.\n' ...
-                               ' The parametric regressor will not be used with condition number %d.\n\n'], ...
-                               Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
-                fprintf(1, msg);
-                mc_Logger('log', msg, 2);
-                RunConditions(CondForPar).pmod(ParIndex).param = [];
-
-            end
-
         end
-
     % end of managing parametric list
     end
 
