@@ -70,7 +70,7 @@ function opt = CheckOpt(opt)
             end
 
             % check valid condition number
-            if opt.ParametricList{i, 3} <= 0 || opt.ParametricList{i, 3} > NumCond
+            if any(opt.ParametricList{i, 3} <= 0) || any(opt.ParametricList{i, 3} > NumCond)
                 error('ERROR: Invalid condition number for parametric regressor %d name %s.  The conditon number must be strictly greater than zero and less than or equal to the number of conditions (%d)', i, opt.ParametricList{i, 1}, NumCond);
             end
             
