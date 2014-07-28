@@ -93,7 +93,7 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
                     % vectors; otherwise this breaks, but assumption should be valid
                     tmpConVec = opt.ContrastList{1, i + 1};
                     ColumnsRemoved = sess.cond(i).pmod(k).poly * NumBases;
-                    tmpConVec(NumBases+1:ColumnsRemoved-1) = [];
+                    tmpConVec(NumBases+1:(NumBases+ColumnsRemoved)) = [];
 
                     for iCon = 1:NumContrasts
                         opt.ContrastList{iCon, i + 1} = tmpConVec;
