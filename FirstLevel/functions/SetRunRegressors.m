@@ -142,7 +142,7 @@ function RegMatrix = trimRegressor(Subject, Run, RegFile, ColumnsToKeep, RegMatr
                 fprintf(1, msg);
                 mc_Logger('log', msg, 2);
             else
-                RegMatrix = RegMatrix(:, 1:RegNumCol);
+                RegMatrix = RegMatrix(:, 1:ColumnsToKeep);
             end
         end
     else
