@@ -32,6 +32,8 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
 %                                   DurationColumn
 %                                   ParametricList{:, 2}
 %
+%   This function is used for reading master data file's special syntax.
+%
     %initialize all data
     AllData = [];
     Subjects = {};

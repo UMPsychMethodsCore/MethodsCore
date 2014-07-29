@@ -29,6 +29,8 @@ function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
 %               RunData         - matrix, contains all the subject data from the master data file 
 %                                 for run y
 %
+%   This function is used for parsing master data files into master data file structure.
+%
 
     % Read in data and do checks on it
     [AllData Subjects opt] = FL_MasterDataFileRead(opt);
