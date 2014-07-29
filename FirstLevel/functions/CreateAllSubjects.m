@@ -141,7 +141,10 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
             AllSubjects(i).sess(k).images = SetRunImages(i, RunNumber, opt);
 
             % handle condtions for run
-            AllSubjects(i).sess(k).cond = SetRunConditions(i, RunNumber, SubjectMasterData(i).sess(k).RunData, opt);
+            AllSubjects(i).sess(k).cond = SetRunConditions(i, RunNumber, ...
+                                            SubjectMasterData(i).sess(k).RunData, opt);
+            AllSubjects(i).sess(k).cond = CheckRunConditions(Subject, Run, ...
+                                            AllSubjects(i).sess(k).cond, opt);
           
             % handle regressors for run
             AllSubjects(i).sess(k).regress = SetRunRegressors(i, RunNumber, opt);
