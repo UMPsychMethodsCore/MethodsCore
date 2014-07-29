@@ -1,5 +1,5 @@
-function [SubjectMasterData opt] = ParseMasterDataFile(opt)
-%   SubjectMasterData = ParserMasterDataFile(opt)
+function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
+%   SubjectMasterData = FL_ParserMasterDataFile(opt)
 %
 %   REQUIRED INPUT
 %
@@ -31,7 +31,7 @@ function [SubjectMasterData opt] = ParseMasterDataFile(opt)
 %
 
     % Read in data and do checks on it
-    [AllData Subjects opt] = MasterDataFileRead(opt);
+    [AllData Subjects opt] = FL_MasterDataFileRead(opt);
 
     % do a simple check to make sure times and durations are not in milliseconds
     for i = 1:length(opt.TimeColumn)

@@ -1,5 +1,5 @@
-function RunContrastAddOn(Subjects, opt)
-%   RunContrastAddOn(Subjects, opt)
+function FL_RunContrastAddOn(Subjects, opt)
+%   FL_RunContrastAddOn(Subjects, opt)
 
     NumSubjects = size(Subjects, 2);
     SubjSpmMatFiles = cell(NumSubjects, 1);

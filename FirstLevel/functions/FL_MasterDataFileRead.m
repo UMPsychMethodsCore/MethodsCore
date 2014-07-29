@@ -1,5 +1,5 @@
-function [AllData Subjects opt] = MasterDataFileRead(opt)
-% function [AllData Subjects opt] = MasterDataFileRead(opt)
+function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
+% function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
 %
 %   REQUIRED INPUT
 %
@@ -204,7 +204,7 @@ function [AllData Subjects opt] = MasterDataFileRead(opt)
     TmpOpt = opt;
     for i = 1:size(PointerFiles, 1)
         TmpOpt.MasterDataFilePath = PointerFiles{i}(2:end);
-        [TmpAllData TmpAllSubjects] = MasterDataFileRead(TmpOpt);
+        [TmpAllData TmpAllSubjects] = FL_MasterDataFileRead(TmpOpt);
         AllData = [AllData; TmpAllData];
         Subjects = [Subjects; TmpAllSubjects];
     end

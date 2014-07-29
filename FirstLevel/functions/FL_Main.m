@@ -1,30 +1,30 @@
-function FirstLevelMain(opt)
-%   FirstLevelMain(opt)
+function FL_Main(opt)
+%   FL_Main(opt)
 
     fprintf(1, '~~~Checking options~~~\n\n');
     opt = CheckOpt(opt);
     fprintf(1, '~~~Done with options~~~\n\n');
 
     fprintf(1, '~~~Parsing master data file~~~\n\n');
-    [SubjectMasterData opt] = ParseMasterDataFile(opt);
+    [SubjectMasterData opt] = FL_ParseMasterDataFile(opt);
     fprintf(1, '~~~Done paring master data file~~~\n\n');
 
     fprintf(1, '~~~Creating all subjects~~~\n\n');
-    Subjects = CreateAllSubjects(opt, SubjectMasterData);
+    Subjects = FL_CreateAllSubjects(opt, SubjectMasterData);
     fprintf(1, '~~~Done creating all subjects~~~\n\n');
 
     if opt.Mode == 1
         fprintf(1, '~~~Running first level for all subjects~~~\n\n');
-        RunFirstLevel(Subjects, opt);
-        PrintAllSubjects(Subjects, opt);
+        FL_Run(Subjects, opt);
+        FL_PrintAllSubjects(Subjects, opt);
         fprintf(1, '~~~Done running first levels~~~\n');
     elseif opt.Mode == 2
         fprintf(1, '~~~Runing in contrast add-on mode~~~\n\n');
-        RunContrastAddOn(Subjects, opt);
+        FL_RunContrastAddOn(Subjects, opt);
         fprintf(1, '~~~Done adding on contrasts~~~\n');
     else
         fprintf(1, '~~~Printing subjects to log file~~~\n');
-        PrintAllSubjects(Subjects, opt);
+        FL_PrintAllSubjects(Subjects, opt);
         fprintf(1, '~~~All subjects printed to log file~~~\n');
     end 
     

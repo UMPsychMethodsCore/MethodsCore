@@ -1,5 +1,5 @@
-function PrintAllSubjects(Subjects, opt)
-%   PrintAllSubjects(Subjects, opt)
+function FL_PrintAllSubjects(Subjects, opt)
+%   FL_PrintAllSubjects(Subjects, opt)
 
     Exp = opt.Exp;
     textPath = mc_GenPath(opt.LogTemplate);

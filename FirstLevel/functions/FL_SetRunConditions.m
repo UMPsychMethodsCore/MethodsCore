@@ -1,5 +1,5 @@
-function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt)
-%   RunConditions = SetRunConditions(SubjectNumber, RunNumber, SubjectMasterData, opt)
+function RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, RunData, opt)
+%   RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, SubjectMasterData, opt)
 %
 %   REQUIRED INPUT
 %

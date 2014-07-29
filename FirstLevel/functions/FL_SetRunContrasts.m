@@ -1,5 +1,5 @@
-function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
-%   RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
+function RunContrasts = FL_SetRunContrasts(Subject, NumBases, opt, sess)
+%   RunContrasts = FL_SetRunContrasts(Subject, NumBases, opt, sess)
 %
 %   REQUIRED INPUT
 %       Subject                 - string, subject name

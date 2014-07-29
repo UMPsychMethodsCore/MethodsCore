@@ -1,5 +1,5 @@
-function RunConditions = CheckRunConditions(Subject, Run, RunConditions, opt)
-%   RunConditions = SetRunConditions(SubjectNumber, RunNumber, SubjectMasterData, opt)
+function RunConditions = FL_CheckRunConditions(Subject, Run, RunConditions, opt)
+%   RunConditions = FL_CheckRunConditions(Subjects, Run, RunConditions, opt)
 %
 %   REQUIRED INPUT
 %

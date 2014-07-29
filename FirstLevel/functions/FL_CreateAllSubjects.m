@@ -1,5 +1,5 @@
-function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
-% AllSubjectInfo = CreateAllSubjects(opt)
+function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
+% AllSubjectInfo = FL_CreateAllSubjects(opt)
 %
 %   REQUIRED INPUT
 %   
@@ -138,16 +138,16 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
             fprintf(1, '\tWorking on %s\n', Run);
 
             % get subject images for run
-            AllSubjects(i).sess(k).images = SetRunImages(i, RunNumber, opt);
+            AllSubjects(i).sess(k).images = FL_SetRunImages(i, RunNumber, opt);
 
             % handle condtions for run
-            AllSubjects(i).sess(k).cond = SetRunConditions(i, RunNumber, ...
+            AllSubjects(i).sess(k).cond = FL_SetRunConditions(i, RunNumber, ...
                                             SubjectMasterData(i).sess(k).RunData, opt);
-            AllSubjects(i).sess(k).cond = CheckRunConditions(Subject, Run, ...
+            AllSubjects(i).sess(k).cond = FL_CheckRunConditions(Subject, Run, ...
                                             AllSubjects(i).sess(k).cond, opt);
           
             % handle regressors for run
-            AllSubjects(i).sess(k).regress = SetRunRegressors(i, RunNumber, opt);
+            AllSubjects(i).sess(k).regress = FL_SetRunRegressors(i, RunNumber, opt);
             if isempty(AllSubjects(i).sess(k).regress) == 1
                 AllSubjects(i).sess(k).useRegress = 0;
             else
@@ -156,13 +156,13 @@ function AllSubjects = CreateAllSubjects(opt, SubjectMasterData)
 
             % handle timepoint trimming
             if ~isempty(opt.VolumeSpecifier) == 1 && size(opt.VolumeSpecifier, 2) <= k
-                AllSubjects(i).sess(k) = TrimRun(AllSubjects(i).sess(k), i, RunNumber, opt);
+                AllSubjects(i).sess(k) = FL_TrimRun(AllSubjects(i).sess(k), i, RunNumber, opt);
             end
 
         end
 
         % create contrast for whole subject
-        AllSubjects(i).contrasts = SetSubjectContrasts(i, opt, AllSubjects(i));
+        AllSubjects(i).contrasts = FL_SetSubjectContrasts(i, opt, AllSubjects(i));
     end
 
 end
