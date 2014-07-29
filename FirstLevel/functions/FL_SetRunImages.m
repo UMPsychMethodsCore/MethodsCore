@@ -1,5 +1,5 @@
-function RunImages = SetRunImages(SubjectNumber, RunNumber, opt)
-% RunImages = SetRunImages(SubjectNumber, RunNumber, opt)
+function RunImages = FL_SetRunImages(SubjectNumber, RunNumber, opt)
+% RunImages = FL_SetRunImages(SubjectNumber, RunNumber, opt)
 %   
 %   REQUIRED INPUT
 %   

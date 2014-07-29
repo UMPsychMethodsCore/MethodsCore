@@ -1,5 +1,5 @@
-function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt)
-%   RunConditions = SetRunConditions(SubjectNumber, RunNumber, SubjectMasterData, opt)
+function RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, RunData, opt)
+%   RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, SubjectMasterData, opt)
 %
 %   REQUIRED INPUT
 %
@@ -22,8 +22,6 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
 %                                 column2 = column in master data file
 %                                 column3 = condition number as listed in ConditionName
 %                                 column4 = order
-%           ConditionThreshold  - scalar, removes conditions that do not exceed this threshold
-%                                 used
 %
 %   OUTPUT
 %       
@@ -83,25 +81,6 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
             RunConditions(l).duration(end+1:end+length(CondDurations)) = CondDurations;
 
         end
-
-        % check if condition is useable for the run
-        if length( RunConditions(l).onset ) <= opt.ConditionThreshold || isempty( RunConditions(l).onset ) == 1
-
-            RunConditions(l).use = 0;
-
-            % Log this information
-            msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                           ' Omitting condition %s number %d\n' ...
-                           ' Condition was either not present in the master date file or' ...
-                           ' did not exceed the ConditionThreshold of %d.\n\n'], ...
-                           Subject, Run, opt.ConditionName{l}, l, opt.ConditionThreshold);
-
-            fprintf(1, msg);
-            mc_Logger('log', msg, 2);
-
-        end
-
-    %end of managing conditions
     end
 
     % manage parametric regressors
@@ -115,20 +94,6 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
                 ParIndex = RunConditions(CondForPar).usePMod;
                 RunConditions(CondForPar).pmod(ParIndex).name = opt.ParametricList{iPar, 1};
                 RunConditions(CondForPar).pmod(ParIndex).poly = opt.ParametricList{iPar, 4};
-
-                % check if corresponding condition is actually being used
-                if RunConditions(CondForPar).use == 0
-
-                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                                   ' Omitting parametric regressor for %s for condition %s number %d.\n' ...
-                                   ' The condition is not in this run.\n\n'], ...
-                                   Subject, Run, opt.ParametricList{iPar, 1}, opt.ConditionsName{CondForPar}, CondForPar);
-
-                    fprintf(1, msg);
-                    mc_Logger('log', msg, 2);
-                    RunConditions(CondForPar).pmod(ParIndex).param = [];
-                    continue;
-                end
 
                 % now assign parametric values based on the number of CondColumns present.
                 % If CondColumn > 1, use the parametric regressors in the column assigned
@@ -159,19 +124,6 @@ function RunConditions = SetRunConditions(SubjectNumber, RunNumber, RunData, opt
                     mc_Logger('log', msg, 3);
 
                     RunConditions(CondForPar).pmod(ParIndex).param = RunData(CondIndex, opt.ParametricList{iPar, 2});
-
-                end
-
-                % check if all values are equal
-                if all( RunConditions(CondForPar).pmod(ParIndex).param == RunConditions(CondForPar).pmod(ParIndex).param(1) )
-
-                    msg = sprintf(['SUBJECT %s RUN %s :\n' ...
-                                   ' All values for parametric regressor %s are equal.\n' ...
-                                   ' The parametric regressor will not be used with condition number %d.\n\n'], ...
-                                   Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
-                    fprintf(1, msg);
-                    mc_Logger('log', msg, 2);
-                    RunConditions(CondForPar).pmod(ParIndex).param = [];
 
                 end
             end

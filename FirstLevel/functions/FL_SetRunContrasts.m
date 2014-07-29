@@ -1,5 +1,5 @@
-function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
-%   RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
+function RunContrasts = FL_SetRunContrasts(Subject, NumBases, opt, sess)
+%   RunContrasts = FL_SetRunContrasts(Subject, NumBases, opt, sess)
 %
 %   REQUIRED INPUT
 %       Subject                 - string, subject name
@@ -79,9 +79,10 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
         elseif sess.cond(i).usePMod > 0
 
             NumPara = size(sess.cond(i).pmod, 2);
+            BeginIndex = NumBases + 1;
 
             for k = 1:NumPara
-
+                EndIndex = sess.cond(i).pmod(k).poly * NumBases + BeginIndex - 1;
                 if isempty(sess.cond(i).pmod(k).param) == 1
                     msg = sprintf(['SUBJECT %s RUN %s :\n' ...
                                    ' Condition %s, the parametric regressor %s will be omitted from the model.\n\n'], ...
@@ -89,16 +90,13 @@ function RunContrasts = SetRunContrasts(Subject, NumBases, opt, sess)
                     fprintf(1, msg);
                     mc_Logger('log', msg, 2);
 
-                    % assume the condition contrast vector is the same length for all contrast
-                    % vectors; otherwise this breaks, but assumption should be valid
-                    tmpConVec = opt.ContrastList{1, i + 1};
-                    ColumnsRemoved = sess.cond(i).pmod(k).poly * NumBases;
-                    tmpConVec(NumBases+1:(NumBases+ColumnsRemoved)) = [];
-
                     for iCon = 1:NumContrasts
+                        tmpConVec = opt.ContrastList{iCon, i + 1};
+                        tmpConVec(BeginIndex:EndIndex) = [];
                         opt.ContrastList{iCon, i + 1} = tmpConVec;
                     end
-
+                else
+                    BeginIndex = EndIndex + 1;
                 end
             end
         end

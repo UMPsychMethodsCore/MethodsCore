@@ -1,5 +1,5 @@
-function Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
-%   Regressors = SetRunRegressors(SubjectNumber, RunNumber, opt)
+function Regressors = FL_SetRunRegressors(SubjectNumber, RunNumber, opt)
+%   Regressors = FL_SetRunRegressors(SubjectNumber, RunNumber, opt)
 %
 %   REQUIRED INPUT
 %

@@ -1,5 +1,5 @@
-function SubjectContrasts = SetSubjectContrasts(SubjectNumber, opt, OneSubj)
-%   SubjectContrasts = SetSubjectContrasts(SubjectNumber, opt, SubjectSession)
+function SubjectContrasts = FL_SetSubjectContrasts(SubjectNumber, opt, OneSubj)
+%   SubjectContrasts = FL_SetSubjectContrasts(SubjectNumber, opt, SubjectSession)
 %
 %   REQUIRED INPUT
 %
@@ -97,7 +97,7 @@ function SubjectContrasts = SetSubjectContrasts(SubjectNumber, opt, OneSubj)
     % create contrast matrix for each run for this subject
     tmpSess(NumRuns) = struct('Contrasts', []);
     for i = 1:NumRuns
-        tmpSess(i).Contrasts = SetRunContrasts(OneSubj.name, NumBases, opt, OneSubj.sess(i));
+        tmpSess(i).Contrasts = FL_SetRunContrasts(OneSubj.name, NumBases, opt, OneSubj.sess(i));
     end
 
     % correct contrast runweight lenghts

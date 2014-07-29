@@ -1,5 +1,5 @@
-function RunFirstLevel(AllSubjects, opt)
-%   RunFirstLevel(AllSubjects, opt)
+function FL_Run(AllSubjects, opt)
+%   FL_Run(AllSubjects, opt)
 
     for i = 1:size(AllSubjects, 2)
 

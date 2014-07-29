@@ -1,5 +1,5 @@
-function sess = TrimRun(sess, SubjectNumber, RunNumber, opt)
-%   TrimmedRun = TrimRun(sess, opt)
+function sess = FL_TrimRun(sess, SubjectNumber, RunNumber, opt)
+%   TrimmedRun = FL_TrimRun(sess, opt)
 %
 %   REQUIRED INPUT
 %

@@ -1,5 +1,5 @@
-function [Components VarAccounted]= SetRunCompCor(SubjectIndex, RunNumber, opt)
-%   Components = SetCompCorReg(SubjectIndex, RunNumber, opt)
+function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, opt)
+%   Components = FL_SetCompCorReg(SubjectIndex, RunNumber, opt)
 %
 %   REQUIRED INPUT
 %
