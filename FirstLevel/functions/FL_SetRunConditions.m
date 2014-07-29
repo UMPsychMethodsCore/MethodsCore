@@ -113,7 +113,7 @@ function RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, RunData, 
                                    ' Parametric regressor %s is being used with condition number' ...
                                    '%d from columns '], Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
 
-                    for iCondCol = 1:legnth(opt.CondColumn)
+                    for iCondCol = 1:length(opt.CondColumn)
                         tmpIndex = RunData(:, opt.CondColumn(iCondCol)) == CondForPar;
                         CondIndex = CondIndex | tmpIndex;
                         msg = strcat(msg, sprintf('%d ', opt.CondColumn(iCondCol)));
