@@ -143,8 +143,8 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
             % handle condtions for run
             AllSubjects(i).sess(k).cond = FL_SetRunConditions(i, RunNumber, ...
                                             SubjectMasterData(i).sess(k).RunData, opt);
-            AllSubjects(i).sess(k).cond = FL_CheckRunConditions(Subject, Run, ...
-                                            AllSubjects(i).sess(k).cond, opt);
+            AllSubjects(i).sess(k) = FL_CheckRunConditions(Subject, Run, ...
+                                        AllSubjects(i).sess(k), opt);
           
             % handle regressors for run
             AllSubjects(i).sess(k).regress = FL_SetRunRegressors(i, RunNumber, opt);
