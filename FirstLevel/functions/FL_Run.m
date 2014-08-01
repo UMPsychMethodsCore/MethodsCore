@@ -96,7 +96,7 @@ function FL_Run(AllSubjects, opt)
         end
 
         % estimate model
-        spmMatFile = fullfile(AllSubjects(i).outputDir, 'SPM.mat');
+        spmMatFile = fullfile(OutputDir, 'SPM.mat');
         matlabbatch{2}.spm.stats.fmri_est.spmmat = { spmMatFile };
         matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
 
@@ -143,7 +143,7 @@ function FL_Run(AllSubjects, opt)
 
         % move from sandbox to correct output directory
         if opt.UseSandbox == 1
-            MoveSandboxOutput(OutputDir, AllSubjects(i).OutputDir);           
+            MoveSandboxOutput(opt.Sandbox, OutputDir, AllSubjects(i).outputDir);           
         end
     end
 
@@ -191,15 +191,13 @@ function SessionImages = CopyToSandbox(opt, SessionImages, Subject, Run)
 % SesionImages = CopyToSandboax(opt, SessionImages, Subject, Run)
 
     Exp = opt.Exp;
-    
-    % image dir should have been checked already
-    ImageDir = mc_GenPath(opt.ImageTemplate);
+    ImageDir = mc_GenPath(opt.ImagePathTemplate);
     
     % copy to sandox here    
-    SandboxRunCheck.Template = fullfile(opt.Sandbox, opt.ImageTemplate);
+    SandboxRunCheck.Template = fullfile(opt.Sandbox, opt.ImagePathTemplate);
     SandboxRunCheck.mode = 'makeparentdir';
-    mc_GenPath(SandboxRunCheck);
-    shellcommand = sprintf('cp -af %s %s',fullfile(ImageDir,'*'),fullfile(Sandbox,ImageDir));
+    FullSandboxPath = mc_GenPath(SandboxRunCheck);
+    shellcommand = sprintf('cp -af %s %s',fullfile(ImageDir,'*'), FullSandboxPath);
     [status result] = system(shellcommand);
     if (status ~= 0)
         mc_Error('Image folder %s could not be copied to sandbox.\nPlease check your paths and permissions.',ImageDir);
@@ -207,11 +205,11 @@ function SessionImages = CopyToSandbox(opt, SessionImages, Subject, Run)
     
     % correct image file paths
     for i = 1:size(SessionImages, 1)
-        SessionImages{i} = fullfile(opt.Sandbox, SessonImages{i});
+        SessionImages{i} = fullfile(opt.Sandbox, SessionImages{i});
     end
 end
 
-function MoveSandboxOutput(SandboxOutDir, NoSandboxOutDir)
+function MoveSandboxOutput(SandboxPath, SandboxOutDir, NoSandboxOutDir)
 %   MooveSandboxOutput(SandboxOutDir, NoSandboxOutDir)
 
     shellcommand = sprintf('cp -rf %s %s',SandboxOutDir, NoSandboxOutDir);
@@ -220,18 +218,15 @@ function MoveSandboxOutput(SandboxOutDir, NoSandboxOutDir)
         mc_Error('Unable to copy sandbox directory (%s) back to output directory (%s).\nPlease check paths and permissions.', SandboxOutDir, NoSandboxOutDir);
     end
     
-    mc_FixSPM(NoSandboxOutDir, opt.Sandbox, '');
+    mc_FixSPM(NoSandboxOutDir, SandboxPath, '');
 
 end
 
 
 function RemoveSandbox(Sandbox)
 % function RemoveSandbox(Sandbox)
-
-    shellcommand = sprintf('rm -rf %s',Sandbox);
     [status, ans, ans] = rmdir(Sandbox,'s'); %updated to use matlab command instead of system call
     if (status ~= 0)
-        mcWarnings = mcWarnings + 1;
         mc_Logger('log','Unable to remove sandbox directory',2);
     end
 
