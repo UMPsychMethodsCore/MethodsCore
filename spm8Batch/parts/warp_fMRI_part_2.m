@@ -39,7 +39,9 @@ for iSub = 1:length(UMBatchSubjs)
     else
       results = UMBatchWarp([],ParamImage,[],Images2Write,UMTestFlag,VoxelSize,OutputName,WARPMETHOD);      
     end
-    UMCheckFailure(results);
+    if UMCheckFailure(results)
+      exit(abs(results));
+    end
     %
     % Now move back out of sandbox if so specified
     %

@@ -1,3 +1,11 @@
+# validate that we have what we need.
+
+#
+# Set the error code to missing configuration.
+#
+SPM8BATCH_ERROR_CODE=78
+#
+
 for CRITICALMATLAB in coreg_part_1.m coreg_part_2.m
 do
     if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
@@ -6,6 +14,11 @@ do
 	echo "Validate that you have 'coreg_part_1.m' and 'coreg_part_2.m' "
 	echo "Missing a critical component '${CRITICALMATLAB}'"
 	echo
-	exit 0
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 done
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

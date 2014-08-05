@@ -1,0 +1,11 @@
+case "${thisCommand}" in
+    "pcafMRI")
+       echo "    -N # of PCA comp     how many PCA components to write out. "
+       echo "                         default is 20."
+       echo 
+       ;;
+    *)
+       echo "    -N [#]               set the run number for naming the directory."
+       echo "                         default \"${reconRunNumber}\"."
+       echo 
+esac

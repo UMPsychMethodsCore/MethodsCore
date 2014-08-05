@@ -1,5 +1,11 @@
 # validate that we have what we need.
 
+#
+# Set the error code to missing software
+#
+SPM8BATCH_ERROR_CODE=78
+#
+
 for CRITICALMATLAB in smooth_part_1.m smooth_part_2.m
 do
     if [ ! -e "${SPM8B2}/parts/${CRITICALMATLAB}" ]
@@ -7,6 +13,11 @@ do
 	echo "Validate that you have 'smooth_part_1.m' and 'smooth_part_2.m' "
 	echo "Missing a critical component '${CRITICALMATLAB}'"
 	echo     
-	exit 0
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 done
+
+# 
+# Change back to success
+#
+SPM8BATCH_ERROR_CODE=0

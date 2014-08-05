@@ -14,15 +14,6 @@ Specialists).  An Executive Committee consisting of five PIs from the
 department sets the Core's agenda and oversees activities. They are Jon-Kar 
 Zubieta, Steve Taylor, Israel Liberzon, Mary Heitzeg, and James Swain.
 
-The current (tentative) schedule for upcoming releases is as follows: 
-August 1st               Preprocessing, Registration Checks
-September 5th            First-Level Script
-October 3rd              Second-Level Script
-November 7th             Companion Scripts (PPI, Physio Correction, 
-                         Motion Regressor Statistics, ROI Scripts, power 
-                         analysis, and others)
-December 5th             Repeated Measures ANOVA
-
 Our goal is to make sure Methods Core tools are:
     *User-friendly including extensive commenting and informative error 
     messages.
@@ -44,9 +35,51 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+3/28/2014  - Release 1.9
+	     This release adds the GraphTheory toolbox to perform graph theoretic analyses on connectome data.
 
-8/1/2012 - Release 1.0 
-	   First public release of MethodsCore tools.  This release contains a 
-	   suite of command-line scripts to preprocess fMRI data as well as 
-	   perform several basic data quality checks.
+2/7/2014   - Release 1.8
+	     This release adds enhancements to ConnTool, including the ability to perform ALFF and fALFF analyses.
+
+11/20/2013 - Release 1.7
+	     This release adds an advanced tool (svmbatch) to support Paired SVM Analyses.
+
+10/1/2013  - Release 1.6
+             This release adds a tool (ConnTool) to support Connectivity Analyses.
+
+5/8/2013   - Release 1.5
+             This release adds tools to support both standard and generalized
+             PPI. These scripts can be found in the PPI directory.
+             They include batched and automated VOI extration, automated
+             generation of PPI regressors for multiple ROIs, and modifications
+             to FirstLevel template script for easier loading of multiple
+             subject-specific regressor files at the first level.
+
+4/8/2013   - Release 1.4
+             This release adds scripts for quality checking during preprocessing.
+             These can be found in the QualityChecks folder.
+             Minor revisions were made to spm8Batch including the ability to use 
+             SPMs New Segment instead of VBM, as well as extracting principle 
+             components from white matter and CSF segments.
+
+2/13/2013  - Release 1.3
+             This release adds scripts to extract betas from SPM designs in the
+             ROIScripts folder.
+             The Methods Core repository now also includes the latest distribution
+             of Marsbar in Utilities/marsbar/marsbar-0.43
+             Includes a few minor FirstLevel bug fixes
+             
+10/2/2012  - Release 1.2
+             This release adds matlab scripts to perform second level analysis
+             in SPM.
+
+9/5/2012   - Release 1.1 
+	     This release adds a suite of matlab-driven
+	     scripts to support first level analysis.
+
+8/1/2012   - Release 1.0 
+	     First public release of MethodsCore tools.  This release contains a 
+	     suite of command-line scripts to preprocess fMRI data as well as 
+	     perform several basic data quality checks.
+
 

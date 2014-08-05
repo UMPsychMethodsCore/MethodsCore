@@ -1,8 +1,8 @@
-function OutputTemplate=mc_GenPath(Template)
+function [OutputTemplate ErrorCode] = mc_GenPath(Template)
 % A tool to assist in generating paths to files and directories from user
 % specified templates, with variable names filled in.
 %
-% FORMAT P = mc_GenPath(STRUCT)
+% FORMAT [P [EC]]= mc_GenPath(STRUCT)
 % In this format, a STRUCT(ure) object is passed to GeneratePath.
 %
 % STRUCT                The struct object contains fields for various
@@ -62,7 +62,7 @@ function OutputTemplate=mc_GenPath(Template)
 %
 %
 %
-% FORMAT P = mc_GenPath(Template)
+% FORMAT [P [EC]] = mc_GenPath(Template)
 % In this simplified format, GeneratePath is passed simply a string. All
 % other options as discussed above are effectively disabled when this
 % format is used.
@@ -76,7 +76,20 @@ function OutputTemplate=mc_GenPath(Template)
 %                       error dialog.
 %
 %
+%
+% If 'EC' is present in the call then any error code is returned. If 'EC'
+% is empty then no error was generated.
+%
 % -------------------------------------------------
+
+% Check to see if we should throw an explicit error or just pass the
+% error back to the calling routine
+
+PassErrorBack = false;
+if nargout > 1
+    PassErrorBack = true;
+    ErrorCode = [];
+end
 
 %% Parse arguments
 
@@ -96,39 +109,39 @@ index1=strfind(Template,'[');
 index2=strfind(Template,']');
 
 if(any(index1>0) && any(index2>0))
-
+    
     for i=1:length(index1)
         VariableList{i}=Template(index1(i)+1:index2(i)-1);
     end
-
+    
     %% Parse String to Find Constants to fill TemplatePart
     if index1(1)>1
         TemplatePart{1}=Template(1:index1-1); %Grab all of the string up to the first [
     else
         TemplatePart{1}=''; %%% Contains everything before the first wildcard
     end
-
-
+    
+    
     if(length(index1)==1)
         k=0;
     else %Fill in all of the strings in the middle
-
+        
         for k=1:length(index1)-1  %%% you've already gotten everything before the first index
             TemplatePart{k+1}=horzcat(Template((index2(k)+1):index1(k+1)-1)); %Snag everything after the ith stop, up until the i+1th start
         end
     end
-
+    
     %%%% this gets the last bit of the template after the final ']'
     if(index2(k+1)<size(Template,2))
         TemplatePart{k+2}=Template(index2(k+1)+1:end);
     else
         TemplatePart{k+2}='';
     end
-
-
+    
+    
     % Reconstruct the path, piece by piece, substituting in variable values
     OutputTemplate =[];
-
+    
     for k=1:length(VariableList)
         try
             VarValue = evalin('caller',VariableList{k});
@@ -137,17 +150,22 @@ if(any(index1>0) && any(index2>0))
                 'defined value. Double check that you have not made a typo (e.g. [EXP] instead of Exp) and carefully ' ...
                 'read the commented instructions around your path template specification to be sure of which variables ' ...
                 'you can use in bracketed expressions.'],VariableList{k});
-            errordlg(errormsg,'Path Generation Error')
-            error(errormsg)
+            if ~PassErrorBack
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
+            else
+                ErrorCode = errormsg;
+                return
+            end
         end
         OutputTemplate=horzcat(OutputTemplate,TemplatePart{k},VarValue); %This appears to reconstruct the template without the brackets around the variables
     end
-
+    
     OutputTemplate = [OutputTemplate TemplatePart{k+1}];
-
+    
 else
     OutputTemplate = Template;
-
+    
 end
 %% DirCheck: Clean up template based on type
 if(type==1)
@@ -197,11 +215,11 @@ if(any(indexstar>0)) %% if there are any wildcards present
         indexsep=strfind(OutputTemplate,filesep); %update indices of separators (they might move around after substitution, but number will not change)
         prePath = OutputTemplate(1:(indexsep(index)-1));
         postPath = OutputTemplate(indexsep(index):end);
-
+        
         if(any(strfind(prePath,'*')>0)) %if any wildcards exist in present chunk
             [preParent, preWild, preExt] = fileparts(prePath);
             preWild = [preWild preExt];
-
+            
             if (~isdir(preParent))
                 errormsg = sprintf(['Error -- I was trying to find wildcard matches for "%s" in "%s" but it turns out "%s" doesn''t even ' ...
                     'exist, so that''s not going to work out. Please check your path specification up to the present wildcard.'], ...
@@ -211,7 +229,7 @@ if(any(indexstar>0)) %% if there are any wildcards present
             else
                 starmatch=dir(prePath);
                 starmatch=starmatch([starmatch.isdir]); %Return only the elements that are dir
-
+                
                 switch length(starmatch)
                     case 0
                         %Raise error CHECKED
@@ -230,8 +248,13 @@ if(any(indexstar>0)) %% if there are any wildcards present
                         errormsg = sprintf(['Error -- More than one subdirectory found in "%s" matches your wildcard expression "%s". ' ...
                             'Please check your use of wildcards.'], ...
                             preParent, preWild);
-                        errordlg(errormsg,'Path Generation Error')
-                        error(errormsg)
+                        if ~PassErrorBack
+                            errordlg(errormsg,'Path Generation Error')
+                            error(errormsg)
+                        else
+                            ErrorCode = errormsg;
+                            return
+                        end
                 end
             end
         end
@@ -245,12 +268,17 @@ if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must 
         errormsg = sprintf(['Error -- I was trying to find wildcard matches for "%s" in "%s" but it turns out "%s" doesn''t even ' ...
             'exist, so that''s not going to work out. Please check your path specification up to the present wildcard.'], ...
             preWild, preParent, preParent);
-        errordlg(errormsg,'Path Generation Error')
-        error(errormsg)
+        if ~PassErrorBack
+            errordlg(errormsg,'Path Generation Error')
+            error(errormsg)
+        else
+            ErrorCode = errormsg;
+            return
+        end
     else
         starmatch=dir(OutputTemplate);
         starmatch=starmatch(~[starmatch.isdir]); %Return only the nondir elements
-
+        
         [preParent, preWild, preExt] = fileparts(OutputTemplate);
         preWild = [preWild preExt];
         switch length(starmatch)
@@ -267,8 +295,13 @@ if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must 
                     errormsg = sprintf(['Error -- No files found in "%s" that match your wildcard expression "%s". ' ...
                         'Please check your use of wildcards.'], ...
                         preParent, preWild);
-                    errordlg(errormsg,'Path Generation Error')
-                    error(errormsg)
+                    if ~PassErrorBack
+                        errordlg(errormsg,'Path Generation Error')
+                        error(errormsg)
+                    else
+                        ErrorCode = errormsg;
+                        return
+                    end
                 end
             case 1
                 Parent = fileparts (OutputTemplate) ;
@@ -279,15 +312,25 @@ if(any(strfind(OutputTemplate,'*')>0)) %if any wildcards STILL exist (they must 
                     errormsg = sprintf(['Error -- More than one file found in "%s" matches your wildcard "%s". ' ...
                         'Note: the suffix "%s" may have been added to your wildcard. Please check your use of wildcards.'], ...
                         preParent, preWild, suffix);
-                    errordlg(errormsg,'Path Generation Error')
-                    error(errormsg)
+                    if ~PassErrorBack
+                        errordlg(errormsg,'Path Generation Error')
+                        error(errormsg)
+                    else
+                        ErrorCode = errormsg;
+                        return
+                    end
                 else
                     %Checked
                     errormsg = sprintf(['More than one file found in "%s" matches your wildcard expression "%s". ' ...
                         'Please check your use of wildcards.'], ...
                         preParent, preWild);
-                    errordlg(errormsg,'Path Generation Error')
-                    error(errormsg)
+                    if ~PassErrorBack
+                        errordlg(errormsg,'Path Generation Error')
+                        error(errormsg)
+                    else
+                        ErrorCode = errormsg;
+                        return
+                    end
                 end
         end
     end
@@ -305,14 +348,19 @@ if(strcmpi('makedir',mode))
             errormsg=sprintf(['Error -- there was a problem writing the file/directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],OutputTemplate);
-            errordlg(errormsg,'Path Generation Error');
-            error(errormsg);
+            if ~PassErrorBack
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
+            else
+                ErrorCode = errormsg;
+                return
+            end
         end
     end
 end
 %% Make parent path if it doesn't exist (if supposed to)
 if(strcmpi('makeparentdir',mode))
-    [templatepath, templatename, templatext, templateversn] = fileparts(OutputTemplate);
+    [templatepath, templatename, templatext] = fileparts(OutputTemplate);
     if exist(templatepath,'file') == 0
         try
             mkdir(templatepath);
@@ -320,8 +368,13 @@ if(strcmpi('makeparentdir',mode))
             errormsg=sprintf(['Error -- there was a problem making the directory "%s", perhaps you don''t ' ...
                 'have write permissions to the directory that you specified. Confirm that you are ' ...
                 'able to make the directory manually.'],templatepath);
-            errordlg(errormsg,'Path Generation Error');
-            error(errormsg);
+            if ~PassErrorBack
+                errordlg(errormsg,'Path Generation Error')
+                error(errormsg)
+            else
+                ErrorCode = errormsg;
+                return
+            end
         end
     end
 end
@@ -330,9 +383,14 @@ if(strcmpi('check',mode))
     if exist(OutputTemplate,'file') == 0
         errormsg = sprintf(['Error -- it appears that the directory or file "%s" does not exist. ' ...
             'Double check that you haven''t made a typo and that the file actually exists'],OutputTemplate);
-        errordlg(errormsg,'Path Generation Error');
-        error(errormsg)
-
+        if ~PassErrorBack
+            errordlg(errormsg,'Path Generation Error')
+            error(errormsg)
+        else
+            ErrorCode = errormsg;
+            return
+        end
+        
     end
 end
 
