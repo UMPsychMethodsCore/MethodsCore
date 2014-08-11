@@ -11,11 +11,11 @@
     echo 
     echo "  To slice-time correct fmri volumes in runs 1,2,4 you would:"
     echo 
-    echo "     sliceTime -v prun -f func/MSIT -s img/ -n 10 -r 1 -r 2 -r 4 060402rw"
+    echo "     sliceTime -v prun -f func/MSIT -n 10 -# 1 -# 2 -# 4 060402rw"
     echo 
     echo "  To realign fmri volumes in inclusive range of 1-10, do:"
     echo
-    echo "     sliceTime -v prun -f func/MSIT -s img/ -n 10 -i 1-10 060402rw"
+    echo "     sliceTime -v prun -f func/MSIT -n 10 -i 1-10 060402rw"
     echo 
     echo " Current command default configuration is:"
     echo 

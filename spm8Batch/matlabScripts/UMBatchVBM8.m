@@ -1,20 +1,20 @@
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Robert C. Welsh
 % Ann Arbor Michigan, USA
 %
-% March 2005-2011
+% March 2005-2013
 % Copyright.
 %
-% UMBatchWarp
+% UMBatchVBM8
 %
-% A drivable routine for warping some images using the 
-% batch options of spm2.
+% A drivable routine for warping some images using the
+% batch options of spm8.
 %
 % Version 1.0
-% 
+%
 %  Call as :
 %
-%  function results = UMBatchWarpVBM8(ParamImage,TestFlag);
+%  function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName,BIASFIELDFLAG);
 %
 %  To Make this work you need to provide the following input:
 %
@@ -22,7 +22,7 @@
 %     TestFlag         = Flag to test file existance but do nothing.
 %
 %    If the TemplateImage is blank then we are doing "Write Normalized Only"
-%  
+%
 %    If Images2Write is blank then we are doing "Determine Parameters Only"
 %
 %    If ObjectMask = [] or '' then no masking.
@@ -32,7 +32,7 @@
 %    If TestFlag   = 0 then execute, else just test files.
 %
 %  Output
-%  
+%
 %     results        = -1 if failure
 %                       # of seconds to execute.
 %
@@ -41,9 +41,9 @@
 %
 %  You should make call to UMBatchPrep first.
 %
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
+function results = UMBatchVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName,BIASFIELDFLAG)
 
 % Get the defaults from SPM.
 
@@ -58,16 +58,18 @@ global UMBatch
 results = -1;
 
 if isempty(vbm8)
-  if exist('cg_vbm8_defaults') == 0
-    fprintf('\n\n* * * * * * * * * * * * \n\n');
-    fprintf('    FATAL ERROR \n');
-    fprintf('    You do no have the VBM8 toolbox\n');
-    fprintf('\n\n* * * * * * * * * * * * \n\n');
-    return
-  else
-    fprintf('\nConfiguring VBM8 to defaults\n');
-    cg_vbm8_defaults
-  end
+    if exist('cg_vbm8_defaults') == 0
+        fprintf('\n\n* * * * * * * * * * * * \n\n');
+        fprintf('    FATAL ERROR \n');
+        fprintf('    You do no have the VBM8 toolbox\n');
+        fprintf('\n\n* * * * * * * * * * * * \n\n');
+        results = -69;
+        UMCheckFailure(results);
+        return
+    else
+        fprintf('\nConfiguring VBM8 to defaults\n');
+        cg_vbm8_defaults
+    end
 end
 
 % Make the call to prepare the system for batch processing.
@@ -75,8 +77,10 @@ end
 UMBatchPrep
 
 if UMBatch == 0
-  fprintf('UMBatchPrep failed.')
-  return
+    fprintf('UMBatchPrep failed.')
+    results = -70;
+    UMCheckFailure(results);
+    return
 end
 
 % Only proceed if successful.
@@ -85,7 +89,13 @@ fprintf('Entering UMBatchVBM8 V2.0 SPM8 Compatible\n');
 
 if TestFlag~=0
     fprintf('\nTesting only, no work to be done\n\n');
-end 
+end
+
+% make sure the biasfield flag it passed, else default to 0.
+
+if exist('BIASFIELDFLAG') == 0
+    BIASFIELDFLAG=1;
+end
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -93,20 +103,24 @@ end
 % Make sure that the ParamImage is there.
 %
 
-tic;
+ticStart = tic;
 
 if isempty(ParamImage) | exist(ParamImage) == 0
     fprintf('\n\nThe Parameter Image Must EXIST!\n');
     fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -65;
+    UMCheckFailure(results);
     return
 end
 
 % We need to make sure tha the VBM8 toolbox is present.
 
 if exist('spm_vbm8.m') ~= 2
-  fprintf('\n\n* * * * * * MISSING THE VBM8 TOOLBOX * * * * * * \n')
-  fprintf('  * * * A B O R T I N G * * *\n\n');
-  return
+    fprintf('\n\n* * * * * * MISSING THE VBM8 TOOLBOX * * * * * * \n')
+    fprintf('  * * * A B O R T I N G * * *\n\n');
+    results = -69;
+    UMCheckFailure(results);
+    return
 end
 
 clear matlabbatch
@@ -117,20 +131,20 @@ matlabbatch{1}.spm.tools.vbm8.estwrite.output = rmfield(vbm8.output,'surf');
 
 % But now we also turn on ALL native output.
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.native    = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.warped    = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.native    = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.GM.warped    = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.native    = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.warped    = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.native    = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.WM.warped    = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.native   = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.warped   = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.native   = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.CSF.warped   = BIASFIELDFLAG;
 
 matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.native  = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.warped  = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.bias.warped  = BIASFIELDFLAG;
 
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.native = 1;
-matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.warped = 1;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.native = BIASFIELDFLAG;
+matlabbatch{1}.spm.tools.vbm8.estwrite.output.label.warped = BIASFIELDFLAG;
 
 matlabbatch{1}.spm.tools.vbm8.estwrite.output.warps        = [1 0];
 
@@ -142,6 +156,70 @@ matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.sanlm       = 2;
 matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.mrf         = 0.15;
 matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.cleanup     = 1;
 matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.print       = 1;
+
+if exist('vbm8HiRes_options.m','file')
+    %
+    % Okay the options file exists, so we need to read those in and figure out what to do with them
+    %
+    fprintf('Found "vbm8HiRes_options.m", executing that.\n');
+    fprintf('- - - - - - - - - - - - - - - - - - - - - -\n');
+    type vbm8HiRes_options.m
+    try
+        vbm8HiRes_options
+    catch
+        fprintf('\n\n\n * * * * * * FAILURE * * * * * *\n');
+        fprintf('   ABORTING THIS JOB AS YOUR\n');
+        fprintf('   vbm8HiRes_options.m file\n');
+        fprintf('   contains an error\n');
+        fprintf(' * * * * * * FAILURE * * * * * *\n\n\n');  
+        results = -70;
+        UMCheckFailure(results);
+        return
+    end
+    fprintf('- - - - - - - - - - - - - - - - - - - - - -\n');
+    %
+    % Now see if they put in opts?
+    %
+    if exist('opts','var');
+        if isfield('opts','biasreg')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.biasreg = opts.biasreg;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.biasreg    = %f\n',opts.biasreg);
+        end
+        if isfield('opts','biasfwhm')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.biasfwhm = opts.biasfwhm;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.biasfwhm   = %f\n',opts.biasfwhm);
+        end
+        if isfield('opts','affreg')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.affreg = opts.affreg;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.affreg     = %s\n',opts.affreg);
+        end
+        if isfield('opts','warpreg')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.warpreg = opts.warpreg;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.warpreg    = %d\n',opts.warpreg);
+        end
+        if isfield('opts','samp')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.opts.samp = opts.samp;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.opts.samp       = %d\n',opts.samp);
+        end
+    end
+    %
+    % Now see if they put in extopts?
+    %
+    if exist('extopts','var');
+        if isfield('extopts','sanlm')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.sanlm = extopts.sanlm;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.sanlm   = %d\n',extopts.sanlm);
+        end
+        if isfield('extopts','mrf')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.mrf = extopts.mrf;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.mrf     = %f\n',extopts.mrf);
+        end
+        if isfield('extopts','cleanup')
+            matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.cleanup = extopts.cleanup;
+            fprintf('Using option matlabbatch{1}.spm.tools.vbm8.estwrite.extopts.cleanup = %d\n',extopts.cleanup);
+        end
+    end
+end
 
 % Now call the batch manager.
 
@@ -208,36 +286,40 @@ UMBatchLogProcess(ParamImageDirectory,sprintf('UMBatchVBM8 : VBM8 created skull 
 % different.
 
 if exist(ReferenceImage) | VoxelSize(1) > 0 | strcmp(OutputName,'w')==0
-  %
-  % Okay looks like they want us to override what they have, so we
-  % need to build a list and then pass on to UMBatchWarpVBM8
-  %
-  % The images to warp are [ParamImage], bet_[ParamImage],
-  % p0_[ParamImage], p1_[ParamImage], and p2_[ParamImage];
-  %
-  IMAGELIST={'','m','bet_','p0','p1','p2','p3'};
-  PList = [];
-  for iP = 1:length(IMAGELIST)
-    Pthis = spm_select('ExtFPList',ParamImageDirectory,sprintf('^%s%s.nii',IMAGELIST{iP},ParamImageName),[1 inf]);
-    PList = strvcat(PList,Pthis);
-  end
-  results = UMBatchWarpVBM8(ParamImage,ReferenceImage,PList,TestFlag,VoxelSize,OutputName);
-  UMCheckFailure(results);
+    %
+    % Okay looks like they want us to override what they have, so we
+    % need to build a list and then pass on to UMBatchWarpVBM8
+    %
+    % The images to warp are [ParamImage], bet_[ParamImage],
+    % p0_[ParamImage], p1_[ParamImage], and p2_[ParamImage];
+    %
+    IMAGELIST={'','m','bet_','p0','p1','p2','p3'};
+    PList = [];
+    for iP = 1:length(IMAGELIST)
+        Pthis = spm_select('ExtFPList',ParamImageDirectory,sprintf('^%s%s.nii',IMAGELIST{iP},ParamImageName),[1 inf]);
+        PList = strvcat(PList,Pthis);
+    end
+    results = UMBatchWarpVBM8(ParamImage,ReferenceImage,PList,TestFlag,VoxelSize,OutputName);
+    if UMCheckFailure(results)
+        return;
+    end
 end
 
 % Now warp other images that might be speficied.
 
 if length(Img2Write) > 0
-  results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
-  UMCheckFailure(results);
+    results = UMBatchWarpVBM8(ParamImage,ReferenceImage,Img2Write,TestFlag,VoxelSize,OutputName);
+    if UMCheckFailure(results)
+        return
+    end
 end
 
 clear matlabbatch
-    
+
 % Set the flag to the amount of time to execute.
 %
 
-results = toc;
+results = toc(ticStart);
 
 fprintf('Deformation finished in %f seconds\n',results);
 

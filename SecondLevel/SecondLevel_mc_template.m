@@ -135,7 +135,7 @@ spmdefaults = {
 
 
 
-
+global mcRoot
 %DEVSTART
 mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 %DEVSTOP

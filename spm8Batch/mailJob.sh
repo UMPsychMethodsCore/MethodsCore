@@ -15,11 +15,11 @@ thisDir=`dirname $theCommand`
 # a command to mail myself something.
 #
 
-if [ "$#" -lt "3" ] 
+if [ "$#" -lt "4" ] 
 then
     USERNAME=${DEFAULTUSER}
 else
-    USERNAME=$3
+    USERNAME=$4
 fi
 
 ATSIGN=`echo ${USERNAME} | grep "@"`
@@ -29,11 +29,20 @@ then
 else
     EMAILDEST="${USERNAME}"
 fi
-    
-echo "theDate=\`date\`"                                          >> $2
-echo "mail -s 'spm8Batch:$1' ${EMAILDEST} <<EOF"                 >> $2
-echo "$1 job finished at \${theDate} on host ${HOSTNAME}"        >> $2
-echo "EOF"                                                       >> $2
+
+# Get the job status
+
+if [ -z "$3" ] 
+then
+    JOBSTATUS=SUCCESSFUL
+else
+    JOBSTATUS=$3
+fi
+
+echo "theDate=\`date\`"                                                  >> $2
+echo "mail -s 'spm8Batch:$1:${JOBSTATUS}' ${EMAILDEST} <<EOF"            >> $2
+echo "$1 job status:${JOBSTATUS} at \${theDate} on host ${HOSTNAME}"     >> $2
+echo "EOF"                                                               >> $2
 
 # 
 # all done
