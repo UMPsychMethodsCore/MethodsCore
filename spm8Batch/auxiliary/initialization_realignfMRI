@@ -7,7 +7,18 @@ volumeWILD=aprun
 
 FSL_COMMENT_B="Realigning subject"
 
+FSL_COMMAND=mcflirt
+
 outputName=r
+
+# and we set the name of the name for the reference image. 
+# we will use the setOtherNames variables so we can reuse the code 
+# and option.
+
+REFVOLNAME=realignRefVolume
+
+otherName[$iother]=${REFVOLNAME}
+let iother++
 
 #
 # all done

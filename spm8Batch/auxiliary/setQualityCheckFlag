@@ -1,0 +1,4 @@
+
+# The user wants to run the script in "Quality Check" mode. The meaning of this may vary depending on the script
+
+QUALITYCHECKFLAG=1

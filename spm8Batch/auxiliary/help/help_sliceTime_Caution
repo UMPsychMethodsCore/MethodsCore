@@ -1,0 +1,21 @@
+echo
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo
+echo
+echo "           You are invoking the FSL based slice time correction method"
+echo 
+echo "           The recommended slice time correction method is SPM8 based"
+echo "           which you can access with 'sliceTime8'"
+echo
+echo "           If you want to use 'sliceTime' you must add the '-!' flag"
+echo
+echo "           Contact MethodsCoreHelp (at) umich (dot) edu for more information" 
+echo
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+echo

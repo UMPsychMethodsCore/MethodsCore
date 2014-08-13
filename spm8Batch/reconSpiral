@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# command to reconstruct spiral images from pFiles
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main reconstruction function.
+#
+
+VERSION="1.0"
+VERSIONDATE="2012-08-20"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+allowedOptions="BDdfMNvz"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# This is the common in-line code for the reconstruction.
+. ${thisDir}/auxiliary/commonCode_reconSpiral
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# First we need to check to make sure that everything we are being asked to do can be accomplished
+. ${thisDir}/auxiliary/checkFuncDir
+
+# First we need to check to make sure that everything we are being asked to do can be accomplished
+. ${thisDir}/auxiliary/checkPfiles
+
+# Ok, lets do the business.
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Now start building the automatic scripts.
+
+#
+# the following environmental variables are from spm8Batch_Global
+#
+#    HOSTCOMPUTER     - name of the computer.
+#    SCRIPTNAME       - name of the scripts to write.
+#    MATLABDIR        - location of the scripts.
+#    UMBatchMaster    - present working directory.
+#    FULLSCRIPTNAME   - full path and name of scripts to write.
+# 
+
+. ${thisDir}/auxiliary/recon_part_01
+
+echo "    4) finalizing matlab scripts"
+
+cat ${thisDir}/parts/recon_part_02.m                       >> ${FULLSCRIPTNAME}.m
+
+echo "    5) building shell script"
+echo
+
+# Now build the shell script command that will get launched into the background.
+
+# Common start to all shell scripts
+. ${thisDir}/auxiliary/shellScriptStart
+
+# Add the matlab code to the shell script
+
+. ${thisDir}/auxiliary/shellScriptMATLABCall
+
+# Finalize the shell script.
+
+. ${thisDir}/auxiliary/shellScriptFinalize
+
+# Now launch into the background if desired.
+
+. ${thisDir}/auxiliary/shellScriptLaunch
+
+#
+# all done.
+#
