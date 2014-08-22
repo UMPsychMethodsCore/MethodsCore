@@ -1,4 +1,4 @@
-function [ deg,glodeg,strength,glostr ] = degrees_wei( CIJ )
+function [ deg,glodeg,strength ] = degrees_wei( CIJ )
 %DEGREE_WEI Summary of this function goes here
 %   
 
@@ -23,7 +23,6 @@ deg = sum(CIJ);
 %%% @Yu: Add a part of computing global degree
 n = length(CIJ);
 glodeg = sum(deg)/n;
-glostr = sum(strength)/n;
 
 end
 
