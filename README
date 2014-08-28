@@ -35,6 +35,25 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+3/28/2014  - Release 1.9
+	     This release adds the GraphTheory toolbox to perform graph theoretic analyses on connectome data.
+
+2/7/2014   - Release 1.8
+	     This release adds enhancements to ConnTool, including the ability to perform ALFF and fALFF analyses.
+
+11/20/2013 - Release 1.7
+	     This release adds an advanced tool (svmbatch) to support Paired SVM Analyses.
+
+10/1/2013  - Release 1.6
+             This release adds a tool (ConnTool) to support Connectivity Analyses.
+
+5/8/2013   - Release 1.5
+             This release adds tools to support both standard and generalized
+             PPI. These scripts can be found in the PPI directory.
+             They include batched and automated VOI extration, automated
+             generation of PPI regressors for multiple ROIs, and modifications
+             to FirstLevel template script for easier loading of multiple
+             subject-specific regressor files at the first level.
 
 4/8/2013   - Release 1.4
              This release adds scripts for quality checking during preprocessing.
@@ -42,6 +61,7 @@ Release Notes:
              Minor revisions were made to spm8Batch including the ability to use 
              SPMs New Segment instead of VBM, as well as extracting principle 
              components from white matter and CSF segments.
+
 2/13/2013  - Release 1.3
              This release adds scripts to extract betas from SPM designs in the
              ROIScripts folder.
