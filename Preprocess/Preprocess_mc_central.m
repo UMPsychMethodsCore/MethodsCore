@@ -226,6 +226,7 @@ if (Processing(1) == 1)
                 mc_Error('You have specified an incorrect number of custom tissue probability map files.\n''seg'' requires only 1.');
             end
             CustomTPMs{1} = mc_GenPath(CustomTPMs{1});
+            vbm.estwrite.opts.tpm = CustomTPMs;
         elseif (strcmp(NormMethod,'spmseg'))
             if (size(CustomTPMs,1) ~=3)
                 mc_Error('You have specified an incorrect number of custom tissue probability map files.\n''spmseg'' requires 3.');
@@ -238,6 +239,16 @@ if (Processing(1) == 1)
         end
         preproc.opts.tpm = CustomTPMs;
     end
+    
+    if (exist('CustomDARTEL','var') && ~isempty(CustomDARTEL))
+        if (strcmp(NormMethod,'seg'))
+            CustomDARTEL{1} = mc_GenPath(CustomDARTEL{1});
+            vbm.estwrite.extopts.dartelwarp.normhigh.darteltpm = CustomDARTEL;
+        else
+            mc_Logger('log','You have specified a custom DARTEL template but are not using ''seg'' normalization, so it will be ignored.',2);
+        end    
+    end
+    
     
     smooth = defaults.smooth;
 	smooth.data = {};

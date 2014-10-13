@@ -241,6 +241,14 @@ CustomTPMs = {
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% This setting allows use of a customized DARTEL template when using
+%%% NormMethod='seg'. This should point to the first template image (of
+%%% the 6 progressive templates), i.e. Template_1*.nii.
+%%% Leaving this blank will use the default (VBM8 provided) template.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+CustomDARTEL = {''};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SPM Default Values for First Level analysis
 %%% this is set up as a cell array where each row corresponds to a default
 %%% value in SPM.  The first element is a string with the name of the
