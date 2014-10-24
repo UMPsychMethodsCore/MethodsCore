@@ -97,7 +97,7 @@ function Sess = FL_CheckRunConditions(Subject, Run, Sess, opt)
 
                     fprintf(1, msg);
                     mc_Logger('log', msg, 2);
-                    Sess.cond(CondForPar).pmod(ParIndex).param = [];
+                    Sess.cond(i).pmod(k).param = [];
                     continue;
                 end
 
