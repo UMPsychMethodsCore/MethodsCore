@@ -78,7 +78,7 @@ switch class(MDFInclude.(MDF.Subject))
         Names = MDFInclude.(MDF.Subject);
 end  
 
-Names = cellfun(@(x) x(1:7),Names,'UniformOutput',false);
+Names = cellfun(@(x) x(1:length(Names{1})),Names,'UniformOutput',false);
 Types = char(MDFInclude.(MDF.Type));
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -215,13 +215,13 @@ end
                 
     end
     
-    %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
 %%% Data cleansing
 %%%%%%%%%%%%%%%%%%%%%%%
 if graph.cleansing
     des.csvpath=MDF.path;
     des.IncludeCol=MDF.include;
-    cleansed=cleanse(des,cvals,SubjWiseTemp,EdgeField);    
+    cleansed=cleanse(mcRoot,des,cvals,SubjWiseTemp,EdgeField,Exp,NamePre);    
 end
     
 for Sub = 1:nSub

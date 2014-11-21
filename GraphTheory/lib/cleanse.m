@@ -1,6 +1,6 @@
-function cleansed=cleanse(des,cvals,SubjWiseTemp,EdgeField)
+function cleansed=cleanse(mcRoot,des,cvals,SubjWiseTemp,EdgeField,Exp,NamePre)
 
-mcRoot = '~/users/yfang/MethodsCore/';
+% mcRoot = '~/users/yfang/MethodsCore/';
 % DKinit
 
 
@@ -21,7 +21,7 @@ end
 s = load(FixedFxPath);
 
 % clean it since Yu did not arrange them by session
-s.subs = cellfun(@(x) x(1:7),s.subs,'UniformOutput',false);
+s.subs = cellfun(@(x) x(1:length(s.subs{1})),s.subs,'UniformOutput',false);
 
 %% load your data
 
@@ -29,6 +29,7 @@ s.subs = cellfun(@(x) x(1:7),s.subs,'UniformOutput',false);
 
 for iSub=1:length(s.subs)
     Subject=s.subs{iSub};
+    Subject=strcat(NamePre,Subject);
     disp(Subject);
     SubjWiseFile   = load(mc_GenPath(struct('Template',SubjWiseTemp,'mode','check')));
     SubjWiseEdgePath   = mc_GenPath('SubjWiseFile.[EdgeField]');
