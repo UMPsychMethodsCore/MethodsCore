@@ -210,7 +210,7 @@ function RegMatrix = addDerivatives(Subject, Run, RegFile, Order, RegMatrix)
             for iRegMatrix = 1:size(tmpRegMatrix, 2)
     
                 tmpDeriv = diff( tmpRegMatrix(:, iRegMatrix) );
-                tmpDeriv = resample(tmpDeriv, NumVolumes, length(tmpDeriv));
+                tmpDeriv = resample(tmpDeriv, NumVolumes, length(tmpDeriv)); %rather than resampling the derivative here, it would probably make more sense to either 0-pad, or use an average of the forward and backward differences (on a vector, the gradient function should do this)
     
                 % check to make sure derivative is not a constant now
                 if all( tmpDeriv(1) == tmpDeriv ) == 0
