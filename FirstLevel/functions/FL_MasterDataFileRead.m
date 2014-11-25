@@ -192,7 +192,7 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
             end
 
             % check all values read are valid
-            if any( isnan(AllData(i, :)) ) == 1
+            if any( isnan(AllData(i, :)) ) == 2 %The current first level script allows for NaN values, these would be skipped/unmodelled conditions. This makes it easy to model a task several different ways with a single master data file, so if possible we'd like to preserve that behavior. I didn't extensively test, but just skipping this check seems to maintain that.
                 msg = sprintf(['Invalid data file : %s line %d\n'...
                                'Check to make sure all headers begin with ''#''.\n'...
                                'Check if the run, condtion, onsets, duration, and parametric regressors columns were assigned correctly.\n'], MasterDataFile, i);

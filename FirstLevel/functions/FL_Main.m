@@ -79,10 +79,10 @@ function opt = CheckOpt(opt)
 
     % handle ConditionModifier
     if opt.ConditionModifier > 0
-        if opt.ConditionModifier >= size(ConditionName, 1)
+        if opt.ConditionModifier >= size(opt.ConditionName, 1)
             error('ERROR: ConditionModifier should strictly be less than the number of conditions present.');
         end
-        opt.ConditionName = opt.ConditionName(1:opt.ConditionModifier);
+        opt.ConditionName = opt.ConditionName(1:end-opt.ConditionModifier); %edited here because the help for ConditionModifier indicates it drops the last N conditions from the model, not that it only keeps N conditions.
     end
 
     % simple check for IdenticalModels and TotalTrials
@@ -118,10 +118,10 @@ function opt = CheckOpt(opt)
     end
 
     % handle contrasts
-    if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
+    if (size(opt.ConditionName, 1) + 2 + opt.ConditionModifier) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
         NumCond = size(opt.ConditionName, 1);
         NumContrastCols = size(opt.ContrastList, 2);
-        msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
+        msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2 + opt.ConditionModifier, NumContrastCols); %should this modify for ConditionModifier as well, or are we assuming that those columns would not be included in ContrastList
         error('%s', msg);
     end
 
