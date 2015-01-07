@@ -318,6 +318,11 @@ ExplicitMask = '';
 usear1 = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% High pass filter cutoff value in seconds
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+hpf = 128;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The main default that impacts first level analysis is the implicit 
 %%% masking threshold. The default is 0.8 which means that voxels that have
 %%% a value of less than 80% of the grand mean will be masked out of the

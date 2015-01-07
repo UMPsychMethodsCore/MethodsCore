@@ -62,7 +62,7 @@ function FL_Run(AllSubjects, opt)
                 matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m).val = AllSubjects(i).sess(k).regress(m).val;
             end
 
-            matlabbatch{1}.spm.stats.fmri_spec.sess(k).hpf = 128;
+            matlabbatch{1}.spm.stats.fmri_spec.sess(k).hpf = opt.hpf;
         end
 
         matlabbatch{1}.spm.stats.fmri_spec.fact = struct('name', {}, 'levels', {});

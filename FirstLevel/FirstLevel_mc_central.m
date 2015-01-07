@@ -57,6 +57,7 @@ else
     
         opt.UseSandbox = UseSandbox;
         % opt.CompCorTemplate = CompCorTemplate;
+        opt.hpf = hpf;
     catch err
         
         msg = sprintf('Not all required variables were assigned in the template file.\n');
