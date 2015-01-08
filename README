@@ -35,6 +35,17 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+3/28/2014  - Release 1.9
+	     This release adds the GraphTheory toolbox to perform graph theoretic analyses on connectome data.
+
+2/7/2014   - Release 1.8
+	     This release adds enhancements to ConnTool, including the ability to perform ALFF and fALFF analyses.
+
+11/20/2013 - Release 1.7
+	     This release adds an advanced tool (svmbatch) to support Paired SVM Analyses.
+
+10/1/2013  - Release 1.6
+             This release adds a tool (ConnTool) to support Connectivity Analyses.
 
 5/8/2013   - Release 1.5
              This release adds tools to support both standard and generalized

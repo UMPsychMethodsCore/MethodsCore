@@ -60,6 +60,11 @@ Opt.OutlierText = '/zubdata/oracle7/Researchers/heffjos/TestSubject/scan_detecte
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.Thresh = 4;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Path where your logfiles will be stored
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opt.LogTemplate = '[Exp]/CheckFrame/Logs';
+
 global mcRoot;
 %DEVSTART
 mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';

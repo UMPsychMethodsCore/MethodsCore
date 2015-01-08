@@ -122,6 +122,8 @@ for ijob = 1 : size(ExtractionJobs,1)
         display(sprintf('I will use this ROI: %s', roi_file));
     end;
 
+    
+
 
 
 
@@ -185,6 +187,13 @@ for ijob = 1 : size(ExtractionJobs,1)
     CombinedData{iCol} = num2str(y);
     iCol=iCol+1;
     SPMPrevious.SPM.xY.P=SPMData.SPM.xY.P;
+
+    % now log the usage
+    str = sprintf('spm_file:%s ROIScripts complete\n', spm_name);
+    UsageResult = mc_Usage(str, 'ROIScripts');
+    if ~UsageResult
+        mc_Logger('log', 'Unable to wrtie some usage information');
+    end
 end % loop through extraction jobs
 
 
