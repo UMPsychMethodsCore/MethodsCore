@@ -193,7 +193,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                 if (MotionDeriv)
                     RealignmentParametersQuad = [RealignmentParameters RealignmentParametersDerivR].^2;
                 else
-                    RealignmentParametersQuad = RealignmenParameters.^2;
+                    RealignmentParametersQuad = RealignmentParameters.^2;
                 end
 
                 parameters.data.run(iRun).MotionParameters = [RealignmentParameters];
