@@ -246,7 +246,7 @@ CustomTPMs = {
 %%% the 6 progressive templates), i.e. Template_1*.nii.
 %%% Leaving this blank will use the default (VBM8 provided) template.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CustomDARTEL = {''};
+CustomDARTEL = {};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SPM Default Values for First Level analysis

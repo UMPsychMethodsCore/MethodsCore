@@ -241,12 +241,14 @@ if (Processing(1) == 1)
     end
     
     if (exist('CustomDARTEL','var') && ~isempty(CustomDARTEL))
-        if (strcmp(NormMethod,'seg'))
-            CustomDARTEL{1} = mc_GenPath(CustomDARTEL{1});
-            vbm.estwrite.extopts.dartelwarp.normhigh.darteltpm = CustomDARTEL;
-        else
-            mc_Logger('log','You have specified a custom DARTEL template but are not using ''seg'' normalization, so it will be ignored.',2);
-        end    
+        if (~isempty(CustomDARTEL{1}))
+            if (strcmp(NormMethod,'seg'))
+                CustomDARTEL{1} = mc_GenPath(CustomDARTEL{1});
+                vbm.estwrite.extopts.dartelwarp.normhigh.darteltpm = CustomDARTEL;
+            else
+                mc_Logger('log','You have specified a custom DARTEL template but are not using ''seg'' normalization, so it will be ignored.',2);
+            end    
+        end
     end
     
     
