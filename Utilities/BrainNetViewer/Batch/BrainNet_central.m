@@ -1,9 +1,9 @@
 if strcmp(BrainVol,'')
-    BrainVol = fullfile(mcRoot,'svmbatch','lib','BrainNetViewer','Data','SurfTemplate','BrainMesh_Ch2withCerebellum.nv');
+    BrainVol = fullfile(mcRoot,'Utilities','BrainNetViewer','Data','SurfTemplate','BrainMesh_Ch2withCerebellum.nv');
 end
 
 if strcmp(CfgFile,'')
-    CfgFile = fullfile(mcRoot,'svmbatch','lib','BrainNetViewer','Data','Brain_AAL_Nodes_Edges_edited.mat');
+    CfgFile = fullfile(mcRoot,'Utilities','BrainNetViewer','Data','Brain_AAL_Nodes_Edges_edited.mat');
 end
 
 for iC = 1:size(Files,1)

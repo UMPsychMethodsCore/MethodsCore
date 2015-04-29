@@ -201,21 +201,44 @@ surf.sphere(outlier_rois,[1 3])=repmat(ind.edit.ant(i,:),length(outlier_rois),1)
 end
 end
 
-save_view={'lateral','superior','anterior'};
-for i=1:3
-    EC.lot.view_direction=i;
+%save_view={'lateral','superior','anterior'};
+for i=1:size(ind.view_direction,2)
+    EC.lot.view_direction=ind.view_direction(i);
+    if (ind.view_direction(i)==4)
+        EC.lot.view_az = ind.view_az(i);
+        EC.lot.view_el = ind.view_el(i);    
+    end
+    switch (ind.view_direction(i))
+        case 1
+            save_view = 'lateral';
+        case 2
+            save_view = 'superior';
+        case 3
+            save_view = 'anterior';
+        case 4
+            save_view = sprintf('az%d_el%d',ind.view_az(i),ind.view_el(i));
+    end
     EC.edg.CM=zeros(max(ind.CM(:,1)),3);
     EC.edg.CM(ind.CM(:,1),:)=ind.CM(:,2:4);
     % Draw
     set(H_BrainNet,'handlevisib','on');
     BrainNet('NV_m_nm_Callback',H_BrainNet);
-    PicFileName=sprintf('%s/%s_%s.bmp',path,fname,save_view{i});
+    if (ind.hires)
+        picext = 'eps';
+    else
+        picext = 'bmp';
+    end
+    PicFileName=sprintf('%s/%s_%s.%s',path,fname,save_view,picext);
     % Save to image
-    if ~isempty(PicFileEnable)
+    if ~isempty(PicFileEnable) && ind.savepic==1
         [pathstr, name, ext] = fileparts(PicFileName);
         set(H_BrainNet, 'PaperPositionMode', 'manual');
         set(H_BrainNet, 'PaperUnits', 'inch');
         set(H_BrainNet,'Paperposition',[1 1 EC.img.width/EC.img.dpi EC.img.height/EC.img.dpi]);
-        print(H_BrainNet,PicFileName,'-dbmp',['-r',num2str(EC.img.dpi)]);
+        if (ind.hires)
+            print(H_BrainNet,PicFileName,'-depsc2','-r600','-loose');
+        else
+            print(H_BrainNet,PicFileName,'-dbmp',['-r',num2str(EC.img.dpi)]);
+        end
     end
 end
