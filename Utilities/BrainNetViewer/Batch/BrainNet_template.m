@@ -29,7 +29,7 @@
 % Where do all of the edge and node files live? %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Exp = '/home/slab/mnt/psyche/net/data4/slab/MAS_Resting/SVM/ReviewReply/NoBinZ_500';
+Exp = '/freewill/data/Heitzeg/ICA/GoNoGo_Maturation/FullSample/ADHD/Grant/LMEpost_Resting_agecleansed/BNV/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Which node/edge files do you want to draw? Provide a cell %
@@ -39,8 +39,8 @@ Exp = '/home/slab/mnt/psyche/net/data4/slab/MAS_Resting/SVM/ReviewReply/NoBinZ_5
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Files = {
-    'Default-Somatomotor';
-    'Somatomotor-VentralAttnStriatumDefaultVisual';
+    'Comp01_VN';
+    'Comp03_DMN';
     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -134,19 +134,30 @@ ind.orig.ant=[-66, 48;
 % Anterior View Corrected
 ind.edit.ant=[-63, 48;
      63,  48;];
+
  
+ind.view_direction = [4 1 2 3]; %default 3 views, for custom use 4
+ind.view_az = [140];
+ind.view_el = [20];
+
+ind.savepic = 1; %0= don't save, 1=save
+ind.hires = 0; %0=bmp, 1=600dpi EPS file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DO NOT EDIT BELOW THIS LINE %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+mcRoot = '~/users/kesslderd/repos/MethodsCore';
+addpath(genpath(fullfile(mcRoot,'matlabScripts')))
+addpath(genpath(fullfile(mcRoot,'svmbatch')))
+
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..');
+mcRoot = '~/users/mangstad/repos/MethodsCore';
 %DEVSTOP
 
 %[DEVmcRootAssign]
 
 addpath(genpath(fullfile(mcRoot,'matlabScripts')))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
-
+addpath(genpath(fullfile(mcRoot,'Utilities')));
 
 BrainNet_central;
