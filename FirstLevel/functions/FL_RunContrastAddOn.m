@@ -30,8 +30,12 @@ function FL_RunContrastAddOn(Subjects, opt)
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = 1;
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             else
-                                 
-                matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                
+                if opt.VarianceWeighting == 0                 
+                    matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                else
+                    matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{1}{k, 1};
+                end
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = Subjects(i).contrasts(k, :);
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             end

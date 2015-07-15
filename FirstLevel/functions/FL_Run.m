@@ -119,7 +119,11 @@ function FL_Run(AllSubjects, opt)
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             else
 
-                matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                if opt.VarianceWeighting == 0
+                    matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                else 
+                    matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{1}{k, 1};
+                end
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.convec = AllSubjects(i).contrasts(k, :);
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             end

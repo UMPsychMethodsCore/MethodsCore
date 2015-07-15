@@ -162,7 +162,10 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
         end
 
         % create contrast for whole subject
-        AllSubjects(i).contrasts = FL_SetSubjectContrasts(i, opt, AllSubjects(i));
-    end
+        if opt.VarianceWeighting == 0
+            AllSubjects(i).contrasts = FL_SetSubjectContrasts(i, opt, AllSubjects(i));
+        else
+            AllSubjects(i).contrasts = FL_QuickVarianceWeight(i, opt, AllSubjects(i));
+        end
 
 end

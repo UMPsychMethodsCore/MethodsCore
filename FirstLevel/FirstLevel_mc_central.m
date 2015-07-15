@@ -65,6 +65,12 @@ else
         error('%s%s%s', msg, msg2, err.message);
     
     end
+
+    if exist('VarianceWeighting', 'var') == 0
+        opt.VarianceWeighting = 0;
+    else
+        opt.VarianceWeighting = VarianceWeighting;
+    end
         
     FL_Main(opt);
 end

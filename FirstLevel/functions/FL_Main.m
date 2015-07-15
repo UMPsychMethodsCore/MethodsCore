@@ -118,12 +118,13 @@ function opt = CheckOpt(opt)
     end
 
     % handle contrasts
-    if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
-        NumCond = size(opt.ConditionName, 1);
-        NumContrastCols = size(opt.ContrastList, 2);
-        msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
-        error('%s', msg);
-    end
+    if opt.VarianceWeighting == 0
+        if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
+            NumCond = size(opt.ConditionName, 1);
+            NumContrastCols = size(opt.ContrastList, 2);
+            msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
+            error('%s', msg);
+        end
 
     % check contrast vectors are correct
     BasesPerCondition = zeros( size(opt.ConditionName, 1), 1 );
