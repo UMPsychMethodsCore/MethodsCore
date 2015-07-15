@@ -133,8 +133,6 @@ function FL_Run(AllSubjects, opt)
         % save matlabbatch job
         save(fullfile(OutputDir, 'JobFile.mat'), 'matlabbatch');
 
-        spm_jobman('initcfg');
-        spm('defaults', 'FMRI');
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 

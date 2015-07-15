@@ -13,6 +13,11 @@ function FL_Main(opt)
     Subjects = FL_CreateAllSubjects(opt, SubjectMasterData);
     fprintf(1, '~~~Done creating all subjects~~~\n\n');
 
+    % set spm defaults before running anything
+    spm('defaults', 'FMRI');
+    spm_jobman('initcfg');
+    mc_SetSPMDefaults(opt.SpmDefaults);
+
     if opt.Mode == 1
         fprintf(1, '~~~Running first level for all subjects~~~\n\n');
         FL_Run(Subjects, opt);
