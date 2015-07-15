@@ -131,62 +131,63 @@ function opt = CheckOpt(opt)
             error('%s', msg);
         end
 
-    % check contrast vectors are correct
-    BasesPerCondition = zeros( size(opt.ConditionName, 1), 1 );
-    if strcmp(opt.Basis, 'hrf') == 1
-        if opt.HrfDerivative == 0
-            opt.NumBases = 1;
-        elseif opt.HrfDerivative == 1
-            opt.NumBases = 2;
-        elseif opt.HrfDerivative == 2
-            opt.NumBases = 3;
+        % check contrast vectors are correct
+        BasesPerCondition = zeros( size(opt.ConditionName, 1), 1 );
+        if strcmp(opt.Basis, 'hrf') == 1
+            if opt.HrfDerivative == 0
+                opt.NumBases = 1;
+            elseif opt.HrfDerivative == 1
+                opt.NumBases = 2;
+            elseif opt.HrfDerivative == 2
+                opt.NumBases = 3;
+            else
+                error(['Invalid HrfDerivative value.  This should never happen.']);
+            end
+        elseif strcmp(opt.Basis, 'fir') == 1
+            opt.NumBases = opt.FirBins;
         else
-            error(['Invalid HrfDerivative value.  This should never happen.']);
+            error(['Invalid Basis value.  This should never happen.']);
         end
-    elseif strcmp(opt.Basis, 'fir') == 1
-        opt.NumBases = opt.FirBins;
-    else
-        error(['Invalid Basis value.  This should never happen.']);
-    end
 
-    BasesPerCondition = BasesPerCondition + opt.NumBases;
-    
-    for i = 1:size(opt.ParametricList)
-        CondNum = opt.ParametricList{i, 3};
+        BasesPerCondition = BasesPerCondition + opt.NumBases;
         
-        BasesPerCondition(CondNum) = BasesPerCondition(CondNum) + opt.NumBases * opt.ParametricList{i, 4};
-    end
+        for i = 1:size(opt.ParametricList)
+            CondNum = opt.ParametricList{i, 3};
+            
+            BasesPerCondition(CondNum) = BasesPerCondition(CondNum) + opt.NumBases * opt.ParametricList{i, 4};
+        end
 
-    for i = 1:size(opt.ContrastList, 1)
+        for i = 1:size(opt.ContrastList, 1)
+            
+            for k = 1:length(BasesPerCondition)
+
+                userConditionLength = length(opt.ContrastList{i, k+1});
+
+                if userConditionLength ~= BasesPerCondition(k)
+                    error(['ERROR: In ContrastList, row %d for condition number %d for condition name %s.\n' ...
+                           '       The vector for this condition is invalid.  Expected %d weights but found %d.\n'], ...
+                           i, k, opt.ContrastList{k}, BasesPerCondition(k), userConditionLength);
+                end
+
+            end
         
-        for k = 1:length(BasesPerCondition)
+        end 
 
-            userConditionLength = length(opt.ContrastList{i, k+1});
-
-            if userConditionLength ~= BasesPerCondition(k)
-                error(['ERROR: In ContrastList, row %d for condition number %d for condition name %s.\n' ...
-                       '       The vector for this condition is invalid.  Expected %d weights but found %d.\n'], ...
-                       i, k, opt.ContrastList{k}, BasesPerCondition(k), userConditionLength);
+        % using BasesPerCondition let's make FIR contrast list if we need to
+        if strcmp(opt.Basis, 'fir') == 1 && opt.FirDoContrasts == 1
+            DummyRow = cell(1, length(BasesPerCondition) + 1);
+            for i = 1:length(BasesPerCondition)
+                DummyRow{1, i} = zeros(1, BasesPerCondition(i));
             end
 
-        end
-    
-    end 
-
-    % using BasesPerCondition let's make FIR contrast list if we need to
-    if strcmp(opt.Basis, 'fir') == 1 && opt.FirDoContrasts == 1
-        DummyRow = cell(1, length(BasesPerCondition) + 1);
-        for i = 1:length(BasesPerCondition)
-            DummyRow{1, i} = zeros(1, BasesPerCondition(i));
-        end
-
-        for i = 1:length(BasesPerCondition)
-            for k = 1:opt.FirBins
-                InsertRow = DummyRow;
-                InsertRow{1, i}(k) = 1;
-                TmpCondName = sprintf('%sBin%02d', opt.ConditionName{i}, k);
-                InsertRow = [TmpCondName InsertRow];
-                opt.ContrastList = [opt.ContrastList; InsertRow];
+            for i = 1:length(BasesPerCondition)
+                for k = 1:opt.FirBins
+                    InsertRow = DummyRow;
+                    InsertRow{1, i}(k) = 1;
+                    TmpCondName = sprintf('%sBin%02d', opt.ConditionName{i}, k);
+                    InsertRow = [TmpCondName InsertRow];
+                    opt.ContrastList = [opt.ContrastList; InsertRow];
+                end
             end
         end
     end
