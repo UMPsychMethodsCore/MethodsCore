@@ -168,4 +168,13 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
             AllSubjects(i).contrasts = FL_QuickVarianceWeight(i, opt, AllSubjects(i));
         end
 
+        % assign explicit mask
+        if ~isempty(opt.ExplicitMask)
+            mcgp.Template = opt.ExplicitMask;
+            mcgp.mode = 'check';
+            AllSubjects(i).mask = mc_GenPath(mcgp);
+        else
+            AllSubjects(i).mask = '';
+        end
+    end
 end

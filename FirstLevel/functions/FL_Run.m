@@ -87,7 +87,7 @@ function FL_Run(AllSubjects, opt)
             
         matlabbatch{1}.spm.stats.fmri_spec.volt = 1;
         matlabbatch{1}.spm.stats.fmri_spec.global = opt.ScaleOp;
-        matlabbatch{1}.spm.stats.fmri_spec.mask = { opt.ExplicitMask };
+        matlabbatch{1}.spm.stats.fmri_spec.mask = { AllSubjects(i).mask };
         
         if opt.usear1 == 1
             matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';

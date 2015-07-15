@@ -309,6 +309,14 @@ ScaleOp = 'None';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leave this blank ('') to turn off explicit masking
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp      = path to your experiment directory
+%%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%% Examples:
+%%% ExplicitMask = '[Exp]/Subjects/[Subject]/mask.nii';
+%%% ExplicitMask = '/MethodsCore/ConnTool/Templates/3mm_mask.nii'
+%%% ExplicitMask = '';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ExplicitMask = '';
 
