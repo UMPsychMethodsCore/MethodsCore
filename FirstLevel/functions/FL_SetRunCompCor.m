@@ -81,7 +81,7 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
 
                 if NumCompIncluded > size(AllRunComponents, 2)
                     error(['SUBJECT %s RUN %s :\n' ...
-                           ' COMPCOR: Number of components to include %d is greater the number of components present %d\n\n'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
+                           ' COMPCOR: Number of components to include %d is greater the number of components present %d'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
                 end
 
                 FileComps = AllRunComponents(:, 2:(1+NumCompIncluded));
@@ -101,7 +101,7 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
                 % check to make sure enough components were present; otherwise error out
                 if AllVarAcc(CompToInclude) < minVarExplained
                     error(['SUBJECT %s RUN %s :\n' ...
-                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance\n\n'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
+                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
                 end
 
                 FileComps = AllRunComponents(:, 2:(1+CompToInclude));
@@ -111,7 +111,7 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
             else
                 error(['SUBJECT %s RUN %s :\n'...
                        ' COMPCOR: Invalid component inclusion method.\n'...
-                       '          Expected [1 2] but found %d\n\n'], Subject, Run, CompIncMethod);
+                       '          Expected [1 2] but found %d'], Subject, Run, CompIncMethod);
             end
 
         % both global mean and components
@@ -126,7 +126,7 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
 
                 if NumCompIncluded > size(AllRunComponents, 2)
                     error(['SUBJECT %s RUN %s :\n' ...
-                           ' COMPCOR: Number of components to include %d is greater the number of components present %d\n\n'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
+                           ' COMPCOR: Number of components to include %d is greater the number of components present %d'], Subject, Run, NumRegIncluded, size(AllRunComponents, 2));
                 end
 
                 FileComps = AllRunComponents(:, 1:(1+NumCompIncluded));
@@ -146,7 +146,7 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
                 % check to make sure enough components were present; otherwise error out
                 if AllVarAcc(CompToInclude) < minVarExplained
                     error(['SUBJECT %s RUN %s :\n' ...
-                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance\n\n'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
+                           ' Not enough components present to for minimum variance %0.2f.  Only explained %0.2f variance'], Subject, Run, MinVar, AllVarAcc(CompToInclude));
                 end
 
                 FileComps = AllRunComponents(:, 1:(1+CompToInclude));
@@ -156,14 +156,14 @@ function [Components VarAccounted]= FL_SetRunCompCor(SubjectIndex, RunNumber, op
             else
                 error(['SUBJECT %s RUN %s :\n'...
                        ' COMPCOR: Invalid component inclusion method.\n'...
-                       '          Expected [1 2] but found %d\n\n'], Subject, Run, CompIncMethod);
+                       '          Expected [1 2] but found %d'], Subject, Run, CompIncMethod);
             end
 
         % invalid option that should never occur
         else
             error(['SUBJECT %s RUN %s :\n'...
                    ' COMPCOR: Invalid components used flag.\n'...
-                   '          Expected [1 2 3] but found %d\n\n'], Subject, Run, CompUsedFlag);
+                   '          Expected [1 2 3] but found %d'], Subject, Run, CompUsedFlag);
         end
 
         % save components
@@ -198,7 +198,7 @@ function AllVarAcc = ParseCompCorLog(LogFile)
         line = fgetl(logFid);
         if isnumeric(line) && line == -1
             error(['SUBJECT %s RUN %s :\n' ...
-                   ' CompCor log file %s is incomplete\n\n'], Subject, Run, ccLog);
+                   ' CompCor log file %s is incomplete'], Subject, Run, ccLog);
         end
     end
 

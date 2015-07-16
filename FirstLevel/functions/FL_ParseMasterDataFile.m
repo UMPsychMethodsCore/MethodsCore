@@ -40,12 +40,12 @@ function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
     
         if any( AllData(:, opt.TimeColumn(i)) ) > 5000
             error(['ERROR: Detected TimeColumn %d has a value greater than 5000.\n' ...
-                   '       Expected timing to be in seconds.'], i);
+                   '       Expected timing to be in seconds.'], opt.OrigTimeColumn(i));
         end
 
         if any( AllData(:, opt.DurationColumn(i)) ) > 5000
             error(['ERROR: Detected DurationColumn %d has a value greater than 5000.\n' ...
-                   '       Expected timing to be in seconds.'], i);
+                   '       Expected timing to be in seconds.'], opt.OrigTimeColumn(i));
         end
 
     end
@@ -58,7 +58,7 @@ function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
         if opt.IdenticalModels == 1
             if opt.TotalTrials > size(AllData, 1)
                 msg = sprintf(['ERROR: TotalTrials is greater than the number of rows present after excluding comments.\n'...
-                               'Expected TotalTrials <= %d\n'], size(AllData, 1));
+                               'Expected TotalTrials <= %d'], size(AllData, 1));
                 error(msg);
             end
             SubjectData = AllData(1:opt.TotalTrials, :);
@@ -67,7 +67,7 @@ function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
             SubjectData = AllData(SubjectIndex, :);
             if isempty(SubjectData) == 1
                 msg = sprintf(['SUBJECT %s : No data present in master data file.\n'...
-                              'Either remove or comment the subject from the SubjDir list.\n'],...
+                              'Either remove or comment the subject from the SubjDir list.'],...
                               opt.SubjDir{i, 1});
                 error(msg);
             end
@@ -82,7 +82,7 @@ function [SubjectMasterData opt] = FL_ParseMasterDataFile(opt)
                 TmpRun = opt.RunDir{ opt.SubjDir{i, 2}(k) };
                 msg = sprintf(['\nSUBJECT %s RUN %s\n'...
                                'No data present in master data file.\n'...
-                               '* * * CANNOT PROCEED * * *\n'],...
+                               '* * * CANNOT PROCEED * * *'],...
                                opt.SubjDir{i, 1}, TmpRun);
                 error(msg);
             end

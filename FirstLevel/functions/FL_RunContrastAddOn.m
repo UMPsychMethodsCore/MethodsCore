@@ -20,7 +20,7 @@ function FL_RunContrastAddOn(Subjects, opt)
             if all( Subjects(i).contrasts(k, :) == 0 )
 
                 % enter in dummy contrast and log it
-                msg = sprintf(['SUBJECT : %s' ...
+                msg = sprintf(['SUBJECT : %s\n' ...
                                ' INVALID CONTRAST NUMBER %d.  Inserting dummy contrast.\n'], ...
                                Subjects(i).name, k);
                 fprintf(1, msg);
@@ -49,8 +49,6 @@ function FL_RunContrastAddOn(Subjects, opt)
             error('Invalid StartOp value.  You should not be here');
         end
 
-        spm_jobman('initcfg');
-        spm('defaults', 'FMRI');
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 

@@ -111,15 +111,17 @@ function RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, RunData, 
 
                     msg = sprintf(['SUBJECT %s RUN %s :\n' ...
                                    ' Parametric regressor %s is being used with condition number' ...
-                                   '%d from columns '], Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
+                                   ' %d in column(s) '], Subject, Run, opt.ParametricList{iPar, 1}, CondForPar);
 
                     for iCondCol = 1:length(opt.CondColumn)
                         tmpIndex = RunData(:, opt.CondColumn(iCondCol)) == CondForPar;
+                        if any(tmpIndex)
+                            msg = [msg, sprintf('%d ', opt.OrigCondColumn(iCondCol))];
+                        end
                         CondIndex = CondIndex | tmpIndex;
-                        msg = strcat(msg, sprintf('%d ', opt.CondColumn(iCondCol)));
                     end
 
-                    msg = strcat(msg, sprintf('in the Master Data File\n\n'));
+                    msg = [msg, sprintf('of the master data file.\n\n')];
                     fprintf(1, msg);
                     mc_Logger('log', msg, 3);
 
@@ -130,5 +132,4 @@ function RunConditions = FL_SetRunConditions(SubjectNumber, RunNumber, RunData, 
         end
     % end of managing parametric list
     end
-
 end

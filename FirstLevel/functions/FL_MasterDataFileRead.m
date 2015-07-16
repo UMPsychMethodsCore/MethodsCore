@@ -259,6 +259,13 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
         Subjects = [Subjects; TmpAllSubjects];
     end
 
+    % save original values for interpretable display
+    opt.OrigRunColumn = opt.RunColumn;
+    opt.OrigCondColumn = opt.CondColumn;
+    opt.OrigTimeColumn = opt.TimeColumn;
+    opt.OrigDurationColumn = opt.DurationColumn;
+    opt.OrigParametricList = opt.ParametricList;
+
     % now update opt
     opt.RunColumn = 1;
     opt.CondColumn = (1:length(opt.CondColumn)) + 1;

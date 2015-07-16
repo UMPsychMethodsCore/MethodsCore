@@ -149,7 +149,7 @@ function RegMatrix = trimRegressor(Subject, Run, RegFile, ColumnsToKeep, RegMatr
         if any(ColumnsToKeep > size(RegMatrix, 2))
             msg = sprintf(['SUBJECT %s RUN %s :\n' ...
                            ' ColumnsToKeep exceed columns present in file %s.\n' ...
-                           ' Only %d columns present.\n'], ...
+                           ' Only %d columns present.'], ...
                            Subject, Run, RegFile, size(RegMatrix, 2));
             mc_Logger('log', msg, 1);
             error(msg);
@@ -194,7 +194,7 @@ function RegMatrix = addDerivatives(Subject, Run, RegFile, Order, RegMatrix)
 
     if Order > size(RegMatrix, 1) 
         error(['ERROR: SUBJECT %s RUN %s\n' ...
-               ' Invalid derivative order using regressor file %s\n'], Subject, Run, RegFile);
+               ' Invalid derivative order using regressor file %s'], Subject, Run, RegFile);
     end
     
     if Order > 0

@@ -37,8 +37,8 @@ function RunImages = FL_SetRunImages(SubjectNumber, RunNumber, opt)
 
     if isempty(runImages) == 1
         error(['SUBJECT %s RUN %s :\n'...
-               'No images found in directory : %s\n'...
-               'Check your BaseFileSpmFilter : %s'], Subject, Run, RunDir, opt.BaseFileSpmFilter);
+               ' No images found in directory : %s\n'...
+               ' Check your BaseFileSpmFilter : %s'], Subject, Run, RunDir, opt.BaseFileSpmFilter);
     end
             
     RunImages = cell( size(runImages, 1), 1 );
