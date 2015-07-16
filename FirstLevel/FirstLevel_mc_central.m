@@ -20,7 +20,6 @@ else
         opt.TimeColumn = TimeColumn;
         opt.DurationColumn = DurationColumn;
         opt.ConditionName = ConditionName;
-        opt.ConditionModifier = ConditionModifier;
         opt.ConditionThreshold = ConditionThreshold;
         opt.IdenticalModels = IdenticalModels;
         opt.TotalTrials = TotalTrials;

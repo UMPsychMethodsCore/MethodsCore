@@ -82,14 +82,6 @@ function opt = CheckOpt(opt)
         end
     end
 
-    % handle ConditionModifier
-    if opt.ConditionModifier > 0
-        if opt.ConditionModifier >= size(ConditionName, 1)
-            error('ERROR: ConditionModifier should strictly be less than the number of conditions present.');
-        end
-        opt.ConditionName = opt.ConditionName(1:opt.ConditionModifier);
-    end
-
     % simple check for IdenticalModels and TotalTrials
     if opt.IdenticalModels == 1 && opt.TotalTrials <= 0
         error('When using IdenticalModels, TotalTrials must be a positive value.\n');

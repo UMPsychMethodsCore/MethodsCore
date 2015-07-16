@@ -209,11 +209,6 @@ UseSandbox = 1;
 fMRI_T0 = 8;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CondModifier - Remove the last n conditions from the model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ConditionModifier = 0;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CondThreshold
 %%% 0 = only remove empty conditions
 %%% 1 = remove singleton conditions (useful b/c SPM won't estimate a beta for
