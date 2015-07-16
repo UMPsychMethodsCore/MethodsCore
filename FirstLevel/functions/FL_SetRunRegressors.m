@@ -209,8 +209,7 @@ function RegMatrix = addDerivatives(Subject, Run, RegFile, Order, RegMatrix)
     
             for iRegMatrix = 1:size(tmpRegMatrix, 2)
     
-                tmpDeriv = diff( tmpRegMatrix(:, iRegMatrix) );
-                tmpDeriv = resample(tmpDeriv, NumVolumes, length(tmpDeriv));
+                tmpDeriv = [0; diff( tmpRegMatrix(:, iRegMatrix) )];
     
                 % check to make sure derivative is not a constant now
                 if all( tmpDeriv(1) == tmpDeriv ) == 0
