@@ -140,6 +140,8 @@ function FL_Run(AllSubjects, opt)
         % save matlabbatch job
         save(fullfile(OutputDir, 'JobFile.mat'), 'matlabbatch');
 
+        % print subject to console and run job
+        FL_PrintSubject(Subject, 1);
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 
@@ -175,7 +177,7 @@ function SandboxOutputDir = HandleDirectory(SubjOutputDir, opt)
 
         result = rmdir(SubjOutputDir,'s');
         if (result == 0)
-            mc_Error('Output directory %s\nalready exists and cannot be removed. Please check you permissions.', SubjOutputDir);
+            mc_Error('Output directory %s already exists and cannot be removed. Please check you permissions.', SubjOutputDir);
         end
 
     end
