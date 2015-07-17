@@ -47,6 +47,7 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
     fid = fopen(MasterDataFile, 'r');
     AllLines = textscan(fid, '%s', 'Delimiter', '\n');
     AllLines = AllLines{1};
+    LineNumbers = 1:size(AllLines, 1);
 
     % let's find all comments - do this instead of using MasterDataSkipRows
     CommentLines = regexp(AllLines, '^#');
@@ -57,6 +58,7 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
     end
     CommentLines = logical(cell2mat(CommentLines));
     AllLines(CommentLines) = [];
+    LineNumbers(CommentLines) = [];
 
     % let's find all pointer files
     PointerLines = regexp(AllLines, '^@');
@@ -68,6 +70,7 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
     PointerLines = logical(cell2mat(PointerLines));
     PointerFiles = AllLines(PointerLines);
     AllLines(PointerLines) = [];
+    LineNumbers(PointerLines) = [];
 
     % now parse any lines that are remaining
     if ~isempty(AllLines)
@@ -115,10 +118,10 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
 
             if opt.SubjColumn ~= NumFields
                 EIndex = CommaLoc(i, opt.SubjColumn) - 1;
-                Subjects{i} = AllLines{i}(BIndex:EIndex);
             else
-                Subjects{i} = AllLines{i}(BIndex:end);
+                EIndex = length(AllLines{i});
             end
+            Subjects{i} = AllLines{i}(BIndex:EIndex);
 
             DataIndex = 1;
 
@@ -131,10 +134,21 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
 
             if opt.RunColumn ~= NumFields
                 EIndex = CommaLoc(i, opt.RunColumn) - 1;
-                AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:EIndex) );
             else
-                AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:end) );
+                EIndex = length(AllLines{i});
             end
+            TmpStr = AllLines{i}(BIndex:EIndex);
+            AllData(i, DataIndex) = str2double(TmpStr);
+
+            % check if run value is valid
+            if isnan(AllData(i, DataIndex)) && ~strcmpi(TmpStr, 'nan')
+                msg = sprintf(['Invalid run value, file : %s\n'...
+                               '  line: %d column: %d index: %d\n'...
+                               '  Check if run column is assigned correctly.'],...
+                               MasterDataFile, LineNumbers(i), opt.RunColumn, BIndex);
+                error(msg);
+            end
+                
             DataIndex = DataIndex + 1;
 
             % Parse out conditions
@@ -147,10 +161,21 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
 
                 if opt.CondColumn(k) ~= NumFields
                     EIndex = CommaLoc(i, opt.CondColumn(k)) - 1;
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:EIndex) );
                 else
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:end) );
+                    EIndex = length(AllLines{i});
                 end
+                TmpStr = AllLines{i}(BIndex:EIndex);
+                AllData(i, DataIndex) = str2double(TmpStr);
+
+                % check if condition value is valid
+                if isnan(AllData(i, DataIndex)) && ~strcmpi(TmpStr, 'nan')
+                    msg = sprintf(['Invalid condition value, file : %s\n'...
+                                   '  line: %d column: %d index: %d\n'...
+                                   '  Check if condition column is assigned correctly.'],...
+                                   MasterDataFile, LineNumbers(i), opt.CondColumn(k), BIndex);
+                    error(msg);
+                end
+                    
                 DataIndex = DataIndex + 1;
             end
 
@@ -160,9 +185,19 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
                 BIndex = CommaLoc(i, opt.TimeColumn(k) - 1) + 1;
                 if opt.TimeColumn(k) ~= NumFields
                     EIndex = CommaLoc(i, opt.TimeColumn(k)) - 1;
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:EIndex) );
                 else
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:end) );
+                    EIndex = length(AllLines{i});
+                end
+                TmpStr = AllLines{i}(BIndex:EIndex);
+                AllData(i, DataIndex) = str2double(TmpStr);
+
+                % check if onset value is valid
+                if isnan(AllData(i, DataIndex)) && ~strcmpi(TmpStr, 'nan')
+                    msg = sprintf(['Invalid onset value, file : %s\n'...
+                                   '  line: %d column: %d index: %d\n'...
+                                   '  Check if onset column is assigned correctly.'],...
+                                   MasterDataFile, LineNumbers(i), opt.TimeColumn(k), BIndex);
+                    error(msg);
                 end
                 DataIndex = DataIndex + 1;
             end
@@ -172,9 +207,19 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
                 BIndex = CommaLoc(i, opt.DurationColumn(k) - 1) + 1;
                 if opt.DurationColumn(k) ~= NumFields
                     EIndex = CommaLoc(i, opt.DurationColumn(k)) - 1;
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:EIndex) );
                 else
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:end) );
+                    EIndex = length(AllLines{i});
+                end
+                TmpStr = AllLines{i}(BIndex:EIndex);
+                AllData(i, DataIndex) = str2double(TmpStr);
+
+                % check if duration value is valid
+                if isnan(AllData(i, DataIndex)) && ~strcmpi(TmpStr, 'nan')
+                    msg = sprintf(['Invalid duration value, file : %s\n'...
+                                   '  line: %d column: %d index: %d\n'...
+                                   '  Check if duration is assigned correctly.'],...
+                                   MasterDataFile, LineNumbers(i), opt.DurationColumn(k), BIndex);
+                    error(msg);
                 end
                 DataIndex = DataIndex + 1;
             end
@@ -184,19 +229,22 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
                 BIndex = CommaLoc(i, opt.ParametricList{k, 2} - 1) + 1;
                 if opt.ParametricList{k, 2} ~= NumFields
                     EIndex = CommaLoc(i, opt.ParametricList{k, 2}) - 1;
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:EIndex) );
                 else
-                    AllData(i, DataIndex) = str2double( AllLines{i}(BIndex:end) );
+                    EIndex = length(AllLines{i});
                 end
-                DataIndex = DataIndex + 1;
-            end
+                TmpStr = AllLines{i}(BIndex:EIndex);
+                AllData(i, DataIndex) = str2double(TmpStr);
 
-            % check all values read are valid
-            if any( isnan(AllData(i, :)) ) == 1
-                msg = sprintf(['Invalid data file : %s line %d\n'...
-                               'Check to make sure all headers begin with ''#''.\n'...
-                               'Check if the run, condtion, onsets, duration, and parametric regressors columns were assigned correctly.\n'], MasterDataFile, i);
-                error(msg);
+                % check if parametric regressor value is valid
+                if isnan(AllData(i, DataIndex)) && ~strcmpi(TmpStr, 'nan')
+                    msg = sprintf(['Invalid parametric value, file : %s\n'...
+                                   '  line: %d column: %d index: %d\n'...
+                                   '  Check if parametric regressor is assigned correctly.'],...
+                                   MasterDataFile, LineNumbers(i), opt.ParametricList{k, 2}, BIndex);
+                    error(msg);
+                end
+                
+                DataIndex = DataIndex + 1;
             end
         end
     end
@@ -210,6 +258,13 @@ function [AllData Subjects opt] = FL_MasterDataFileRead(opt)
         AllData = [AllData; TmpAllData];
         Subjects = [Subjects; TmpAllSubjects];
     end
+
+    % save original values for interpretable display
+    opt.OrigRunColumn = opt.RunColumn;
+    opt.OrigCondColumn = opt.CondColumn;
+    opt.OrigTimeColumn = opt.TimeColumn;
+    opt.OrigDurationColumn = opt.DurationColumn;
+    opt.OrigParametricList = opt.ParametricList;
 
     % now update opt
     opt.RunColumn = 1;

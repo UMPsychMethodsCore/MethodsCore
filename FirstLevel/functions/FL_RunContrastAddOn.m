@@ -11,6 +11,13 @@ function FL_RunContrastAddOn(Subjects, opt)
         SubjSpmMatFiles{i} = mc_GenPath(SpmCheck);
     end
 
+    % set spm defaults before running anything
+    fprintf(1, 'Setting SPM defaults...');
+    spm('defaults', 'FMRI');
+    spm_jobman('initcfg');
+    mc_SetSPMDefaults(opt.SpmDefaults);
+    fprintf(1, 'Done!\n');
+
     % Run contrast add-on now
     for i = 1:NumSubjects
         matlabbatch{1}.spm.stats.con.spmmat = { SubjSpmMatFiles{i} };
@@ -20,7 +27,7 @@ function FL_RunContrastAddOn(Subjects, opt)
             if all( Subjects(i).contrasts(k, :) == 0 )
 
                 % enter in dummy contrast and log it
-                msg = sprintf(['SUBJECT : %s' ...
+                msg = sprintf(['SUBJECT : %s\n' ...
                                ' INVALID CONTRAST NUMBER %d.  Inserting dummy contrast.\n'], ...
                                Subjects(i).name, k);
                 fprintf(1, msg);
@@ -30,8 +37,12 @@ function FL_RunContrastAddOn(Subjects, opt)
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = 1;
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             else
-                                 
-                matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                
+                if opt.VarianceWeighting == 0                 
+                    matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                else
+                    matlabbatch{1}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{1}{k, 1};
+                end
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.convec = Subjects(i).contrasts(k, :);
                 matlabbatch{1}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             end
@@ -45,8 +56,6 @@ function FL_RunContrastAddOn(Subjects, opt)
             error('Invalid StartOp value.  You should not be here');
         end
 
-        spm_jobman('initcfg');
-        spm('defaults', 'FMRI');
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 

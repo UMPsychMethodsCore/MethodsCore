@@ -17,7 +17,6 @@ function AllSubjects = FL_CreateSimpleSubjects(opt, SubjectMasterData)
 %           TimeColumn          - vector
 %           DurationColumn      - vector
 %           ConditionName       - cell(C, 1) list of conditions as strings
-%           ConditionModifier   - scalar, remove these last conditions from the model
 %           ConditionThreshold  - scalar, removes conditions that do not exceed this threshold
 %           IdenticalModels     - scalar, if equals 1, all subjects have the same model specs
 %           TotalTrials         - scalar, indicates total number of trials if IdenticalModels is

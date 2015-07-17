@@ -113,7 +113,7 @@ function sess = FL_TrimRun(sess, SubjectNumber, RunNumber, opt)
     % end of testing one condition
     end
 
-    % handle trimming regressors            
+    % handle trimming regressors (compcor included)
     if sess.useRegress == 1
 
         NumRegressors = size(sess.regress, 2);
@@ -122,15 +122,4 @@ function sess = FL_TrimRun(sess, SubjectNumber, RunNumber, opt)
         end
 
     end
-
-    % handle trimming CompCor
-    if sess.useCompCor == 1
-
-        NumCompCor = size(sess.compCor, 2);
-        for i = 1:NumCompCor
-            sess.compCor(i).val = sess.compCor(i).val(BeginVolume:EndVolume);
-        end
-
-    end
-
 end

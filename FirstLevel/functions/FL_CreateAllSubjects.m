@@ -23,7 +23,6 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
 %           TimeColumn          - vector
 %           DurationColumn      - vector
 %           ConditionName       - cell(C, 1) list of conditions as strings
-%           ConditionModifier   - scalar, remove these last conditions from the model
 %           ConditionThreshold  - scalar, removes conditions that do not exceed this threshold
 %           IdenticalModels     - scalar, if equals 1, all subjects have the same model specs
 %           TotalTrials         - scalar, indicates total number of trials if IdenticalModels is
@@ -82,7 +81,7 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
 %               images          - cell(I, 1), list of images
 %               cond(C).
 %                   use         - scalar, a value of 1 indicates to use this
-%                   usePMod     - scalar, a value of 1 indicates this condition has parametric
+%                   usePMod     - scalar, values greater than 0 indicate this condition has parametric
 %                                 regressors
 %                   name        - string, condition name
 %                   onset       - vector, list of condition onsets
@@ -95,6 +94,7 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
 %               regress(Z).
 %                   val         - vector, lists one regressors
 %                   name        - string, regressor name
+%               %%% below fields are no longer in use %%%
 %               useCompCor      - scalar, if equal 1, then CompCor is used in model
 %               varExplained    - vector, variance explained for each CompCor file
 %               compCor(*).
@@ -162,7 +162,19 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
         end
 
         % create contrast for whole subject
-        AllSubjects(i).contrasts = FL_SetSubjectContrasts(i, opt, AllSubjects(i));
-    end
+        if opt.VarianceWeighting == 0
+            AllSubjects(i).contrasts = FL_SetSubjectContrasts(i, opt, AllSubjects(i));
+        else
+            AllSubjects(i).contrasts = FL_QuickVarianceWeight(i, opt, AllSubjects(i));
+        end
 
+        % assign explicit mask
+        if ~isempty(opt.ExplicitMask)
+            mcgp.Template = opt.ExplicitMask;
+            mcgp.mode = 'check';
+            AllSubjects(i).mask = mc_GenPath(mcgp);
+        else
+            AllSubjects(i).mask = '';
+        end
+    end
 end

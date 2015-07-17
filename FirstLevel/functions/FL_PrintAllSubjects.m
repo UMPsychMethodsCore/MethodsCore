@@ -16,6 +16,9 @@ function FL_PrintAllSubjects(Subjects, opt)
 
     for i = 1:NumSubjects
 
+        % Print human readable ouptut to standard output
+        FL_PrintSubject(Subjects(i), 1);
+
         NumRuns = size(Subjects(i).sess, 2);
         fprintf(fid, 'SUBJECT : %s OUTPUTDIR : %s RUNS : %d\n\n', Subjects(i).name, Subjects(i).outputDir, NumRuns);
 

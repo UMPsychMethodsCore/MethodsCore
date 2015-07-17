@@ -2,6 +2,7 @@
 % check for using older first level template file
 if exist('TimColumn', 'var') == 1
     addpath(fullfile(mcRoot, 'FirstLevel/functions/OldFirstLevel'));
+    fprintf(1, 'Using previous first level central.\n');
     OldFirstLevel_mc_central
 else
     try
@@ -20,7 +21,6 @@ else
         opt.TimeColumn = TimeColumn;
         opt.DurationColumn = DurationColumn;
         opt.ConditionName = ConditionName;
-        opt.ConditionModifier = ConditionModifier;
         opt.ConditionThreshold = ConditionThreshold;
         opt.IdenticalModels = IdenticalModels;
         opt.TotalTrials = TotalTrials;
@@ -57,12 +57,19 @@ else
     
         opt.UseSandbox = UseSandbox;
         % opt.CompCorTemplate = CompCorTemplate;
+        opt.hpf = hpf;
     catch err
         
         msg = sprintf('Not all required variables were assigned in the template file.\n');
         msg2 = sprintf('Make sure you have the most recent copy of the first level template file.\n\n');
         error('%s%s%s', msg, msg2, err.message);
     
+    end
+
+    if exist('VarianceWeighting', 'var') == 0
+        opt.VarianceWeighting = 0;
+    else
+        opt.VarianceWeighting = VarianceWeighting;
     end
         
     FL_Main(opt);

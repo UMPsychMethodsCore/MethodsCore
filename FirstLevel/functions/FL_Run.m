@@ -1,6 +1,13 @@
 function FL_Run(AllSubjects, opt)
 %   FL_Run(AllSubjects, opt)
 
+    % set spm defaults before running anything
+    fprintf(1, 'Setting SPM defaults...');
+    spm('defaults', 'FMRI');
+    spm_jobman('initcfg');
+    mc_SetSPMDefaults(opt.SpmDefaults);
+    fprintf(1, 'Done!\n');
+
     for i = 1:size(AllSubjects, 2)
 
         % Make output directory here
@@ -62,7 +69,7 @@ function FL_Run(AllSubjects, opt)
                 matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress(m).val = AllSubjects(i).sess(k).regress(m).val;
             end
 
-            matlabbatch{1}.spm.stats.fmri_spec.sess(k).hpf = 128;
+            matlabbatch{1}.spm.stats.fmri_spec.sess(k).hpf = opt.hpf;
         end
 
         matlabbatch{1}.spm.stats.fmri_spec.fact = struct('name', {}, 'levels', {});
@@ -87,7 +94,7 @@ function FL_Run(AllSubjects, opt)
             
         matlabbatch{1}.spm.stats.fmri_spec.volt = 1;
         matlabbatch{1}.spm.stats.fmri_spec.global = opt.ScaleOp;
-        matlabbatch{1}.spm.stats.fmri_spec.mask = { opt.ExplicitMask };
+        matlabbatch{1}.spm.stats.fmri_spec.mask = { AllSubjects(i).mask };
         
         if opt.usear1 == 1
             matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';
@@ -119,7 +126,11 @@ function FL_Run(AllSubjects, opt)
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             else
 
-                matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                if opt.VarianceWeighting == 0
+                    matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{k, 1};
+                else 
+                    matlabbatch{3}.spm.stats.con.consess{k}.tcon.name = opt.ContrastList{1}{k, 1};
+                end
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.convec = AllSubjects(i).contrasts(k, :);
                 matlabbatch{3}.spm.stats.con.consess{k}.tcon.sessrep = 'none';
             end
@@ -129,8 +140,8 @@ function FL_Run(AllSubjects, opt)
         % save matlabbatch job
         save(fullfile(OutputDir, 'JobFile.mat'), 'matlabbatch');
 
-        spm_jobman('initcfg');
-        spm('defaults', 'FMRI');
+        % print subject to console and run job
+        FL_PrintSubject(Subject, 1);
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 
@@ -166,7 +177,7 @@ function SandboxOutputDir = HandleDirectory(SubjOutputDir, opt)
 
         result = rmdir(SubjOutputDir,'s');
         if (result == 0)
-            mc_Error('Output directory %s\nalready exists and cannot be removed. Please check you permissions.', SubjOutputDir);
+            mc_Error('Output directory %s already exists and cannot be removed. Please check you permissions.', SubjOutputDir);
         end
 
     end

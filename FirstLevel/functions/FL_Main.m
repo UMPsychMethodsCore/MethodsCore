@@ -48,7 +48,7 @@ function opt = CheckOpt(opt)
     for i = 1:size(opt.SubjDir, 1)
         SubjectRuns = opt.SubjDir{i, 2};
         if any(SubjectRuns > NumRuns)
-            error('Subject %s : Runs to include exceed the number of possible runs.\n', opt.SubjDir{i, 1});
+            error('Subject %s : Runs to include exceed the number of possible runs.', opt.SubjDir{i, 1});
         end
     end
 
@@ -77,110 +77,104 @@ function opt = CheckOpt(opt)
         end
     end
 
-    % handle ConditionModifier
-    if opt.ConditionModifier > 0
-        if opt.ConditionModifier >= size(ConditionName, 1)
-            error('ERROR: ConditionModifier should strictly be less than the number of conditions present.');
-        end
-        opt.ConditionName = opt.ConditionName(1:opt.ConditionModifier);
-    end
-
     % simple check for IdenticalModels and TotalTrials
     if opt.IdenticalModels == 1 && opt.TotalTrials <= 0
-        error('When using IdenticalModels, TotalTrials must be a positive value.\n');
+        error('When using IdenticalModels, TotalTrials must be a positive value.');
     end
 
     % handle RegFilesTemplate
     NumRegFiles = size(opt.RegFilesTemplate, 1);
     for i = 1:NumRegFiles
         if opt.RegFilesTemplate{i, 4} < 1
-            msg = sprintf(['ERROR: Invalid polynomial expansion option for RegFile %s.  Expected a value >= 1, but found %d\n'], opt.RegFilesTemplate{i, 1}, opt.RegFilesTemplate{i, 4});
+            msg = sprintf(['ERROR: Invalid polynomial expansion option for RegFile %s.  Expected a value >= 1, but found %d'], opt.RegFilesTemplate{i, 1}, opt.RegFilesTemplate{i, 4});
             error('%s', msg);
         end
     end
 
     % handle different bases functions
     if any(strcmp(opt.Basis, {'hrf', 'fir'})) ~= 1
-        msg = sprintf(['ERROR: Only valid values for ''Basis'' are ''hrf'' or ''fir''\n']);
+        msg = sprintf(['ERROR: Only valid values for ''Basis'' are ''hrf'' or ''fir''']);
         error('%s', msg);
     end
         
     if strcmp(opt.Basis, 'hrf') == 1
         if any(opt.HrfDerivative == [0 1 2]) == 0
-            msg = sprintf(['ERROR: When using the canonical basis set, the valid values for ''Base'' are the following:\n\n'...
-                   '       0 : CANONICAL ONLY\n' ...
-                   '       1 : CANONICAL AND DERIVATIVE\n' ...
-                   '       2 : CANONICAL, DERIVATIVE, AND DISPERSION\n' ...
-                   ' Your input: %d\n'], opt.HrfDerivative);
+            msg = sprintf(['ERROR: When using the canonical basis set, the valid values for ''Basis'' are the following:\n'...
+                           '       0 : CANONICAL ONLY\n' ...
+                           '       1 : CANONICAL AND DERIVATIVE\n' ...
+                           '       2 : CANONICAL, DERIVATIVE, AND DISPERSION\n' ...
+                           ' Your input: %d'], opt.HrfDerivative);
 
             error('%s', msg);
         end
     end
 
     % handle contrasts
-    if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
-        NumCond = size(opt.ConditionName, 1);
-        NumContrastCols = size(opt.ContrastList, 2);
-        msg = sprintf(['ERROR: Invalid ContrastList variable.  Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
-        error('%s', msg);
-    end
-
-    % check contrast vectors are correct
-    BasesPerCondition = zeros( size(opt.ConditionName, 1), 1 );
-    if strcmp(opt.Basis, 'hrf') == 1
-        if opt.HrfDerivative == 0
-            opt.NumBases = 1;
-        elseif opt.HrfDerivative == 1
-            opt.NumBases = 2;
-        elseif opt.HrfDerivative == 2
-            opt.NumBases = 3;
-        else
-            error(['Invalid HrfDerivative value.  This should never happen.']);
+    if opt.VarianceWeighting == 0
+        if (size(opt.ConditionName, 1) + 2) ~= size(opt.ContrastList, 2) && (strcmp(opt.Basis, 'fir') == 0 || opt.FirDoContrasts ~= 1)
+            NumCond = size(opt.ConditionName, 1);
+            NumContrastCols = size(opt.ContrastList, 2);
+            msg = sprintf(['ERROR: Invalid ContrastList variable. Expected %d columns but found %d'], NumCond + 2, NumContrastCols);
+            error('%s', msg);
         end
-    elseif strcmp(opt.Basis, 'fir') == 1
-        opt.NumBases = opt.FirBins;
-    else
-        error(['Invalid Basis value.  This should never happen.']);
-    end
 
-    BasesPerCondition = BasesPerCondition + opt.NumBases;
-    
-    for i = 1:size(opt.ParametricList)
-        CondNum = opt.ParametricList{i, 3};
+        % check contrast vectors are correct
+        BasesPerCondition = zeros( size(opt.ConditionName, 1), 1 );
+        if strcmp(opt.Basis, 'hrf') == 1
+            if opt.HrfDerivative == 0
+                opt.NumBases = 1;
+            elseif opt.HrfDerivative == 1
+                opt.NumBases = 2;
+            elseif opt.HrfDerivative == 2
+                opt.NumBases = 3;
+            else
+                error(['Invalid HrfDerivative value. This should never happen.']);
+            end
+        elseif strcmp(opt.Basis, 'fir') == 1
+            opt.NumBases = opt.FirBins;
+        else
+            error(['Invalid Basis value. This should never happen.']);
+        end
+
+        BasesPerCondition = BasesPerCondition + opt.NumBases;
         
-        BasesPerCondition(CondNum) = BasesPerCondition(CondNum) + opt.NumBases * opt.ParametricList{i, 4};
-    end
+        for i = 1:size(opt.ParametricList)
+            CondNum = opt.ParametricList{i, 3};
+            
+            BasesPerCondition(CondNum) = BasesPerCondition(CondNum) + opt.NumBases * opt.ParametricList{i, 4};
+        end
 
-    for i = 1:size(opt.ContrastList, 1)
+        for i = 1:size(opt.ContrastList, 1)
+            
+            for k = 1:length(BasesPerCondition)
+
+                userConditionLength = length(opt.ContrastList{i, k+1});
+
+                if userConditionLength ~= BasesPerCondition(k)
+                    error(['ERROR: In ContrastList, row %d for condition number %d for condition name %s.\n' ...
+                           '       The vector for this condition is invalid.  Expected %d weights but found %d.'], ...
+                           i, k, opt.ContrastList{k}, BasesPerCondition(k), userConditionLength);
+                end
+
+            end
         
-        for k = 1:length(BasesPerCondition)
+        end 
 
-            userConditionLength = length(opt.ContrastList{i, k+1});
-
-            if userConditionLength ~= BasesPerCondition(k)
-                error(['ERROR: In ContrastList, row %d for condition number %d for condition name %s.\n' ...
-                       '       The vector for this condition is invalid.  Expected %d weights but found %d.\n'], ...
-                       i, k, opt.ContrastList{k}, BasesPerCondition(k), userConditionLength);
+        % using BasesPerCondition let's make FIR contrast list if we need to
+        if strcmp(opt.Basis, 'fir') == 1 && opt.FirDoContrasts == 1
+            DummyRow = cell(1, length(BasesPerCondition) + 1);
+            for i = 1:length(BasesPerCondition)
+                DummyRow{1, i} = zeros(1, BasesPerCondition(i));
             end
 
-        end
-    
-    end 
-
-    % using BasesPerCondition let's make FIR contrast list if we need to
-    if strcmp(opt.Basis, 'fir') == 1 && opt.FirDoContrasts == 1
-        DummyRow = cell(1, length(BasesPerCondition) + 1);
-        for i = 1:length(BasesPerCondition)
-            DummyRow{1, i} = zeros(1, BasesPerCondition(i));
-        end
-
-        for i = 1:length(BasesPerCondition)
-            for k = 1:opt.FirBins
-                InsertRow = DummyRow;
-                InsertRow{1, i}(k) = 1;
-                TmpCondName = sprintf('%sBin%02d', opt.ConditionName{i}, k);
-                InsertRow = [TmpCondName InsertRow];
-                opt.ContrastList = [opt.ContrastList; InsertRow];
+            for i = 1:length(BasesPerCondition)
+                for k = 1:opt.FirBins
+                    InsertRow = DummyRow;
+                    InsertRow{1, i}(k) = 1;
+                    TmpCondName = sprintf('%sBin%02d', opt.ConditionName{i}, k);
+                    InsertRow = [TmpCondName InsertRow];
+                    opt.ContrastList = [opt.ContrastList; InsertRow];
+                end
             end
         end
     end
@@ -193,12 +187,12 @@ function opt = CheckOpt(opt)
 
         % make sure has correct number of runs (columns)
         if c ~= NumRuns
-            error('VolumeSpecifier has %d columns.  Expected %d columns (equal to number of runs in RunDir)\n', c, NumRuns);
+            error('VolumeSpecifier has %d columns.  Expected %d columns (equal to number of runs in RunDir)', c, NumRuns);
         end
 
         % make sure has 2 rows
         if r ~= 2
-            error('VolumeSpecifier has %d rows.  Expected 2 rows\n', r);
+            error('VolumeSpecifier has %d rows.  Expected 2 rows', r);
         end
 
         % make sure both are postive and startIndex < endIndex
@@ -246,11 +240,6 @@ function opt = CheckOpt(opt)
         msg = sprintf('ContrastRunWeights list is longer than ContrastList.  Only the first %d contrast run weights will be used for all subjects.\n\n', size(opt.ContrastList, 1));
         fprintf(1, msg);
         mc_Logger('log', 2, msg);
-    end
-
-    % check if explicit mask exists
-    if ~isempty(opt.ExplicitMask) == 1 && exist(opt.ExplicitMask, 'file') ~= 2
-        error('ExplicitMask %s does not exist.\n', opt.ExplicitMask);
     end
 
     % check mode

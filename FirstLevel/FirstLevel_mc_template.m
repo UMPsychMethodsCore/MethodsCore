@@ -142,7 +142,8 @@ RegFilesTemplate = {
 %%% List of contrasts to add to the estimated model
 %%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
 %%% You need to properly balance/weight your contrasts below as if it was just one run/session
-%%% The script will handle balancing it across runs
+%%% The script will handle balancing it across runs. To mark all values for [Reg1...RegN] as 0,
+%%% set the last field as '[]' without quotes.
 %%% If using fir basis functions, condition vectors must be at least as
 %%% long as the number of bins being used.
 %%%
@@ -207,11 +208,6 @@ UseSandbox = 1;
 %%% ref point for data out of 16, use same fraction as ref slice for slice timing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fMRI_T0 = 8;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% CondModifier - Remove the last n conditions from the model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ConditionModifier = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CondThreshold
@@ -309,6 +305,14 @@ ScaleOp = 'None';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path and name of explicit mask to use at first level.
 %%% Leave this blank ('') to turn off explicit masking
+%%%
+%%%  Variables you can use in your template are:
+%%%       Exp      = path to your experiment directory
+%%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%% Examples:
+%%% ExplicitMask = '[Exp]/Subjects/[Subject]/mask.nii';
+%%% ExplicitMask = '/MethodsCore/ConnTool/Templates/3mm_mask.nii'
+%%% ExplicitMask = '';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ExplicitMask = '';
 
@@ -316,6 +320,11 @@ ExplicitMask = '';
 %%% Use AR(1) auto-regression correction or not
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 usear1 = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% High pass filter cutoff value in seconds
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+hpf = 128;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The main default that impacts first level analysis is the implicit 
