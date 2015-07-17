@@ -81,7 +81,7 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
 %               images          - cell(I, 1), list of images
 %               cond(C).
 %                   use         - scalar, a value of 1 indicates to use this
-%                   usePMod     - scalar, a value of 1 indicates this condition has parametric
+%                   usePMod     - scalar, values greater than 0 indicate this condition has parametric
 %                                 regressors
 %                   name        - string, condition name
 %                   onset       - vector, list of condition onsets
@@ -94,6 +94,7 @@ function AllSubjects = FL_CreateAllSubjects(opt, SubjectMasterData)
 %               regress(Z).
 %                   val         - vector, lists one regressors
 %                   name        - string, regressor name
+%               %%% below fields are no longer in use %%%
 %               useCompCor      - scalar, if equal 1, then CompCor is used in model
 %               varExplained    - vector, variance explained for each CompCor file
 %               compCor(*).

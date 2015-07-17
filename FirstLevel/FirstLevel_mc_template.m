@@ -142,7 +142,8 @@ RegFilesTemplate = {
 %%% List of contrasts to add to the estimated model
 %%% Format is 'Name of contrast' [Cond1 Param1...N]...[CondN Param1...N] [Reg1...RegN]
 %%% You need to properly balance/weight your contrasts below as if it was just one run/session
-%%% The script will handle balancing it across runs
+%%% The script will handle balancing it across runs. To mark all values for [Reg1...RegN] as 0,
+%%% set the last field as '[]' without quotes.
 %%% If using fir basis functions, condition vectors must be at least as
 %%% long as the number of bins being used.
 %%%

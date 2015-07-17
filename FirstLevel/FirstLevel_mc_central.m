@@ -2,6 +2,7 @@
 % check for using older first level template file
 if exist('TimColumn', 'var') == 1
     addpath(fullfile(mcRoot, 'FirstLevel/functions/OldFirstLevel'));
+    fprintf(1, 'Using previous first level central.\n');
     OldFirstLevel_mc_central
 else
     try
