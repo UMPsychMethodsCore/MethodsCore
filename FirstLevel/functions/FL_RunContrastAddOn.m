@@ -11,6 +11,13 @@ function FL_RunContrastAddOn(Subjects, opt)
         SubjSpmMatFiles{i} = mc_GenPath(SpmCheck);
     end
 
+    % set spm defaults before running anything
+    fprintf(1, 'Setting SPM defaults...');
+    spm('defaults', 'FMRI');
+    spm_jobman('initcfg');
+    mc_SetSPMDefaults(opt.SpmDefaults);
+    fprintf(1, 'Done!\n');
+
     % Run contrast add-on now
     for i = 1:NumSubjects
         matlabbatch{1}.spm.stats.con.spmmat = { SubjSpmMatFiles{i} };

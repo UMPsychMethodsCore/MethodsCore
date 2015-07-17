@@ -1,6 +1,13 @@
 function FL_Run(AllSubjects, opt)
 %   FL_Run(AllSubjects, opt)
 
+    % set spm defaults before running anything
+    fprintf(1, 'Setting SPM defaults...');
+    spm('defaults', 'FMRI');
+    spm_jobman('initcfg');
+    mc_SetSPMDefaults(opt.SpmDefaults);
+    fprintf(1, 'Done!\n');
+
     for i = 1:size(AllSubjects, 2)
 
         % Make output directory here
