@@ -60,7 +60,6 @@ for iSub=1:size(SubjDir,1)
     fprintf(1,'Loading Connectome for Subject %d of %d\n', iSub, nSubs)
     Subject = SubjDir{iSub,1};
     [roiTCavail, conPath] = find_file();
-    conmat=load(conPath);
     if roiTCavail
         conn = load_roiTC();
     else
