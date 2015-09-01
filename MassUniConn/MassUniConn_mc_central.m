@@ -291,8 +291,15 @@ if permDone ~= 1
         end
     else
         for i=1:nRep
-            [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute_count(data,netmask,thresh,des.FxCol,s.design,1);
             fprintf(1,'%g\n',i)
+            if i==1
+                fprintf(1,'Benchmarking permutation testing; this will only happen for first iteration in singlecore mode\n')
+                tic
+                [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute_count(data,netmask,thresh,des.FxCol,s.design,1);
+                toc
+            else
+            [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute_count(data,netmask,thresh,des.FxCol,s.design,1);
+            end
         end
     end
     
