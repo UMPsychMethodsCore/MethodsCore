@@ -9,6 +9,8 @@ BETFILES="${BETFILES} BET_threshold.txt SEG_stats_0.dat SEG_stats_1.dat SEG_stat
 
 coregPATH=TARs
 
+FSL_COMMAND=fslview
+
 #
 # all done
 #
