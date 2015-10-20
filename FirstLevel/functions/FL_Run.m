@@ -141,7 +141,7 @@ function FL_Run(AllSubjects, opt)
         save(fullfile(OutputDir, 'JobFile.mat'), 'matlabbatch');
 
         % print subject to console and run job
-        FL_PrintSubject(Subject, 1);
+        FL_PrintSubject(AllSubjects(i), 1);
         spm_jobman('run_nogui', matlabbatch);
         clear matlabbatch;
 
