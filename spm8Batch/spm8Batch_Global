@@ -47,7 +47,7 @@ then
 
 # You must point to SPM8 !!!
     
-    SPM8B1=${topDIR}/SPM/SPM8/spm8_with_R4667
+    SPM8B1=${topDIR}/SPM/SPM8/spm8_with_R6313
     
 # This is Robert Welsh's UNIX batch interface to spm8
     
@@ -112,8 +112,10 @@ then
     OSTYPE=`uname`
 
     if [ "${OSTYPE}" == "Darwin" ]
-    then   
-        MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+    then  
+        # Use the latest MATLAB we can find, but this should be static for stability.
+        # MATLAB VERSIONs :  MATLAB_R2011b.app MATLAB_R2014b.app MATLAB_R2015b.app
+        MATLAB=/Applications/MATLAB_R2015b.app/bin/matlab
     else
         MATLAB=`which matlab`
     fi
