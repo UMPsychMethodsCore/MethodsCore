@@ -1,0 +1,9 @@
+Copyright (c) 2008, J.A. Daunais, D.P. Friedman, R.A. Kraft, C.L. Wyatt.
+All Rights Reserved.
+
+Terms of use: We intend for this data to be used freely by the
+neuroimaging community for research or educational purposes. However,
+this data is provided "as is" without any explicit or implied
+warrenty. Any secondary publication or commercial use of these images
+or any derivative images, without prior written consent, is
+prohibited.
