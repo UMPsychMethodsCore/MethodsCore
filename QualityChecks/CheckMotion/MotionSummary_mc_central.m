@@ -30,7 +30,7 @@ for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject,1};
     Vols    = [];
 
-    for jRun = 1:size(SubjDir{iSubject,3},2)
+    for jRun = 1:numel(SubjDir{iSubject,3})
         RunNum = SubjDir{iSubject,3}(jRun);
         Run    = RunDir{RunNum};
 

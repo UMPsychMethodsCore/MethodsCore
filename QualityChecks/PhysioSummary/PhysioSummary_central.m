@@ -22,7 +22,7 @@ clear MotionPath
 for iSubject = 1:size(SubjDir,1)
 
     Subject = SubjDir{iSubject,1};
-    NumRun  = size(SubjDir{iSubject,3},2);
+    NumRun  = numel(SubjDir{iSubject,3});
     
     for jRun = 1:NumRun
         
