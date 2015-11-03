@@ -68,6 +68,8 @@ OutputCensorVector = '/oracle7/Researchers/heffjos/tmp/CensorVector_[Subject]';
 %%% OutputPlotFile - File name for motion summary plot. The plot will
 %%%                    be saved as a pdf. No file extension is needed in the
 %%%                    variable value.
+%%%
+%%% Leave OuptutPlotPath as empty string ('') if no plots are desired.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 OutputPlotPath = '[Exp]/Subjects/[Subject]/TASK/func/';
 OutputPlotFile = 'MotionSummary';
@@ -135,9 +137,9 @@ RealignType = 1;
 %%% the realignment step. Typically, realignment occurs after slice time 
 %%% correction, so the prefix is most likely the slice-timed corrected 
 %%% functional images. This variable is only used if RealignType = 1 for
-%%% SPM realigned functional files. These files are need to calculate
-%%% the motion between runs. The associated *.mat files must exist to
-%%% calculate motion between runs.
+%%% SPM realigned functional files and OutputPlotPath is not set to the empty
+%%% string. These files are need to calculate the motion between runs. 
+%%% The associated *.mat files must exist to calculate motion between runs.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PreRealignTemplate = '[Exp]/[Subject]/func/TASK/[Run]/a_spm8_run*.nii';
 
