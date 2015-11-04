@@ -1,0 +1,4 @@
+%Region,ImageFile,SubregionListTextFile,Offset
+%Offset 9000 is reserved for custom shape mask
+VT Type,vervetType.nii,vervetType.txt,1000
+VT Labels,vervetLabels.nii,vervetLabels.txt,2000
