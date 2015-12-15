@@ -1399,7 +1399,7 @@ switch type
         NumDes.ImNum = str2num(input);
     otherwise
         mc_Error(['\nUnknown model type\n'...
-               '   * * * A B O R T I N G * * *\n'],[]);
+               '   * * * A B O R T I N G * * *\n']);
 end
 TheTokens = NumDes;
     

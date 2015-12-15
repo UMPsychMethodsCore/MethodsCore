@@ -1,0 +1,26 @@
+Specify a symmetric connectivity matrix for each observation or subject. The connectivity matrices store the connectivity strength between each pair of network nodes. Optionally, specify a label for each node as well as its MNI coordinates expressed in millimetres. 
+
+CONNECTIVITY MATRICES: 
+The connectivity matrices can be given either as a: 
+1. Text file (*.txt), where a separate text file is used to store the connectivity matrix for each subject/observation (provide the path and name of only one of the text files and any others in the same directory will be identified automatically)
+2. Valid Matlab expression (type the expression)
+3. Matlab file (*.mat) containing a single variable 
+The Matlab expression or the Matlab file must specify a numeric array with three dimensions, where concatenation across the observations/subjects is in the third dimension. Specifically, element (i,j,k) stores the connectivity value between node i and node j for observation/subject number k.   
+
+NODE COORDINATES (MNI) [optional]:
+Node coordinates are used to display results with NBSview. Node coordinates are specified as a numeric array with three columns (x,y,z) and as many rows as there are network nodes. They can be given either as a: 
+1. Valid Matlab expression (type the expression)
+2. Text file (*.txt)
+3. Matlab file (*.mat) containing a single variable 
+Specifying node coordinates is optional, but they are mandatory for NBSview. 
+See AAL\getCOG.m for a script to determine the node coordinates (node centre of gravity) for an arbitrary node parcellation given as a NIFTI file.
+Use AAL\aalCOG.txt if the 116 AAL nodes are used. 
+
+NODE LABELS [optional]:
+Specify a label for each node. Node labels can be given either as a:
+1. Valid Matlab expression (type the expression)
+2. Text file (*.txt), where each line specifies a node label
+3. Matlab file (*.mat) containing a single variable 
+The Matlab expression or the Matlab file must specify a cell array of strings, where there are as many strings as there are nodes. 
+	
+	
