@@ -44,7 +44,16 @@ catch
   return
 end
  
-if any(volDIM(1:3)-size(niftiIn.dat(:,:,:,1)))
+niiDIM = size(niftiIn.dat(:,:,:,1));
+
+% Needed to add this in case the "template" image was also two-dimensional
+% Robert Welsh - 2015-10-29
+
+if length(niiDIM) < length(volDIM)
+    niiDIM = [niiDIM 1];
+end
+
+if any(volDIM(1:3)-niiDIM)
   SOM_LOG(sprintf('FATAL ERROR : TemplateImage dimension doesn''t match data dimension to be written\n'));
   return 
 end
