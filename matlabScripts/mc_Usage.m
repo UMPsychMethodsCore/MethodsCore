@@ -26,16 +26,24 @@ if isunix
     userName = getenv('USER');
 end
 
-folderDate = datestr(date,'yyyy_mm');
-outputDir = fullfile(mcRoot,'.Usage',hostName,folderDate,funcFolder);
-if exist(outputDir,'dir') ~= 7
-    mkdir(outputDir);
-    fileattrib(outputDir,'+w','o');
+% create usage folder and change permissions
+OutputDir = mcRoot;
+CreateDirs = {'.Usage', hostName, datestr(date, 'yyyy_mm'), funcFolder};
+for i = 1:size(CreateDirs, 2)
+    OutputDir = fullfile(OutputDir, CreateDirs{i});
+    if exist(OutputDir, 'dir') ~= 7
+        [Success Mes Mid] = mkdir(OutputDir);
+        if ~Success
+            fprintf(1, 'Unable to make dir %s\n', OutputDir);
+            return;
+        end
+        fileattrib(OutputDir, '+w +x', 'o g');
+    end
 end
 
 fileDate = datestr(clock,'yymmdd_HH_MM_SS');
 outputfile = [fileDate '_' userName '_' hostName];
-fid = fopen(fullfile(outputDir,outputfile),'a+');
+fid = fopen(fullfile(OutputDir,outputfile),'a+');
 if fid == -1; return; end;
 
 result = true;
