@@ -1,0 +1,10 @@
+%Atlas Types
+%Format: atlasname, subdir, lookupfile, dispimage, licensefile, conversion_file
+%
+HUMAN ATLAS,MNI_atlas_templates,master_lookup.txt,MNI_T1.nii,info.html,atlas_space_conversions.txt
+TD-ICBM HUMAN ATLAS,TD-ICBM_MNI_atlas_templates,master_lookup.txt,MNI_T1.nii,info.html,atlas_space_conversions.txt
+Rhesus Atlas,rhesus_atlas_templates,master_lookup.txt,templateSkull.nii,info.html
+Vervet Atlas,vervet_atlas_templates,master_lookup.txt,Vervet_T1_Template_WholeHead.nii,info.html
+%Mouse Atlas,mouse_atlas_templates,master_lookup.txt,Pro_atlas_whole_M_Normal_age12_num10.nii,info.html
+Mouse Atlas,mouse_atlas_templates,master_lookup.txt,c57_15_M_Normal_age12.nii,info.html
+%Sample Atlas,sampleAtlas,master_lookup.txt,MNI_T1.nii

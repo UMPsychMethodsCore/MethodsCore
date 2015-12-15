@@ -1,0 +1,8 @@
+PickAtlas 2.5 is ONLY for SPM8 revision 4010 or better.
+
+3.0.2
+
+Install as directed in documentation.  Additionally, the wfu_pickatlas 
+directory may be added to the top of the path.  This will allow the 
+RESULTS button to call a ROI analysis instead of going through the 
+PickAtlas interface.

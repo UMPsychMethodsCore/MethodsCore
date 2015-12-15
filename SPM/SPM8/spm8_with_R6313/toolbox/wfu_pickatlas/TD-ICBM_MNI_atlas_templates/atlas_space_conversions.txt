@@ -1,0 +1,11 @@
+% Voxel to Space conversion functions
+% The functions should take as inputs an Nx3 or 3xN array in voxel, and the template image MAT, and the wfu_pickatlas handles.
+%
+% These functions are evaluated as part of the cmdGoN_Callback's in wfu_pickatlas.m
+% 
+% Format: reference_number, display_name, mm_to_space_function, space_to_cc_function, isTalairarch
+%
+% isTalairarch is bool (0 or 1) with 1 representing the output from this function is in Talairarch space.
+% this allows the PickAtlas to know if it can intergrate the Talairarch Deamon
+MNI, wfu_cub2mni, wfu_mni2cub, 0
+ICBM Tal, wfu_cub2icbmtal, wfu_icbmtal2cub, 1
