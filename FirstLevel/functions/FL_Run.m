@@ -188,6 +188,9 @@ function SandboxOutputDir = HandleDirectory(SubjOutputDir, opt)
     if opt.Mode == 1 || opt.Mode == 2
         % create subject output directory
         OutputDirCheck.Template = SubjOutputDir;
+        if (strcmp(OutputDirCheck.Template(end),filesep))
+            OutputDirCheck.Template = OutputDirCheck.Template(1:end-1);
+        end
         OutputDirCheck.mode = 'makeparentdir';
         mc_GenPath(OutputDirCheck);
         % create sandbox directory
