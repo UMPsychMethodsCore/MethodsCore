@@ -99,8 +99,20 @@ if (RunMode(1) | sum(RunMode) == 0)
             RealignmentParameters = load(RealignmentParametersFile);
             RealignmentParametersDeriv = diff(RealignmentParameters);
             RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
-
-            parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
+            if (MotionDeriv)
+            	RealignmentParametersQuad = [RealignmentParameters RealignmentParametersDerivR].^2;
+            else
+	    	RealignmentParametersQuad = RealignmenParameters.^2;
+	    end
+	    
+	    parameters.data.run(iRun).MotionParameters = [RealignmentParameters];
+	    
+	    if (MotionDeriv)
+	    	parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersDerivR];
+	    end
+	    if (MotionQuad)
+	    	parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersQuad];
+	    end
             parameters.data.run(iRun).nTIME = NumScan(iRun);
             
             %%%added code to handle censorVectors

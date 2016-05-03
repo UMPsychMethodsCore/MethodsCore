@@ -126,6 +126,14 @@ BrainMaskTemplate = '[Exp]/Subjects/NYU/ROIS/rs_rEPI_MASK_NOEYES.img';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RealignmentParametersTemplate = '[Exp]/Subjects/NYU/[Subject]/session_1/rest_1/[Run]/mcflirt*.dat';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Include first derivitave and quadratic terms for regressors
+%%%  0 = do not include
+%%%  1 = include
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MotionDeriv = 1;
+MotionQuad = 1;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path Template for file containing timepoints to censor from the data
 %%% This file should either be a simple text file containing a column of
