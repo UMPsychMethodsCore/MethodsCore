@@ -5,9 +5,9 @@ function varargout = BrainNet(varargin)
 %	Beijing Normal University
 %	Written by Mingrui Xia
 %	Mail to Author:  <a href="mingruixia@gmail.com">Mingrui Xia</a>
-%   Version 1.21;
-%   Date 20110531;
-%   Last edited 20120414
+%   Version 1.41;
+%   Date 20110906;
+%   Last edited 20130221
 %-----------------------------------------------------------
 %
 % BrainNet MATLAB code for BrainNet.fig
@@ -33,7 +33,7 @@ function varargout = BrainNet(varargin)
 
 % Edit the above text to modify the response to help BrainNet
 
-% Last Modified by GUIDE v2.5 13-Apr-2012 10:19:51
+% Last Modified by GUIDE v2.5 01-Apr-2013 11:42:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -77,6 +77,7 @@ guidata(hObject, handles);
 %     figFrame.setFigureIcon(newIcon);
 % end
 movegui(handles.NV_fig,'center');
+
 global FLAG
 FLAG.Loadfile=0;
 FLAG.EC=0;
@@ -87,11 +88,16 @@ FLAG.sagittal=0;
 FLAG.coronal=0;
 FLAG.LF=0;
 FLAG.MAP=0;
+FLAG.IsCalledByCMD = 0;
+
 global EC
 EC=[];
 EC.bak.color=[1,1,1];
+
 EC.msh.color=[0.95,0.95,0.95];
-EC.msh.alpha=0.2;
+EC.msh.alpha=0.4;
+EC.msh.doublebrain = 0; %%% Added by Mingrui Xia, 20120717, show two brains in one figure, 0 for one brain, 1 for two brains.
+
 EC.nod.draw=1;
 EC.nod.draw_threshold_type=1;
 EC.nod.draw_threshold=0;
@@ -108,14 +114,25 @@ EC.nod.color_threshold=0;
 EC.nod.CMm=[1,0,0,0,1,1,0.5,0,0,0,0.5,0.5,1,0.5,0.5,1,1,0.5,0,0.5,0
     0,1,0,1,0,1,0,0.5,0,0.5,0,0.5,0.5,1,0.5,0.5,0,1,0.5,0,0.5
     0,0,1,1,1,0,0,0,0.5,0.5,0.5,0,0.5,0.5,1,0,0.5,0,1,1,1]';
+% EC.nod.CMm = hsv(64);
+% tmp = [];
+% for i = 1:8
+%     tmp = vertcat(tmp,EC.nod.CMm(i:8:64,:));
+%     %     tmp = [tmp,EC.nod.CMm(i:8:256,:)'];
+% end
+% EC.nod.CMm = tmp;
+% clear tmp
+
 EC.lbl=2;
 EC.lbl_threshold=0;
 EC.lbl_threshold_type=1;
+
 EC.edg.draw=1;
 EC.edg.draw_threshold=0;
 EC.edg.draw_abs=1;
 EC.edg.size=2;
-EC.edg.size_size=0.3;
+% EC.edg.size_size=0.3;
+EC.edg.size_size = 1;
 EC.edg.size_value=1;
 EC.edg.size_threshold=0;
 EC.edg.size_ratio=1;
@@ -126,27 +143,50 @@ EC.edg.color_map=1;
 EC.edg.color_threshold=0;
 EC.edg.color_distance=0;
 EC.edg.color_abs=1;
-
 EC.edg.interhemiedges = 0; % Add by Mingrui Xia, 20120109, draw inter hemisphere edges.
+EC.edg.directed = 0; % Add by Mingrui Xia, 20120621, draw directed network.
 
 EC.img.width=2000;
 EC.img.height=1500;
 EC.img.dpi=300;
+
 EC.lbl_font.FontName='Arial';
 EC.lbl_font.FontWeight='bold';
 EC.lbl_font.FontAngle='normal';
 EC.lbl_font.FontSize=11;
 EC.lbl_font.FontUnits='points';
+
+
 EC.lot.view=1;
 EC.lot.view_direction=1;
-EC.vol.display = []; 
+% Added by Mingrui Xia, 20120806, add custom view for single brain.
+EC.lot.view_az = -90;
+EC.lot.view_el = 0;
+
+
+EC.vol.display = [];
 EC.vol.pn = [];
 EC.vol.px = [];
 EC.vol.nn = [];
 EC.vol.nx = [];
 EC.vol.null=[0.95,0.95,0.95];
 EC.vol.CM=ones(1000,3)*0.75;
-EC.vol.color_map=15; 
+EC.vol.color_map=15;
+EC.vol.cmstring = 'jet(1000);';
+EC.vol.adjustCM = 1;
+
+% Added by Mingrui Xia, 20120726, selection for different mapping algorithm.
+% 1 for Nearest Voxel
+% 2 for Average Vertex
+% 3 for Average Voxel
+% 4 for Gaussian
+% 5 for Interpolated (default)
+% 6 for Maximum Voxel
+% 7 for Minimum Voxel
+% 8 for Extremum Voxel
+% 9 for Most Neighbour Voxel, Added by Mingrui Xia, 20130104
+
+EC.vol.mapalgorithm = 5;
 
 EC.glb.material = 'dull';% Added by Mingrui Xia, 20120316, modify object material, shading, light.
 EC.glb.material_ka = '0.5';
@@ -158,12 +198,26 @@ EC.glb.lightdirection = 'right';
 EC.glb.render = 'OpenGL'; % Added by Mingrui Xia, 20120413, selection for rendering methods
 EC.glb.detail = 3; % Add by Mingrui Xia, 20120413, adjust graph detail
 
+% Added by Mingrui, 20120528, for ROI draw
+EC.vol.type = 1; % 1 for volume to surface, 2 for ROI
+EC.vol.roi.drawall = 1;
+EC.vol.roi.draw = [];
+EC.vol.roi.color = hsv(100);
+EC.vol.roi.color = [EC.vol.roi.color(1:10:91,:)',EC.vol.roi.color(2:10:92,:)',EC.vol.roi.color(3:10:93,:)',EC.vol.roi.color(4:10:94,:)',EC.vol.roi.color(5:10:95,:)',EC.vol.roi.color(6:10:96,:)',EC.vol.roi.color(7:10:97,:)',EC.vol.roi.color(8:10:98,:)',EC.vol.roi.color(9:10:99,:)',EC.vol.roi.color(10:10:100,:)']';
+EC.vol.roi.color = repmat(EC.vol.roi.color,11,1);
+EC.vol.roi.colort = EC.vol.roi.color;
+EC.vol.roi.smooth = 1;
+EC.vol.roi.drawcus = '';
+EC.vol.roi.drawt = [];
+
+
 
 global a
 if ~isempty(a) && mean(ishandle(a))==1
     delete(a);
 end
 a=[];
+
 global File
 File.MF=[];
 File.NI=[];
@@ -175,11 +229,16 @@ if exist('BrainNet_Background.jpg','file')==2
     imshow(imread('BrainNet_Background.jpg'));
 end
 
-global AAL %%% Added by Mingrui Xia, 20120413, give out aal information for selected vertex.
+global OutputText %%% Added by Mingrui Xia, 20120413, give out aal information for selected vertex.
 if exist('BrainNet_AAL_Label.mat','file')==2
-    AAL = load('BrainNet_AAL_Label.mat');
+    OutputText.AAL = load('BrainNet_AAL_Label.mat');
 else
-    AAL = [];
+    OutputText.AAL = [];
+end
+if exist('BrainNet_Brodmann_Label.mat','file')==2 %%% Added by Mingrui Xia, 20120417, give out brodmann information for selected vertex.
+    OutputText.Brodmann = load('BrainNet_Brodmann_Label.mat');
+else
+    OutputText.Brodmann = [];
 end
 dcm_obj = datacursormode(hObject);
 set(dcm_obj,'UpdateFcn',@BrainNet_Output_txt)
@@ -229,7 +288,10 @@ function NV_m_nm_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global FLAG
 
-if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1 % YAN Chao-Gan 111023. For calling from outside.
+if (isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1) || ...
+        (isfield(FLAG,'IsCalledByCMD') && FLAG.IsCalledByCMD==1)
+    % YAN Chao-Gan 111023. For calling from outside. Edited Mingrui Xia,
+    % 20121031 add call from commandline
     handles.NV_axes=gca(hObject);
 end
 axes(handles.NV_axes);
@@ -253,7 +315,7 @@ global surf
 global EC
 switch EC.edg.draw
     case 1
-        [surf.ncyl,surf.cylinder2]=Nettrans(surf.net,min(min(surf.net)));
+        [surf.ncyl,surf.cylinder2]=Nettrans(surf.net,min(surf.net(:)));
     case 2
         [surf.ncyl,surf.cylinder2]=Nettrans(surf.net,EC.edg.draw_threshold);
 end
@@ -338,30 +400,75 @@ if EC.nod.color==2
 else
     surf.sphere(:,6)=surf.sphere(:,4);
 end
-if EC.nod.size==2||EC.nod.size==3
-    surf.sphere(:,7)=surf.sphere(:,5);
-    if min(surf.sphere(:,7))<0
-        surf.sphere(:,7)=surf.sphere(:,7)-min(surf.sphere(:,7));
-    end
-    if min(surf.sphere(:,7))<1
-        surf.sphere(:,7)=surf.sphere(:,7)+1;
-    end
-    while max(surf.sphere(:,7))/min(surf.sphere(:,7))>10
-        surf.sphere(:,7)=log(surf.sphere(:,7));
-        if min(surf.sphere(:,7))<1
-            surf.sphere(:,7)=surf.sphere(:,7)+1;
+surf.sphere(:,7) = surf.sphere(:,5); % Edited by Mingrui Xia, 20120702, fix edge length when using fix node size.
+switch EC.nod.size
+    case 1
+        surf.sphere(:,7) = EC.nod.size_size;
+    case {2,3}
+        if EC.nod.size_value == 1
+            if min(surf.sphere(:,7))<0
+                surf.sphere(:,7)=surf.sphere(:,7)-min(surf.sphere(:,7));
+            end
+            if min(surf.sphere(:,7))<1
+                surf.sphere(:,7)=surf.sphere(:,7)+1;
+            end
+            while max(surf.sphere(:,7))/min(surf.sphere(:,7))>10
+                surf.sphere(:,7)=log(surf.sphere(:,7));
+                if min(surf.sphere(:,7))<1
+                    surf.sphere(:,7)=surf.sphere(:,7)+1;
+                end
+            end
+            if max(surf.sphere(:,7))~=min(surf.sphere(:,7))
+                EC.nod.k=5/(max(surf.sphere(:,7))-min(surf.sphere(:,7)));
+                EC.nod.b=7-EC.nod.k*max(surf.sphere(:,7));
+            else
+                EC.nod.k=0;
+                EC.nod.b=4;
+            end
+            surf.sphere(:,7)=surf.sphere(:,7)*EC.nod.k+EC.nod.b;
         end
+        if EC.nod.size == 3
+            tmp = surf.sphere(:,7);
+            tmp(tmp < EC.nod.size_threshold) = 1;
+            surf.sphere(:,7) = tmp;
+        end
+end
+surf.sphere(:,7) = surf.sphere(:,7) * EC.nod.size_ratio;
+
+
+
+function fv = ROIPrepare
+global EC
+global surf
+
+fv = cell(length(EC.vol.roi.draw),1);
+for i = 1:length(fv)
+    vol = surf.mask;
+    vol(vol ~= EC.vol.roi.draw(i)) = 0;
+    vol(vol == EC.vol.roi.draw(i)) = 1;
+    if EC.vol.roi.smooth == 1
+        vol = smooth3(vol);
     end
-    if max(surf.sphere(:,7))~=min(surf.sphere(:,7))
-        EC.nod.k=5/(max(surf.sphere(:,7))-min(surf.sphere(:,7)));
-        EC.nod.b=7-EC.nod.k*max(surf.sphere(:,7));
+    fv{i,1} = isosurface(vol);
+    while size(fv{i,1}.vertices,1) == 0 %% Added by Mingrui Xia, expand ROI while it is too small
+        vol = smooth3(vol);
+        vol(vol>0) = 1;
+        fv{i,1} = isosurface(vol);
+    end
+    coord = fv{i,1}.vertices(:,1);
+    fv{i,1}.vertices(:,1) = fv{i,1}.vertices(:,2);
+    fv{i,1}.vertices(:,2) = coord;
+    fv{i,1}.vertices = fv{i,1}.vertices';
+    fv{i,1}.vertices(4,:) = 1;
+    fv{i,1}.vertices = surf.hdr.mat * fv{i,1}.vertices;
+    fv{i,1}.vertices(4,:) = [];
+    fv{i,1}.vertices = fv{i,1}.vertices';
+    clear coord
+    if length(find(fv{i,1}.vertices(:,1) < 0)) > length(fv{i,1}.vertices(:,1))/2
+        fv{i,1}.side = 1;
     else
-        EC.nod.k=0;
-        EC.nod.b=4;
+        fv{i,1}.side = 2;
     end
-    surf.sphere(:,7)=surf.sphere(:,7)*EC.nod.k+EC.nod.b;
-else
-    surf.sphere(:,7)=surf.sphere(:,5);
 end
 
 
@@ -374,12 +481,38 @@ switch EC.edg.draw_abs
     case 1
         temp=abs(net);
 end
+temp = temp - diag(diag(temp));
 temp(temp==0)=t-1;
-index=find(triu(temp)>t);
-ncyl=length(index);
-cylinder=zeros(ncyl,3);
-[cylinder(:,1),cylinder(:,2)]=ind2sub(size(net),index);
-cylinder(:,3)=net(index);
+if EC.edg.directed == 0
+    index=find(triu(temp)>t&triu(temp)~=0); % Eddited by Mingrui Xia, 20120702, fix a drawall bug.
+    ncyl=length(index);
+    cylinder=zeros(ncyl,3);
+    [cylinder(:,1),cylinder(:,2)]=ind2sub(size(net),index);
+    cylinder(:,3)=net(index);
+else % Add by Mingrui Xia, 20120621, draw directed network.
+    temp(temp <= t) = 0;
+    net_up = triu(temp);
+    net_low = tril(temp);
+    net_conj = net_low';
+    net_conj(net_up == 0) = 0;
+    net_conj(net_conj ~= 0) = (net_up(net_conj ~= 0) + net_conj(net_conj ~= 0)) / 2;
+    ind = find(net_conj ~= 0);
+    cylinder1 = zeros(length(ind),4);
+    [cylinder1(:,1),cylinder1(:,2)]=ind2sub(size(net),ind);
+    cylinder1(:,3) = net(ind);
+    cylinder1(:,4) = 2;
+    
+    net_conj = net_conj + net_conj';
+    temp(net_conj ~= 0) = 0;
+    ind = find(temp ~= 0);
+    cylinder2 = zeros(length(ind),4);
+    [cylinder2(:,2),cylinder2(:,1)]=ind2sub(size(net),ind);
+    cylinder2(:,3) = net(ind);
+    cylinder2(:,4) = 1;
+    
+    cylinder = [cylinder1',cylinder2']';
+    ncyl = size(cylinder,1);
+end
 
 
 % Add by Mingrui Xia, 20120109, draw inter hemisphere edges.
@@ -395,7 +528,7 @@ t=size(surf.tri,1);
 v=size(surf.coord,2);
 tmax=max(surf.tri,[],2);
 tmin=min(surf.tri,[],2);
-if min(tmin(t/2+1:t))-max(tmax(1:t/2))==1
+if min(tmin(t/2+1:t))-max(tmax(1:ceil(t/2)))==1
     cut=t/2;
     cuv=v/2;
 else
@@ -448,6 +581,15 @@ Viewer(1,:)=[0.045,0.45,0.4387,0.6,-90,0];
 Viewer(2,:)=[0.52,0.45,0.4387,0.6,90,0];
 Viewer(3,:)=[0.045,-0.01,0.4387,0.6,90,0];
 Viewer(4,:)=[0.52,-0.01,0.4387,0.6,-90,0];
+
+function Viewer=GenerateView4v
+% Lijie Huang 130221 Added. For Medium View (4 views) and 2 Ventral Views
+Viewer(1,:)=[0.045,0.6,0.4387,0.36,-90,0];
+Viewer(2,:)=[0.52,0.6,0.4387,0.36,90,0];
+Viewer(3,:)=[0.045,0.23,0.4387,0.36,90,0];
+Viewer(4,:)=[0.52,0.23,0.4387,0.36,-90,0];
+Viewer(5,:)=[0.045,0.03,0.4387,0.18,-90,-90];
+Viewer(6,:)=[0.52,0.03,0.4387,0.18,90,-90];
 
 
 % Viewer(1,:)=[0.055,0.62,0.2925,0.4,-90,0];
@@ -502,6 +644,29 @@ if isfield(surf,'T')
     Surfmatrix.T{4}=surf.T(vr);
 end
 
+function Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv)
+% Lijie Huang 130221 Added. For Medium View (4 views) and 2 ventral views
+Surfmatrix.tri{1}=surf.tri(tl,:);
+Surfmatrix.tri{2}=surf.tri(tr,:)-cuv;
+Surfmatrix.tri{3}=surf.tri(tl,:);
+Surfmatrix.tri{4}=surf.tri(tr,:)-cuv;
+Surfmatrix.tri{5}=surf.tri(tl,:);
+Surfmatrix.tri{6}=surf.tri(tr,:)-cuv;
+Surfmatrix.coord{1}=[surf.coord(1,vl)',surf.coord(2,vl)',surf.coord(3,vl)'];
+Surfmatrix.coord{2}=[surf.coord(1,vr)',surf.coord(2,vr)',surf.coord(3,vr)'];
+Surfmatrix.coord{3}=[surf.coord(1,vl)',surf.coord(2,vl)',surf.coord(3,vl)'];
+Surfmatrix.coord{4}=[surf.coord(1,vr)',surf.coord(2,vr)',surf.coord(3,vr)'];
+Surfmatrix.coord{5}=[surf.coord(1,vl)',surf.coord(2,vl)',surf.coord(3,vl)'];
+Surfmatrix.coord{6}=[surf.coord(1,vr)',surf.coord(2,vr)',surf.coord(3,vr)'];
+if isfield(surf,'T')
+    Surfmatrix.T{1}=surf.T(vl);
+    Surfmatrix.T{2}=surf.T(vr);
+    Surfmatrix.T{3}=surf.T(vl);
+    Surfmatrix.T{4}=surf.T(vr);
+    Surfmatrix.T{5}=surf.T(vl);
+    Surfmatrix.T{6}=surf.T(vr);
+end
+
 
 function a=PlotMesh4(Viewer,Surfmatrix,alpha)
 % Mingrui Xia 111026 Added. For Medium View (4 views)
@@ -520,7 +685,34 @@ for i=1:4
     set(Brain,'FaceAlpha',EC.msh.alpha);
     if alpha~=1
         eval(['lighting ',EC.glb.lighting,';']);axis tight; axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+    switch i
+        case 1
+            text(0,max(Surfmatrix.coord{i}(:,2)),max(Surfmatrix.coord{i}(:,3)),'L','FontSize',20,'FontWeight','Bold','HorizontalAlignment','center');
+        case 2
+            text(0,max(Surfmatrix.coord{i}(:,2)),max(Surfmatrix.coord{i}(:,3)),'R','FontSize',20,'FontWeight','Bold','HorizontalAlignment','center');
+    end
+end
+
+function a=PlotMesh4v(Viewer,Surfmatrix,alpha)
+% Mingrui Xia 111026 Added. For Medium View (4 views)
+global EC
+global cam
+a=zeros(1,6);
+for i=1:6
+    a(i)=axes('position',Viewer(i,1:4));
+    Brain=trisurf(Surfmatrix.tri{i},Surfmatrix.coord{i}(:,1),Surfmatrix.coord{i}(:,2),Surfmatrix.coord{i}(:,3),'EdgeColor','none');
+    view(Viewer(i,5:6));
+    daspect([1 1 1]);
+    whitebg(gcf,EC.bak.color);
+    set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
+    eval(['lighting ',EC.glb.lighting,';']); eval(['material ',EC.glb.material,';']);eval(['shading ',EC.glb.shading,';']);axis off
+    set(Brain,'FaceColor',EC.msh.color);
+    set(Brain,'FaceAlpha',EC.msh.alpha);
+    if alpha~=1
+        eval(['lighting ',EC.glb.lighting,';']);axis tight; axis vis3d off;
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     switch i
         case 1
@@ -547,7 +739,7 @@ for i=1:8
     set(Brain,'FaceAlpha',EC.msh.alpha);
     if alpha~=1
         eval(['lighting ',EC.glb.lighting,';']);axis tight; axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     switch i
         case 1
@@ -574,35 +766,9 @@ for i=1:6
     set(Brain,'FaceAlpha',EC.msh.alpha);
     if alpha~=1
         axis tight; eval(['lighting ',EC.glb.lighting,';']);axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
 end
-
-
-function a=MapMesh6(Viewer,surf,low,high,alpha)
-%%% Edited by Mingrui Xia, 20111116, add translucency show
-global EC
-global cam
-a=zeros(1,6);
-for i=1:6
-    a(i)=axes('position',Viewer(i,1:4));
-    Brain=trisurf(surf.tri,surf.coord(1,:),surf.coord(2,:),surf.coord(3,:),surf.T,'EdgeColor','none');
-    set(Brain,'FaceAlpha',EC.msh.alpha);
-    view(Viewer(i,5:6));
-    daspect([1 1 1]);
-    whitebg(gcf,EC.bak.color);
-    set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
-    eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
-    colormap(EC.vol.CM);
-    caxis([low,high]);
-    if alpha~=1
-        axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
-    end
-end
-cb=colorbar('location','South');
-set(cb,'Position',[0.35 0.085 0.3 0.03]);
-set(cb,'XAxisLocation','bottom');
 
 
 function a=PlotMesh1(surf,alpha)
@@ -610,34 +776,22 @@ global EC
 global cam
 a=axes;
 Brain=trisurf(surf.tri,surf.coord(1,:),surf.coord(2,:),surf.coord(3,:),'EdgeColor','none');
-switch EC.lot.view_direction
-    case 1
-        view(-90,0);
-    case 2
-        view(0,90);
-    case 3
-        view(180,0);
+if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+    hold on
+    Brain2 = trisurf(surf.tri,surf.coord2(1,:),surf.coord2(2,:),surf.coord2(3,:),'EdgeColor','none');
+    hold off
 end
-daspect([1 1 1]);
 whitebg(gcf,EC.bak.color);
 set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
 eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
 set(Brain,'FaceColor',EC.msh.color);
 set(Brain,'FaceAlpha',EC.msh.alpha);
-if alpha~=1
-    axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
-    cam = camlight(EC.glb.lightdirection);
+if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+    set(Brain2,'FaceColor',EC.msh.color);
+    set(Brain2,'FaceAlpha',EC.msh.alpha);
 end
-
-
-function a=MapMesh1(surf,low,high,alpha)
-%%% Edited by Mingrui Xia, 20111116, add translucency show
-global EC
-global cam
-a=axes;
-Brain=trisurf(surf.tri,surf.coord(1,:),surf.coord(2,:),surf.coord(3,:),surf.T,'EdgeColor','none');
-set(Brain,'FaceAlpha',EC.msh.alpha);
-colormap(EC.vol.CM);
+daspect([1 1 1])
+% Edited  by Mingrui Xia, 20120806, add custom view for single brain.
 switch EC.lot.view_direction
     case 1
         view(-90,0);
@@ -645,19 +799,191 @@ switch EC.lot.view_direction
         view(0,90);
     case 3
         view(180,0);
+    case 4
+        view(EC.lot.view_az,EC.lot.view_el);
 end
+
+if alpha~=1    
+    axis tight;  axis vis3d off;eval(['lighting ',EC.glb.lighting,';']);
+    cam = camlight(EC.glb.lightdirection);
+end
+
+
+function a = PlotROI1(fv,a,alpha)
+% Added by Mingrui, 20120529, DrawROI
+global EC
+global cam
+hold on
+for i = 1:length(fv)
+    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+end
+hold off
+if alpha ~= 1
+    axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+    cam = camlight(EC.glb.lightdirection);
+end
+
+function a = PlotROI8(fv,a,alpha)
+% Added by Mingrui, 20120529, DrawROI
+global EC
+global cam
+for j = 1:8
+    axes(a(j));
+    switch j
+        case {1,4}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 1
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+        case {2,5,7,8}
+            hold on
+            for i = 1:length(fv)
+                roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                set(roi,'FaceColor',EC.vol.roi.color(i,:));
+            end
+            hold off
+        case{3,6}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 2
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+    end
+    if alpha ~= 1
+        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+end
+
+function a = PlotROI6(fv,a,alpha)
+% Added by Mingrui, 20120529, DrawROI
+global EC
+global cam
+for j = 1:6
+    axes(a(j));
+    hold on
+    for i = 1:length(fv)
+        roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+        set(roi,'FaceColor',EC.vol.roi.color(i,:));
+    end
+    hold off
+    if alpha ~= 1
+        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+end
+
+
+function a = PlotROI4(fv,a,alpha)
+global EC
+global cam
+for j = 1:4
+    axes(a(j));
+    switch j
+        case {1,3}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 1
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+        case{2,4}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 2
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+    end
+    if alpha ~= 1
+        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+end
+
+
+function a = PlotROI4v(fv,a,alpha)
+global EC
+global cam
+for j = 1:6
+    axes(a(j));
+    switch j
+        case {1,3, 5}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 1
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+        case{2,4, 6}
+            hold on
+            for i = 1:length(fv)
+                if fv{i,1}.side == 2
+                    roi =  trisurf(fv{i,1}.faces,fv{i,1}.vertices(:,1),fv{i,1}.vertices(:,2),fv{i,1}.vertices(:,3),'EdgeColor','none');
+                    set(roi,'FaceColor',EC.vol.roi.color(i,:));
+                end
+            end
+            hold off
+    end
+    if alpha ~= 1
+        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+end
+
+
+function a=MapMesh1(surf,low,high,alpha)
+global EC
+global cam
+% Edited by Mingrui Xia,20120730,eliminate the overlap of colorbar and
+% surface.
+a=axes('position',[0.07,0.1,0.8,0.8]);
+Brain=trisurf(surf.tri,surf.coord(1,:),surf.coord(2,:),surf.coord(3,:),surf.T,'EdgeColor','none');
+
+colormap(EC.vol.CM);
+% Edited by Mingrui Xia, 20111116, add translucency show
+set(Brain,'FaceAlpha',EC.msh.alpha);
 daspect([1 1 1]);
+% Edited  by Mingrui Xia, 20120806, add custom view for single brain.
+switch EC.lot.view_direction
+    case 1
+        view(-90,0);
+    case 2
+        view(0,90);
+    case 3
+        view(180,0);
+    case 4
+        view(EC.lot.view_az,EC.lot.view_el);
+end
+
+
 whitebg(gcf,EC.bak.color);
 set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
 eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
 if alpha~=1
     axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
-    cam = camlight(EC.glb.lightdirection);
+    cam= camlight(EC.glb.lightdirection);
 end
 caxis([low,high]);
-cb=colorbar;
+cb=colorbar('location','East');
 set(cb,'Position',[0.9 0.1 0.03 0.3]);
-set(cb,'XAxisLocation','bottom');
+set(cb,'YAxisLocation','right');
+% Added by Mingrui Xia, 20120730, adjust colorbar ticks.
+set(cb,'YTick',get(cb,'YLim'));
 
 
 function a=MapMesh8(Viewer,Surfmatrix,low,high,alpha)
@@ -678,7 +1004,7 @@ for i=1:8
     eval(['lighting ',EC.glb.lighting,';']); eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
     if alpha~=1
         eval(['lighting ',EC.glb.lighting,';']);axis tight; axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     switch i
         case 1
@@ -690,6 +1016,8 @@ end
 cb=colorbar('location','South');
 set(cb,'Position',[0.35 0.085 0.3 0.03]);
 set(cb,'XAxisLocation','bottom');
+% Added by Mingrui Xia, 20120730, adjust colorbar ticks.
+set(cb,'XTick',get(cb,'XLim'));
 
 
 function a=MapMesh4(Viewer,Surfmatrix,low,high,alpha)
@@ -711,7 +1039,7 @@ for i=1:4
     eval(['lighting ',EC.glb.lighting,';']); eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
     if alpha~=1
         axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     switch i
         case 1
@@ -723,6 +1051,71 @@ end
 cb=colorbar('location','South');
 set(cb,'Position',[0.4 0.055 0.2 0.03]);
 set(cb,'XAxisLocation','bottom');
+% Added by Mingrui Xia, 20120730, adjust colorbar ticks.
+set(cb,'XTick',get(cb,'XLim'));
+
+function a=MapMesh4v(Viewer,Surfmatrix,low,high,alpha)
+% Lijie Huang 130221 Added. For Medium View (4 views) and 2 ventral views
+%%% Edited by Mingrui Xia, 20111116, add translucency show
+global EC
+global cam
+a=zeros(1,6);
+for i=1:6
+    a(i)=axes('position',Viewer(i,1:4));
+    Brain=trisurf(Surfmatrix.tri{i},Surfmatrix.coord{i}(:,1),Surfmatrix.coord{i}(:,2),Surfmatrix.coord{i}(:,3),Surfmatrix.T{i},'EdgeColor','none');
+    set(Brain,'FaceAlpha',EC.msh.alpha);
+    colormap(EC.vol.CM);
+    caxis([low,high])
+    view(Viewer(i,5:6));
+    daspect([1 1 1]);
+    whitebg(gcf,EC.bak.color);
+    set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
+    eval(['lighting ',EC.glb.lighting,';']); eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
+    if alpha~=1
+        axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+    switch i
+        case 1
+            text(0,max(Surfmatrix.coord{i}(:,2)),max(Surfmatrix.coord{i}(:,3)),'L','FontSize',20,'FontWeight','Bold','HorizontalAlignment','center');
+        case 2
+            text(0,max(Surfmatrix.coord{i}(:,2)),max(Surfmatrix.coord{i}(:,3)),'R','FontSize',20,'FontWeight','Bold','HorizontalAlignment','center');
+    end
+end
+cb=colorbar('location','South');
+set(cb,'Position',[0.4 0.6 0.2 0.03]);
+set(cb,'XAxisLocation','bottom');
+% Added by Mingrui Xia, 20120730, adjust colorbar ticks.
+set(cb,'XTick',get(cb,'XLim'));
+
+function a=MapMesh6(Viewer,surf,low,high,alpha)
+%%% Edited by Mingrui Xia, 20111116, add translucency show
+global EC
+global cam
+a=zeros(1,6);
+for i=1:6
+    a(i)=axes('position',Viewer(i,1:4));
+    Brain=trisurf(surf.tri,surf.coord(1,:),surf.coord(2,:),surf.coord(3,:),surf.T,'EdgeColor','none');
+    set(Brain,'FaceAlpha',EC.msh.alpha);
+    view(Viewer(i,5:6));
+    daspect([1 1 1]);
+    whitebg(gcf,EC.bak.color);
+    set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
+    eval(['material ',EC.glb.material,';']); eval(['shading ',EC.glb.shading,';']);axis off
+    colormap(EC.vol.CM);
+    caxis([low,high]);
+    if alpha~=1
+        axis tight; eval(['lighting ',EC.glb.lighting,';']); axis vis3d off;
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+end
+cb=colorbar('location','South');
+set(cb,'Position',[0.35 0.085 0.3 0.03]);
+set(cb,'XAxisLocation','bottom');
+% Added by Mingrui Xia, 20120730, adjust colorbar ticks.
+set(cb,'XTick',get(cb,'XLim'));
+
+
 
 
 function a=PlotNode6(Viewer,surf,a,n,EC)
@@ -751,7 +1144,7 @@ if length(a)>1
         
         if n>1
             axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-            cam = camlight(EC.glb.lightdirection);
+            cam(i) = camlight(EC.glb.lightdirection);
         end
         hold off
     end
@@ -784,7 +1177,7 @@ else
         end
         if n>1
             axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-            cam = camlight(EC.glb.lightdirection);
+            cam(i) = camlight(EC.glb.lightdirection);
         end
         hold off
     end
@@ -885,7 +1278,106 @@ for i=1:4
     end
     if n>1
         axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
+    end
+    hold off
+end
+
+function a=PlotNode4v(surf, a, flag, centerX, n, EC)
+% Lijie Huang 130221 Added. For Medium View (4 views) and 2 ventral views
+global cam
+for i=1:6
+    axes(a(i));
+    hold on
+    switch i
+        case {1,3,5}
+            if flag==1
+                for j=1:surf.nsph
+                    if surf.sphere(j,1)<centerX
+                        switch EC.nod.draw
+                            case 1
+                                DrawSphere(surf,j,i,5,EC);
+                            case 2
+                                switch EC.nod.draw_threshold_type
+                                    case 1
+                                        if surf.sphere(j,5)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                    case 2
+                                        if surf.sphere(j,4)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                end
+                        end
+                    end
+                end
+            else
+                for j=1:surf.nsph
+                    if surf.sphere(j,1)>centerX
+                        switch EC.nod.draw
+                            case 1
+                                DrawSphere(surf,j,i,5,EC);
+                            case 2
+                                switch EC.nod.draw_threshold_type
+                                    case 1
+                                        if surf.sphere(j,5)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                    case 2
+                                        if surf.sphere(j,4)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                end
+                        end
+                    end
+                end
+            end
+        case{2,4,6}
+            if flag==2
+                for j=1:surf.nsph
+                    if surf.sphere(j,1)<centerX
+                        switch EC.nod.draw
+                            case 1
+                                DrawSphere(surf,j,i,5,EC);
+                            case 2
+                                switch EC.nod.draw_threshold_type
+                                    case 1
+                                        if surf.sphere(j,5)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                    case 2
+                                        if surf.sphere(j,4)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                end
+                        end
+                    end
+                end
+            else
+                for j=1:surf.nsph
+                    if surf.sphere(j,1)>centerX
+                        switch EC.nod.draw
+                            case 1
+                                DrawSphere(surf,j,i,5,EC);
+                            case 2
+                                switch EC.nod.draw_threshold_type
+                                    case 1
+                                        if surf.sphere(j,5)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                    case 2
+                                        if surf.sphere(j,4)>EC.nod.draw_threshold
+                                            DrawSphere(surf,j,i,5,EC);
+                                        end
+                                end
+                        end
+                    end
+                end
+            end
+    end
+    if n>1
+        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     hold off
 end
@@ -914,13 +1406,15 @@ if ~isempty(a)
         end
     end
     hold off
-    if n>1
-        axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-        cam = camlight(EC.glb.lightdirection);
+    if n>1        
+        axis tight;  axis vis3d off;daspect([1 1 1]);eval(['lighting ',EC.glb.lighting,';']);
+    cam = camlight(EC.glb.lightdirection);
     end
 else
     a=axes;
     hold on
+    daspect([1 1 1]);
+    % Edited  by Mingrui Xia, 20120806, add custom view for single brain.
     switch EC.lot.view_direction
         case 1
             view(-90,0);
@@ -928,8 +1422,10 @@ else
             view(0,90);
         case 3
             view(180,0);
+        case 4
+            view(EC.lot.view_az,EC.lot.view_el);
     end
-    daspect([1 1 1]);
+    
     whitebg(gcf,EC.bak.color);
     set(gcf,'Color',EC.bak.color,'InvertHardcopy','off');
     eval(['lighting ',EC.glb.lighting,';']);
@@ -952,7 +1448,7 @@ else
     end
     if n>1
         axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     hold off
 end
@@ -1069,7 +1565,7 @@ for i=1:8
     end
     if n>1
         axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-        cam = camlight(EC.glb.lightdirection);
+        cam(i) = camlight(EC.glb.lightdirection);
     end
     hold off
 end
@@ -1143,13 +1639,25 @@ switch i
 end
 
 
+function PlotLabel4v(surf,i,j)
+global EC
+switch i
+    case {1,2,3,4}
+        text(surf.sphere(j,1),surf.sphere(j,2),surf.sphere(j,3)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
+    case 5
+        text(surf.sphere(j,1)-surf.sphere(j,7)*EC.nod.size_ratio+2,surf.sphere(j,2),surf.sphere(j,3),surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');        
+    case 6
+        text(surf.sphere(j,1)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.sphere(j,2),surf.sphere(j,3),surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
+end
+
 function PlotLabel1(surf,j)
 %%% Added by Mingrui Xia, 111028. Plot label for single view.
 %%% Edited by Mingrui Xia, 20111113, label position plus radius times ratio.
 global EC
 switch EC.lot.view_direction
-    case 1
-        text(surf.sphere(j,1),surf.sphere(j,2),surf.sphere(j,3)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
+    case {1,4}
+        %         text(surf.sphere(j,1),surf.sphere(j,2),surf.sphere(j,3)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
+        text(0,surf.sphere(j,2),surf.sphere(j,3)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
     case 2
         if surf.sphere(j,1)<=0
             text(surf.sphere(j,1),surf.sphere(j,2)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.sphere(j,3),surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','right')
@@ -1173,40 +1681,43 @@ global EC
 text(surf.sphere(j,1),surf.sphere(j,2),surf.sphere(j,3)+surf.sphere(j,7)*EC.nod.size_ratio+2,surf.label{j}{1}{1},EC.lbl_font,'HorizontalAlignment','center');
 
 
+
 function DrawSphere(surf,j,i,n,EC)
-switch EC.nod.size
-    case 1
-        t=EC.nod.size_size;
-    case 2
-        switch EC.nod.size_value
-            case 1
-                t=surf.sphere(j,7);
-            case 2
-                if surf.sphere(j,5)<1
-                    t=1;
-                elseif surf.sphere(j,5)>10
-                    t=10;
-                else
-                    t=surf.sphere(j,5);
-                end
-        end
-    case 3
-        if surf.sphere(j,5)>EC.nod.size_threshold
-            switch EC.nod.size_value
-                case 1
-                    t=surf.sphere(j,7);
-                case 2
-                    if surf.sphere(j,5)>10
-                        t=10;
-                    else
-                        t=surf.sphere(j,5);
-                    end
-            end
-        else
-            t=1;
-        end
-end
-t=t*EC.nod.size_ratio;
+% switch EC.nod.size
+%     case 1
+% %         t=EC.nod.size_size;
+% t = surf.sphere(j,7);
+%     case 2
+%         switch EC.nod.size_value
+%             case 1
+%                 t=surf.sphere(j,7);
+%             case 2
+%                 if surf.sphere(j,5)<1
+%                     t=1;
+%                 elseif surf.sphere(j,5)>10
+%                     t=10;
+%                 else
+%                     t=surf.sphere(j,5);
+%                 end
+%         end
+%     case 3
+%         if surf.sphere(j,5)>EC.nod.size_threshold
+%             switch EC.nod.size_value
+%                 case 1
+%                     t=surf.sphere(j,7);
+%                 case 2
+%                     if surf.sphere(j,5)>10
+%                         t=10;
+%                     else
+%                         t=surf.sphere(j,5);
+%                     end
+%             end
+%         else
+%             t=1;
+%         end
+% end
+% t=t*EC.nod.size_ratio;
+t = surf.sphere(j,7); % Edited by Mingrui Xia, 20120702, fix edge length when using fix node size.
 switch EC.glb.detail  % Add by Mingrui Xia, 20120413, adjust graph detail
     case 1
         [x,y,z]=sphere(10);
@@ -1215,9 +1726,15 @@ switch EC.glb.detail  % Add by Mingrui Xia, 20120413, adjust graph detail
     case 3
         [x,y,z]=sphere(100);
 end
-x=x.*t+surf.sphere(j,1);
-y=y.*t+surf.sphere(j,2);
-z=z.*t+surf.sphere(j,3);
+if EC.msh.doublebrain == 1
+    x=x.*t+surf.sphere2(j,1);
+    y=y.*t+surf.sphere2(j,2);
+    z=z.*t+surf.sphere2(j,3);
+else
+    x=x.*t+surf.sphere(j,1);
+    y=y.*t+surf.sphere(j,2);
+    z=z.*t+surf.sphere(j,3);
+end
 Node=mesh(x,y,z,'EdgeColor','none');
 switch EC.nod.color
     case 1
@@ -1230,12 +1747,13 @@ switch EC.nod.color
             ci=64;
         end
     case 3
-        ci=int32(surf.sphere(j,4));
-        if ci<1
-            ci=22;
-        elseif ci>21
-            ci=22;
-        end
+%         ci = find(EC.nod.ModularNumber == surf.sphere(j,4));
+                ci=int32(surf.sphere(j,4));
+                if ci<1
+                    ci=22;
+                elseif ci>21
+                    ci=22;
+                end
     case 4
         if surf.sphere(j,4)>EC.nod.color_threshold
             ci=1;
@@ -1254,6 +1772,8 @@ if surf.label{j}{1}{1}~='-'
                 PlotLabel6(surf,i,j);
             elseif n==4 %%% Edited by Mingrui Xia, 111028. Add label plot for medium view and single view.
                 PlotLabel4(surf,j);
+            elseif n == 5
+                PlotLabel4v(surf,i,j);
             else
                 PlotLabel1(surf,j);
             end
@@ -1267,6 +1787,8 @@ if surf.label{j}{1}{1}~='-'
                             PlotLabel6(surf,i,j);
                         elseif n==4 %%% Edited by Mingrui Xia, 111028. Add label plot for medium view and single view.
                             PlotLabel4(surf,j);
+                            elseif n == 5
+                PlotLabel4v(surf,i,j);
                         else
                             PlotLabel1(surf,j);
                         end
@@ -1279,6 +1801,8 @@ if surf.label{j}{1}{1}~='-'
                             PlotLabel6(surf,i,j);
                         elseif n==4 %%% Edited by Mingrui Xia, 111028. Add label plot for medium view and single view.
                             PlotLabel4(surf,j);
+                            elseif n == 5
+                PlotLabel4v(surf,i,j);
                         else
                             PlotLabel1(surf,j);
                         end
@@ -1311,7 +1835,7 @@ for i=1:6
         DrawLine(surf,j);
     end
     axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-    cam = camlight(EC.glb.lightdirection);
+    cam(i) = camlight(EC.glb.lightdirection);
     hold off
 end
 
@@ -1323,7 +1847,8 @@ hold on
 for j=1:surf.ncyl
     DrawLine(surf,j);
 end
-axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+axis tight; axis vis3d off;daspect([1 1 1]);
+eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
 cam = camlight(EC.glb.lightdirection);
 hold off
 
@@ -1369,7 +1894,7 @@ for i=1:8
             end
     end
     axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-    cam = camlight(EC.glb.lightdirection);
+    cam(i) = camlight(EC.glb.lightdirection);
     hold off
 end
 
@@ -1411,7 +1936,48 @@ for i=1:4
             end
     end
     axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
-    cam = camlight(EC.glb.lightdirection);
+    cam(i) = camlight(EC.glb.lightdirection);
+    hold off
+end
+
+function PlotLine4v(surf,a,flag,centerX)
+global cam
+global EC
+for i=1:6
+    axes(a(i));
+    hold on
+    switch i
+        case {1,3,5}
+            if flag==1
+                for j=1:surf.ncyl
+                    if surf.sphere(surf.cylinder(j,1),1)<centerX&&surf.sphere(surf.cylinder(j,2),1)<centerX
+                        DrawLine(surf,j);
+                    end
+                end
+            else
+                for j=1:surf.ncyl
+                    if surf.sphere(surf.cylinder(j,1),1)>centerX&&surf.sphere(surf.cylinder(j,2),1)>centerX
+                        DrawLine(surf,j);
+                    end
+                end
+            end
+        case{2,4,6}
+            if flag==2
+                for j=1:surf.ncyl
+                    if surf.sphere(surf.cylinder(j,1),1)<centerX&&surf.sphere(surf.cylinder(j,2),1)<centerX
+                        DrawLine(surf,j);
+                    end
+                end
+            else
+                for j=1:surf.ncyl
+                    if surf.sphere(surf.cylinder(j,1),1)>centerX&&surf.sphere(surf.cylinder(j,2),1)>centerX
+                        DrawLine(surf,j);
+                    end
+                end
+            end
+    end
+    axis tight; axis vis3d off;eval(['material ',EC.glb.material,';']);eval(['lighting ',EC.glb.lighting,';']);
+    cam(i) = camlight(EC.glb.lightdirection);
     hold off
 end
 
@@ -1419,14 +1985,22 @@ end
 function DrawLine(surf,i)
 global EC
 %length_cyl=norm(surf.sphere(surf.cylinder(i,2),:)-surf.sphere(surf.cylinder(i,1),:)); % Fixed a bug by Mingrui Xia, 20120411, the length calculat was wrong.
-length_cyl=norm(surf.sphere(surf.cylinder(i,2),1:3)-surf.sphere(surf.cylinder(i,1),1:3));
+
+if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+    sphere = surf.sphere2;
+else
+    sphere = surf.sphere;
+end
+
+length_cyl=norm(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3))-sphere(surf.cylinder(i,2),7)-sphere(surf.cylinder(i,1),7);
 switch EC.glb.detail % Add by Mingrui Xia, 20120413, adjust graph detail
     case 1
-        t=linspace(0,2*pi,5)';
+        det = 5;
     case 2
-        t=linspace(0,2*pi,10)';
+        det = 10;
     case 3
-        t=linspace(0,2*pi,20)';
+        det = 20;
+        
 end
 switch EC.edg.size
     case 1
@@ -1475,45 +2049,61 @@ switch EC.edg.size
                 end
         end
 end
-n=n*EC.edg.size_ratio;
-x2=n*cos(t);
-x3=n*sin(t);
-x1=[0 length_cyl];
-xx1=repmat(x1,length(x2),1);
-xx2=repmat(x2,1,2);
-xx3=repmat(x3,1,2);
-Line=mesh(xx1,xx2,xx3);
-unit_Vx=[1 0 0];
-angle_X1X2=acos( dot( unit_Vx,surf.sphere(surf.cylinder(i,2),1:3)-surf.sphere(surf.cylinder(i,1),1:3) )/( norm(unit_Vx)*norm(surf.sphere(surf.cylinder(i,2),1:3)-surf.sphere(surf.cylinder(i,1),1:3))) )*180/pi;
-axis_rot=cross([1 0 0],(surf.sphere(surf.cylinder(i,2),1:3)-surf.sphere(surf.cylinder(i,1),1:3)) );
+n = n * EC.edg.size_ratio;
+theta = (0:det) / det * 2 * pi;
+sintheta = sin(theta);
+sintheta(det + 1) = 0;
+
+if EC.edg.directed == 1% Add by Mingrui Xia, 20120621, draw directed network.
+    if surf.cylinder(i,4) == 1
+        n = [linspace(0,2.5,7),ones(1,round(length_cyl-7)) * 1]' * n;
+    else
+        n = [linspace(0,2.5,7),ones(1,round(length_cyl-14)) * 1,linspace(2.5,0,7)]' * n;
+    end
+else
+    n = ones(100,1) * 0.5 * n ;
+end
+x = n * cos(theta);
+y = n * sintheta;
+w = length(n);
+z = (0:w-1)'/(w-1) * ones(1,det + 1);
+Line = mesh(x,y,z * length_cyl);
+unit_Vx=[0 0 1];
+
+
+angle_X1X2=acos( dot( unit_Vx,sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3) )/( norm(unit_Vx)*norm(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3))) )*180/pi;
+axis_rot=cross([0 0 1],(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3)) );
 if angle_X1X2~=0
     rotate(Line,axis_rot,angle_X1X2,[0 0 0])
 end
-set(Line,'XData',get(Line,'XData')+surf.sphere(surf.cylinder(i,1),1));
-set(Line,'YData',get(Line,'YData')+surf.sphere(surf.cylinder(i,1),2));
-set(Line,'ZData',get(Line,'ZData')+surf.sphere(surf.cylinder(i,1),3));
+set(Line,'XData',get(Line,'XData')+sphere(surf.cylinder(i,1),1) + (sphere(surf.cylinder(i,2),1) -sphere(surf.cylinder(i,1),1))/norm(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3))*sphere(surf.cylinder(i,1),7));
+set(Line,'YData',get(Line,'YData')+sphere(surf.cylinder(i,1),2) + (sphere(surf.cylinder(i,2),2) -sphere(surf.cylinder(i,1),2))/norm(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3))*sphere(surf.cylinder(i,1),7));
+set(Line,'ZData',get(Line,'ZData')+sphere(surf.cylinder(i,1),3) + (sphere(surf.cylinder(i,2),3) -sphere(surf.cylinder(i,1),3))/norm(sphere(surf.cylinder(i,2),1:3)-sphere(surf.cylinder(i,1),1:3))*sphere(surf.cylinder(i,1),7));
+
 switch EC.edg.color
     case 1
         ci=1;
     case 2
-%         switch EC.edg.color_abs %%% Edited by Mingrui Xia, 20120413, fix colormap
-%         for edges
-%             case 0
-%                 ci=int32(45*surf.cylinder3(i,3)-3.5);
+        switch EC.edg.color_abs %%% Edited by Mingrui Xia, 20120413, fix colormap
+            %         for edges
+            case 0
+                %                 ci=int32(45*surf.cylinder3(i,3)-3.5);
                 ci=int8(105*surf.cylinder(i,3)-41);
-%                 if ci<1
-%                     ci=1;
-%                 elseif ci>64
-%                     ci=64;
-%                 end
-%             case 1
-%                 ci=int32(45*surf.cylinder3(i,3)-3.5);
-%                 if ci<1
-%                     ci=1;
-%                 elseif ci>64
-%                     ci=64;
-%                 end
-%         end
+                %                 if ci<1
+                %                     ci=1;
+                %                 elseif ci>64
+                %                     ci=64;
+                %                 end
+            case 1
+                %                 ci=int8(105*surf.cylinder3(i,3)-41);
+                ci=surf.cylinder2(i,3);
+                %                 ci=int32(45*surf.cylinder3(i,3)-3.5);
+                %                 if ci<1
+                %                     ci=1;
+                %                 elseif ci>64
+                %                     ci=64;
+                %                 end
+        end
     case 3
         switch EC.edg.color_abs
             case 0
@@ -1535,11 +2125,50 @@ switch EC.edg.color
         else
             ci=64;
         end
+    case 5 % Added by Mingrui Xia, 20120809 add edge color according to nodal module
+        if sphere(surf.cylinder(i,1),4) == sphere(surf.cylinder(i,2),4)
+            ci = find(EC.nod.ModularNumber == sphere(surf.cylinder(i,1),4));
+        else
+            ci = 21;
+        end
+        
 end
 set(Line,'FaceColor',EC.edg.CM(ci,:));
 set(Line,'EdgeColor','none');
 set(Line,'FaceAlpha',0.7);
 set(Line,'EdgeAlpha',0);
+
+function DoubleMeshPrepare
+% Added by Mingrui Xia, 20120717, show two brains in one figure
+global surf
+global EC
+surf.coord2 = surf.coord;
+switch EC.lot.view_direction
+    case 1
+        width = 0.1 * (max(surf.coord(2,:)) - min(surf.coord(2,:)));
+        surf.coord2(1,:) = -surf.coord2(1,:);
+        surf.coord2(2,:) = -surf.coord(2,:) + 2 * min(surf.coord(2,:)) - width;
+    case 2
+        surf.coord2(1,:) = surf.coord(1,:) + 1.1 * (max(surf.coord(1,:)) - min(surf.coord(1,:)));
+    case 3
+        surf.coord2(1,:) = surf.coord(1,:) - 1.1 * (max(surf.coord(1,:)) - min(surf.coord(1,:)));
+end
+
+function DoubleNodePrepare
+% Added by Mingrui Xia, 20120717, show two brains in one figure
+global surf
+global EC
+surf.sphere2 = surf.sphere;
+switch EC.lot.view_direction
+    case 1
+        width = 0.1 * (max(surf.coord(2,:)) - min(surf.coord(2,:)));
+        surf.sphere2(floor(surf.nsph/2) + 1:end,1) = -surf.sphere2(floor(surf.nsph/2) + 1:end,1);
+        surf.sphere2(floor(surf.nsph/2) + 1:end,2) = -surf.sphere2(floor(surf.nsph/2) + 1:end,2) + 2 * min(surf.coord(2,:)) - width;
+    case 2
+        surf.sphere2(floor(surf.nsph/2) + 1:end,1) = surf.sphere2(floor(surf.nsph/2) + 1:end,1) + 1.1 * (max(surf.coord(1,:)) - min(surf.coord(1,:)));
+    case 3
+        surf.sphere2(floor(surf.nsph/2) + 1:end,1) = surf.sphere2(floor(surf.nsph/2) + 1:end,1) - 1.1 * (max(surf.coord(1,:)) - min(surf.coord(1,:)));
+end
 
 
 function a=FileView
@@ -1555,56 +2184,95 @@ if FLAG.Loadfile==0
     if exist('BrainNet_Background.jpg','file')==2
         imshow(imread('BrainNet_Background.jpg'));
     end
-else
+else    
     switch EC.lot.view
         case 1
             switch FLAG.Loadfile
                 case 1
+                    if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+                        DoubleMeshPrepare;
+                    end
                     a=PlotMesh1(surf,0);
                 case 2
                     NodePrepare;
+                    if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+                        DoubleNodePrepare;
+                    end
                     a=PlotNode1(surf,a,2,EC);
                 case 3
                     NodePrepare;
+                    if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+                        DoubleMeshPrepare;
+                        DoubleNodePrepare;
+                    end
                     a=PlotMesh1(surf,1);
                     a=PlotNode1(surf,a,2,EC);
                 case 6
+                    
                     NodePrepare;
                     NetPrepare;
+                    if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+                        DoubleNodePrepare;
+                    end
                     a=PlotNode1(surf,a,1,EC);
                     PlotLine1(surf);
                 case 7
+                    
                     NodePrepare;
                     NetPrepare;
+                    if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+                        DoubleMeshPrepare;
+                        DoubleNodePrepare;
+                    end
                     a=PlotMesh1(surf,1);
                     a=PlotNode1(surf,a,1,EC);
                     PlotLine1(surf);
                 case 9
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end %%% Edited by Mingrui Xia,111027, move FLAG.IsCalledByREST judgement into function MapCMPrepare.
-                    %                     if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1 % YAN Chao-Gan 111023. REST will define the colormap from outside
-                    %                         low=EC.vol.nx;high=EC.vol.px;
-                    %                     else
-                    [low high]=MapCMPrepare;
-                    %                     end
-                    a=MapMesh1(surf,low,high,0);
-                case 11 %%% Added by Mingrui Xia, 20111116, add 11 for volume and node mode
-                    if FLAG.MAP==2
-                        MapPrepare;
+                    if EC.vol.type == 1
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end %%% Edited by Mingrui Xia,111027, move FLAG.IsCalledByREST judgement into function MapCMPrepare.
+                        %                     if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1 % YAN Chao-Gan 111023. REST will define the colormap from outside
+                        %                         low=EC.vol.nx;high=EC.vol.px;
+                        %                     else
+                        [low high]=MapCMPrepare;
+                        %                     end
+                        a=MapMesh1(surf,low,high,0);
+                    else
+                        fv = ROIPrepare;
+                        a = PlotMesh1(surf,1);
+                        a = PlotROI1(fv,a,0);
                     end
-                    [low high]=MapCMPrepare;
-                    a=MapMesh1(surf,low,high,1);
+                case 11 %%% Added by Mingrui Xia, 20111116, add 11 for volume and node mode
                     NodePrepare;
+                    if EC.vol.type == 1
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        
+                        
+                        [low high]=MapCMPrepare;
+                        a=MapMesh1(surf,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        a = PlotMesh1(surf,1);
+                        a = PlotROI1(fv,a,1);
+                    end
                     a=PlotNode1(surf,a,2,EC);
                 case 15 %%% Added by Mingrui Xia, 20120210, add 15 for volume, node and edge mode
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
-                    [low high]=MapCMPrepare;
-                    a=MapMesh1(surf,low,high,1);
                     NodePrepare;
                     NetPrepare;
+                    if EC.vol.type == 1
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        [low high]=MapCMPrepare;
+                        a=MapMesh1(surf,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        a = PlotMesh1(surf,1);
+                        a = PlotROI1(fv,a,1);
+                    end
                     a=PlotNode1(surf,a,1,EC);
                     PlotLine1(surf);
             end
@@ -1668,57 +2336,107 @@ else
                     %                     if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1 % YAN Chao-Gan 111023. REST will define the colormap from outside
                     %                         low=EC.vol.nx;high=EC.vol.px;
                     %                     else
-                    [low high]=MapCMPrepare;
-                    %                     end
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
-                    if cut<t
-                        Viewer=GenerateView8(h1,w1);
-                        Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
-                        a=MapMesh8(Viewer,Surfmatrix,low,high,0);
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        %                     end
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        if cut<t
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=MapMesh8(Viewer,Surfmatrix,low,high,0);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=MapMesh6(Viewer,surf,low,high,0);
+                        end
                     else
-                        Viewer=GenerateView6(w1);
-                        a=MapMesh6(Viewer,surf,low,high,0);
+                        fv = ROIPrepare;
+                        if cut<t
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=PlotMesh8(Viewer,Surfmatrix,1);
+                            a = PlotROI8(fv,a,2);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=PlotMesh6(Viewer,surf,1);
+                            a = PlotROI6(fv,a,2);
+                        end
                     end
                 case 11 %%% Added by Mingrui Xia, 20111116, add 11 for volume and node mode
                     [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
-                    [low high]=MapCMPrepare;
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
                     NodePrepare;
-                    if cut<t
-                        [centerX,flag]=JudgeNode(surf,vl,vr);
-                        Viewer=GenerateView8(h1,w1);
-                        Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
-                        a=MapMesh8(Viewer,Surfmatrix,low,high,1);
-                        PlotNode8(surf,a,flag,centerX,2,EC);
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        if cut<t
+                            [centerX,flag]=JudgeNode(surf,vl,vr);
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=MapMesh8(Viewer,Surfmatrix,low,high,1);
+                            PlotNode8(surf,a,flag,centerX,2,EC);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=MapMesh6(Viewer,surf,low,high,1);
+                            PlotNode6(Viewer,surf,a,2,EC);
+                        end
                     else
-                        Viewer=GenerateView6(w1);
-                        a=MapMesh6(Viewer,surf,low,high,1);
-                        PlotNode6(Viewer,surf,a,2,EC);
+                        fv = ROIPrepare;
+                        if cut<t
+                            [centerX,flag]=JudgeNode(surf,vl,vr);
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=PlotMesh8(Viewer,Surfmatrix,1);
+                            a = PlotROI8(fv,a,1);
+                            PlotNode8(surf,a,flag,centerX,2,EC);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=PlotMesh6(Viewer,surf,1);
+                            a = PlotROI6(fv,a,1);
+                            PlotNode6(Viewer,surf,a,2,EC);
+                        end
                     end
                 case 15 %%% Added by Mingrui Xia, 20120210, add 15 for volume, node and edge mode
                     [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
-                    [low high]=MapCMPrepare;
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
                     NodePrepare;
                     NetPrepare;
-                    if cut<t
-                        [centerX,flag]=JudgeNode(surf,vl,vr);
-                        Viewer=GenerateView8(h1,w1);
-                        Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
-                        a=MapMesh8(Viewer,Surfmatrix,low,high,1);
-                        PlotNode8(surf,a,flag,centerX,1,EC);
-                        PlotLine8(surf,a,flag,centerX);
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        if cut<t
+                            [centerX,flag]=JudgeNode(surf,vl,vr);
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=MapMesh8(Viewer,Surfmatrix,low,high,1);
+                            PlotNode8(surf,a,flag,centerX,1,EC);
+                            PlotLine8(surf,a,flag,centerX);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=MapMesh6(Viewer,surf,low,high,1);
+                            PlotNode6(Viewer,surf,a,1,EC);
+                            PlotLine6(surf,a);
+                        end
                     else
-                        Viewer=GenerateView6(w1);
-                        a=MapMesh6(Viewer,surf,low,high,1);
-                        PlotNode6(Viewer,surf,a,1,EC);
-                        PlotLine6(surf,a);
+                        fv = ROIPrepare;
+                        if cut<t
+                            [centerX,flag]=JudgeNode(surf,vl,vr);
+                            Viewer=GenerateView8(h1,w1);
+                            Surfmatrix=GenertateSurfM8(surf,tl,tr,vl,vr,cuv);
+                            a=PlotMesh8(Viewer,Surfmatrix,1);
+                            a = PlotROI8(fv,a,1);
+                            PlotNode8(surf,a,flag,centerX,1,EC);
+                            PlotLine8(surf,a,flag,centerX);
+                        else
+                            Viewer=GenerateView6(w1);
+                            a=PlotMesh6(Viewer,surf,1);
+                            a = PlotROI6(fv,a,1);
+                            PlotNode6(Viewer,surf,a,1,EC);
+                            PlotLine6(surf,a);
+                        end
                     end
             end
             
@@ -1729,14 +2447,24 @@ else
                     %                     if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1 % YAN Chao-Gan 111023. REST will define the colormap from outside
                     %                         low=EC.vol.nx;high=EC.vol.px;
                     %                     else
-                    [low high]=MapCMPrepare;
-                    %                     end
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
+                    
                     Viewer=GenerateView4;
-                    Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
-                    a=MapMesh4(Viewer,Surfmatrix,low,high,0);%%% YAN Chao-Gan 111023 Added END. %%%
+                    
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        %                     end
+                        if FLAG.MAP == 2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4(Viewer,Surfmatrix,low,high,0);%%% YAN Chao-Gan 111023 Added END. %%%
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4(Viewer,Surfmatrix,1);
+                        a = PlotROI4(fv,a,2);
+                    end
+                    
                 case 1 %%% Mingrui Xia 110226 Added below.
                     [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
                     Viewer=GenerateView4;
@@ -1763,57 +2491,332 @@ else
                 case 11 %%% Added by Mingrui Xia, 20111116, add 11 for volume and node mode
                     [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
                     [centerX,flag]=JudgeNode(surf,vl,vr);
-                    [low high]=MapCMPrepare;
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
                     NodePrepare;
                     Viewer=GenerateView4;
-                    Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
-                    a=MapMesh4(Viewer,Surfmatrix,low,high,1);
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4(Viewer,Surfmatrix,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4(Viewer,Surfmatrix,1);
+                        a = PlotROI4(fv,a,1);
+                    end
                     PlotNode4(surf, a, flag, centerX, 2, EC);
+                    
                 case 15 %%% Added by Mingrui Xia, 20120210, add 15 for volume, node and edge mode
                     [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
                     [centerX,flag]=JudgeNode(surf,vl,vr);
-                    [low high]=MapCMPrepare;
-                    if FLAG.MAP==2
-                        MapPrepare;
-                    end
                     NodePrepare;
                     NetPrepare;
                     Viewer=GenerateView4;
-                    Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
-                    a=MapMesh4(Viewer,Surfmatrix,low,high,1);
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4(Viewer,Surfmatrix,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4(Viewer,Surfmatrix,1);
+                        a = PlotROI4(fv,a,1);
+                    end
                     PlotNode4(surf, a, flag, centerX, 1, EC);
                     PlotLine4(surf,a,flag,centerX);
             end
+            case 4  %%% Lijie Huang 130221 Added. Modified based on YAN Chao-Gan's `case 3` version. For medium view (4 views) and 2 ventral views. Only finished for volume view mode
+            switch FLAG.Loadfile
+                case 9
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf); %%% Edited by Mingrui Xia,111027, move FLAG.IsCalledByREST judgement into function MapCMPrepare.
+                    Viewer=GenerateView4v;                    
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        %                     end
+                        if FLAG.MAP == 2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4v(Viewer,Surfmatrix,low,high,0);%%% YAN Chao-Gan 111023 Added END. %%%
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4v(Viewer,Surfmatrix,1);
+                        a = PlotROI4v(fv,a,2);
+                    end
+                    
+                case 1 %%% Mingrui Xia 110226 Added below.
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
+                    Viewer=GenerateView4v;
+                    Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                    a=PlotMesh4v(Viewer,Surfmatrix,0);
+                case 3
+                    NodePrepare;
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
+                    [centerX,flag]=JudgeNode(surf,vl,vr);
+                    Viewer=GenerateView4v;
+                    Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                    a=PlotMesh4v(Viewer,Surfmatrix,1);
+                    PlotNode4v(surf, a, flag, centerX, 2, EC);
+                case 7
+                    NodePrepare;
+                    NetPrepare;
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
+                    [centerX,flag]=JudgeNode(surf,vl,vr);
+                    Viewer=GenerateView4v;
+                    Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                    a=PlotMesh4v(Viewer,Surfmatrix,1);
+                    PlotNode4v(surf,a,flag,centerX,1,EC);
+                    PlotLine4v(surf,a,flag,centerX);
+                case 11 %%% Added by Mingrui Xia, 20111116, add 11 for volume and node mode
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
+                    [centerX,flag]=JudgeNode(surf,vl,vr);
+                    NodePrepare;
+                    Viewer=GenerateView4v;
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4v(Viewer,Surfmatrix,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4v(Viewer,Surfmatrix,1);
+                        a = PlotROI4v(fv,a,1);
+                    end
+                    PlotNode4v(surf, a, flag, centerX, 2, EC);
+                    
+                case 15 %%% Added by Mingrui Xia, 20120210, add 15 for volume, node and edge mode
+                    [t,tl,tr,vl,vr,h1,w1,cut,cuv]=CutMesh(surf);
+                    [centerX,flag]=JudgeNode(surf,vl,vr);
+                    NodePrepare;
+                    NetPrepare;
+                    Viewer=GenerateView4v;
+                    if EC.vol.type == 1
+                        [low high]=MapCMPrepare;
+                        if FLAG.MAP==2
+                            MapPrepare;
+                        end
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=MapMesh4v(Viewer,Surfmatrix,low,high,1);
+                    else
+                        fv = ROIPrepare;
+                        Surfmatrix=GenertateSurfM4v(surf,tl,tr,vl,vr,cuv);
+                        a=PlotMesh4v(Viewer,Surfmatrix,1);
+                        a = PlotROI4v(fv,a,1);
+                    end
+                    PlotNode4v(surf, a, flag, centerX, 1, EC);
+                    PlotLine4v(surf,a,flag,centerX);
+            end
+
     end
 end
 
 function MapPrepare
 global surf
-surf.coord(4,:)=1;
-index=round(surf.hdr.mat\surf.coord);
-surf.T=zeros(1,surf.vertex_number);
-for i=1:surf.vertex_number
-    surf.T(i)=surf.mask(index(1,i),index(2,i),index(3,i));
+global EC
+
+% Edited by Mingrui Xia, 20120726, selection for different mapping algorithm.
+% 1 for Nearest Voxel
+% 2 for Average Vertex
+% 3 for Average Voxel (3x3)
+% 4 for Gaussian
+% 5 for Interpolated (default)
+% 6 for Maximum Voxel
+% 7 for Minimum Voxel
+% 8 for Extremum Voxel
+switch EC.vol.mapalgorithm
+    case 1
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<1|index(1,:)>surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<1|index(2,:)>surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<1|index(3,:)>surf.hdr.dim(3)) = 1;
+        index = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        surf.T(index~=1) = surf.mask(index(index~=1));
+    case 2
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<1|index(1,:)>surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<1|index(2,:)>surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<1|index(3,:)>surf.hdr.dim(3)) = 1;
+        index = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        surf.T(index~=1) = surf.mask(index(index~=1));
+        tmpT = surf.T;
+        for i = 1:surf.vertex_number
+            [m,n] = find(surf.tri == i);
+            neibour = unique(surf.tri(m,:));
+            surf.T(i) = mean(tmpT(neibour));
+        end
+    case 3
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<1|index(1,:)>surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<1|index(2,:)>surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<1|index(3,:)>surf.hdr.dim(3)) = 1;
+        index = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        kernal = ones(3,3,3)/27;
+        tmpT = convn(surf.mask,kernal,'same');
+        surf.T(index~=1) = tmpT(index(index~=1));
+    case 4
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<1|index(1,:)>surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<1|index(2,:)>surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<1|index(3,:)>surf.hdr.dim(3)) = 1;
+        index = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        tmpT = smooth3(surf.mask,'gaussian');
+        surf.T(index~=1) = tmpT(index(index~=1));
+    case 5
+        surf.coord(4,:)=1;
+        position = surf.hdr.mat\surf.coord;
+        position(4,:) = [];
+        index=round(position);
+        surf.coord(4,:) = [];
+        
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<=1|index(1,:)>=surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<=1|index(2,:)>=surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<=1|index(3,:)>=surf.hdr.dim(3)) = 1;
+        
+        index = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        for i = 1:surf.vertex_number
+            if index(i)~=1
+                cube = [floor(position(:,i))';ceil(position(:,i))'];
+                portion = position(:,i)' - cube(1,:);
+                cube(2,portion == 0) = cube(2,portion == 0) + 1;
+                tmpT = surf.mask(cube(1,1):cube(2,1),cube(1,2):cube(2,2),cube(1,3):cube(2,3));
+                tmpT = (tmpT(:,:,2) - tmpT(:,:,1)) .* portion(3) + tmpT(:,:,1);
+                tmpT = (tmpT(:,2) - tmpT(:,1)) .* portion(2) + tmpT(:,1);
+                tmpT = (tmpT(2) - tmpT(1)) .* portion(1) + tmpT(1);
+                surf.T(i) = tmpT;
+            end
+        end
+    case 6
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<=1|index(1,:)>=surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<=1|index(2,:)>=surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<=1|index(3,:)>=surf.hdr.dim(3)) = 1;
+        ind = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        for i = 1:surf.vertex_number
+            if ind(i) ~=1
+                tmpT = surf.mask(index(1,i)-1:index(1,i)+1,index(2,i)-1:index(2,i)+1,index(3,i)-1:index(3,i)+1);
+                surf.T(i) = max(tmpT(:));
+            end
+        end
+    case 7
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<=1|index(1,:)>=surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<=1|index(2,:)>=surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<=1|index(3,:)>=surf.hdr.dim(3)) = 1;
+        ind = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        for i = 1:surf.vertex_number
+            if ind(i) ~=1
+                tmpT = surf.mask(index(1,i)-1:index(1,i)+1,index(2,i)-1:index(2,i)+1,index(3,i)-1:index(3,i)+1);
+                surf.T(i) = min(tmpT(:));
+            end
+        end
+    case 8
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<=1|index(1,:)>=surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<=1|index(2,:)>=surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<=1|index(3,:)>=surf.hdr.dim(3)) = 1;
+        ind = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+        for i = 1:surf.vertex_number
+            if ind(i) ~=1
+                tmpT = surf.mask(index(1,i)-1:index(1,i)+1,index(2,i)-1:index(2,i)+1,index(3,i)-1:index(3,i)+1);
+                mx = max(tmpT(:));
+                mn = min(tmpT(:));
+                if mx>=abs(mn)
+                    surf.T(i) = mx;
+                else
+                    surf.T(i) = mn;
+                end
+            end
+        end
+    case 9 % Added by Mingrui Xia, 20130104, Most neighbour voxel value.
+        surf.coord(4,:)=1;
+        index=round(surf.hdr.mat\surf.coord);
+        surf.coord(4,:) = [];
+        index(4,:) = [];
+        surf.T=zeros(1,surf.vertex_number);
+        index(:,index(1,:)<=1|index(1,:)>=surf.hdr.dim(1)) = 1;
+        index(:,index(2,:)<=1|index(2,:)>=surf.hdr.dim(2)) = 1;
+        index(:,index(3,:)<=1|index(3,:)>=surf.hdr.dim(3)) = 1;
+        ind = sub2ind(surf.hdr.dim,index(1,:),index(2,:),index(3,:));
+%          for i = 1:surf.vertex_number
+%             if ind(i) ~=1
+%                 tmpT = reshape(surf.mask(index(1,i)-1:index(1,i)+1,index(2,i)-1:index(2,i)+1,index(3,i)-1:index(3,i)+1),1,[]);
+%                 X = unique(tmpT);
+%                 D = histc(tmpT,X);
+%                 Y = max(D);
+%                 surf.T(i) = X(find(D == Y,1));                
+%             end
+%          end
+         rad=1;
+        %%%%% dilate
+         for i = 1:surf.vertex_number
+            if ind(i) ~=1
+                tmpT = reshape(surf.mask(index(1,i)-rad:index(1,i)+rad,index(2,i)-rad:index(2,i)+rad,index(3,i)-rad:index(3,i)+rad),1,[]);
+                X = setdiff(unique(tmpT),[0]);
+                if isempty(X),continue;end
+                [Y,x] = max(histc(tmpT,X));
+                surf.T(i)=X(x);
+                mn = histc(tmpT(:),unique(tmpT));
+                if length(find(tmpT==0)) && mn(1)>0.6*length(tmpT),surf.T(i)=0;end
+            end
+         end
 end
+% for i=1:surf.vertex_number
+%     surf.T(i)=surf.mask(index(1,i),index(2,i),index(3,i));
+% end
 
 function [low high]=MapCMPrepare
 global EC
 global FLAG %%% Added by Mingrui Xia, 111027, judge if is called by REST.
 if isfield(FLAG,'IsCalledByREST') && FLAG.IsCalledByREST==1
-%     switch EC.vol.display %% Edited by Mingrui Xia, 20120414, fix a bug of compatibility with REST.
-%         case 1
-            low=EC.vol.nx;
-            high=EC.vol.px;
-%         case 2
-%             low=EC.vol.pn;
-%             high=EC.vol.px;
-%         case 3
-%             low=EC.vol.nx;
-%             high=EC.vol.nn;
-%     end
+    %     switch EC.vol.display %% Edited by Mingrui Xia, 20120414, fix a bug of compatibility with REST.
+    %         case 1
+    low=EC.vol.nx;
+    high=EC.vol.px;
+    %         case 2
+    %             low=EC.vol.pn;
+    %             high=EC.vol.px;
+    %         case 3
+    %             low=EC.vol.nx;
+    %             high=EC.vol.nn;
+    %     end
 else
     switch EC.vol.color_map
         case 1
@@ -1844,6 +2847,10 @@ else
             EC.vol.CMt=lines(1000);
         case 14
             EC.vol.CMt=rand(1000,3);
+            col = randi(3,[1000,1]); %%% Added by Mingrui Xia, 20120425, make random colorbar bright.
+            row = [1:1000]';
+            ind = sub2ind([1000,3],row,col);
+            EC.vol.CMt(ind) = 0;
         case 15 %%% Added by Mingrui Xia, 111027. seven new colorbar.
             EC.vol.CMt = [zeros(1,500),ones(1,500);linspace(1,0,500),linspace(0,1,500);ones(1,500),zeros(1,500)]';
         case 16
@@ -1860,24 +2867,44 @@ else
             EC.vol.CMt = [zeros(1,1000); linspace(1,0,1000); ones(1,1000)]';
         case 22 % Added by Mingrui Xia, 20120113, Xjviewer negative colorbar.
             EC.vol.CMt = [zeros(1,1000); linspace(0,1,1000); ones(1,1000)]';
+        case 24 % Added by Mingrui Xia, 20120806, spectral colorbar.
+            EC.vol.CMt = spectral(1000);
     end
-    switch EC.vol.display
-        case 1 %%% Edited by Mingrui Xia, 111025, change algorithm for color mapping.
-            EC.vol.CM=AdjustColorMap(EC.vol.CMt,EC.vol.null,EC.vol.nx,EC.vol.nn,EC.vol.pn,EC.vol.px);
-            low=EC.vol.nx;
-            high=EC.vol.px;
-        case 2
-            low=EC.vol.pn;
-            high=EC.vol.px;
-            ind = round(linspace(1, size(EC.vol.CMt, 1), 999));
-            EC.vol.CM(2:1000,:)=EC.vol.CMt(ind,:);
-            EC.vol.CM(1,:)=EC.vol.null;
-        case 3
-            low=EC.vol.nx;
-            high=EC.vol.nn;
-            ind = round(linspace(1, size(EC.vol.CMt, 1), 999));
-            EC.vol.CM(1:999,:)=EC.vol.CMt(ind,:);
-            EC.vol.CM(1000,:)=EC.vol.null;
+    if EC.vol.adjustCM == 1
+        switch EC.vol.display
+            case 1 %%% Edited by Mingrui Xia, 111025, change algorithm for color mapping.
+                
+                EC.vol.CM=AdjustColorMap(EC.vol.CMt,EC.vol.null,EC.vol.nx,EC.vol.nn,EC.vol.pn,EC.vol.px);
+                low=EC.vol.nx;
+                high=EC.vol.px;
+            case 2
+                low=EC.vol.pn;
+                high=EC.vol.px;
+                %                 ind = round(linspace(1, size(EC.vol.CMt, 1), 999));
+                ind = floor(linspace(1, size(EC.vol.CMt, 1) + 0.9999, 999)); % Edited by Mingrui Xia, 20120724 fix colormap adjusting
+                EC.vol.CM(2:1000,:)=EC.vol.CMt(ind,:);
+                EC.vol.CM(1,:)=EC.vol.null;
+            case 3
+                low=EC.vol.nx;
+                high=EC.vol.nn;
+                %                 ind = round(linspace(1, size(EC.vol.CMt, 1), 999));
+                ind = floor(linspace(1, size(EC.vol.CMt, 1) + 0.9999, 999));% Edited by Mingrui Xia, 20120724 fix colormap adjusting
+                EC.vol.CM(1:999,:)=EC.vol.CMt(ind,:);
+                EC.vol.CM(1000,:)=EC.vol.null;
+        end
+    else
+        EC.vol.CM = EC.vol.CMt;
+        switch EC.vol.display
+            case 1
+                low=EC.vol.nx;
+                high=EC.vol.px;
+            case 2
+                low=EC.vol.pn;
+                high=EC.vol.px;
+            case 3
+                low=EC.vol.nx;
+                high=EC.vol.nn;
+        end
     end
 end
 
@@ -1890,7 +2917,8 @@ function NewColorMap=AdjustColorMap(OriginalColorMap,NullColor,NMax,NMin,PMin,PM
 % Output: NewColorMap - the generated color map, a 1000 by 3 matrix.
 TempColorMap = OriginalColorMap;
 % OriginalColorMap = zeros(1000,3);
-ind = round(linspace(1,size(TempColorMap,1),1000));
+% ind = round(linspace(1,size(TempColorMap,1),1000));
+ind = floor(linspace(1, size(TempColorMap, 1) + 0.9999, 1000)); % Edited by Mingrui Xia, 20121031 fix colormap adjusting
 OriginalColorMap = TempColorMap(ind,:);
 NewColorMap = repmat(NullColor,[1000 1]);
 % ColorLen=size(OriginalColorMap,1);
@@ -1923,7 +2951,7 @@ function NV_m_save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global EC
-[filename,pathname]=uiputfile({'*.TIF','TIFF 24-bit';'*.BMP','BMP 24-bit';'*.EPS','EPS color';'*.JPG','JPEG 24-bit';'*.PNG','PNG 24-bit'},'Save Image');
+[filename,pathname]=uiputfile({'*.JPG','JPEG 24-bit';'*.TIF','TIFF 24-bit';'*.BMP','BMP 24-bit';'*.EPS','EPS color';'*.PNG','PNG 24-bit';'*.FIG','Matlab Figure'},'Save Image');
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else
@@ -1943,6 +2971,8 @@ else
             print(gcf,fpath,'-dbmp',['-r',num2str(EC.img.dpi)])
         case '.EPS'
             print(gcf,fpath,'-depsc',['-r',num2str(EC.img.dpi)])
+        case '.FIG' %% add by Mingrui Xia, save as matlab figure.
+            saveas(gcf,fpath,'fig');
     end
     msgbox('Image has saved!','Success','help');
 end
@@ -2077,7 +3107,7 @@ function NV_m_about_Callback(hObject, eventdata, handles)
 % hObject    handle to NV_m_about (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox({'BrainNet Viewer 1.2 Released 20120412';'By Mingrui Xia';'mingruixia@gmail.com'},'About...','help');
+msgbox({'BrainNet Viewer 1.41 Released 20120918';'By Mingrui Xia';'mingruixia@gmail.com'},'About...','help');
 
 
 % --------------------------------------------------------------------
@@ -2198,7 +3228,9 @@ function SaveImage_ClickedCallback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global EC
-[filename,pathname]=uiputfile({'*.TIF','TIFF 24-bit';'*.BMP','BMP 24-bit';'*.EPS','EPS color';'*.JPG','JPEG 24-bit';'*.PNG','PNG 24-bit'},'Save Image');
+[filename,pathname]=uiputfile({'*.JPG','JPEG 24-bit';...
+    '*.TIF','TIFF 24-bit';'*.BMP','BMP 24-bit';'*.EPS','EPS color';...
+    '*.PNG','PNG 24-bit';'*.FIG','Matlab Figure'},'Save Image');
 if isequal(filename,0)||isequal(pathname,0)
     return;
 else
@@ -2218,6 +3250,8 @@ else
             print(gcf,fpath,'-dbmp',['-r',num2str(EC.img.dpi)])
         case '.EPS'
             print(gcf,fpath,'-depsc',['-r',num2str(EC.img.dpi)])
+        case '.FIG' %% add by Mingrui Xia, save as matlab figure
+            saveas(gcf,fpath,'fig');
     end
     msgbox('Image has saved!','Success','help');
 end
@@ -2239,7 +3273,9 @@ switch FLAG.sagittal
         FLAG.sagittal=0;
 end
 if ~isempty(cam)
-    camlight(cam);
+    for i = 1:length(cam) % Edited by Mingrui Xia, 20120809 adjust camlight in multi-surface view.
+        camlight(cam(i));
+    end
 end
 
 
@@ -2259,8 +3295,11 @@ switch FLAG.axial
         FLAG.axial=0;
 end
 if ~isempty(cam)
-    camlight(cam);
+    for i = 1:length(cam) % Edited by Mingrui Xia, 20120809 adjust camlight in multi-surface view.
+        camlight(cam(i));
+    end
 end
+axis tight
 
 
 % --------------------------------------------------------------------
@@ -2279,7 +3318,9 @@ switch FLAG.coronal
         FLAG.coronal=0;
 end
 if ~isempty(cam)
-    camlight(cam);
+    for i = 1:length(cam) % Edited by Mingrui Xia, 20120809 adjust camlight in multi-surface view.
+        camlight(cam(i));
+    end
 end
 
 
@@ -2292,7 +3333,9 @@ global cam
 global FLAG
 while FLAG.Rotate<1
     camorbit(5,0,'camera');
-    camlight(cam);
+    for i = 1:length(cam)
+        camlight(cam(i));
+    end
     drawnow;
 end
 FLAG.Rotate=0;
@@ -2389,7 +3432,9 @@ function uitoggletool1_OffCallback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global cam
-camlight(cam);
+for i = 1:length(cam)
+    camlight(cam(i));
+end
 
 
 % --------------------------------------------------------------------
@@ -2434,3 +3479,37 @@ function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uitoggletool5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes during object deletion, before destroying properties.
+function NV_fig_DeleteFcn(hObject, eventdata, handles)
+% hObject    handle to NV_fig (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+clear global EC
+clear global a
+clear global FLAG
+clear global File
+display('Thank you for using BrainNet Viewer!');
+
+
+% --------------------------------------------------------------------
+function NV_m_SaveColormap_Callback(hObject, eventdata, handles)
+% hObject    handle to NV_m_SaveColormap (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%%% Added by Mingrui Xia, 20120710 save current colormap
+Colormap = get(gcf,'Colormap');
+[filename,pathname]=uiputfile({'*.txt','Text Files'},'Save Colormap');
+if isequal(filename,0)||isequal(pathname,0)
+    return;
+else
+    fpath=fullfile(pathname,filename);
+    fid = fopen(fpath,'wt');
+    fprintf(fid,'[');
+    for i = 1:size(Colormap,1)-1
+        fprintf(fid,'%f %f %f;',Colormap(i,:));
+    end
+    fprintf(fid,'%f %f %f]',Colormap(end,:));
+    fclose(fid);
+end

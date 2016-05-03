@@ -3,6 +3,13 @@ function LOOCV_discrimpower_consensus_square = mc_unflatten_upper_triangle (LOOC
 % 
 % This function will undo what flatten_upper_triangle did. It assumes that
 % it's working with 
+% NOTE - It will strip logicals down to doubles and return as such    
+
+LOOCV_discrimpower_consensus = +LOOCV_discrimpower_consensus; %coerce logicals to double
+    
+%% Figure out nROI
+
+nROI = ((8*size(LOOCV_discrimpower_consensus,2)+1)^(1/2)+1)/2;
 
 %% Reconstruct Consensus Discrim Power into Edges File
 

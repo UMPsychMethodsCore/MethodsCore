@@ -6,9 +6,9 @@ function varargout = BrainNet_Option(varargin)
 %	State Key Laboratory of Cognitive Neuroscience and Learning, Beijing Normal University
 %	Written by Mingrui Xia
 %	Mail to Author:  <a href="mingruixia@gmail.com">Mingrui Xia</a>
-%   Version 1.21;
+%   Version 1.3;
 %   Date 20110531;
-%   Last edited 20120413
+%   Last edited 20120810
 %-----------------------------------------------------------
 %
 % BrainNet_Option MATLAB code for BrainNet_Option.fig
@@ -34,7 +34,7 @@ function varargout = BrainNet_Option(varargin)
 
 % Edit the above text to modify the response to help BrainNet_Option
 
-% Last Modified by GUIDE v2.5 13-Apr-2012 16:40:05
+% Last Modified by GUIDE v2.5 06-Aug-2012 19:51:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -83,55 +83,117 @@ function Initialization(handles)
 global EC
 global surf
 global FLAG
+
+% Edited  by Mingrui Xia, 20120806, add custom view for single brain.
+set(handles.LotSingleCustomAz_edit,'String',num2str(EC.lot.view_az,'%d'));
+set(handles.LotSingleCustomEl_edit,'String',num2str(EC.lot.view_el,'%d'));
 switch EC.lot.view
     case 1
         set(handles.LotP_radiobutton,'Value',1);
         set(handles.LotPS_radiobutton,'Enable','on');
         set(handles.LotPA_radiobutton,'Enable','on');
         set(handles.LotPC_radiobutton,'Enable','on');
+        set(handles.LotSingleCustom_radiobutton,'Enable','on');
+        if EC.msh.doublebrain == 1 % Added by Mingrui Xia, 20120717, show two brains in one figure
+            set(handles.LotF_radiobutton,'Enable','off');
+            set(handles.LotM_radiobutton,'Enable','off');
+            set(handles.LotV_radiobutton,'Enable','off'); % Added by Mingrui Xia, 20130221, add view for medium with ventral
+        end
     case 2
         set(handles.LotF_radiobutton,'Value',1);
         set(handles.LotPS_radiobutton,'Enable','off');
         set(handles.LotPA_radiobutton,'Enable','off');
         set(handles.LotPC_radiobutton,'Enable','off');
+        set(handles.LotSingleCustom_radiobutton,'Enable','off');
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');
     case 3 %%% Added by Mingrui Xia, 20111027, add for medium views(4 views).
         set(handles.LotM_radiobutton, 'Value', 1);
         set(handles.LotPS_radiobutton,'Enable','off');
         set(handles.LotPA_radiobutton,'Enable','off');
         set(handles.LotPC_radiobutton,'Enable','off');
+        set(handles.LotSingleCustom_radiobutton,'Enable','off');
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');
+    case 4 % Added by Mingrui Xia, 20130221, add view for medium with ventral
+        set(handles.LotV_radiobutton,'Value',1);
+        set(handles.LotPS_radiobutton,'Enable','off');
+        set(handles.LotPA_radiobutton,'Enable','off');
+        set(handles.LotPC_radiobutton,'Enable','off');
+        set(handles.LotSingleCustom_radiobutton,'Enable','off');
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');        
 end
-switch FLAG.Loadfile
+
+switch FLAG.Loadfile    
     %     case {1,3,7,9} %%% Edited by Mingrui, add 11 for volume and node mode
     case {1,3,7,9,11,15} %%% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
         [t,tl,tr,vl,vr,h1,w1,cut,cuv]=BrainNet('CutMesh', surf);
         if t<=cut
             set(handles.LotM_radiobutton, 'Enable', 'off');
-            if EC.lot.view==3
+            set(handles.LotV_radiobutton, 'Enable', 'off');
+            if EC.lot.view==3 && EC.lot.view == 4 % Edited by Mingrui Xia, 20130221, 4 for view of medium with ventral
                 EC.lot.view = 2;
                 set(handles.LotF_radiobutton,'Value',1);
                 set(handles.LotPS_radiobutton,'Enable','off');
                 set(handles.LotPA_radiobutton,'Enable','off');
                 set(handles.LotPC_radiobutton,'Enable','off');
+                set(handles.LotSingleCustom_radiobutton,'Enable','off');
+                set(handles.LotSingleCustomAz_text,'Enable','off');
+                set(handles.LotSingleCustomAz_edit,'Enable','off');
+                set(handles.LotSingleCustomEl_text,'Enable','off');
+                set(handles.LotSingleCustomEl_edit,'Enable','off');                
             end
         end
     case {2,6}
         set(handles.LotM_radiobutton, 'Enable', 'off');
-        if EC.lot.view==3
+        set(handles.LotV_radiobutton, 'Enable', 'off');
+        if EC.lot.view==3 && EC.lot.view == 4
             EC.lot.view = 2;
             set(handles.LotF_radiobutton,'Value',1);
             set(handles.LotPS_radiobutton,'Enable','off');
             set(handles.LotPA_radiobutton,'Enable','off');
             set(handles.LotPC_radiobutton,'Enable','off');
+            set(handles.LotSingleCustom_radiobutton,'Enable','off');
+            set(handles.LotSingleCustomAz_text,'Enable','off');
+            set(handles.LotSingleCustomAz_edit,'Enable','off');
+            set(handles.LotSingleCustomEl_text,'Enable','off');
+            set(handles.LotSingleCustomEl_edit,'Enable','off');
         end
 end
 %%% Added END, 20111027
 switch EC.lot.view_direction
     case 1
         set(handles.LotPS_radiobutton,'Value',1);
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');
     case 2
         set(handles.LotPA_radiobutton,'Value',1);
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');
     case 3
         set(handles.LotPC_radiobutton,'Value',1);
+        set(handles.LotSingleCustomAz_text,'Enable','off');
+        set(handles.LotSingleCustomAz_edit,'Enable','off');
+        set(handles.LotSingleCustomEl_text,'Enable','off');
+        set(handles.LotSingleCustomEl_edit,'Enable','off');
+    case 4
+        set(handles.LotSingleCustom_radiobutton,'Value',1);
+        set(handles.LotSingleCustomAz_text,'Enable','on');
+        set(handles.LotSingleCustomAz_edit,'Enable','on');
+        set(handles.LotSingleCustomEl_text,'Enable','on');
+        set(handles.LotSingleCustomEl_edit,'Enable','on');
+        
 end
 set(handles.BakC_text,'BackgroundColor',EC.bak.color);
 
@@ -212,27 +274,37 @@ end
 
 set(handles.GlbGD_popupmenu,'Value',EC.glb.detail); % Add by Mingrui Xia, 20120413, adjust graph detail
 
-
-
 % if FLAG.Loadfile==1||FLAG.Loadfile==3||FLAG.Loadfile==7 %%% Edited by
 % Mingrui Xia, add 11 for volume & node mode.
-if FLAG.Loadfile==2||FLAG.Loadfile==3||FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==1
+if FLAG.Loadfile==2||FLAG.Loadfile==3||FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==1||FLAG.Loadfile==9||FLAG.Loadfile==11||FLAG.Loadfile==15
     set(handles.MshC_text,'BackgroundColor',EC.msh.color);
     set(handles.MshA_slider, 'Value',EC.msh.alpha);
     set(handles.MshA_edit, 'String',num2str(EC.msh.alpha,'%6.2f'));
-elseif FLAG.Loadfile==9||FLAG.Loadfile==11||FLAG.Loadfile==15 %% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
-    set(handles.MshC_text,'Enable','off');
-    set(handles.MshA_slider, 'Value',EC.msh.alpha);
-    set(handles.MshA_edit, 'String',num2str(EC.msh.alpha,'%6.2f'));
+    
+    if FLAG.Loadfile < 9 % Added by Mingrui Xia, 20120717, show two brains in one figure
+        set(handles.MshDoubleBrain_checkbox,'Value',EC.msh.doublebrain);
+    else
+        set(handles.MshDoubleBrain_checkbox,'Enable','off');
+    end
+    % elseif %% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
+    %     set(handles.MshC_text,'Enable','off');
+    %     set(handles.MshA_slider, 'Value',EC.msh.alpha);
+    %     set(handles.MshA_edit, 'String',num2str(EC.msh.alpha,'%6.2f'));
 else
     set(handles.MshC_text,'Enable','off');
     set(handles.MshA_slider,'Enable','off');
     set(handles.MshA_edit,'Enable','off');
+    
+    set(handles.MshDoubleBrain_checkbox,'Enable','off');%%% Added by Mingrui Xia, 20120717, show two brains in one figure
 end
 
 % if FLAG.Loadfile==2||FLAG.Loadfile==3||FLAG.Loadfile==7||FLAG.Loadfile==6
 % %%% Edited by Mingrui Xia 20111116, add 11 for volume & node mode
 if FLAG.Loadfile==2||FLAG.Loadfile==3||FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==11||FLAG.Loadfile==15 %% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
+    EC.nod.ModularNumber = unique(surf.sphere(:,4));
+    if length(EC.nod.ModularNumber) > size(EC.nod.CMm,1);
+        EC.nod.CMm(22:length(EC.nod.ModularNumber) ,:) = rand(length(EC.nod.ModularNumber) -21,3);
+    end
     switch EC.lbl
         case 1
             set(handles.LblA_radiobutton,'Value',1);
@@ -406,6 +478,8 @@ else
     set(handles.LblT_popupmenu,'Enable','off');
     set(handles.LblF_button,'Enable','off');
 end
+
+
 if FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==15 %% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
     switch EC.edg.draw
         case 1
@@ -414,7 +488,7 @@ if FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==15 %% Edited by Mingrui Xi
             set(handles.EdgDT_edit,'Enable','off');
             set(handles.EdgDS_slider,'Enable','off');
             set(handles.EdgDS_edit,'Enable','off');
-            set(handles.EdgDT_checkbox,'Enable','off');
+            %             set(handles.EdgDT_checkbox,'Enable','off');
         case 2
             set(handles.EdgDT_radiobutton,'Value',1);
             set(handles.EdgDT_slider,'Enable','on');
@@ -447,6 +521,7 @@ if FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==15 %% Edited by Mingrui Xi
             set(handles.EdgDS_edit,'String',num2str(length(find(abs(surf.net)>EC.edg.draw_threshold))/(size(surf.net,1)*size(surf.net,2)),'%6.2f'));
     end
     set(handles.EdgDInter_checkbox,'Value',EC.edg.interhemiedges);  % Add by Mingrui Xia, 20120109, draw inter hemisphere edges.
+    set(handles.EdgDDirected_checkbox,'Value',EC.edg.directed); % Add by Mingrui Xia, 20120621, draw directed network.
     switch EC.edg.size
         case 1
             set(handles.EdgSS_radiobutton,'Value',1);
@@ -531,6 +606,13 @@ if FLAG.Loadfile==7||FLAG.Loadfile==6||FLAG.Loadfile==15 %% Edited by Mingrui Xi
             set(handles.EdgCDL_text,'BackgroundColor',EC.edg.CM(64,:));
             set(handles.EdgCD_slider,'Value',EC.edg.color_distance);
             set(handles.EdgCD_edit,'String',num2str(EC.edg.color_distance,'%6.2f'));
+        case 5 % Added by Mingrui Xia, 20120809 add edge color according to nodal module
+            set(handles.EdgColorModule_radiobutton,'Value',1);
+            set(handles.EdgCC_popupmenu,'Enable','off');
+            set(handles.EdgCT_slider,'Enable','off');
+            set(handles.EdgCT_edit,'Enable','off');
+            set(handles.EdgCD_slider,'Enable','off');
+            set(handles.EdgCD_edit,'Enable','off');
     end
     set(handles.EdgCC_popupmenu,'Value',EC.edg.color_map);
     set(handles.EdgC_checkbox,'Value',EC.edg.color_abs);
@@ -579,9 +661,19 @@ else
     set(handles.EdgDS_edit,'Enable','off');
     set(handles.EdgDT_checkbox,'Enable','off');
     set(handles.EdgS_checkbox,'Enable','off');
+    set(handles.EdgDDirected_checkbox,'Enable','off'); % Add by Mingrui Xia, 20120621, draw directed network.
+    set(handles.EdgDInter_checkbox,'Enable','off');
+    set(handles.EdgCD_radiobutton,'Enable','off');
+    set(handles.EdgC_checkbox,'Enable','off');
+    set(handles.EdgColorModule_radiobutton,'Enable','off');
+    set(handles.EdgDS_text,'Enable','off');
+    set(handles.EdgSRR_text,'Enable','off');
+    set(handles.EdgSizeScaleDiscreption_text,'Enable','off');
 end
 % if FLAG.Loadfile==9 %%% Edited by Mingrui Xia 20111116, add 11 for volume
 % and node mode
+
+% Edited by Mingrui, 20120528, add initial state for ROI draw
 if FLAG.Loadfile==9||FLAG.Loadfile==11||FLAG.Loadfile==15 %% Edited by Mingrui Xia, 20120210, add 15 for volume, node and edge mode.
     if FLAG.MAP==2
         DataLow = min(surf.mask(:));
@@ -589,6 +681,39 @@ if FLAG.Loadfile==9||FLAG.Loadfile==11||FLAG.Loadfile==15 %% Edited by Mingrui X
     else
         DataLow = min(surf.T);
         DataHigh = max(surf.T);
+        set(handles.VolVS_radiobutton,'Enable','off');
+        set(handles.VolRD_radiobutton,'Enable','off');
+        set(handles.VolMapAlgorithm_popupmenu,'Enable','off');
+        set(handles.VolMapAlgorithm_text,'Enable','off');
+    end
+    switch EC.vol.type
+        case 1
+            set(handles.VolVS_radiobutton,'Value',1);
+            set(handles.VolROIRange_text,'Enable','off');
+            set(handles.VolROIDrawAll_checkbox,'Enable','off');
+            set(handles.VolROICus_text,'Enable','off');
+            set(handles.VolROICus_edit,'Enable','off');
+            set(handles.VolROIColor_text,'Enable','off');
+            set(handles.VolROIColor_popupmenu,'Enable','off');
+            set(handles.VolROIColorSQ_text,'Enable','off');
+            set(handles.VolROISmooth_checkbox,'Enable','off');
+        case 2
+            set(handles.VolRD_radiobutton,'Value',1);
+            set(handles.VolDR_text,'Enable','off');
+            set(handles.VolD_text,'Enable','off');
+            set(handles.VolD_popupmenu,'Enable','off');
+            set(handles.VolNR_text,'Enable','off');
+            set(handles.VolNRn_edit,'Enable','off');
+            set(handles.VolNRx_edit,'Enable','off');
+            set(handles.VolPR_text,'Enable','off');
+            set(handles.VolPRn_edit,'Enable','off');
+            set(handles.VolPRx_edit,'Enable','off');
+            set(handles.VolNC_text,'Enable','off');
+            set(handles.VolC_text,'Enable','off');
+            set(handles.VolC_popupmenu,'Enable','off');
+            set(handles.Vol_AdjustCM_checkbox,'Enable','off');
+            set(handles.VolMapAlgorithm_popupmenu,'Enable','off');
+            set(handles.VolMapAlgorithm_text,'Enable','off');
     end
     set(handles.VolDR_text,'String',['Volume Data Range:  ',num2str(DataLow,'%6.2f'),'   ',num2str(DataHigh,'%6.2f')]);
     if ~isempty(EC.vol.display) %% Edited by Mingrui Xia, 20120325, add auto juge volume range.
@@ -637,11 +762,57 @@ if FLAG.Loadfile==9||FLAG.Loadfile==11||FLAG.Loadfile==15 %% Edited by Mingrui X
             set(handles.VolNRx_edit,'String',num2str(DataLow,'%6.2f'));
         end
     end
-    
-    
     set(handles.VolNCS_text,'BackgroundColor',EC.vol.null);
     set(handles.VolC_popupmenu,'Value',EC.vol.color_map);
+    set(handles.Vol_AdjustCM_checkbox,'Value',EC.vol.adjustCM);
+    set(handles.VolMapAlgorithm_popupmenu,'Value',EC.vol.mapalgorithm);
+    if FLAG.MAP==2
+        if DataLow == 0
+            DataLow = min(surf.mask(surf.mask ~= 0));
+        end
+        set(handles.VolROIRange_text,'String',['ROI Index Range:  ',num2str(DataLow,'%6d'),'   ',num2str(DataHigh,'%6d')]);
+        if EC.vol.roi.drawall == 1
+            %         EC.vol.roi.draw = unique(surf.mask);
+            %         EC.vol.roi.draw(EC.vol.roi.draw == 0) = [];
+            set(handles.VolROIDrawAll_checkbox,'Value',1);
+            set(handles.VolROICus_text,'Enable','off');
+            set(handles.VolROICus_edit,'Enable','off');
+            EC.vol.roi.drawt = unique(surf.mask);
+            EC.vol.roi.drawt(EC.vol.roi.drawt == 0) = [];
+            %     else
+            %         set(handles.VolROICus_edit,'String',['[',num2str(EC.vol.roi.draw),']']);
+        end
+        textcell = cell(length(EC.vol.roi.drawt),1);
+        for i = 1:length(textcell)
+            textcell{i} = ['ROI ',num2str(EC.vol.roi.drawt(i))];
+        end
+        set(handles.VolROIColor_popupmenu,'String',textcell);
+        
+        
+        set(handles.VolROICus_edit,'String',EC.vol.roi.drawcus);
+        
+        %     set(handles.VolROIColor_text,'Enable','on');
+        %     set(handles.VolROIColor_popupmenu,'Enable','on');
+        %     set(handles.VolROIColorSQ_text,'Enable','on');
+        %     set(handles.VolROISmooth_checkbox,'Enable','on');
+        set(handles.VolROIColor_popupmenu,'Value',1);
+        set(handles.VolROIColorSQ_text,'BackgroundColor',EC.vol.roi.colort(1,:));
+        if EC.vol.roi.smooth == 1
+            set(handles.VolROISmooth_checkbox,'Value',1);
+        end
+    else
+        set(handles.VolROIRange_text,'Enable','off');
+        set(handles.VolROIDrawAll_checkbox,'Enable','off');
+        set(handles.VolROICus_text,'Enable','off');
+        set(handles.VolROICus_edit,'Enable','off');
+        set(handles.VolROIColor_text,'Enable','off');
+        set(handles.VolROIColor_popupmenu,'Enable','off');
+        set(handles.VolROIColorSQ_text,'Enable','off');
+        set(handles.VolROISmooth_checkbox,'Enable','off');
+    end
 else
+    set(handles.VolVS_radiobutton,'Enable','off');
+    set(handles.VolRD_radiobutton,'Enable','off');
     set(handles.VolDR_text,'Enable','off');
     set(handles.VolD_text,'Enable','off');
     set(handles.VolD_popupmenu,'Enable','off');
@@ -654,7 +825,19 @@ else
     set(handles.VolNC_text,'Enable','off');
     set(handles.VolC_text,'Enable','off');
     set(handles.VolC_popupmenu,'Enable','off');
+    set(handles.VolROIRange_text,'Enable','off');
+    set(handles.VolROIDrawAll_checkbox,'Enable','off');
+    set(handles.VolROICus_text,'Enable','off');
+    set(handles.VolROICus_edit,'Enable','off');
+    set(handles.VolROIColor_text,'Enable','off');
+    set(handles.VolROIColor_popupmenu,'Enable','off');
+    set(handles.VolROIColorSQ_text,'Enable','off');
+    set(handles.VolROISmooth_checkbox,'Enable','off');
+    set(handles.Vol_AdjustCM_checkbox,'Enable','off');
+    set(handles.VolMapAlgorithm_popupmenu,'Enable','off');
+    set(handles.VolMapAlgorithm_text,'Enable','off');
 end
+
 set(handles.ImgPW_edit,'String',num2str(EC.img.width));
 set(handles.ImgPH_edit,'String',num2str(EC.img.height));
 set(handles.ImgD_edit,'String',num2str(EC.img.dpi));
@@ -789,25 +972,35 @@ function GetValue(handles)
 global EC
 global FLAG
 FLAG.IsCalledByREST = 0;
+
+
 if get(handles.LotP_radiobutton,'Value')==1
     EC.lot.view = 1;
 elseif get(handles.LotF_radiobutton, 'Value')==1
     EC.lot.view = 2;
-else %%% Added by Mingrui Xia, 20111026, add for medium views (4 views).
+elseif get(handles.LotM_radiobutton,'Value') == 1 %%% Added by Mingrui Xia, 20111026, add for medium views (4 views).
     EC.lot.view = 3;
+else % Added by Mingrui Xia, 20130221, add for medium views with ventral.
+    EC.lot.view = 4;
 end
+
+% Edited by Mingrui Xia, 20120806, add custom view for single brain.
 if get(handles.LotPS_radiobutton,'Value')==1
     EC.lot.view_direction=1;
     FLAG.sagittal=1;
 elseif get(handles.LotPA_radiobutton,'Value')==1
     EC.lot.view_direction=2;
     FLAG.axis=1;
-else
+elseif get(handles.LotPC_radiobutton,'Value') == 1
     EC.lot.view_direction=3;
     FLAG.coronal=1;
+else
+    EC.lot.view_direction = 4;
 end
-EC.bak.color=get(handles.BakC_text,'BackgroundColor');
+EC.lot.view_az = str2double(get(handles.LotSingleCustomAz_edit,'String'));
+EC.lot.view_el = str2double(get(handles.LotSingleCustomEl_edit,'String'));
 
+EC.bak.color=get(handles.BakC_text,'BackgroundColor');
 switch get(handles.GlbM_popupmenu,'Value') % Add by Mingrui Xia, 20120316, modify object material.
     case 1
         EC.glb.material = 'shiny';
@@ -863,6 +1056,8 @@ EC.glb.detail = get(handles.GlbGD_popupmenu,'Value'); % Add by Mingrui Xia, 2012
 
 EC.msh.color=get(handles.MshC_text,'BackgroundColor');
 EC.msh.alpha=str2double(get(handles.MshA_edit,'String'));
+EC.msh.doublebrain = get(handles.MshDoubleBrain_checkbox,'Value'); % Added by Mingrui Xia, 20120717, show two brains in one figure
+
 if get(handles.NodDA_radiobutton,'Value')==1
     EC.nod.draw=1;
 else
@@ -899,7 +1094,7 @@ elseif get(handles.NodCC_radiobutton,'Value')==1
         case 3
             EC.nod.CM=hot;
         case 4
-            EC.nod.CM=cool;
+            EC.nod.CM=cooler;
         case 5
             EC.nod.CM=spring;
         case 6
@@ -921,8 +1116,9 @@ elseif get(handles.NodCC_radiobutton,'Value')==1
     end
 elseif get(handles.NodCM_radiobutton,'Value')==1
     EC.nod.color=3;
-    EC.nod.CM(1:21,:)=EC.nod.CMm;
-    EC.nod.CM(22,:)=[0.5,0.5,0.5];
+    %     EC.nod.CM(1:21,:)=EC.nod.CMm;
+    %     EC.nod.CM(22,:)=[0.5,0.5,0.5];
+    EC.nod.CM = EC.nod.CMm;
 else
     EC.nod.color=4;
     EC.nod.color_threshold=str2double(get(handles.NodCT_edit,'String'));
@@ -946,6 +1142,7 @@ else
     EC.edg.draw_abs=get(handles.EdgDT_checkbox,'Value');
 end
 EC.edg.interhemiedges = get(handles.EdgDInter_checkbox,'Value'); % Add by Mingrui Xia, 20120109, draw inter hemisphere edges.
+EC.edg.directed = get(handles.EdgDDirected_checkbox,'Value'); % Added by Mingrui Xia, 20120621, draw directed network.
 if get(handles.EdgSS_radiobutton,'Value')==1
     EC.edg.size=1;
     EC.edg.size_size=str2double(get(handles.EdgSS_edit,'String'));
@@ -975,7 +1172,7 @@ elseif get(handles.EdgCC_radiobutton,'Value')==1
         case 3
             EC.edg.CM=hot;
         case 4
-            EC.edg.CM=cool;
+            EC.edg.CM=cooler;
         case 5
             EC.edg.CM=spring;
         case 6
@@ -1000,11 +1197,15 @@ elseif get(handles.EdgCT_radiobutton,'Value')==1
     EC.edg.color_threshold=str2double(get(handles.EdgCT_edit,'String'));
     EC.edg.CM(1,:)=get(handles.EdgCTH_text,'BackgroundColor');
     EC.edg.CM(64,:)=get(handles.EdgCTL_text,'BackgroundColor');
-else
+elseif get(handles.EdgCD_radiobutton,'Value') == 1
     EC.edg.color=4;
     EC.edg.color_distance=str2double(get(handles.EdgCD_edit,'String'));
     EC.edg.CM(1,:)=get(handles.EdgCDH_text,'BackgroundColor');
     EC.edg.CM(64,:)=get(handles.EdgCDL_text,'BackgroundColor');
+else % Added by Mingrui Xia, 20120809 add edge color according to nodal module
+    EC.edg.color = 5;
+    EC.edg.CM = EC.nod.CM;
+    EC.edg.CM(end,:) = 0.5;
 end
 EC.vol.display=get(handles.VolD_popupmenu,'Value');
 EC.vol.pn=str2double(get(handles.VolPRn_edit,'String'));
@@ -1013,9 +1214,23 @@ EC.vol.nn=str2double(get(handles.VolNRn_edit,'String'));
 EC.vol.nx=str2double(get(handles.VolNRx_edit,'String'));
 EC.vol.null=get(handles.VolNCS_text,'BackgroundColor');
 EC.vol.color_map=get(handles.VolC_popupmenu,'Value');
+EC.vol.adjustCM = get(handles.Vol_AdjustCM_checkbox,'Value');
+EC.vol.mapalgorithm = get(handles.VolMapAlgorithm_popupmenu,'Value');% Added by Mingrui Xia, 20120726, selection for different mapping algorithm.
+
 EC.img.width=str2double(get(handles.ImgPW_edit,'String'));
 EC.img.height=str2double(get(handles.ImgPH_edit,'String'));
 EC.img.dpi=str2double(get(handles.ImgD_edit,'String'));
+
+% Added by Mingrui, 20120529, ROI draw
+if get(handles.VolVS_radiobutton,'Value') == 1
+    EC.vol.type = 1;
+else
+    EC.vol.type = 2;
+end
+EC.vol.roi.drawall = get(handles.VolROIDrawAll_checkbox,'Value');
+EC.vol.roi.draw = EC.vol.roi.drawt;
+EC.vol.roi.color = EC.vol.roi.colort;
+EC.vol.roi.smooth = get(handles.VolROISmooth_checkbox,'Value');
 
 % --- Executes on button press in Cancel_button.
 function Cancel_button_Callback(hObject, eventdata, handles)
@@ -1296,12 +1511,12 @@ function NodSV_popupmenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns NodSV_popupmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from NodSV_popupmenu
-global surf
-if get(handles.NodSV_popupmenu,'Value')==2
-    if min(surf.sphere(:,5))<1||max(surf.sphere(:,5))>10
-        msgbox('The size inputed may exceed the proper range, and will be adjusted!','Warning','warn');
-    end
-end
+% global surf
+% if get(handles.NodSV_popupmenu,'Value')==2
+%     if min(surf.sphere(:,5))<1||max(surf.sphere(:,5))>10
+%         msgbox('The size inputed may exceed the proper range, and will be adjusted!','Warning','warn');
+%     end
+% end
 ChangeFlag(handles);
 
 
@@ -2149,13 +2364,13 @@ if get(handles.EdgDA_radiobutton,'Value')==1
     set(handles.EdgDT_edit,'Enable','off');
     set(handles.EdgDS_slider,'Enable','off');
     set(handles.EdgDS_edit,'Enable','off');
-    set(handles.EdgDT_checkbox,'Enable','off');
+    %     set(handles.EdgDT_checkbox,'Enable','off');
 else
     set(handles.EdgDT_slider,'Enable','on');
     set(handles.EdgDT_edit,'Enable','on');
     set(handles.EdgDS_slider,'Enable','on');
     set(handles.EdgDS_edit,'Enable','on');
-    set(handles.EdgDT_checkbox,'Enable','on');
+    %     set(handles.EdgDT_checkbox,'Enable','on');
 end
 ChangeFlag(handles);
 
@@ -2198,6 +2413,8 @@ function EdgC_panel_SelectionChangeFcn(hObject, eventdata, handles)
 %	OldValue: handle of the previously selected object or empty if none was selected
 %	NewValue: handle of the currently selected object
 % handles    structure with handles and user data (see GUIDATA)
+
+% Edited by Mingrui Xia, 20120809 add edge color according to nodal module
 if get(handles.EdgCS_radiobutton,'Value')==1
     set(handles.EdgCC_popupmenu,'Enable','off');
     set(handles.EdgCT_slider,'Enable','off');
@@ -2216,12 +2433,18 @@ elseif get(handles.EdgCT_radiobutton,'Value')==1
     set(handles.EdgCT_edit,'Enable','on');
     set(handles.EdgCD_slider,'Enable','off');
     set(handles.EdgCD_edit,'Enable','off');
-else
+elseif get(handles.EdgCD_radiobutton,'Value') == 1
     set(handles.EdgCC_popupmenu,'Enable','off');
     set(handles.EdgCT_slider,'Enable','off');
     set(handles.EdgCT_edit,'Enable','off');
     set(handles.EdgCD_slider,'Enable','on');
     set(handles.EdgCD_edit,'Enable','on');
+else
+    set(handles.EdgCC_popupmenu,'Enable','off');
+    set(handles.EdgCT_slider,'Enable','off');
+    set(handles.EdgCT_edit,'Enable','off');
+    set(handles.EdgCD_slider,'Enable','off');
+    set(handles.EdgCD_edit,'Enable','off');
 end
 ChangeFlag(handles);
 
@@ -2275,10 +2498,249 @@ if isequal(filename,0)||isequal(pathname,0)
     return;
 else
     fpath=fullfile(pathname,filename);
-    load(fpath);
+    tmp = load(fpath);
+    CheckEC(tmp);
     Initialization(handles);
     msgbox('Option Loaded!','Success','help');
 end
+
+
+function CheckEC(tmp)
+% Added by Mingrui Xia, 20120810, adapt New version to older configuration
+% file
+global EC
+if isfield(tmp.EC.bak,'color')
+    EC.bak.color = tmp.EC.bak.color;
+end
+if isfield(tmp.EC.msh,'color')
+    EC.msh.color = tmp.EC.msh.color;
+end
+if isfield(tmp.EC.msh,'alpha')
+    EC.msh.alpha = tmp.EC.msh.alpha;
+end
+if isfield(tmp.EC.msh,'doublebrain')
+    EC.msh.doublebrain = tmp.EC.msh.doublebrain;
+end
+if isfield(tmp.EC.nod,'draw')
+    EC.nod.draw = tmp.EC.nod.draw;
+end
+if isfield(tmp.EC.nod,'draw_threshold_type')
+    EC.nod.draw_threshold_type = tmp.EC.nod.draw_threshold_type;
+end
+if isfield(tmp.EC.nod,'draw_threshold')
+    EC.nod.draw_threshold = tmp.EC.nod.draw_threshold;
+end
+if isfield(tmp.EC.nod,'size')
+    EC.nod.size = tmp.EC.nod.size;
+end
+if isfield(tmp.EC.nod,'size_size')
+    EC.nod.size_size = tmp.EC.nod.size_size;
+end
+if isfield(tmp.EC.nod,'size_value')
+    EC.nod.size_value = tmp.EC.nod.size_value;
+end
+if isfield(tmp.EC.nod,'size_threshold')
+    EC.nod.size_threshold = tmp.EC.nod.size_threshold;
+end
+if isfield(tmp.EC.nod,'size_ratio')
+    EC.nod.size_ratio = tmp.EC.nod.size_ratio;
+end
+if isfield(tmp.EC.nod,'color')
+    EC.nod.color = tmp.EC.nod.color;
+end
+if isfield(tmp.EC.nod,'CM')
+    EC.nod.CM = tmp.EC.nod.CM;
+end
+if isfield(tmp.EC.nod,'color_map')
+    EC.nod.color_map = tmp.EC.nod.color_map;
+end
+if isfield(tmp.EC.nod,'color_threshold')
+    EC.nod.color_threshold = tmp.EC.nod.color_threshold;
+end
+if isfield(tmp.EC.nod,'CMm')
+    EC.nod.CMm = tmp.EC.nod.CMm;
+end
+if isfield(tmp.EC,'lbl')
+    EC.lbl = tmp.EC.lbl;
+end
+if isfield(tmp.EC,'lbl_threshold')
+    EC.lbl_threshold = tmp.EC.lbl_threshold;
+end
+if isfield(tmp.EC,'lbl_threshold_type')
+    EC.lbl_threshold_type = tmp.EC.lbl_threshold_type;
+end
+if isfield(tmp.EC.edg,'draw')
+    EC.edg.draw = tmp.EC.edg.draw;
+end
+if isfield(tmp.EC.edg,'draw_threshold')
+    EC.edg.draw_threshold = tmp.EC.edg.draw_threshold;
+end
+if isfield(tmp.EC.edg,'draw_abs')
+    EC.edg.draw_abs = tmp.EC.edg.draw_abs;
+end
+if isfield(tmp.EC.edg,'size')
+    EC.edg.size = tmp.EC.edg.size;
+end
+if isfield(tmp.EC.edg,'size_size')
+    EC.edg.size_size = tmp.EC.edg.size_size;
+end
+if isfield(tmp.EC.edg,'size_value')
+    EC.edg.size_value = tmp.EC.edg.size_value;
+end
+if isfield(tmp.EC.edg,'size_threshold')
+    EC.edg.size_threshold = tmp.EC.edg.size_threshold;
+end
+if isfield(tmp.EC.edg,'size_ratio')
+    EC.edg.size_ratio = tmp.EC.edg.size_ratio;
+end
+if isfield(tmp.EC.edg,'size_abs')
+    EC.edg.size_abs = tmp.EC.edg.size_abs;
+end
+if isfield(tmp.EC.edg,'color')
+    EC.edg.color = tmp.EC.edg.color;
+end
+if isfield(tmp.EC.edg,'CM')
+    EC.edg.CM = tmp.EC.edg.CM;
+end
+if isfield(tmp.EC.edg,'color_map')
+    EC.edg.color_map = tmp.EC.edg.color_map;
+end
+if isfield(tmp.EC.edg,'color_threshold')
+    EC.edg.color_threshold = tmp.EC.edg.color_threshold;
+end
+if isfield(tmp.EC.edg,'color_distance')
+    EC.edg.color_distance = tmp.EC.edg.color_distance;
+end
+if isfield(tmp.EC.edg,'color_abs')
+    EC.edg.color_abs = tmp.EC.edg.color_abs;
+end
+if isfield(tmp.EC.edg,'interhemiedges')
+    EC.edg.interhemiedges = tmp.EC.edg.interhemiedges;
+end
+if isfield(tmp.EC.edg,'directed')
+    EC.edg.directed = tmp.EC.edg.directed;
+end
+if isfield(tmp.EC.img,'width')
+    EC.img.width = tmp.EC.img.width;
+end
+if isfield(tmp.EC.img,'height')
+    EC.img.height = tmp.EC.img.height;
+end
+if isfield(tmp.EC.img,'dpi')
+    EC.img.dpi = tmp.EC.img.dpi;
+end
+if isfield(tmp.EC.lbl_font,'FontName')
+    EC.lbl_font.FontName = tmp.EC.lbl_font.FontName;
+end
+if isfield(tmp.EC.lbl_font,'FontWeight')
+    EC.lbl_font.FontWeight = tmp.EC.lbl_font.FontWeight;
+end
+if isfield(tmp.EC.lbl_font,'FontAngle')
+    EC.lbl_font.FontAngle = tmp.EC.lbl_font.FontAngle;
+end
+if isfield(tmp.EC.lbl_font,'FontSize')
+    EC.lbl_font.FontSize = tmp.EC.lbl_font.FontSize;
+end
+if isfield(tmp.EC.lbl_font,'FontUnits')
+    EC.lbl_font.FontUnits = tmp.EC.lbl_font.FontUnits;
+end
+if isfield(tmp.EC.lot,'view')
+    EC.lot.view = tmp.EC.lot.view;
+end
+if isfield(tmp.EC.lot,'view_direction')
+    EC.lot.view_direction = tmp.EC.lot.view_direction;
+end
+if isfield(tmp.EC.lot,'view_az')
+    EC.lot.view_az = tmp.EC.lot.view_az;
+end
+if isfield(tmp.EC.lot,'view_el')
+    EC.lot.view_el = tmp.EC.lot.view_el;
+end
+if isfield(tmp.EC.vol,'display')
+    EC.vol.display = tmp.EC.vol.display;
+end
+if isfield(tmp.EC.vol,'pn')
+    EC.vol.pn = tmp.EC.vol.pn;
+end
+if isfield(tmp.EC.vol,'px')
+    EC.vol.px = tmp.EC.vol.px;
+end
+if isfield(tmp.EC.vol,'nn')
+    EC.vol.nn = tmp.EC.vol.nn;
+end
+if isfield(tmp.EC.vol,'nx')
+    EC.vol.nx = tmp.EC.vol.nx;
+end
+if isfield(tmp.EC.vol,'null')
+    EC.vol.null = tmp.EC.vol.null;
+end
+if isfield(tmp.EC.vol,'CM')
+    EC.vol.CM = tmp.EC.vol.CM;
+end
+if isfield(tmp.EC.vol,'color_map')
+    EC.vol.color_map = tmp.EC.vol.color_map;
+end
+if isfield(tmp.EC.vol,'cmstring')
+    EC.vol.cmstring = tmp.EC.vol.cmstring;
+end
+if isfield(tmp.EC.vol,'adjustCM')
+    EC.vol.adjustCM = tmp.EC.vol.adjustCM;
+end
+if isfield(tmp.EC.vol,'mapalgorithm')
+    EC.vol.mapalgorithm = tmp.EC.vol.mapalgorithm;
+end
+if isfield(tmp.EC.glb,'material')
+    EC.glb.material = tmp.EC.glb.material;
+end
+if isfield(tmp.EC.glb,'material_ka')
+    EC.glb.material_ka = tmp.EC.glb.material_ka;
+end
+if isfield(tmp.EC.glb,'material_kd')
+    EC.glb.material_kd = tmp.EC.glb.material_kd;
+end
+if isfield(tmp.EC.glb,'material__ks')
+    EC.glb.material_ks = tmp.EC.glb.material_ks;
+end
+if isfield(tmp.EC.glb,'shading')
+    EC.glb.shading = tmp.EC.glb.shading;
+end
+if isfield(tmp.EC.glb,'lighting')
+    EC.glb.lighting = tmp.EC.glb.lighting;
+end
+if isfield(tmp.EC.glb,'lightdirection')
+    EC.glb.lightdirection = tmp.EC.glb.lightdirection;
+end
+if isfield(tmp.EC.glb,'render')
+    EC.glb.render = tmp.EC.glb.render;
+end
+if isfield(tmp.EC.glb,'detail')
+    EC.glb.detail = tmp.EC.glb.detail;
+end
+if isfield(tmp.EC.vol,'type')
+    EC.vol.type = tmp.EC.vol.type;
+end
+if isfield(tmp.EC.vol.roi,'drawall')
+    EC.vol.roi.drawall = tmp.EC.vol.roi.drawall;
+end
+if isfield(tmp.EC.vol.roi,'draw')
+    EC.vol.roi.draw = tmp.EC.vol.roi.draw;
+end
+if isfield(tmp.EC.vol.roi,'color')
+    EC.vol.roi.color = tmp.EC.vol.roi.color;
+end
+if isfield(tmp.EC.vol.roi,'colort')
+    EC.vol.roi.colort = tmp.EC.vol.roi.colort;
+end
+if isfield(tmp.EC.vol.roi,'smooth')
+    EC.vol.roi.smooth = tmp.EC.vol.roi.smooth;
+end
+if isfield(tmp.EC.vol.roi,'drawcus')
+    EC.vol.roi.drawcus = tmp.EC.vol.roi.drawcus;
+end
+if isfield(tmp.EC.vol.roi,'drawt')
+    EC.vol.roi.drawt = tmp.EC.vol.roi.drawt;
+end
+
 
 % --- Executes on button press in Save_button.
 function Save_button_Callback(hObject, eventdata, handles)
@@ -2590,10 +3052,24 @@ if get(handles.LotP_radiobutton,'Value')==1
     set(handles.LotPS_radiobutton,'Enable','on');
     set(handles.LotPA_radiobutton,'Enable','on');
     set(handles.LotPC_radiobutton,'Enable','on');
+    if get(handles.LotSingleCustom_radiobutton,'Value') == 1
+        set(handles.LotSingleCustomAz_text,'Enable','on');
+        set(handles.LotSingleCustomAz_edit,'Enable','on');
+        set(handles.LotSingleCustomEl_text,'Enable','on');
+        set(handles.LotSingleCustomEl_edit,'Enable','on');
+        set(handles.LotSingleCustom_radiobutton,'Enable','off');
+    else
+        set(handles.LotSingleCustom_radiobutton,'Enable','on');
+    end
 else
     set(handles.LotPS_radiobutton,'Enable','off');
     set(handles.LotPA_radiobutton,'Enable','off');
     set(handles.LotPC_radiobutton,'Enable','off');
+    set(handles.LotSingleCustom_radiobutton,'Enable','off');
+    set(handles.LotSingleCustomAz_text,'Enable','off');
+    set(handles.LotSingleCustomAz_edit,'Enable','off');
+    set(handles.LotSingleCustomEl_text,'Enable','off');
+    set(handles.LotSingleCustomEl_edit,'Enable','off');
 end
 ChangeFlag(handles);
 
@@ -2627,7 +3103,18 @@ function LotP_panel_SelectionChangeFcn(hObject, eventdata, handles)
 %	NewValue: handle of the currently selected object
 % handles    structure with handles and user data (see GUIDATA)
 ChangeFlag(handles);
-
+% Added by Mingrui Xia, 20120806, add custom view for single brain.
+if get(handles.LotSingleCustom_radiobutton,'Value') == 1
+    set(handles.LotSingleCustomAz_text,'Enable','on');
+    set(handles.LotSingleCustomAz_edit,'Enable','on');
+    set(handles.LotSingleCustomEl_text,'Enable','on');
+    set(handles.LotSingleCustomEl_edit,'Enable','on');
+else
+    set(handles.LotSingleCustomAz_text,'Enable','off');
+    set(handles.LotSingleCustomAz_edit,'Enable','off');
+    set(handles.LotSingleCustomEl_text,'Enable','off');
+    set(handles.LotSingleCustomEl_edit,'Enable','off');
+end
 
 % --- Executes on button press in ImgC_checkbox.
 function ImgC_checkbox_Callback(hObject, eventdata, handles)
@@ -2821,9 +3308,12 @@ global EC
 ChangeFlag(handles);
 if get(hObject, 'Value')==23
     prompt = {'Volume mapping colorbar.\n\nPlease input a n*3 matrix.'};
-    def = {'jet(64);'};
+    def = {EC.vol.cmstring};
     answer = inputdlg(prompt,'Custome colorbar defination',1,def);
-    EC.vol.CMt = eval([answer{1},';']);
+    if ~isempty(answer)
+        EC.vol.cmstring = answer{1};
+    end
+    EC.vol.CMt = eval([EC.vol.cmstring,';']);
     if size(EC.vol.CMt,2)~=3
         msgbox({['The colorbar inputed has wrong dimension.','The colorbar is set to jet(1000)']},'Error','error');
         EC.vol.CMt = jet(1000);
@@ -3259,6 +3749,336 @@ function GlbGD_popupmenu_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function VolROICus_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to VolROICus_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of VolROICus_edit as text
+%        str2double(get(hObject,'String')) returns contents of VolROICus_edit as a double
+global EC
+EC.vol.roi.drawcus = get(hObject,'String');
+EC.vol.roi.drawt = eval(['[',EC.vol.roi.drawcus,'];']);
+textcell = cell(length(EC.vol.roi.drawt),1);
+for i = 1:length(textcell)
+    textcell{i} = ['ROI ',num2str(EC.vol.roi.drawt(i))];
+end
+set(handles.VolROIColor_popupmenu,'String',textcell);
+ChangeFlag(handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function VolROICus_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to VolROICus_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in VolROIDrawAll_checkbox.
+function VolROIDrawAll_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to VolROIDrawAll_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of VolROIDrawAll_checkbox
+global EC
+global surf
+if get(hObject,'Value') == 1
+    set(handles.VolROICus_text,'Enable','off');
+    set(handles.VolROICus_edit,'Enable','off');
+    EC.vol.roi.drawt = unique(surf.mask);
+    EC.vol.roi.drawt(EC.vol.roi.drawt == 0) = [];
+else
+    if ~isempty(EC.vol.roi.drawcus)
+        EC.vol.roi.drawt = eval(['[',EC.vol.roi.drawcus,'];']);
+    end
+    set(handles.VolROICus_text,'Enable','on');
+    set(handles.VolROICus_edit,'Enable','on');
+end
+textcell = cell(length(EC.vol.roi.drawt),1);
+for i = 1:length(textcell)
+    textcell{i} = ['ROI ',num2str(EC.vol.roi.drawt(i))];
+end
+set(handles.VolROIColor_popupmenu,'String',textcell);
+ChangeFlag(handles);
+
+
+% --- Executes on selection change in VolROIColor_popupmenu.
+function VolROIColor_popupmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to VolROIColor_popupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns VolROIColor_popupmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from VolROIColor_popupmenu
+global EC
+set(handles.VolROIColorSQ_text,'BackgroundColor',EC.vol.roi.colort(get(hObject,'Value'),:));
+
+
+% --- Executes during object creation, after setting all properties.
+function VolROIColor_popupmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to VolROIColor_popupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+% --- Executes on button press in VolROISmooth_checkbox.
+function VolROISmooth_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to VolROISmooth_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of VolROISmooth_checkbox
+
+
+% --- Executes when selected object is changed in VolTS_uipanel.
+function VolTS_uipanel_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in VolTS_uipanel
+% eventdata  structure with the following fields (see UIBUTTONGROUP)
+%	EventName: string 'SelectionChanged' (read only)
+%	OldValue: handle of the previously selected object or empty if none was selected
+%	NewValue: handle of the currently selected object
+% handles    structure with handles and user data (see GUIDATA)
+global EC
+global FLAG
+if get(handles.VolVS_radiobutton,'Value') == 1
+    set(handles.VolDR_text,'Enable','on');
+    set(handles.VolD_text,'Enable','on');
+    set(handles.VolD_popupmenu,'Enable','on');
+    switch get(handles.VolD_popupmenu,'Value')
+        case 1
+            set(handles.VolD_popupmenu,'Value',1);
+            set(handles.VolNR_text,'Enable','on');
+            set(handles.VolNRn_edit,'Enable','on');
+            set(handles.VolNRx_edit,'Enable','on');
+            set(handles.VolPR_text,'Enable','on');
+            set(handles.VolPRn_edit,'Enable','on');
+            set(handles.VolPRx_edit,'Enable','on');
+        case 2
+            set(handles.VolD_popupmenu,'Value',2);
+            set(handles.VolNR_text,'Enable','off');
+            set(handles.VolNRn_edit,'Enable','off');
+            set(handles.VolNRx_edit,'Enable','off');
+            set(handles.VolPR_text,'Enable','on');
+            set(handles.VolPRn_edit,'Enable','on');
+            set(handles.VolPRx_edit,'Enable','on');
+        case 3
+            set(handles.VolD_popupmenu,'Value',3);
+            set(handles.VolPR_text,'Enable','off');
+            set(handles.VolPRn_edit,'Enable','off');
+            set(handles.VolPRx_edit,'Enable','off');
+            set(handles.VolNR_text,'Enable','on');
+            set(handles.VolNRn_edit,'Enable','on');
+            set(handles.VolNRx_edit,'Enable','on');
+    end
+    set(handles.VolNC_text,'Enable','on');
+    set(handles.VolC_text,'Enable','on');
+    set(handles.VolC_popupmenu,'Enable','on');
+    set(handles.VolROIRange_text,'Enable','off');
+    set(handles.VolROIDrawAll_checkbox,'Enable','off');
+    set(handles.VolROICus_text,'Enable','off');
+    set(handles.VolROICus_edit,'Enable','off');
+    set(handles.VolROIColor_text,'Enable','off');
+    set(handles.VolROIColor_popupmenu,'Enable','off');
+    set(handles.VolROIColorSQ_text,'Enable','off');
+    set(handles.VolROISmooth_checkbox,'Enable','off');
+    set(handles.VolMapAlgorithm_text,'Enable','on');
+    if FLAG.MAP == 2
+        set(handles.VolMapAlgorithm_popupmenu,'Enable','on');
+        set(handles.Vol_AdjustCM_checkbox,'Enable','on');
+    end
+else
+    set(handles.VolDR_text,'Enable','off');
+    set(handles.VolD_text,'Enable','off');
+    set(handles.VolD_popupmenu,'Enable','off');
+    set(handles.VolNR_text,'Enable','off');
+    set(handles.VolNRn_edit,'Enable','off');
+    set(handles.VolNRx_edit,'Enable','off');
+    set(handles.VolPR_text,'Enable','off');
+    set(handles.VolPRn_edit,'Enable','off');
+    set(handles.VolPRx_edit,'Enable','off');
+    set(handles.VolNC_text,'Enable','off');
+    set(handles.VolC_text,'Enable','off');
+    set(handles.VolC_popupmenu,'Enable','off');
+    set(handles.VolROIRange_text,'Enable','on');
+    set(handles.VolROIDrawAll_checkbox,'Enable','on');
+    if EC.vol.roi.drawall ~= 1
+        set(handles.VolROICus_text,'Enable','on');
+        set(handles.VolROICus_edit,'Enable','on');
+    end
+    set(handles.VolROIColor_text,'Enable','on');
+    set(handles.VolROIColor_popupmenu,'Enable','on');
+    set(handles.VolROIColorSQ_text,'Enable','on');
+    set(handles.VolROISmooth_checkbox,'Enable','on');
+    set(handles.VolMapAlgorithm_text,'Enable','off');
+    set(handles.VolMapAlgorithm_popupmenu,'Enable','off');
+    set(handles.Vol_AdjustCM_checkbox,'Enable','off');
+end
+ChangeFlag(handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function VolTS_uipanel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to VolTS_uipanel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes during object creation, after setting all properties.
+function NodD_panel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to NodD_panel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over VolROIColorSQ_text.
+function VolROIColorSQ_text_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to VolROIColorSQ_text (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global EC
+c=uisetcolor('Select Color');
+if length(c)==3
+    EC.vol.roi.colort(get(handles.VolROIColor_popupmenu,'Value'),:) = c;
+    set(hObject,'BackgroundColor',c);
+    ChangeFlag(handles);
+end
+
+
+% --- Executes on button press in EdgDDirected_checkbox.
+function EdgDDirected_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to EdgDDirected_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of EdgDDirected_checkbox
+ChangeFlag(handles);
+
+
+% --- Executes on button press in Vol_AdjustCM_checkbox.
+function Vol_AdjustCM_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to Vol_AdjustCM_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Vol_AdjustCM_checkbox
+ChangeFlag(handles);
+
+
+% --- Executes when Msh_panel is resized.
+function Msh_panel_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to Msh_panel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in MshDoubleBrain_checkbox.
+function MshDoubleBrain_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to MshDoubleBrain_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of MshDoubleBrain_checkbox
+ChangeFlag(handles);
+if get(hObject,'Value') == 1
+    set(handles.LotP_radiobutton,'Value',1);
+    set(handles.LotPS_radiobutton,'Enable','on');
+    set(handles.LotPA_radiobutton,'Enable','on');
+    set(handles.LotPC_radiobutton,'Enable','on');
+    set(handles.LotF_radiobutton,'Enable','off');
+    set(handles.LotM_radiobutton,'Enable','off');
+else
+    set(handles.LotF_radiobutton,'Enable','on');
+    set(handles.LotM_radiobutton,'Enable','on');
+end
+
+
+% --- Executes on selection change in VolMapAlgorithm_popupmenu.
+function VolMapAlgorithm_popupmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to VolMapAlgorithm_popupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns VolMapAlgorithm_popupmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from VolMapAlgorithm_popupmenu
+ChangeFlag(handles);
+
+% --- Executes during object creation, after setting all properties.
+function VolMapAlgorithm_popupmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to VolMapAlgorithm_popupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function LotSingleCustomAz_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to LotSingleCustomAz_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of LotSingleCustomAz_edit as text
+%        str2double(get(hObject,'String')) returns contents of LotSingleCustomAz_edit as a double
+ChangeFlag(handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function LotSingleCustomAz_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to LotSingleCustomAz_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function LotSingleCustomEl_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to LotSingleCustomEl_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of LotSingleCustomEl_edit as text
+%        str2double(get(hObject,'String')) returns contents of LotSingleCustomEl_edit as a double
+ChangeFlag(handles);
+
+% --- Executes during object creation, after setting all properties.
+function LotSingleCustomEl_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to LotSingleCustomEl_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
