@@ -35,6 +35,20 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+5/3/2016   - Release 2.0
+	     This release incorporates many substantial updates & improvements to
+	     previously released tools, including
+	     - ConnTool
+	     - ExtractionsScript
+	     - FirstLevel
+	     - GraphTheory
+	     - PPI
+	     - QualityChecks
+	     - SecondLevel
+	     - spm8Batch
+	     - svmbatch
+	     - core (core functionality & SPM releases)
+
 3/28/2014  - Release 1.9
 	     This release adds the GraphTheory toolbox to perform graph theoretic analyses on connectome data.
 
