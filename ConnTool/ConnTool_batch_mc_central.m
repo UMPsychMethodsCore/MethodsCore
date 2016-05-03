@@ -193,7 +193,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                 if (MotionDeriv)
                     RealignmentParametersQuad = [RealignmentParameters RealignmentParametersDerivR].^2;
                 else
-                    RealignmentParametersQuad = RealignmenParameters.^2;
+                    RealignmentParametersQuad = RealignmentParameters.^2;
                 end
 
                 parameters.data.run(iRun).MotionParameters = [RealignmentParameters];
@@ -244,6 +244,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                         end
                     else %assume text file
                         cv = load(DeSpikeFile);
+                    end
+                    if (size(cv,1)>NumScan(iRun))
+                        cv = cv(1:NumScan(iRun));
                     end
                     parameters.data.run(iRun).despikeVector = cv;
                     % Now the parameters for despiking
@@ -316,6 +319,11 @@ if (RunMode(1) | sum(RunMode) == 0)
                     else %assume text file
                         cv = load(CensorFile);
                     end
+                    
+                    if (size(cv,1)>NumScan(iRun))
+                        cv = cv(1:NumScan(iRun));
+                    end
+                    
                     parameters.data.run(iRun).censorVector = cv;
                     SOM_LOG(sprintf('STATUS : Censor vector found for this run : %d',iRun));
                 else
@@ -331,8 +339,6 @@ if (RunMode(1) | sum(RunMode) == 0)
             parameters.TIME.run(iRun).DetrendOrder  = DetrendOrder;
             parameters.TIME.run(iRun).LowF          = LowFrequency;
             parameters.TIME.run(iRun).HiF           = HighFrequency;
-            parameters.TIME.run(iRun).FreqBand1  = [0.0 1/2/TR-.002];  % The 0.002 is a fudge factor it really 
-            parameters.TIME.run(iRun).FreqBand2  = [0.0 1/2/TR-.002];  % should be based on time points.
             if exist('LowFreqBand1','var')
                 parameters.TIME.run(iRun).FreqBand1(1)   = LowFreqBand1;
             end
@@ -349,7 +355,21 @@ if (RunMode(1) | sum(RunMode) == 0)
             % Sanity check on the inputs, Nyquist if trying
             % to run ALFF or fALFF
             %
-            if strcmpi(Output(1),'f') % fALGG checks
+            if strcmpi(OutputType(1),'f') || strcmpi(OutputType(1),'a') % fALFF / ALFF checks
+                if ~isempty(regexpi(RegressOrder,'e')) % if running in "EDIT" mode
+                    SOM_LOG('FATAL: You are running in fALFF / ALFF mode, but you have specified option E in RegressOrder. This breaks spectral assumptions and is not allowed.');
+                    return
+                end
+            end
+            if strcmpi(OutputType(1),'f') % fALFF checks
+                if ~isfield(parameters.TIME.run(iRun),'FreqBand1') || ~isfield(parameters.TIME.run(iRun),'FreqBand2')
+                    SOM_LOG('FATAL: You are running in fALFF Mode, but have not set both frequency bands');
+                    return
+                end
+                if numel(parameters.TIME.run(iRun).FreqBand1) ~= 2 || numel(parameters.TIME.run(iRun).FreqBand2) ~= 2
+                    SOM_LOG('FATAL: Your two frequency bands must have one lower and one upper bound');
+                    return
+                end
                 if parameters.TIME.run(iRun).FreqBand1(2) > parameters.TIME.run(iRun).FreqBand2(2)
                     SOM_LOG('FATAL : Your high frequencies are not workable (FreqBand1 extends above FreqBand2');
                     return
@@ -363,10 +383,26 @@ if (RunMode(1) | sum(RunMode) == 0)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
                     return
                 end
+                if parameters.TIME.run(iRun).FreqBand1(1) >= parameters.TIME.run(iRun).FreqBand1(2) || parameters.TIME.run(iRun).FreqBand2(1) >= parameters.TIME.run(iRun).FreqBand2(2);
+                    SOM_LOG('FATAL: Your low frequencies are not lower than your high frequencies');
+                    return
+                end
             end
-            if strcmpi(Output(1),'a')
+            if strcmpi(OutputType(1),'a') % ALFF checks
+                if ~isfield(parameters.TIME.run(iRun),'FreqBand1')
+                    SOM_LOG('FATAL: You are running in ALFF Mode, but have not set the frequency band');
+                    return
+                end
+                if numel(parameters.TIME.run(iRun).FreqBand1) ~= 2
+                    SOM_LOG('FATAL: Your frequency band must have one lower and one upper bound');
+                    return
+                end
                 if parameters.TIME.run(iRun).FreqBand1(2) > (1/2/TR-.002)
                     SOM_LOG('FATAL : Your high frequencies violate Nyquist');
+                    return
+                end
+                if parameters.TIME.run(iRun).FreqBand1(1) >= parameters.TIME.run(iRun).FreqBand1(2)
+                    SOM_LOG('FATAL: Your low frequency is not lower than your high frequency');
                     return
                 end
             end
