@@ -10,7 +10,7 @@
 %            hypotheses are mistakenly rejected).
 %
 % Usage:
-%  >> [h, crit_p, adj_p]=fdr_bh(pvals,q,method,report);
+%  >> [h, crit_p, adj_p]=fdr_bh(pvals,q,method,report,CalcP);
 %
 % Required Input:
 %   pvals - A vector or matrix (two dimensions or more) containing the
