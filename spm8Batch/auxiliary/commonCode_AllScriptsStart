@@ -12,3 +12,21 @@
 
 sleep 1
 
+# We look for the options file for this command
+
+echo -n Checking for ${thisCommand}.options ...
+
+if [ -e "${thisCommand}.options" ]
+then 
+   commandOptionsDir=`pwd`
+   commandOptionsFile=${thisCommand}.options
+   echo found it.
+else
+   commandOptionsDir=
+   commandOptionsFile=
+   echo not present.
+fi
+
+#
+# Ready to move on now.
+#

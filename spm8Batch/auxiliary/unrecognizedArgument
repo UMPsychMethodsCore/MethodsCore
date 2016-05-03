@@ -1,5 +1,6 @@
+	  
 	  echo -e "\a"	  
 	  echo
 	  echo "I don't know what you mean by the command line argument:" $1
 	  echo
-	  ${thisCommend}
+	  ${thisCommand}

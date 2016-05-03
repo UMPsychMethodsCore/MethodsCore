@@ -1,3 +1,11 @@
-    echo "    -F FMRI_TR           set the TR for volume acquisition, "
-    echo "                         default is 2."
-    echo 
+case "${thisCommand}" in
+    "pcafMRI")
+       echo "    -F DATAFRACTION      set the fraction of voxels to us in the PCA, sorted by variance, "
+       echo "                         default is ${DATAFRACTION}"
+       echo 
+       ;;
+    *)
+       echo "    -F FMRI_TR           set the TR for volume acquisition, "
+       echo "                         default is ${TR}"
+       echo 
+esac

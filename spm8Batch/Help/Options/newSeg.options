@@ -1,0 +1,43 @@
+%
+% This is a template for overriding the defaults that are 
+% used in UMBatchNewSeg
+% 
+% USE AT YOUR OWN RISK -- READ THE WHOLE TEMPLATE PRIOR TO MAKING CHANGES.
+%
+% THERE IS NO ERROR CHECKING DONE ON THIS FILE
+%
+
+% threshold for the creating of the brain mask
+% the math is "white matter segment" + "grey matter segment" > BETThreshold
+% default is 0.05 in the code.
+% BETThreshold = 0.05;
+
+% Specificaly you may set the values for these parameters (each one can be set independentaly)
+
+% The bias regulation -- default is 1.0e-4
+% channel.biasreg  = ?????;
+
+% Bias FWHM cut off -- default is 60
+% channel.biasfwhm = ?????;
+
+% Do Markov clean up, the default numberof iterations is 0.
+% warp.mrf         = ?????;
+
+% Warping regularization parameters, default is 4
+% warp.reg         = ?????;
+
+% What type of brain, default is "mni", options are "eastern", "subj","none" 
+% warp.affreg      = ?????;
+
+% Warping sampling, default is 3.
+% warp.samp        = ?????;
+
+% You can also directly interact with the full structure of
+% 
+%   matlabbatch{1}.spm.tools.preproc8
+%
+% but that will require you to have a full undertsanding of the SPM code.
+%
+% -Robert Welsh
+% rcwelsh@med.umich.edu
+%
