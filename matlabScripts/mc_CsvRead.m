@@ -56,6 +56,7 @@ function M = mc_CsvRead(fileName, delimiter)
         line = fgetl(fid);
         lineNum = lineNum + 1;
     end
+    fclose(fid);
 end
 
 function isValid = validDelimiter(delimiter)
