@@ -1,6 +1,6 @@
 if (( ${#subjects[@]} < 1 ))
     then
     . ${thisDir}/auxiliary/noSubjectsErrorMsg
-    exit 1
+    . ${thisDir}/auxiliary/exit_w_removal
 fi
 

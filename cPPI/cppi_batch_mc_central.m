@@ -2,24 +2,24 @@
 %%% General calculations that apply to both Preprocessing and First Level
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Code to create logfile name
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LogDirectory = mc_GenPath(struct('Template',LogTemplate,'mode','makedir'));
+result = mc_Logger('setup',LogDirectory);
+if (~result)
+    %error with setting up logging
+    mc_Error('There was an error creating your logfiles.\nDo you have permission to write to %s?',LogDirectory);
+end
+
+global mcLog;
+tempLog = mcLog;
+
 if (~exist('ROIOutput','var'))
     ROIOutput = 'maps';
 end
 if (~exist('Mode','var'))
     Mode = 'full';
-end
-
-if (alreadydone(1))
-    basefile = [stp basefile];
-end
-if (alreadydone(2))
-    basefile = [rep basefile];
-end
-if (alreadydone(3))
-    basefile = [nop basefile];
-end
-if (alreadydone(4))
-    basefile = [smp basefile];
 end
 
 
@@ -103,14 +103,42 @@ if (RunMode(1) | sum(RunMode) == 0)
             RealignmentParametersFile = mc_GenPath(RealignmentParametersTemplate);
 
             parameters.data.run(iRun).P = ImageFiles;
-
+            if (size(SubjDir,2) > 3 && SubjDir{iSubject,4}(1) ~= 0)
+                parameters.data.run(iRun).nTIME = SubjDir{iSubject,4}(iRun);
+            else
+                parameters.data.run(iRun).nTIME = NumScan(iRun);
+            end
             RealignmentParameters = load(RealignmentParametersFile);
             RealignmentParametersDeriv = diff(RealignmentParameters);
+            
+            tempReg = RealignmentParameters;
+            tempRegD = [];
+            tempRegQ = [];
+            tempRegQD = [];
+            tempCSF = [];
+            tempCensor = [];
+            
+            if (IncludeMotionDeriv)
+                tempRegD = (diff([2*tempReg(1,:)-tempReg(2,:);tempReg])+diff([tempReg;2*tempReg(end,:)-tempReg(end-1,:)])) / 2;
+                %tempRegD = gradient(tempReg); %for vector this is equivalent to the above which is the average of forward and back derivative
+            end
+            if (IncludeMotionQuad)
+                tempRegQ = tempReg.^2;
+            end
+            if (IncludeMotionQuad && IncludeMotionDeriv)
+                tempRegQD = tempRegD.^2;
+            end
+            if (IncludeCSF)
+                tempCSF = load(mc_GenPath(CSFRegTemplate));
+            end
+            if (IncludeCensor)
+                tempCensor = load(mc_GenPath(CensorTemplate));
+            end
             %RealignmentParametersDerivR = resample(RealignmentParametersDeriv,size(RealignmentParameters,1),size(RealignmentParametersDeriv,1));
 
-            %parameters.data.run(iRun).MotionParameters = [RealignmentParameters RealignmentParametersDerivR];
-            parameters.data.run(iRun).MotionParameters = RealignmentParameters;
-            parameters.data.run(iRun).nTIME = NumScan(iRun);
+            parameters.data.run(iRun).MotionParameters = [RealignmentParameters tempRegD tempRegQ tempRegQD tempCSF tempCensor];
+            parameters.data.run(iRun).MotionParameters = parameters.data.run(iRun).MotionParameters(1:parameters.data.run(iRun).nTIME,:);
+
             parameters.data.MaskFLAG = MaskBrain;
 
             parameters.TIME.run(iRun).TR = TR;
@@ -149,6 +177,9 @@ if (RunMode(1) | sum(RunMode) == 0)
                     ROI{iROIs} = fullfile(ROIFolder,ROIImages{iROIs});
                 end
                 parameters.rois.files = char(ROI);
+            case 'directory'
+                ROIFolder = mc_GenPath(ROITemplate);
+                parameters.rois.files = spm_select('FPList',ROIFolder,'.*\.img|.*\.nii');
             
             case 'coordinates'
                 parameters.rois.mni.coordinates = ROICenters;
@@ -161,12 +192,31 @@ if (RunMode(1) | sum(RunMode) == 0)
                     parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
             case 'grid'
-                ROIGridMask = mc_Genpath(ROIGridMaskTemplate);
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
                 ROIGridMaskHdr = spm_vol(ROIGridMask);
                 ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
                 grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
                 inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
                 grid_coord = grid_coord_cand(inOutIDX,:);
+                parameters.rois.mni.coordinates = grid_coord;
+                if (iscell(ROIGridSize))
+                    parameters.rois.mni.size = ROIGridSize{1};
+                else
+                    XYZ = SOM_MakeSphereROI(ROIGridSize);
+                    parameters.rois.mni.size.XROI = XYZ(1,:);
+                    parameters.rois.mni.size.YROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                end
+            case 'gridplus'
+                ROIGridMask = mc_GenPath(ROIGridMaskTemplate);
+                ROIGridMaskHdr = spm_vol(ROIGridMask);
+                ROIGridBB = mc_GetBoundingBox(ROIGridMaskHdr);
+                grid_coord_cand = SOM_MakeGrid(ROIGridSpacing,ROIGridBB);
+                inOutIDX = SOM_roiPointsInMask(ROIGridMask,grid_coord_cand);
+                grid_coord = grid_coord_cand(inOutIDX,:);
+                
+                grid_coord = [grid_coord; ROIGridCenters];
+                
                 parameters.rois.mni.coordinates = grid_coord;
                 if (iscell(ROIGridSize))
                     parameters.rois.mni.size = ROIGridSize{1};
@@ -186,6 +236,14 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.cppi.SPM = mc_GenPath(fullfile(SPMTemplate,'SPM.mat'));
         parameters.cppi.UseSandbox = UseSandbox;
         parameters.cppi.NumScan = NumScan;
+        if (~exist('StandardizeBetas','var') || isempty(StandardizeBetas))
+            StandardizeBetas = 1;
+        end
+        parameters.cppi.StandardizeBetas = StandardizeBetas;
+        if (~exist('MaxConditions','var') || isempty(MaxConditions))
+            MaxConditions = 0;
+        end
+        parameters.cppi.MaxConditions = MaxConditions;
         
         if (UseSandbox)
             [status hostname] = system('hostname -s');
@@ -205,30 +263,51 @@ end
 if (RunMode(2))
     %partition SubjDir into parameters.cppi.NumProcesses equal parts
     NumSubj = size(SubjDir,1);
-    if (NumProcesses > 4)
-        NumProcesses = 4;
+    if (NumProcesses > 18)
+        NumProcesses = 18;
     end
     SubjPerChunk = floor(NumSubj / NumProcesses);
+    SubjRemain = mod(NumSubj,NumProcesses);
+    
     for iChunk = 1:NumProcesses
         %save each piece of SubjDir into a chunkN.mat file in temp location
         offset = (iChunk - 1) * SubjPerChunk;
         tempSubjDir = [];
-        if (iChunk < NumProcesses)
+%        if (iChunk < NumProcesses)
             for iSubject = 1+offset:SubjPerChunk+offset
                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
                 tempSubjDir{end,2} = SubjDir{iSubject,2};
                 tempSubjDir{end,3} = SubjDir{iSubject,3};
+                if (size(SubjDir,2)>3)
+                    tempSubjDir{end,4} = SubjDir{iSubject,4};
+                end
+
             end
-        else
-            for iSubject = 1+offset:size(SubjDir,1)
-                tempSubjDir{end+1,1} = SubjDir{iSubject,1};
-                tempSubjDir{end,2} = SubjDir{iSubject,2};
-                tempSubjDir{end,3} = SubjDir{iSubject,3};
+%         else
+%             for iSubject = 1+offset:size(SubjDir,1)
+%                 tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+%                 tempSubjDir{end,2} = SubjDir{iSubject,2};
+%                 tempSubjDir{end,3} = SubjDir{iSubject,3};
+%                 tempSubjDir{end,4} = SubjDir{iSubject,4};
+%             end
+%        end
+        if (SubjRemain > 0)
+            iSubject = NumSubj+1-SubjRemain;
+            tempSubjDir{end+1,1} = SubjDir{iSubject,1};
+            tempSubjDir{end,2} = SubjDir{iSubject,2};
+            tempSubjDir{end,3} = SubjDir{iSubject,3};
+            if (size(SubjDir,2)>3)
+                tempSubjDir{end,4} = SubjDir{iSubject,4};
             end
+
+            SubjRemain = SubjRemain - 1;
         end
+            
+        [fd fn fe] = fileparts(mcLog);
+        mcLog = fullfile(fd,[fn '_chunk' num2str(iChunk) fe]);
         chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
-        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename');
-   
+        save(chunkFile,'tempSubjDir','OutputTemplate','Exp','OutputName','ParameterFilename','NumScan','mcLog');
+        mcLog = tempLog;
     end
         %send a system call to start matlab, load a chunk file, and call
         %cppi_batch_chunk with the loaded variables
@@ -236,7 +315,7 @@ if (RunMode(2))
         %spawn NumProcesses-1 other matlab processes
         for iChunk = 1:NumProcesses-1
             chunkFile = fullfile(mc_GenPath(Exp),['chunk_' num2str(iChunk) '.mat']);
-            systemcall = sprintf('/net/misc/matlab2007b/bin/matlab -nosplash -nodesktop -r "addpath(fullfile(''%s'',''matlabScripts''));,addpath(fullfile(''%s'',''cPPI''));,addpath(fullfile(''%s'',''som''));,addpath(fullfile(''%s'',''spm8''));,cppi_batch_chunk(''%s'');,quit;" &',mcRoot,mcRoot,mcRoot,mcRoot,chunkFile);
+            systemcall = sprintf('matlab -nosplash -nodesktop -r "addpath(fullfile(''%s'',''matlabScripts''));,addpath(fullfile(''%s'',''cPPI''));,addpath(fullfile(''%s'',''som''));,addpath(fullfile(''%s'',''SPM/SPM8/spm8_with_R4667''));,cppi_batch_chunk(''%s'');,quit;" &',mcRoot,mcRoot,mcRoot,mcRoot,chunkFile);
             [status result] = system(systemcall);
         end
         %now the last one in this matlab.  This one will always be equal to

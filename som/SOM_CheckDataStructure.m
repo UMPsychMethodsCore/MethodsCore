@@ -121,7 +121,7 @@ for iRUN = 1:length(data.run)
       SOM_LOG(sprintf('FATAL ERROR : File %s does not exist'),data.run(iRUN).P(iFILE,:));
       return
     else
-      thisHDR = spm_vol(data.run(iRUN).P(iFILE,:));
+      thisHDR = spm_vol(data.run(iRUN).P(iFILE,:));     % fixed on 5/2/2012
       if SOM_SpaceVerify(data.run(iRUN).hdr,thisHDR) ~= 1
 	SOM_LOG('FATAL ERROR : Error with consistent in-run image space definition.');
 	return

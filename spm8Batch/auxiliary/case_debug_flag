@@ -1,6 +1,0 @@
-	      #
-	      # debug flag
-	      #
-	      "d")
-		  . ${thisDir}/auxiliary/setDebugFlag
-		  ;;

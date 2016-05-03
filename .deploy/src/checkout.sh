@@ -1,12 +1,20 @@
 #!/bin/sh
 
 #Grab Current Root
-mcRoot=`pwd`
+mcRoot=`pwd`  #Since this is called from post-checkout hook, working directory will be top of work tree unless changed in hook
 
 mkdir -p .local
 
+#Check if in detached head state
+headContent=`grep ref: .git/HEAD`
+
 #Identify Current Version
-cat .git/`cat .git/HEAD | awk '{print $NF'}` > .local/CurrentVersionSHA
+if [ -z "$headContent" ]
+then
+    cat .git/HEAD > .local/CurrentVersionSHA
+else
+    cat .git/`cat .git/HEAD | awk '{print $NF}'` > .local/CurrentVersionSHA
+fi
 
 #spm8Batch Localizations
 if [ -d .local/spm8Batch ]; then

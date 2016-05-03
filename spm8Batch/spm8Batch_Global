@@ -38,21 +38,23 @@ then
 # SOME GLOBAL THINGS TO CHANGE ACCORDING TO SITE
 #    
 
-    topDIR=/Users/rcwelsh/Software
-    
+
+    curdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    topDIR="$( cd $curdir/.. && pwd )"
+
 # You must point to SPM8 !!!
     
-    SPM8B1=${topDIR}/SPM8/spm8_with_R4290
+    SPM8B1=${topDIR}/SPM/SPM8/spm8_with_R4667
     
 # This is Robert Welsh's UNIX batch interface to spm8
     
-    SPM8B2=${topDIR}/spm8Batch_V2.0.4
+    SPM8B2=${topDIR}/spm8Batch
     
 # This must point to the place where the SPM8 patch is locally. 
     
-    SPM8B3=${topDIR}/spm8Batch_V2.0.4/matlabScripts
+    SPM8B3=${SPM8B2}/matlabScripts
     
-    AUXPATH=${topDIR}/spm8Batch_V2.0.4/spm8_patch
+    AUXPATH=${SPM8B2}/spm8_patch
     
 #
 # If the sandbox is populated then we copy files to local disk for processing
@@ -78,7 +80,7 @@ then
 # Mail job will be sent to your user name at the institutionname
 # Please set the instituion email server name here.
     
-    MAILRECPT=med.umich.edu
+    MAILRECPT=umich.edu
     
 #
 # Default email address to send messages to, on the linux machines
@@ -100,7 +102,7 @@ then
     
 # And finally, you need to point to matlab
         
-    MATLAB=/Applications/MATLAB_R2011b.app/bin/matlab
+    MATLAB=`which matlab`
 
 #    
 # Only allow author to execute code during switch.

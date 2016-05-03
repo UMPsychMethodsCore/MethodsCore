@@ -2,6 +2,7 @@
 
 thisdir=`dirname $0`
 
+git config core.filemode false
 
 # Add universe remote
 git remote add github/universe git@github.com:UMPsychMethodsCore/MethodsCore
@@ -21,3 +22,6 @@ echo public > $thisdir/../.local/branch
 
 #Make keyfiles
 ssh-keygen -f $thisdir/../.local/deploy -N ""
+
+#Do a checkout to create CurrentVersionSHA
+git checkout HEAD

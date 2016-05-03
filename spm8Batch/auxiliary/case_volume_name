@@ -1,6 +1,0 @@
-	      # 
-	      # wildcard name to use for which to co-reg.
-	      #
-	      "v")
-		  . ${thisDir}/auxiliary/setVolumeWildCard
-		  ;;

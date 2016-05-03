@@ -52,7 +52,7 @@
 	echo 
 	echo "ABORTING"
 	echo
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 
     if [ -e "${UMBatchMaster}/${SUBJDIR}/${subjects[$is]}/${anatomyPATH}/${SOURCENAME}${USEEXT}" ]
@@ -67,7 +67,7 @@
 	echo 
 	echo "ABORTING"
 	echo
-	exit 1
+	. ${thisDir}/auxiliary/exit_w_removal
     fi
 
     fileLIST=`ls -1 ${destSOURCENAME}* | wc |awk '{print $1}'`

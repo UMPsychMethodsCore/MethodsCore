@@ -37,8 +37,8 @@ for iRun = 1:size(parameters.data.run,2)
     SPM.Sess(iRun).C.name = repmat({'reg'},1,size(cppiregressors,2) + (parameters.cppi.domotion * size(parameters.data.run(iRun).MotionParameters,2)));
     offset = offset + parameters.data.run(iRun).nTimeAnalyzed;
 end
-SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_0.*',[1:size(roiTC,1)]);
-SPM.nscan = parameters.cppi.NumScan;
+SPM.xY.P = spm_select('ExtFPList',parameters.cppi.sandbox,'roiTC_[0-9].*',[1:size(roiTC,1)]);
+SPM.nscan = [parameters.data.run(:).nTIME];
 SPM.xBF.name       	= 'hrf';
 SPM.xBF.length     	= 32;   
 SPM.xBF.order      	= 1;   
@@ -55,6 +55,14 @@ global defaults
 defaults.mask.thresh = -Inf;
 SPM = spm_fmri_spm_ui(SPM);
 SPM = spm_spm(SPM); 
+
+numbetas = size(SPM.xX.X,2);
+SPM = rmfield(SPM,'xCon');
+for iB = 1:numbetas
+    contrast = [zeros(1,iB-1) 1 zeros(1,numbetas-iB)];
+    SPM.xCon(iB) = spm_FcUtil('Set',sprintf('beta%d',iB),'T','c',contrast',SPM.xX.xKXs);    
+end
+SPM = spm_contrasts(SPM);
 
 %return path to model when finished
 model = pwd;

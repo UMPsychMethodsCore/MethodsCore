@@ -10,6 +10,7 @@ function results = cppi_ConnectomicPPI(D0,parameters)
 % SOM_CalculateCorrelations.m code
 
 global SOM;
+global mcLog
 
 results = -1;
 
@@ -82,19 +83,45 @@ switch parameters.Output.type
         for iROI = 1:parameters.rois.nroisRequested
             roiTCscaled(:,iROI) = roiTC(:,iROI).*SPM.xGX.gSF;
         end
+        logstring = sprintf('%s: %d ROIs total',datestr(now),parameters.rois.nroisRequested);
+        mc_Logger('log',logstring,3);
         for iROI = 1:parameters.rois.nroisRequested
+           logstring = sprintf('%s: Working on ROI %d',datestr(now),iROI);
+           mc_Logger('log',logstring,3);
            %[cppiregressors betanames] =
            %cppi_CreateRegressors_spm(parameters.rois.mni.coordinates(iROI,:),parameters,roiTC(:,iROI));
            %roiTCtemp = roiTC(:,iROI).*SPM.xGX.gSF;
+           roiTCscaled(isnan(roiTCscaled)) = 0;
            [cppiregressors betanames] = cppi_CreateRegressors(roiTCscaled(:,iROI),parameters);
            for iB = 1:size(betanames,2)
                cppi_grid{1,iB} = betanames{iB};
            end
            
-           model = cppi_CreateModel(cppiregressors,roiTC,parameters);
-
-           [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI);
-           
+           try
+               model = cppi_CreateModel(cppiregressors,roiTC,parameters);
+               [cppi_grid result] = cppi_Extract(cppiregressors,model,parameters,cppi_grid,iROI,roiTC);
+           catch err
+               model = parameters.cppi.sandbox;
+               
+               nummotion = size(parameters.data.run(1).MotionParameters,2);
+               domotion = parameters.cppi.domotion;
+               numrun = size(parameters.data.run,2);
+               numregressors = size(cppiregressors,2);
+               goodbeta = repmat([ones(1,numregressors) zeros(1,domotion*nummotion)],1,numrun);
+               index = 1;
+               for iB = 1:size(goodbeta,2)
+                   if (goodbeta(iB) == 1)
+                       cppi_grid{2,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       cppi_grid{3,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       if (parameters.cppi.StandardizeBetas)
+                           cppi_grid{4,index}(iROI,:) = NaN*zeros(1,size(roiTC,2));
+                       end
+                       index = index + 1;
+                   end
+               end
+               result = 1;
+               mc_Logger('log',err.message);
+           end
            if (result)
                [status result] = system(sprintf('rm -rf %s',model));
                if (status ~= 0)
@@ -108,7 +135,7 @@ switch parameters.Output.type
         %now save cppi grid results
         GridFilename = [parameters.Output.name '_cppi_grid'];
         GridPath = mc_GenPath(fullfile(parameters.Output.directory,GridFilename));
-        save(GridPath,'cppi_grid');      
+        save(GridPath,'cppi_grid','-v7.3');      
     otherwise
         %
         % Error case

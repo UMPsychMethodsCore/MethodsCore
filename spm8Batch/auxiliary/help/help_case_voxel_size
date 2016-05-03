@@ -1,3 +1,4 @@
     echo "    -z VOXELSIZE         set the voxel size for resampling, "
     echo "                         default is spm default."
+    echo "                         See '-I' flag for overriding this for 'vbm8HiRes' and 'warpfMRI'."
     echo 
