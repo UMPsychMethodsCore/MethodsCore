@@ -12,38 +12,39 @@ Exp = '/net/data4/MAS/';
 RunDir = { 
     
   'run_01/';
-  'run_02/'
-  'run_03/'
-  'run_04/'
-  'run_05/'
-  'run_06/'
+  'run_02/';
+  'run_03/';
+  'run_04/';
+  'run_05/';
+  'run_06/';
          };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Path where the motion correction parameter files are located
-%%%
-%%%  Variables you can use in your template are:
-%%%       Exp = path to your experiment directory
-%%%       iSubject = index for subject
-%%%       Subject = name of subject from SubjDir (using iSubject as index of row)
-%%%       iRun = index of run (listed in Column 3 of SubjDir)
-%%%       Run = name of run from RunDir (using iRun as index of row)
-%%%        * = wildcard (can only be placed in final part of template)
-%%% Examples:
-%%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/realign.dat';
-%%% MotionPathTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/rp_arun_*.txt'
+%% PhysioPathTemplate: full path to physio parameter files
+%%
+%%  Variables you can use in your template are:
+%%       Exp      = path to your experiment directory
+%%       iSubject = index for subject
+%%       Subject  = name of subject from SubjDir (using iSubject as index of row)
+%%       iRun     = index of run (listed in Column 3 of SubjDir)
+%%       Run      = name of run from RunDir (using iRun as index of row)
+%%        *       = wildcard (can only be placed in final part of template)
+%% Examples:
+%% PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% OuputPathTemplate: file path to output (leave out .csv)
+%%
+%%  Variables you can use in your template are:
+%%       Exp        = path to your experiment directory
+%% Examples:
+%% PhysioPathTemplate = '[Exp]/Subjects/[Subject]/Physio/run_0[iRun]_physio.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Name and path for your output file (leave off the .csv)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OutputName = 'RestingPhysio_bothsessions_test';
-OutputPathTemplate = '[Exp]/Output/Physio/[OutputName]';
+OutputPathTemplate = '[Exp]/Output/Physio/RestingPhysio_bothsessions_test';
 
 
 
@@ -177,8 +178,5 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..')
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'PhysioSummary'))
 addpath(fullfile(mcRoot,'SPM','SPM8','spm8Legacy'))
-    
-   
-
 
 PhysioSummary_central
