@@ -465,8 +465,11 @@ try
     % specify a flag here that the component explorer is accessed
     % independently
     flagComponentExplorer = 'no_displayGUI';
-
-    icatb_componentExplore(parameters);
+    
+%%% -----------------------------------------------------------------
+%%% ----------------------      SG: avoid components image display
+%%%  ------------------------------------------------------------------
+%     icatb_componentExplore(parameters);
 
     %%%%%%%%%% End for displaying components %%%%%%%%%%%%%%%%%%%%
 

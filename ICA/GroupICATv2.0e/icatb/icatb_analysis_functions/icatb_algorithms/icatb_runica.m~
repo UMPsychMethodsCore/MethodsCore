@@ -693,7 +693,7 @@ blockno = 1;  % running block counter for kurtosis interrupts
 
 while step < maxsteps, %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%  !!!!! changed here  !!!!!!  %%%%%%%%%%%%%%%
-%   randomness is necessary for icasso(determine stability)
+   % avoid randomness
 %   rand('state', step);	if avoid randomness is preferred, uncomment this line
    permut=randperm(datalength); % shuffle data order at each step
 

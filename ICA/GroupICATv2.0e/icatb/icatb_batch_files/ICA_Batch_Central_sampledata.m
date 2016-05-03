@@ -4,7 +4,7 @@
 %
 % After entering the parameters, use icatb_batch_file_run(inputFile); 
 
-load UserSettings.mat;
+load ([oldDir,'/UserSettings.mat']);
 %% Modality. Options are fMRI and EEG
 modalityType = 'fMRI';
 
@@ -74,7 +74,7 @@ dataSelectionMethod = 1;
 
 % Note: Make sure the sessions are the same over subjects.
 
-sourceDir_filePattern_flagLocation = {'/net/dysthymia/slab/users/guosj/ICA_test/datasample_visuomotor/', 'nsrstim*.img', ...
+sourceDir_filePattern_flagLocation = {'/net/data4/MAS_ICA_data/datasample_visuomotor/', 'nsrstim*.img', ...
         'data_in_subject_folder'};
 
 %% Specify design matrix filter pattern here if you have selected

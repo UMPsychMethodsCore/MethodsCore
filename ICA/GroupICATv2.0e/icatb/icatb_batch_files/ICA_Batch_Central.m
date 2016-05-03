@@ -12,15 +12,15 @@ modalityType = 'fMRI';
 % Options are 1 and 2.
 % 1 - Regular Group ICA
 % 2 - Group ICA using icasso
-which_analysis = 1;
+which_analysis = doICASSO;
 
-% %% ICASSO options.
-% % This variable will be used only when which_analysis variable is set to 2.
-% icasso_opts.sel_mode = 'randinit';  % Options are 'randinit', 'bootstrap' and 'both'
-% icasso_opts.num_ica_runs = 5; % Number of times ICA will be run
-% % Most stable run estimate is based on these settings. 
-% icasso_opts.min_cluster_size = 2; % Minimum cluster size
-% icasso_opts.max_cluster_size = 15; % Max cluster size. Max is the no. of components
+%% ICASSO options.
+% This variable will be used only when which_analysis variable is set to 2.
+icasso_opts.sel_mode = 'randinit';  % Options are 'randinit', 'bootstrap' and 'both'
+icasso_opts.num_ica_runs = numofICASSO; % Number of times ICA will be run
+% Most stable run estimate is based on these settings. 
+icasso_opts.min_cluster_size = 2; % Minimum cluster size
+icasso_opts.max_cluster_size = 5; % Max cluster size. Max is the no. of components
 
 
 %% Group PCA performance settings. Best setting for each option will be selected based on variable MAX_AVAILABLE_RAM in icatb_defaults.m. 
@@ -186,7 +186,7 @@ OutTemplate.mode = 'makedir';
 outputDir = mc_GenPath(OutTemplate);
 
 %% Enter Name (Prefix) Of Output Files
-prefix = 'driving';
+prefix = prefix;
 
 %% Enter location (full file path) of the image file to use as mask
 % or use Default mask which is []
@@ -312,7 +312,7 @@ numOfPC2 = numOfPC2;
 % 2 - Scale to Z scores
 % 3 - Normalize spatial maps using the maximum intensity value and multiply timecourses using the maximum intensity value
 % 4 - Scale timecourses using the maximum intensity value and spatial maps using the standard deviation of timecourses
-scaleType = 0;
+scaleType = 2;
 
 
 %% 'Which ICA Algorithm Do You Want To Use';
@@ -321,7 +321,7 @@ scaleType = 0;
 % Note: Use only one subject and one session for Semi-blind ICA. Also specify atmost two reference function names
 
 % 1 means infomax, 2 means fastICA, etc.
-algoType = 1;
+algoType = algoType;
 
 % %% Specify atmost two reference function names if you select Semi-blind ICA algorithm.
 % % Reference function names can be acessed by loading SPM.mat in MATLAB and accessing 

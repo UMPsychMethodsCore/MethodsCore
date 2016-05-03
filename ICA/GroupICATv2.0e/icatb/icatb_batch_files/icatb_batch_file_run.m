@@ -1,7 +1,7 @@
 function icatb_batch_file_run(inputFiles)
 spm_get_defaults('cmdline',true);
 load UserSettings.mat;
-
+warning off
 %% Batch file for running group ICA
 %
 % Inputs:
@@ -48,44 +48,105 @@ for nFile = 1:length(inputFiles)
     load(param_file);
     
     %% Run Analysis (All steps)
-    icatb_runAnalysis(sesInfo, 1);
+        icatb_runAnalysis(sesInfo, 1);
     
     clear sesInfo;
     
 end
+    
 
-%% added for template matching
-%% unzip files
+%% added for template matching and PhysioCheck
+if doTemplateMatching || doPhysioCheck
+    %% unzip files
+    nSubj = size(SubjDir,1);
+    
+    OutPath = mc_GenPath(OutTemplate);
+    
+    %%%%%%%%%%%%%%% component
+    % all session info
+    compfileinfo(nSess+1) = dir ([OutPath, '/*agg_*zip*']);
+    if size(compfileinfo,1)
+        compfile{nSess+1} = fullfile(OutPath,compfileinfo(nSess+1).name);
+    else
+        fprintf('cannot find group source components info...\n');
+    end
+    [path, name, ext] = fileparts(compfile{nSess+1});
+    comppath{nSess+1}.Template = [path,'/',name];   comppath{nSess+1}.mode = 'makedir';
+    comppath{nSess+1} = mc_GenPath(comppath{nSess+1});
+    unzip(compfile{nSess+1}, comppath{nSess+1});
+    
+    
+% * -----------------------------------------------------------------------------      
+% * --------------------------  FOR Outdated alg 2  -----------------------------
+    % define component file needs to be extracted; 1xnSess+1: the last one is
+    % the concatenated group info
+    for iSess = 1:nSess
+        for iSubj = 1:nSubj
+        compfileinfo= dir ([OutPath, '/*sub',num2strN(iSubj,3),'_component_ica_s',num2str(iSess),'*zip*']);
+        if size(compfileinfo,1)
+            compfile{iSess}{iSubj} = fullfile(OutPath,compfileinfo.name);
+        else
+            fprintf('cannot find group components info of session %d, subject %d...\n', iSess, iSubj);
+        end
+        
+        % unzip compfile
+        [path, name, ext] = fileparts(compfile{iSess}{iSubj});
+        comppath{iSess}{iSubj}.Template = [path,'/',name];   
+        % !!!to save time running other alg except for 2; to run 2, turn the
+        % 3 lines below back on!!!
+% % % %         comppath{iSess}{iSubj}.mode = 'makedir';
+% % % %         comppath{iSess}{iSubj} = mc_GenPath(comppath{iSess}{iSubj});
+% % % %         unzip(compfile{iSess}{iSubj}, comppath{iSess}{iSubj});
+        end
+    end
+    
+    
+    %%%%%%%%%%%%%%%%% single subject time course
+    % is a cell array contains the path contains the swra*.nii
+    % of each subject's single session (nSubj x nSess)
+    
 
+    for iSubj = 1: nSubj
+        for iSess = 1: nSess
+            Subj = SubjDir{iSubj,1};
+            Run = RunDir{iSess, 1};
+            subjpath{iSubj,iSess} = mc_GenPath(InTemplate);
+        end
+    end
+% * -----------------------------------------------------------------------------  
 
-OutPath = mc_GenPath(OutTemplate);
-
-% define file needs to be extracted
-
-zipfileinfo = dir ([OutPath, '/*mean_component_ica_s_all*zip*']);
-if size(zipfileinfo,1)
-    zipfile = fullfile(OutPath,zipfileinfo(1).name);
-else
-    fprintf('cannot find group components info...\n');
+    %% calculate template matching fit index
+    compPath = comppath;    % 1xnSess cell array contains group component info for each session
+    subjPath = subjpath;    % nSubjxnSess cell array contains back projected component info for each subj and each session
+    NWTemplatePath = mc_GenPath(NWTemplate);        %expand network template path
+    PhysioTemplatePath = mc_GenPath(PhysioTemplate); 
+    
+    
+    if doTemplateMatching
+        mc_template_matching(TempMatchAlg, NWTemplatePath, compPath, subjPath, OutPath);
+    end
+    
+    if doPhysioCheck
+        mc_PhysioCheck(PhysioTemplatePath,compPath, subjPath);
+    end
+    
+%     % remove the unzipped file used before
+%     for irm = 1:size(compPath,2)
+%         if irm ~= size(compPath,2)
+%             for j = 1: nSubj
+%                 cmd = ['rm -r ', compPath{irm}{j}];
+%             end
+%         else
+%             cmd = ['rm -r ', compPath{irm}];
+%         end
+%         system(cmd);
+%     end
+%     
+%     %% write out component summary file
+%     if (TempMatchAlg == 1 || TempMatchAlg == 2)
+%         mc_components_summary(NWTemplatePath, OutPath, nSess, nSubj, numOfPC2);
+%     end
 end
-
-
-% unzip zipfile
-[path, name, ext] = fileparts(zipfile);
-unzippath.Template = [path,'/',name];   unzippath.mode = 'makedir';   
-unzippath = mc_GenPath(unzippath);
-unzip(zipfile, unzippath);
-
-
-%% calculate template matching fit index
-compPath = unzippath;
-NWTemplatePath = mc_GenPath(NWTemplate);        %expand network template path
-
-mc_template_matching(NWTemplatePath, compPath, OutPath);
-
-% remove the unzipped file used before
-cmd = ['rm -r ', unzippath];
-system(cmd);
 
 
 function inputFiles = formFullPaths(inputFiles)

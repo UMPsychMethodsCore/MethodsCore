@@ -11,9 +11,35 @@
 % 2. loop over network templates for each component: find the best fit
 % network
 
+function mc_PhysioCheck(PhysioTemplate, compPath, subjPath)
 
+%% if do PhsioChecks, do re-referencing for each img in the grey/white/csf template network folder
+rereference_inpath = PhysioTemplate;    %input path of template
 
-function all_comp_best_fit = mc_getbestfitNW(compPath, networkPath)
+% create another output folder called 'inpath_rerefenced' and save the re-refenced
+% image in this output folder
+rereference_out.Template = [PhysioTemplate,'_rereferenced'];
+rereference_out.mode = 'makedir';
+rereference_outpath = mc_GenPath(rereference_out);
+
+% pick up a component img for rereferencing
+% here the first found component in the 'all session' folder is chosen
+searchpath = [compPath{end} '/*component*hdr'];
+components = dir(searchpath);
+referenceimg = fullfile(compPath{end},components(1).name);
+
+% do re-referencing
+mc_rereferencing_batch(referenceimg, rereference_inpath, rereference_outpath);
+
+%replace NWTemplatePath by rereferenced path
+PhysioTemplatePath = rereference_outpath;
+
+%% do Physio Checks
+mc_getPhysioCheckR2mat(compPath{end}, PhysioTemplatePath);
+
+end
+
+function mc_getPhysioCheckR2mat(compPath, networkPath)
 
 % find all the component imgs in the compPath
 searchpath = [compPath '/*component*hdr'];
@@ -28,37 +54,31 @@ networks = [dir(hdrpath); dir(niipath)];
 
 nNW = length(networks);
 
-
-
+% all combination of corr
+comp_nw_corr = NaN(ncomp,nNW);
 
 %% sigle_comp_best is the struct to store the best-fit network and the corresponding score for each component
 %  all_comp_best_fit is the ncomp*1 struct to store the best fit for each
 %  of the component
 %loop over all components
 for icomp = 1: ncomp
-    bestscore = 0;
+    
     single_comp_best.NWname = networks(1).name;
     
-
     fprintf('calculating component %d...\n', icomp);
     single_comp_best.compname = components(icomp).name;
     % loop over all networks
     for iNW = 1:nNW
         
         comp = fullfile(compPath, components(icomp).name);
-        NW = fullfile(networkPath, networks(iNW).name);     
-        
-        score = mc_getfitindex (comp, NW);
-        
-        % get the best score
-        if score > bestscore
-            bestscore = score;
-            
-            single_comp_best.NWname = networks(iNW).name;
-            single_comp_best.score = bestscore;
-            
-        end
+        NW = fullfile(networkPath, networks(iNW).name);
+
+        comp_nw_corr(icomp,iNW) = mc_tm1_getcorr(comp,NW);
+
     end
-    
-    all_comp_best_fit(icomp,1) = single_comp_best;
+end
+% get r.^2
+comp_nw_corr = comp_nw_corr.^2;
+save([compPath,'/../comp_nw_corr.mat'],'comp_nw_corr');
+
 end

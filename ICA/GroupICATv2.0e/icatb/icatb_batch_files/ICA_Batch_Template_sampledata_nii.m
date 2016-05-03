@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your subject folders
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS_ICA_data/';
+Exp = '/net/data4/MAS_ICA_data';
 
 %% session number
 % number of sessions per subject
@@ -14,22 +14,22 @@ nSess= 1;
 %  if single: leave this alone
 RunDir = {
     'Tx1';
-    'Tx2';
+%     'Tx2';
 };
 
 %% subject directory
 SubjDir = {
-    'sub01_vis';
-    'sub02_vis';
-    'sub03_vis';
+'sub01_vis';
+'sub02_vis';
+'sub03_vis';
 
 };
 
 %% input path pattern
-InTemplate = '[Exp]/datasample_visuomotor/[Subj]/nsrstim*';
+InTemplate = '[Exp]/datasample_visuomotor/[Subj]/*.nii';
 
 %% Out path pattern
-OutTemplate = '[Exp]/Out_datasample_visuomotor_results';
+OutTemplate = '[Exp]/Out_TemplateMatchingAlg2_sampledata_randperm2_10comp';
 
 %% network template
 NWTemplate = '[Exp]/rspit_templates.zip_FILES/templates';
@@ -40,8 +40,8 @@ NWTemplate = '[Exp]/rspit_templates.zip_FILES/templates';
 % yourself. The default is 30 and 25.
 doEstimation = 0;
 
-numOfPC1 = 30;
-numOfPC2 = 25;
+numOfPC1 = 15;
+numOfPC2 = 10;
 
 %% output back projection or not
 BackProj = 1;
@@ -54,14 +54,19 @@ TempMatchAlg = 2;
 
 %% add path
 %DEVSTART
-mcRoot = fullfile(fileparts(mfilename('fullpath')),'..','..','..','..');
-%DEVSTOP
+mcRoot = '/home/slab/users/guosj/repos/MethodsCore2/';
+%fullfile(fileparts(mfilename('fullpath')),'..','..','..','..');
+% DEVSTOP
 
 addpath(genpath(fullfile(mcRoot,'matlabScripts')))
-addpath(fullfile(mcRoot,'spm8'))
+addpath(fullfile(mcRoot,'SPM','SPM8'))
 addpath(genpath(fullfile(mcRoot,'ICA/GroupICATv2.0e/icatb')))
 
 
 %% run ICA_Batch_Central      
+OutPath.Template = OutTemplate;     OutPath.mode = 'makedir';
+OutPath = mc_GenPath(OutPath);
+cd (OutPath);
 save UserSettings;
-icatb_batch_file_run('ICA_Batch_Central_sampledata.m');
+% ICA_Batch_Central;
+icatb_batch_file_run('ICA_Batch_Central.m');
