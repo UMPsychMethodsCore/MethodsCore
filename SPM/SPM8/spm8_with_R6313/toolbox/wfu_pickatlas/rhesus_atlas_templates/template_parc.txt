@@ -1,0 +1,29 @@
+[ UNC Labels]
+1	R Occipital
+2	R Temporal Auditory
+3	R Subcortical
+4	R Frontal
+5	R Cerebellum
+6	R Insula
+7	R Cingulate
+8	R Parietal
+9	R Prefrontal
+10	R Corpus Callosum
+11	R Temporal Visual
+12	R Temporal Limbic
+13	R Pons and Medulla
+14	L Occipital
+15	L Temporal Auditory
+16	L Subcortical
+17	L Frontal
+18	L Cerebellum
+19	L Insula
+20	L Cingulate
+21	L Parietal
+22	L Prefrontal
+23	L Corpus Callosum
+24	L Temporal Visual
+25	L Temporal Limbic
+26	L Pons and Medulla
+27	R Lat Ventricle
+28	L Lat Ventricle
