@@ -2,7 +2,7 @@ echo "#"                                                                        
 
 echo "MATLAB_BASED_PROCESS=1   # We are indeed a matlab based process"            >> ${FULLSCRIPTNAME}.sh
 echo                                                                              >> ${FULLSCRIPTNAME}.sh
-echo "${MATLAB} -nojvm -nodisplay <<EOF "                                         >> ${FULLSCRIPTNAME}.sh
+echo "${MATLAB} -nodisplay <<EOF "                                                >> ${FULLSCRIPTNAME}.sh
 echo                                                                              >> ${FULLSCRIPTNAME}.sh
 echo "% ${thisCommand} Script Created on $theDate"                                >> ${FULLSCRIPTNAME}.sh
 echo                                                                              >> ${FULLSCRIPTNAME}.sh

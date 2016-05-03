@@ -37,12 +37,12 @@ if Flag.glodeg
         deg = degrees_dir(mtrx);
     else
         if weighted
-            [deg,glodeg,strength,glostr] = degrees_wei(mtrx);
-            if graph.ztransform
-                strength=mc_inverse_FisherZ(strength);  % convert back to Pearson's r values
-            end
+            [deg,glodeg,strength] = degrees_wei(mtrx);
+%             if graph.ztransform
+%                 strength = mc_inverse_FisherZ(strength);  % convert back to Pearson's r values
+%             end
             Output.strength = strength;
-            Output.glostr   = glostr;            
+            Output.glostr   = mean(strength);            
                 
         else
             [deg,glodeg] = degrees_und(mtrx);

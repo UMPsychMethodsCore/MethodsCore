@@ -12,12 +12,12 @@ fprintf(1, '*****************************************************************');
 fprintf(1, 'Starting Check Warp to examine registration of canonical template and first five functional.');
 fprintf(1, '*****************************************************************');
 
-ImageTemplate = strcat(ImageTemplate, FilePrefix, '*');
+ImageTemplate = strcat(ImageTemplate, FilePrefix, '*',FileSuffix);
 for iSubject = 1:size(SubjDir,1)
 
     Subject=SubjDir{iSubject};
 
-    numRuns = size(SubjDir{iSubject, 3}, 2);
+    numRuns = numel(SubjDir{iSubject, 3});
     if numRuns > 4
         numRuns = 4;
     end
