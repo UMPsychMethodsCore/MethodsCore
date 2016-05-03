@@ -1,4 +1,4 @@
-function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, matrixtype, nolabels )
+function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, matrixtype, nolabels, roiTCmode )
 %MC_LOAD_SVM_DATASET Load connectomic data
 %   Prior to performing SVM, you will need to load your connectomic data.
 %   These can be produced by the som toolbox including in the advanced
@@ -43,6 +43,10 @@ function [ data, label ] = mc_load_connectomes_unpaired( SubjDir, FileTemplate, 
 %                           unflattening will work a little
 %                           bit differently.  
 %       nolabels        -   Set to true if you are not passing in any labels, and don't want any back
+%       roiTCmode       -   Set to true if you prefer to retrieve the roiTC files directly
+%                           (defaults to false). If true, will return a cell array of size nSub x 2.
+%                           The first column will contain roiTC for each subject.
+%                           The second column will contain the censor vector for each subject.
 %   NOTE - Use this function if loading unpaired datasets where you have two or more classes.
 %                           indicates unavailability
 conPathTemplate.Template=FileTemplate;
@@ -54,12 +58,26 @@ if ~exist('matrixtype','var')
     matrixtype='upper';
 end
 
+if ~exist('roiTCmode','var')
+    roiTCmode=false;
+end
+
 nSubs=size(SubjDir,1);
 
 for iSub=1:size(SubjDir,1)
+    fprintf(1,'Loading Connectome for Subject %d of %d\n', iSub, nSubs)
     Subject = SubjDir{iSub,1};
-    [roiTCavail, conPath] = find_file();
-    conmat=load(conPath);
+    [roiTCavail, conPath, paramPath] = find_file();
+    if roiTCmode & roiTCavail
+        roiTC = load_raw_roiTC();
+        param = load(paramPath);
+        data{iSub,1} = roiTC.roiTC;
+        data{iSub,2} = param.parameters.data.run.censorVector;
+        continue % jump to next loop; we're done here
+    end
+    if roiTCmode & ~ roiTCavail
+        mc_Error('Error: You requested roiTC loading, but we were unable to find them')
+    end
     if roiTCavail
         conn = load_roiTC();
     else
@@ -76,7 +94,7 @@ for iSub=1:size(SubjDir,1)
     end
 end
 
-    function  [roiTCavail, conPath] =  find_file
+    function  [roiTCavail, conPath, paramPath] =  find_file
     clear TestTemplate;
     roiTCavail = false;
     nchar = length(FileTemplate);
@@ -103,6 +121,20 @@ end
         TestPath = mc_GenPath(TestTemplate);
         conPath = TestPath;
     end
+    clear TestTemplate
+    TestTemplate.Template = [FileTemplate(1:(nchar-9)) '_parameters.mat'];
+    TestPath = mc_GenPath(TestTemplate);
+    if(exist(TestPath,'file'))
+        paramPath = TestPath;
+    else
+        TestTemplate.Template = [FileTemplate(1:(nchar-10)) '_parameters.mat'];
+        TestPath = mc_GenPath(TestTemplate);
+        if(exist(TestPath,'file'))
+            paramPath = TestPath;
+        else
+            mc_Error('Unable to find _parameters.mat file');
+        end
+    end
     end
 
     function conn =  load_corr
@@ -126,4 +158,13 @@ end
         conn = reshape(rmat,numel(rmat),1);
     end
     end
+
+    function roiTC = load_raw_roiTC
+        roiTC = load(conPath);
+    end
+
+    function roiTC = load_param
+        roiTC = load(conPath);
+    end
+    
 end
