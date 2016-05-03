@@ -12,7 +12,7 @@ function result = mc_Logger(cmd,argument,loglevel)
 %                                     directory and loglevel is not needed.
 %                           'log'   - write cmdstring to the log file.
 %
-% cmdstring         in 'setup' mode this should be the log file directory
+% argument          in 'setup' mode this should be the log file directory
 %                   to use. In 'log' mode this should be the string that 
 %                   will be written to the log file.
 %
@@ -78,7 +78,7 @@ function result = mc_Logger(cmd,argument,loglevel)
             mcLog = scriptlog;
             result = 1;
         case 'log'
-            if (~exist(loglevel,'var') || isempty(loglevel))
+            if (~exist('loglevel','var') || isempty(loglevel))
                 loglevel = 1;
             end
             switch(loglevel)
@@ -98,7 +98,7 @@ function result = mc_Logger(cmd,argument,loglevel)
                 %can still function without errors
                 return;
             end
-            if (exist('cmdstring')~=1 || isempty(cmdstring))
+            if (exist('argument')~=1 || isempty(argument))
                 %function called but we didn't get anything to log
                 return;
             end
@@ -107,7 +107,8 @@ function result = mc_Logger(cmd,argument,loglevel)
                 %could not open file for some reason
                 mc_Error('Could not open logfile %s for writing.',mcLog);
             end
-            fprintf(fid,'%s\t%s\n',loglevelstr,cmdstring);
+            fprintf(fid,'%s\t%s\n',loglevelstr,argument);
+            fclose(fid);
             result = 1;
     end
     
