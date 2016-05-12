@@ -60,8 +60,16 @@ MDFCheck   = struct('Template',MDF.path,'mode','check');
 MDFPath    = mc_GenPath(MDFCheck);
 MDFData    = dataset('File',MDFPath,'Delimiter',',');
 
-MDFData.(MDF.include)=nominal(MDFData.(MDF.include));
-MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE',:);
+if ~isempty(strfind(MDF.include,'.'))
+    MDF.include_new=MDF.include;
+    MDF.include_new(strfind(MDF.include,'.'))='_';    
+    MDFData.(MDF.include_new)=nominal(MDFData.(MDF.include_new));
+    MDFInclude = MDFData(MDFData.(MDF.include_new)=='TRUE',:);
+else    
+    MDFData.(MDF.include)=nominal(MDFData.(MDF.include));
+    MDFInclude = MDFData(MDFData.(MDF.include)=='TRUE',:);
+end
+
 
 switch class(MDFInclude.(MDF.Subject))
     case 'double'
@@ -69,6 +77,8 @@ switch class(MDFInclude.(MDF.Subject))
     case 'cell'
         Names = MDFInclude.(MDF.Subject);
 end  
+
+Names = cellfun(@(x) x(1:length(Names{1})),Names,'UniformOutput',false);
 Types = char(MDFInclude.(MDF.Type));
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,6 +115,7 @@ if graph.netinclude ~= -1
     end
 end
 
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% Initialization
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -138,6 +149,7 @@ if existflag   % Use existing results if there is one
     end
 else  % Start fresh new calculation
     CombinedOutput = cell(nThresh,length(Names),nNet);
+end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Initialize some graph default settings
@@ -199,216 +211,249 @@ else  % Start fresh new calculation
     
     SubUseMark = ones(1,length(Names));
     if (graph.netinclude ~= -1)
-                subnROI = zeros(length(graph.netinclude),1);
+                subnROI = zeros(length(graph.netinclude),1);               
+                
     end
-    for Sub = 1:nSub
-        tic
-        Subject = Names{Sub};
-        display(sprintf('Loading Number %s Subject %s',num2str(Sub),Subject));
+    
+%%%%%%%%%%%%%%%%%%%%%%%
+%%% Data cleansing
+%%%%%%%%%%%%%%%%%%%%%%%
+if graph.cleansing
+    des.csvpath=MDF.path;
+    des.IncludeCol=MDF.include;
+    cleansed=cleanse(mcRoot,des,cvals,SubjWiseTemp,EdgeField,Exp,NamePre);    
+end
+    
+for Sub = 1:nSub
+    tic
+    Subject = Names{Sub};
+    display(sprintf('Loading Number %s Subject %s',num2str(Sub),Subject));
+    
+    if ~graph.cleansing
         SubjWiseCheck = struct('Template',SubjWiseTemp,'mode','check');
         SubjWisePath  = mc_GenPath(SubjWiseCheck);
         SubjWiseFile  = load(SubjWisePath);
         SubjWiseEdgePath   = mc_GenPath('SubjWiseFile.[EdgeField]');
         SubjWiseThreshPath = mc_GenPath('SubjWiseFile.[ThreshField]');
-        eval(sprintf('%s=%s;','SubjWiseEdge',SubjWiseEdgePath));
-        eval(sprintf('%s=%s;','SubjWiseThresh',SubjWiseThreshPath));
-        
-        if (graph.amplify~=1)
-            SubjWiseEdge   = SubjWiseEdge/graph.amplify;
-            SubjWiseThresh = SubjWiseThresh/graph.amplify;
-        end
-        
-        % Exclude out of range(-1 ~ 1) values
-        SubjWiseEdge(abs(SubjWiseEdge)>1)=0;
-        SubjWiseThresh(abs(SubjWiseThresh)>1)=0;
-        
-        % Exclude the NaN elements
-        SubjWiseEdge(isnan(SubjWiseEdge)) = 0;
-        SubjWiseThresh(isnan(SubjWiseThresh))=0;
-        
-        
-        switch graph.value   
-            case 0
-                % no change
-            case 2 % Take absolute value
-                SubjWiseEdge = abs(SubjWiseEdge);
-                SubjWiseThresh = abs(SubjWiseThresh);
-            case 1 % Only keep positive correlations
-                SubjWiseEdge(SubjWiseEdge<0)=0;
-                SubjWiseThresh(SubjWiseEdge<0)=0;
-            case -1 % Only keep negative correlations
-                SubjWiseEdge(SubjWiseEdge>0)=0;
-                SubjWiseThresh(SubjWiseEdge>0)=0;
-                SubjWiseEdge = abs(SubjWiseEdge);     % Then take the absolute value
-                SubjWiseThresh = abs(SubjWiseThresh);
-        end
-        
-        % partial and ztransform options only apply to pearson's r correlation
-        
-        switch graph.partial
-            case 0
-                if (graph.ztransform == 1 && graph.ztransdone == 0)
-                    if graph.weighted
-                        SubjWiseEdge(SubjWiseEdge==1)=0.99999; % avoid Inf after z-trans
-                        SubjWiseEdge(SubjWiseEdge==-1)=-0.99999; % avoid -Inf after z-trans
-                    end
-                    SubjWiseEdge  = mc_FisherZ(SubjWiseEdge);   % Fisher'Z transform                    
-                end
-            case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
-                SubjWiseEdge = pinv(SubjWiseEdge);
-                SubjWiseThresh  = pinv(SubjWiseThresh);
-        end
-                
-        for kNetwork = 1:length(graph.netinclude)
+        if ~useroiTC
+            eval(sprintf('%s=%s;','SubjWiseEdge',SubjWiseEdgePath));
+            eval(sprintf('%s=%s;','SubjWiseThresh',SubjWiseThreshPath));
+        else
+            eval(sprintf('%s=%s;','SubjWiseroiTC',SubjWiseEdgePath));
+            SubjWiseEdge=corr(SubjWiseroiTC);
             
-            if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
-                GraphConnectRaw = SubjWiseEdge;
-                GraphThresh     = SubjWiseThresh;
+            if strcmp(EdgeField,ThreshField)
+                SubjWiseThresh=SubjWiseEdge;
             else
-                networklabel = graph.netinclude(kNetwork);
-                GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
-                GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
-            end                       
+                display('Please assign the same field name as edge field to threshold field if using roiTC mode');
+                break;
+            end
+        end        
+    else
+        SubjWiseEdge=mc_unflatten_upper_triangle(cleansed(Sub,:));
+        SubjWiseEdge=SubjWiseEdge+SubjWiseEdge';
+        if strcmp(EdgeField,ThreshField)
+            SubjWiseThresh=SubjWiseEdge;
+        else
+            display('Please assign the same field name as edge field to threshold field if cleansing data');
+            break;
+        end
+    end
+    
+    if (graph.amplify~=1)
+        SubjWiseEdge   = SubjWiseEdge/graph.amplify;
+        SubjWiseThresh = SubjWiseThresh/graph.amplify;
+    end
+    % Exclude out of range(-1 ~ 1) values
+    SubjWiseEdge(abs(SubjWiseEdge)>1)=0;
+    SubjWiseThresh(abs(SubjWiseThresh)>1)=0;
+    % Exclude the NaN elements
+    SubjWiseEdge(isnan(SubjWiseEdge)) = 0;
+    SubjWiseThresh(isnan(SubjWiseThresh))=0;
+    
+    
+    switch graph.value
+        case 0
+            % no change
+        case 2 % Take absolute value
+            SubjWiseEdge = abs(SubjWiseEdge);
+            SubjWiseThresh = abs(SubjWiseThresh);
+        case 1 % Only keep positive correlations
+            SubjWiseEdge(SubjWiseEdge<0)=0;
+            SubjWiseThresh(SubjWiseEdge<0)=0;
+        case -1 % Only keep negative correlations
+            SubjWiseEdge(SubjWiseEdge>0)=0;
+            SubjWiseThresh(SubjWiseEdge>0)=0;
+            SubjWiseEdge = abs(SubjWiseEdge);     % Then take the absolute value
+            SubjWiseThresh = abs(SubjWiseThresh);
+    end
+    
+    % partial and ztransform options only apply to pearson's r correlation
+    
+    switch graph.partial
+        case 0
+            if (graph.ztransform == 1 && graph.ztransdone == 0)
+                if graph.weighted
+                    SubjWiseEdge(SubjWiseEdge==1)=0.99999; % avoid Inf after z-trans
+                    SubjWiseEdge(SubjWiseEdge==-1)=-0.99999; % avoid -Inf after z-trans
+                end
+                SubjWiseEdge  = mc_FisherZ(SubjWiseEdge);   % Fisher'Z transform
+            end
+        case 1     % Use Moore-Penrose pseudoinverse of r matrix to calculate the partial correlation matrix
+            SubjWiseEdge = pinv(SubjWiseEdge);
+            SubjWiseThresh  = pinv(SubjWiseThresh);
+    end
+    
+    for kNetwork = 1:length(graph.netinclude)
+        
+        if (graph.netinclude == -1)             % Keep the whole brain to snow white, or split to 7 dishes of dwarfs
+            GraphConnectRaw = SubjWiseEdge;
+            GraphThresh     = SubjWiseThresh;
+        else
+            networklabel = graph.netinclude(kNetwork);
+            GraphConnectRaw = SubjWiseEdge(nets==networklabel,nets==networklabel);
+            GraphThresh     = SubjWiseThresh(nets==networklabel,nets==networklabel);
+        end
+        
+        for tThresh = 1:nThresh
             
-            for tThresh = 1:nThresh
-                
-                fprintf('Computing number %s Subject',num2str(Sub));
-                switch graph.threshmode
-                    case 'value'
-                        fprintf(' under threshold %.2f',graph.thresh(tThresh));
-                    case 'sparsity'
-                        if graph.thresh(tThresh)>100
-                            graph.thresh(tThresh) = 100;
-                        elseif graph.thresh(tThresh)<0
-                            graph.thresh(tThresh) = 0;
-                        end
-                        fprintf('with target density %.2f percent',graph.thresh(tThresh));
-                    otherwise
-                        graph.threshmode = 'value';
-                        fprintf(' under threshold %.2f',graph.thresh(tThresh));
-                        warning('Cannot recognize threshold mode name, default to value mode');
-                end
-                if (graph.netinclude == -1)
-                    fprintf(' in whole brain\n');
-                else
-                    fprintf(' in network %d\n',networklabel);
-                end    
-                
-                GraphConnect      = zeros(size(GraphConnectRaw));
-                switch graph.threshmode
-                    case 'value'
-                        if graph.weighted
-                            GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));   % Create weighted matrix
-                        else
-                            GraphConnect(GraphThresh>graph.thresh(tThresh))=1;                                                    % Create binary matrix
-                        end
-                    case 'sparsity'
-                        density = graph.thresh(tThresh)/100;
-                        lGraph = length(GraphThresh);
-                        nUpper = lGraph*(lGraph-1)/2;
-                        % want to make keep-lGraph to be even
-                        keep  = round(nUpper*density)*2+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later 
-                        [~,index] = sort(GraphThresh(:));
-                        if graph.weighted
-                            GraphConnect(index(end-keep+1:end))=GraphConnectRaw(index(end-keep+1:end));    % Create weighted matrix
-                        else
-                            GraphConnect(index(end-keep+1:end))=1;                                         % Create binary matrix
-                        end
-                end
-                
-                if nnz(GraphConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
-                    
-                    [GraphMeasures]   = mc_graphtheory_measures(GraphConnect,graph,Flag);   %%%% MAIN MEASURE PART %%%
-                    Output                   = GraphMeasures;
-                    
-                    % Comupte the smallworldness
-                    if Flag.smallworld
-                        display('Calculating Smallworldness');
-                        randcluster    = zeros(100,1);
-                        randpathlength = zeros(100,1);
-                        % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested graph with the
-                        % preserved degree distribution, which is used in the smallworldness computing.
-                        if ~exist('smallworlditer','var')
-                            smallworlditer = 100;
-                            warning('Smallworldness iteration time set to 100');
-                        end
-                        for k = 1:smallworlditer   
-                            display(sprintf('loop %d',k));
-                            [GraphRandom,~] = randmio_und(GraphConnect,5); % random graph with preserved degree distribution
-                            drand         = distance_bin(GraphRandom);
-                            [lrand,~]     = charpath(drand);
-                            if graph.directed
-                                crand = clustering_coef_bd(GraphRandom);
-                            else
-                                crand = clustering_coef_bu(GraphRandom);
-                            end
-                            randcluster(k)    = mean(crand);
-                            randpathlength(k) = lrand;
-                        end
-                        RandomMeasures.cluster    = mean(randcluster);
-                        RandomMeasures.pathlength = mean(randpathlength);
-                        gamma                     = GraphMeasures.cluster / RandomMeasures.cluster;
-                        lambda                    = GraphMeasures.pathlength / RandomMeasures.pathlength;
-                        if Flag.lambda
-                            Output.lambda = lambda;
-                        end
-                        if Flag.gamma
-                            Output.gamma = gamma;
-                        end
-                        Output.smallworld         = gamma / lambda;
+            fprintf('Computing number %s Subject',num2str(Sub));
+            switch graph.threshmode
+                case 'value'
+                    fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                case 'sparsity'
+                    if graph.thresh(tThresh)>100
+                        graph.thresh(tThresh) = 100;
+                    elseif graph.thresh(tThresh)<0
+                        graph.thresh(tThresh) = 0;
                     end
-                else 
-                    for m=1:length(FieldMetrics)
-                        Fname = FieldMetrics{m};
-                        if Flag.(Fname) == 1
-                            Output.(Fname)=0;
-                        end
-                    end
-                    Output.deg        = [];
-                    if graph.weighted
-                        Output.strength = [];
-                    end
-                    Output.nodebtwn   = [];
-                    Output.eloc       = [];
-                    Output.nodecluster= [];
-                    Output.eigenvector= [];
-                    Output.ecc        = [];
-                    SubUseMark(Sub) = 0;
-                end
-                
-                CombinedOutput{tThresh,Sub,kNetwork} = Output;
-                toc
+                    fprintf('with target density %.2f percent',graph.thresh(tThresh));
+                otherwise
+                    graph.threshmode = 'value';
+                    fprintf(' under threshold %.2f',graph.thresh(tThresh));
+                    warning('Cannot recognize threshold mode name, default to value mode');
+            end
+            if (graph.netinclude == -1)
+                fprintf(' in whole brain\n');
+            else
+                fprintf(' in network %d\n',networklabel);
             end
             
-            subnROI(kNetwork) = length(GraphConnect);
-            clear GraphConnectRaw
+            GraphConnect      = zeros(size(GraphConnectRaw));
+            switch graph.threshmode
+                case 'value'
+                    if graph.weighted
+                        GraphConnect(GraphThresh>graph.thresh(tThresh))=GraphConnectRaw(GraphThresh>graph.thresh(tThresh));   % Create weighted matrix
+                    else
+                        GraphConnect(GraphThresh>graph.thresh(tThresh))=1;                                                    % Create binary matrix
+                    end
+                case 'sparsity'
+                    density = graph.thresh(tThresh)/100;
+                    lGraph = length(GraphThresh);
+                    nUpper = lGraph*(lGraph-1)/2;
+                    % want to make keep-lGraph to be even
+                    keep  = round(nUpper*density)*2+length(GraphThresh); % For sorting convinience, include the diagonal, which will be excluded later
+                    [~,index] = sort(GraphThresh(:));
+                    if graph.weighted
+                        GraphConnect(index(end-keep+1:end))=GraphConnectRaw(index(end-keep+1:end));    % Create weighted matrix
+                    else
+                        GraphConnect(index(end-keep+1:end))=1;                                         % Create binary matrix
+                    end
+            end
+            
+            if nnz(GraphConnect)~=0   % Add this if to avoid all 0 matrix (sometimes caused by all NaN matrix) errors when calculating modularity
+                
+                [GraphMeasures]   = mc_graphtheory_measures(GraphConnect,graph,Flag);   %%%% MAIN MEASURE PART %%%
+                Output                   = GraphMeasures;
+                
+                % Comupte the smallworldness
+                if Flag.smallworld
+                    display('Calculating Smallworldness');
+                    randcluster    = zeros(100,1);
+                    randpathlength = zeros(100,1);
+                    % Compute the averaged clustering coefficient and characteristic path length of 100 randomized version of the tested graph with the
+                    % preserved degree distribution, which is used in the smallworldness computing.
+                    if ~exist('smallworlditer','var')
+                        smallworlditer = 100;
+                        warning('Smallworldness iteration time set to 100');
+                    end
+                    for k = 1:smallworlditer
+                        display(sprintf('loop %d',k));
+                        [GraphRandom,~] = randmio_und(GraphConnect,5); % random graph with preserved degree distribution
+                        drand         = distance_bin(GraphRandom);
+                        [lrand,~]     = charpath(drand);
+                        if graph.directed
+                            crand = clustering_coef_bd(GraphRandom);
+                        else
+                            crand = clustering_coef_bu(GraphRandom);
+                        end
+                        randcluster(k)    = mean(crand);
+                        randpathlength(k) = lrand;
+                    end
+                    RandomMeasures.cluster    = mean(randcluster);
+                    RandomMeasures.pathlength = mean(randpathlength);
+                    gamma                     = GraphMeasures.cluster / RandomMeasures.cluster;
+                    lambda                    = GraphMeasures.pathlength / RandomMeasures.pathlength;
+                    if Flag.lambda
+                        Output.lambda = lambda;
+                    end
+                    if Flag.gamma
+                        Output.gamma = gamma;
+                    end
+                    Output.smallworld         = gamma / lambda;
+                end
+            else
+                for m=1:length(FieldMetrics)
+                    Fname = FieldMetrics{m};
+                    if Flag.(Fname) == 1
+                        Output.(Fname)=0;
+                    end
+                end
+                Output.deg        = [];
+                if graph.weighted
+                    Output.strength = [];
+                end
+                Output.nodebtwn   = [];
+                Output.eloc       = [];
+                Output.nodecluster= [];
+                Output.eigenvector= [];
+                Output.ecc        = [];
+                SubUseMark(Sub) = 0;
+            end
+            
+            CombinedOutput{tThresh,Sub,kNetwork} = Output;
+            toc
         end
         
+        subnROI(kNetwork) = length(GraphConnect);
+        clear GraphConnectRaw
     end
     
-    if length(graph.thresh)>=2        
-        AUC = mc_graphtheory_AUC(CombinedOutput,graph); % Calculate AUC for global metrics             
-        SubUse = repmat(kron(SubUseMark,ones(1,nThresh+1)),1,length(graph.netinclude))'; % +1 for AUC
-    else        
-        SubUse = repmat(kron(SubUseMark,ones(1,nThresh)),1,length(graph.netinclude))'; % +1 for AUC
-    end
-    
-    if graph.netinclude == -1
-        nROI = length(GraphConnect);
-    else
-        nROI = subnROI;
-    end
-    
-    display('Saving first level global measure results');
-    
-    
-    %%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
-    if length(graph.thresh)>=2
-        save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','AUC','-v7.3');
-    else
-        save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','-v7.3');
-    end
 end
+
+if length(graph.thresh)>=2
+    AUC = mc_graphtheory_AUC(CombinedOutput,graph); % Calculate AUC for global metrics
+    SubUse = repmat(kron(SubUseMark,ones(1,nThresh+1)),1,length(graph.netinclude))'; % +1 for AUC
+else
+    SubUse = repmat(kron(SubUseMark,ones(1,nThresh)),1,length(graph.netinclude))'; % +1 for AUC
+end
+
+if graph.netinclude == -1
+    nROI = length(GraphConnect);
+else
+    nROI = subnROI;
+end
+
+display('Saving first level global measure results');
+
+
+%%%%%%%%%%%%%  Save the whole results to a mat file %%%%%%%%%%%%%
+if length(graph.thresh)>=2
+    save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','AUC','-v7.3');
+else
+    save(OutputMatPath,'CombinedOutput','SubUse','nROI','graph','-v7.3');
+end
+
 
 %%%%%%%%%%% Some heads-up steps %%%%%%%%%%%%%%%%%%
 sample = CombinedOutput{1,1,1};
@@ -624,9 +669,9 @@ if graph.ttest
     end
     switch graph.threshmode
         case 'value'
-    fprintf(theFID,'Threshold,Network,Metric,tVal,pVal,direction\n');
+    fprintf(theFID,'Threshold,Network,Metric,meanctrl,meanexp,tVal,pVal,direction\n');
         case 'sparsity'
-            fprintf(theFID,'TargetDensity(in percent),Network,Metric,tVal,pVal,direction\n');
+            fprintf(theFID,'TargetDensity(in percent),Network,Metric,meanctrl,meanexp,tVal,pVal,direction\n');
     end
     for i=1:pThresh
         for j=1:nNet
@@ -642,6 +687,8 @@ if graph.ttest
                     fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
                 end
                 fprintf(theFID,'%s,',tOut.metricorder{k});
+                fprintf(theFID,'%.4f,',tOut.meancl(i,j,k));                
+                fprintf(theFID,'%.4f,',tOut.meanep(i,j,k));
                 fprintf(theFID,'%.4f,',tOut.t(i,j,k));
                 fprintf(theFID,'%.4f,',tOut.p(i,j,k));
                 if tOut.p(i,j,k)<siglevel
@@ -778,9 +825,9 @@ if graph.perm
     end
     switch graph.threshmode
         case 'value'
-            fprintf(theFID,'Threshold,Network,Metric,rawpVal,direction\n');
+            fprintf(theFID,'Threshold,Network,Metric,meanctrl,meanexp,rawpVal,direction\n');
         case 'sparsity'
-            fprintf(theFID,'TargetDensity(in percent),Network,Metric,rawpVal,direction\n');
+            fprintf(theFID,'TargetDensity(in percent),Network,Metric,meanctrl,meanexp,rawpVal,direction\n');
     end
     for i=1:nThresh
         for j=1:nNet
@@ -792,6 +839,8 @@ if graph.perm
                     fprintf(theFID,'%s,',num2str(graph.netinclude(j)));
                 end
                 fprintf(theFID,'%s,',permOut.metricorder{k});
+                fprintf(theFID,'%.4f,',permOut.meancl(i,j,k));
+                fprintf(theFID,'%.4f,',permOut.meanep(i,j,k));
                 fprintf(theFID,'%.4f,',permpVal(i,j,k));
                 if permOut.rawp(i,j,k)<permlevel
                     switch permOut.direction(i,j,k)

@@ -25,7 +25,7 @@ for iSubject = 1:size(SubjDir,1)
 
     Subject = SubjDir{iSubject, 1};
 
-    numRuns = size(SubjDir{iSubject, 3}, 2);
+    numRuns = numel(SubjDir{iSubject, 3});
     if numRuns > 3
         numRuns = 3;
     end

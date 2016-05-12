@@ -1,0 +1,7 @@
+[ VT Labels]
+1	Hippocampus Left
+2	Hippocampus Right
+3	Putamen Left
+4	Putamen Right
+5	Caudate Left
+6	Caudate Right
