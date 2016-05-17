@@ -43,6 +43,8 @@ SubjWiseTemp = '[Exp]/FirstLevel/[Subject]/Tx1/RestingGrid1166/RestingGrid1166_c
 ThreshField = 'rMatrix';
 EdgeField   = 'rMatrix';
 
+useroiTC=0;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - MasterData File -
@@ -93,7 +95,11 @@ NetworkParameter = '[Exp]/FirstLevel/5001/Tx1/RestingGrid1166/RestingGrid1166_pa
 % 
 % graph.netinclude:                             -1 - Whole Brain;
 %                   Array of integers from 1 to 13 - SubNetworks based on 
-%                                                    parcellation of Yeo
+%                                                    parcellation of
+%                                                    Yeo/WashU 264ROIs
+%                   Array of integers from 1 to 6  - SubNetworks based on
+%                                                    parcellation of WashU 
+%                                                    160ROIs
 %                   Defaults to -1 if not assigned.   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -113,6 +119,15 @@ graph.netinclude = -1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 graph.covtype = 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - data cleansing -
+% Regress out other factors before calculation
+% 
+% des.model: the proposed model, each item is corresponding to the column 
+%            name in MDF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+graph.cleansing=1;
+des.model = '~ Dx + meanFD + meanFDquad + AGE + I(AGE^2) +  Gender + Handedness ' ; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - Graph Type -
@@ -359,6 +374,18 @@ graph.nodezscore = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 smallworlditer = 100;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - data cleansing - 
+% some options for internal cleansing function 
+% 
+% cvals.res: 1 - return residuals and predicted values; 0 - don't return.
+% cvals.int: 1 - return intercepts; 0 - don't return.
+% cvals.x:   1 - return Return the design matrix X (after centering, etc); 
+%            0 - don't return
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cvals.res = 1;
+cvals.int = 1;
+cvals.x = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % - FDR correction - 

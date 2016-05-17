@@ -22,12 +22,18 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
 %                               res     -       Return residuals (will turn on pred)
 %                               cor     -       Return corrected values (will turn on int and res)
 %                               x       -       Return the design matrix X (after centering, etc)    
+%                               f       -       Perform an f-test on reduced models. See below for details    
 %                       If you set the value to true, you will get a corresponding field in the stat output. For example...
 %                               vals.t = true;
 %                               vals.pred = true;
 %                       will yield t and pred fields of the stat output
 %                       NOTE - You will always get a b field of betas in your results    
 %
+%
+%                       F Tests
+%                               set f.test = 1;    
+%                               set f.submodel = [x y z]; to the indices of the items
+%                                       you want to drop in your "reduced" model    
 % 
 %   RESULTS
 %       A single struct will be returned. It can have the following fields
@@ -113,26 +119,71 @@ function [ stat ] = mc_CovariateCorrectionFast( Y, X, raw, vals)
     if exist('vals','var') && isfield(vals,'x') && vals.x % return design matrix
         stat.x = X;
     end
+    
+    if exist('vals','var') && isfield(vals,'f') && vals.f.test == 1;
+        stat = CalcFStat(Y,X,raw,vals,stat);
 
+    end
 end
 
+    function [ vals ] = vals_parser(vals) % turn on upstream vals
+    % requests
+        if isfield(vals,'f') && vals.f.test;
+            vals.res = 1;
+        end
+        if isfield(vals,'p') && vals.p % if p values are requested, turn on t
+            vals.t = true;
+        end
+        
+        if isfield(vals,'t') && vals.t % if t values are requested, turn on res
+            vals.res = true;
+        end
 
-function [ vals ] = vals_parser(vals) % turn on upstream vals
-% requests
-    if isfield(vals,'p') && vals.p % if p values are requested, turn on t
-        vals.t = true;
-    end
-    
-    if isfield(vals,'t') && vals.t % if t values are requested, turn on res
-        vals.res = true;
+        if isfield(vals,'cor') && vals.cor % if cor requested, turn on int and res
+            vals.int = true;
+            vals.res = true;
+        end
+        
+        if isfield(vals,'res') && vals.res % if residuals requested, turn on pred
+            vals.pred = true;
+        end
     end
 
-    if isfield(vals,'cor') && vals.cor % if cor requested, turn on int and res
-        vals.int = true;
-        vals.res = true;
+    function [stat] = CalcFStat(Y,X,raw,vals,stat);
+    % calculate an F statistic for a nested model following this
+    % F =  [ (RSS_r - RSS_f) / (p_f - p_r) ] / [ (RSS_f) / (n - p_f) ] ;
+    %where
+
+    % RSS_f  = residual sum of squares from full model
+    % RSS_r  = residual sum of squares from reduced model
+    % p_f    = number of predictors for full model
+    % p_r    = number of predictors for reduced model
+    % n      = number of subjects
+
+    % calculate the reduced model statistics
+        stat_f = stat;
+
+    % build reduced design matrix
+        X_r = X;
+        X_r(:,vals.f.submodel) = [];
+
+        vals_r = rmfield(vals,'f'); % prevent it from getting too recursive    
+
+        stat_r = mc_CovariateCorrectionFast(Y,X_r,raw,vals_r); % fit the reduced model
+
+        RSS_f = sum(stat_f.res.^2);
+        RSS_r = sum(stat_r.res.^2);
+
+        p_f = size(X,2);
+        p_r = size(X_r,2);
+
+        n = size(X,1);
+
+        Fval = ( (RSS_r - RSS_f) ./ (p_f - p_r) )  ./ ( (RSS_f) ./ (n - p_f) );
+
+        F_df = [p_f - p_r; n - p_f];
+        
+        stat.f.fval = Fval;
+        stat.f.df = F_df;
+
     end
-    
-    if isfield(vals,'res') && vals.res % if residuals requested, turn on pred
-        vals.pred = true;
-    end
-end
