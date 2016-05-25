@@ -1,0 +1,4 @@
+This directory contains filler functions needed for SPM to work, but that
+serve no needed function.  Exception is spm.m, which is HEAVILY pared down
+to only the needed sub-functions.
+
