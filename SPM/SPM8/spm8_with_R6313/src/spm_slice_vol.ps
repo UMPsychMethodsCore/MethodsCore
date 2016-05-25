@@ -1,0 +1,371 @@
+%!PS-Adobe-2.0
+%%Title: text.ps
+%%Pages: (atend)
+%%Creator: Robert Welsh Program Lister v0.1
+%%CreationDate: TODAY
+%%EndComments
+/line {10 mul} def
+/inch {72 mul} def
+/tf {/Courier findfont 10 scalefont setfont} def
+/hf {/Helvetica findfont 10 scalefont setfont} def
+/hfb {/Helvetica-Bold findfont 10 scalefont setfont} def
+/cf {/Courier findfont 10 scalefont setfont} def
+hf 0 0 moveto
+(File : ) stringwidth /dfy exch def /dfx exch def
+(Date : ) stringwidth /ddy exch def /ddx exch def
+(Page : ) stringwidth /dpy exch def /dpx exch def
+cf (M) stringwidth /mHeight exch def /mWidth exch def
+/greyBoxHeight {4 line} def
+/s { show } def 
+/nl { grestore 0 -1 line rmoveto gsave } def 
+/LandDict 20 dict def
+LandDict begin
+ /tranX 612 def
+ /tranY 0 def
+ /rotAng 90 def
+ /pageWidth 792 def
+ /pageHeight 612 def
+ /topLeft {0 612 moveto} def
+ /topRight {792 612 moveto} def
+ /greyBoxWidth 115 mWidth mul def
+ /nBoxes 7 def
+end
+/indent {50 0 rmoveto} def
+/PortDict 20 dict def
+PortDict begin
+ /tranX 0 def
+ /tranY 0 def
+ /rotAng 0 def
+ /pageWidth 612 def
+ /pageHeight 792 def
+ /topLeft {0 792 moveto} def
+ /topRight {612 792 moveto} def
+ /greyBoxWidth 115 mWidth mul def
+ /nBoxes 10 def
+end
+/greyBox { 
+ greyBoxWidth 0 rlineto
+ 0 greyBoxHeight neg rlineto
+ greyBoxWidth neg 0 rlineto
+ 0 greyBoxHeight rlineto
+ closepath
+ fill
+} def
+/greyBack {
+ gsave
+ /DeviceGray setcolorspace 0.975 setcolor /boxOffset 52 def
+ nBoxes {
+  18 pageHeight boxOffset sub moveto greyBox
+  /boxOffset  boxOffset 8 line add def } repeat
+ grestore
+} def
+/pageHeader {
+ hf topLeft
+ gsave
+ 18 -21 rmoveto
+ (File :) show
+ grestore
+ 18 -36 rmoveto
+ (Date :) show
+ topRight
+ -108 -21 rmoveto
+ (Page :) show
+} def
+/pageLines{
+ gsave
+ /DeviceGray setcolorspace
+ 0.75 setcolor
+ newpath topLeft indent
+ 0 -52 rmoveto
+ mWidth 72.2 mul 0 rmoveto
+ 0 0 nBoxes 2 mul 1 sub 4 mul line sub rlineto 
+ closepath 0.5 setlinewidth
+ stroke
+ newpath topLeft indent
+ 0 -52 rmoveto
+ mWidth 6.2 mul 0 rmoveto
+ 0 0 nBoxes 2 mul 1 sub 4 mul line sub rlineto 
+ closepath 0.5 setlinewidth
+ stroke
+ grestore
+} def
+%%EndProlog
+%%Page: number 1
+gsave
+LandDict begin
+tranX tranY translate
+rotAng rotate
+ 36 36 translate 0.9 0.9 scale
+greyBack
+pageHeader
+tf topLeft gsave
+18 dfx add -21 rmoveto
+ ( spm_slice_vol.c ) show
+grestore
+18 ddx add -36 rmoveto
+ ( Wed Jul 27 18:52:02 2011
+ ) show
+topRight
+ -108 dpx add -21 rmoveto
+ ( 1 ) show
+cf topLeft indent 0 -60 rmoveto gsave
+(    1 ) stringwidth exch neg exch rmoveto 
+(    1 ) show grestore gsave 
+(/*) s nl 
+(    2 ) stringwidth exch neg exch rmoveto 
+(    2 ) show grestore gsave 
+( * $Id: spm_slice_vol.c 938 2007-10-12 19:09:31Z john $) s nl 
+(    3 ) stringwidth exch neg exch rmoveto 
+(    3 ) show grestore gsave 
+( * John Ashburner) s nl 
+(    4 ) stringwidth exch neg exch rmoveto 
+(    4 ) show grestore gsave 
+( */) s nl 
+(    5 ) stringwidth exch neg exch rmoveto 
+(    5 ) show grestore gsave 
+() s nl 
+(    6 ) stringwidth exch neg exch rmoveto 
+(    6 ) show grestore gsave 
+(#include "mex.h") s nl 
+(    7 ) stringwidth exch neg exch rmoveto 
+(    7 ) show grestore gsave 
+(#include "spm_mapping.h") s nl 
+(    8 ) stringwidth exch neg exch rmoveto 
+(    8 ) show grestore gsave 
+() s nl 
+(    9 ) stringwidth exch neg exch rmoveto 
+(    9 ) show grestore gsave 
+(void mexFunction\(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]\)) s nl 
+(   10 ) stringwidth exch neg exch rmoveto 
+(   10 ) show grestore gsave 
+({) s nl 
+(   11 ) stringwidth exch neg exch rmoveto 
+(   11 ) show grestore gsave 
+(	MAPTYPE *map, *get_maps\(\);) s nl 
+(   12 ) stringwidth exch neg exch rmoveto 
+(   12 ) show grestore gsave 
+(	int m,n, k, hold, status;) s nl 
+(   13 ) stringwidth exch neg exch rmoveto 
+(   13 ) show grestore gsave 
+(	double *mat, *ptr, *img, background=0.0;) s nl 
+(   14 ) stringwidth exch neg exch rmoveto 
+(   14 ) show grestore gsave 
+() s nl 
+(   15 ) stringwidth exch neg exch rmoveto 
+(   15 ) show grestore gsave 
+(	if \(nrhs != 4 || nlhs > 1\)) s nl 
+(   16 ) stringwidth exch neg exch rmoveto 
+(   16 ) show grestore gsave 
+(	{) s nl 
+(   17 ) stringwidth exch neg exch rmoveto 
+(   17 ) show grestore gsave 
+(		mexErrMsgTxt\("Incorrect usage."\);) s nl 
+(   18 ) stringwidth exch neg exch rmoveto 
+(   18 ) show grestore gsave 
+(	}) s nl 
+(   19 ) stringwidth exch neg exch rmoveto 
+(   19 ) show grestore gsave 
+() s nl 
+(   20 ) stringwidth exch neg exch rmoveto 
+(   20 ) show grestore gsave 
+(	map = get_maps\(prhs[0], &n\);) s nl 
+(   21 ) stringwidth exch neg exch rmoveto 
+(   21 ) show grestore gsave 
+(	if \(n!=1\)) s nl 
+(   22 ) stringwidth exch neg exch rmoveto 
+(   22 ) show grestore gsave 
+(	{) s nl 
+(   23 ) stringwidth exch neg exch rmoveto 
+(   23 ) show grestore gsave 
+(		free_maps\(map, n\);) s nl 
+(   24 ) stringwidth exch neg exch rmoveto 
+(   24 ) show grestore gsave 
+(		mexErrMsgTxt\("Bad image handle dimensions."\);) s nl 
+(   25 ) stringwidth exch neg exch rmoveto 
+(   25 ) show grestore gsave 
+(	}) s nl 
+(   26 ) stringwidth exch neg exch rmoveto 
+(   26 ) show grestore gsave 
+() s nl 
+(   27 ) stringwidth exch neg exch rmoveto 
+(   27 ) show grestore gsave 
+(	for\(k=1; k<=3; k++\)) s nl 
+(   28 ) stringwidth exch neg exch rmoveto 
+(   28 ) show grestore gsave 
+(	{) s nl 
+(   29 ) stringwidth exch neg exch rmoveto 
+(   29 ) show grestore gsave 
+(		if \(!mxIsNumeric\(prhs[k]\) || mxIsComplex\(prhs[k]\) ||) s nl 
+(   30 ) stringwidth exch neg exch rmoveto 
+(   30 ) show grestore gsave 
+(			mxIsSparse\(prhs[k]\) || !mxIsDouble\(prhs[k]\)\)) s nl 
+(   31 ) stringwidth exch neg exch rmoveto 
+(   31 ) show grestore gsave 
+(		{) s nl 
+(   32 ) stringwidth exch neg exch rmoveto 
+(   32 ) show grestore gsave 
+(			free_maps\(map, 1\);) s nl 
+(   33 ) stringwidth exch neg exch rmoveto 
+(   33 ) show grestore gsave 
+(			mexErrMsgTxt\("Arguments must be numeric, real, full and double."\);) s nl 
+(   34 ) stringwidth exch neg exch rmoveto 
+(   34 ) show grestore gsave 
+(		}) s nl 
+(   35 ) stringwidth exch neg exch rmoveto 
+(   35 ) show grestore gsave 
+(	}) s nl 
+(   36 ) stringwidth exch neg exch rmoveto 
+(   36 ) show grestore gsave 
+() s nl 
+(   37 ) stringwidth exch neg exch rmoveto 
+(   37 ) show grestore gsave 
+(	/* get transformation matrix */) s nl 
+(   38 ) stringwidth exch neg exch rmoveto 
+(   38 ) show grestore gsave 
+(	if \(mxGetM\(prhs[1]\) != 4 && mxGetN\(prhs[1]\) != 4\)) s nl 
+(   39 ) stringwidth exch neg exch rmoveto 
+(   39 ) show grestore gsave 
+(	{) s nl 
+(   40 ) stringwidth exch neg exch rmoveto 
+(   40 ) show grestore gsave 
+(		free_maps\(map, 1\);) s nl 
+(   41 ) stringwidth exch neg exch rmoveto 
+(   41 ) show grestore gsave 
+(		mexErrMsgTxt\("Transformation matrix must be 4 x 4."\);) s nl 
+(   42 ) stringwidth exch neg exch rmoveto 
+(   42 ) show grestore gsave 
+(	}) s nl 
+(   43 ) stringwidth exch neg exch rmoveto 
+(   43 ) show grestore gsave 
+(	mat = mxGetPr\(prhs[1]\);) s nl 
+(   44 ) stringwidth exch neg exch rmoveto 
+(   44 ) show grestore gsave 
+() s nl 
+(   45 ) stringwidth exch neg exch rmoveto 
+(   45 ) show grestore gsave 
+(	/* get output dimensions */) s nl 
+(   46 ) stringwidth exch neg exch rmoveto 
+(   46 ) show grestore gsave 
+(	if \(mxGetM\(prhs[2]\) * mxGetN\(prhs[2]\) != 2\)) s nl 
+(   47 ) stringwidth exch neg exch rmoveto 
+(   47 ) show grestore gsave 
+(	{) s nl 
+(   48 ) stringwidth exch neg exch rmoveto 
+(   48 ) show grestore gsave 
+(		free_maps\(map, 1\);) s nl 
+(   49 ) stringwidth exch neg exch rmoveto 
+(   49 ) show grestore gsave 
+(		mexErrMsgTxt\("Output dimensions must have two elements."\);) s nl 
+(   50 ) stringwidth exch neg exch rmoveto 
+(   50 ) show grestore gsave 
+(	}) s nl 
+(   51 ) stringwidth exch neg exch rmoveto 
+(   51 ) show grestore gsave 
+(	ptr = mxGetPr\(prhs[2]\);) s nl 
+(   52 ) stringwidth exch neg exch rmoveto 
+(   52 ) show grestore gsave 
+(	m = abs\(\(int\)ptr[0]\);) s nl 
+end showpage grestore grestore 
+%%PageTrailer 
+%%Page: number 2
+gsave
+LandDict begin
+tranX tranY translate
+rotAng rotate
+ 36 36 translate 0.9 0.9 scale
+greyBack
+pageHeader
+tf topLeft gsave
+18 dfx add -21 rmoveto
+ ( spm_slice_vol.c ) show
+grestore
+18 ddx add -36 rmoveto
+ ( Wed Jul 27 18:52:02 2011
+ ) show
+topRight
+ -108 dpx add -21 rmoveto
+ ( 2 ) show
+cf topLeft indent 0 -60 rmoveto gsave
+(   53 ) stringwidth exch neg exch rmoveto 
+(   53 ) show grestore gsave 
+(	n = abs\(\(int\)ptr[1]\);) s nl 
+(   54 ) stringwidth exch neg exch rmoveto 
+(   54 ) show grestore gsave 
+(	plhs[0] = mxCreateDoubleMatrix\(m,n,mxREAL\);) s nl 
+(   55 ) stringwidth exch neg exch rmoveto 
+(   55 ) show grestore gsave 
+(	img = mxGetPr\(plhs[0]\);) s nl 
+(   56 ) stringwidth exch neg exch rmoveto 
+(   56 ) show grestore gsave 
+() s nl 
+(   57 ) stringwidth exch neg exch rmoveto 
+(   57 ) show grestore gsave 
+(	if \(mxGetM\(prhs[3]\)*mxGetN\(prhs[3]\) != 1 && mxGetM\(prhs[3]\)*mxGetN\(prhs[3]\) != 2\)) s nl 
+(   58 ) stringwidth exch neg exch rmoveto 
+(   58 ) show grestore gsave 
+(	{) s nl 
+(   59 ) stringwidth exch neg exch rmoveto 
+(   59 ) show grestore gsave 
+(		free_maps\(map, 1\);) s nl 
+(   60 ) stringwidth exch neg exch rmoveto 
+(   60 ) show grestore gsave 
+(		mexErrMsgTxt\("Hold & background argument must have one or two element\(s\)."\);) s nl 
+(   61 ) stringwidth exch neg exch rmoveto 
+(   61 ) show grestore gsave 
+(	}) s nl 
+(   62 ) stringwidth exch neg exch rmoveto 
+(   62 ) show grestore gsave 
+(	hold = \(int\)\(*\(mxGetPr\(prhs[3]\)\)\);) s nl 
+(   63 ) stringwidth exch neg exch rmoveto 
+(   63 ) show grestore gsave 
+(	if \(abs\(hold\) > 127\)) s nl 
+(   64 ) stringwidth exch neg exch rmoveto 
+(   64 ) show grestore gsave 
+(	{) s nl 
+(   65 ) stringwidth exch neg exch rmoveto 
+(   65 ) show grestore gsave 
+(		free_maps\(map, 1\);) s nl 
+(   66 ) stringwidth exch neg exch rmoveto 
+(   66 ) show grestore gsave 
+(		mexErrMsgTxt\("Bad hold value."\);) s nl 
+(   67 ) stringwidth exch neg exch rmoveto 
+(   67 ) show grestore gsave 
+(	}) s nl 
+(   68 ) stringwidth exch neg exch rmoveto 
+(   68 ) show grestore gsave 
+() s nl 
+(   69 ) stringwidth exch neg exch rmoveto 
+(   69 ) show grestore gsave 
+(	if \(mxGetM\(prhs[3]\)*mxGetN\(prhs[3]\) > 1\)) s nl 
+(   70 ) stringwidth exch neg exch rmoveto 
+(   70 ) show grestore gsave 
+(		background = mxGetPr\(prhs[3]\)[1];) s nl 
+(   71 ) stringwidth exch neg exch rmoveto 
+(   71 ) show grestore gsave 
+() s nl 
+(   72 ) stringwidth exch neg exch rmoveto 
+(   72 ) show grestore gsave 
+(	status = slice\(mat, img, m, n, map, hold, background\);) s nl 
+(   73 ) stringwidth exch neg exch rmoveto 
+(   73 ) show grestore gsave 
+(	free_maps\(map, 1\);) s nl 
+(   74 ) stringwidth exch neg exch rmoveto 
+(   74 ) show grestore gsave 
+(	if \(status\)) s nl 
+(   75 ) stringwidth exch neg exch rmoveto 
+(   75 ) show grestore gsave 
+(	{) s nl 
+(   76 ) stringwidth exch neg exch rmoveto 
+(   76 ) show grestore gsave 
+(		mexErrMsgTxt\("Slicing failed."\);) s nl 
+(   77 ) stringwidth exch neg exch rmoveto 
+(   77 ) show grestore gsave 
+(	}) s nl 
+(   78 ) stringwidth exch neg exch rmoveto 
+(   78 ) show grestore gsave 
+(}) s nl 
+end showpage grestore grestore 
+%%PageTrailer 
+%%Trailer 
+%%Pages: 2
+%%EOF 

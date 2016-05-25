@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of LI_boot_hf</title>
+  <meta name="keywords" content="LI_boot_hf">
+  <meta name="description"
+ content="This bootstrap helper function employs a bootstrapping approach">
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt; <a href="index.html">.</a>
+&gt; LI_boot_hf.m</div>
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+<h1>LI_boot_hf
+</h1>
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^"
+ src="../up.png" border="0"></a></h2>
+<div class="box"><strong>This bootstrap helper function employs a
+bootstrapping approach</strong></div>
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^"
+ src="../up.png" border="0"></a></h2>
+<div class="box"><strong>function [jn_li, jn_mn, jn_min, jn_max, xx,
+yy] =
+LI_boot_hf(res_l,res_r,nvoxl,nvoxr,its,mwf,perc,bailout,breakpoint,j); </strong></div>
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^"
+ src="../up.png" border="0"></a></h2>
+<div class="fragment">
+<pre class="comment"> This bootstrap helper function employs a bootstrapping approach<br> to calculating a lateralization index for MR-imaging data.<br> It works by generating iter random samples from two input<br> vectors of size x and y. As n random samples with<br> size = input*perc are sampled, a mean and the<br> minimum/maximum resulting LI are reported. <br><br> Required input is<br> res_l, res_r    : input data (l,r), in 3D (image volume) or as a vector<br> nvoxl, nvoxr    : number of voxels on the left and righ side<br> mwf        : mask weighting factor, for unequally sized masks<br> its        : number of iterations to perform<br> perc        : output size in percentage of input vector size<br> bailout    : stop if ceil(perc * nvox) &lt; bailout<br> breakpoint    : restricts maximum sample size<br><br> This functon is part of the LI-toolbox and comes with now warranty<br> whatsoever; see the readme for more details.<br> Written by Marko Wilke; USE AT YOUR OWN RISK!</pre>
+</div>
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img
+ alt="^" src="../up.png" border="0"></a></h2>
+This function calls:
+<ul style="list-style-image: url(../matlabicon.gif);">
+</ul>
+This function is called by:
+<ul style="list-style-image: url(../matlabicon.gif);">
+  <li><a href="LI_boot.html" class="code"
+ title="function [thrs] = LI_boot(A,B,C,out,sm,vw,pre,L,R);">LI_boot</a>
+Function to iteratively calculate lateralization indices</li>
+</ul>
+<!-- crossreference -->
+<hr>
+<address>Generated on Fri 16-Jun-2006 10:17:49 by <strong><a
+ href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong>
+&copy; 2003</address>
+</body>
+</html>
