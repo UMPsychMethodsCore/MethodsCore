@@ -1,0 +1,23 @@
+{"OpType":"coregOverlay",
+ "VerHash":"044033909b7af0870c218e56899c6a8253f43e27",
+  "ParamDict":{"jobName":"/Volumes/ALS/ALS2008/matlabScripts/spm8Batch/coregOverlay/2012_02/coregOverlay_120208_13_51_43_analysis_ruth",
+      "w":"coRegRARUN",
+          "f":"connect/func",
+	      "U":"rcwelsh",
+	          "o":"ht1overlay",
+		      "O":"o",
+		          "r":"",
+			      "v":"raprun",
+			          "n":""},
+ "InFile":
+	[{"Hash":"75066e4ef280518f8fa806e351a662d5d5e69277",
+	  "Path":"/Volumes/ALS/ALS2008/Subjects/111129eb/anatomy/ht1overlay.nii",
+	    "PortKey":"1"},
+	     {"Hash":"b725d1aa7e9a22d313a3a4b31bf2368001f75792",
+	       "Path":"/Volumes/ALS/ALS2008/Subjects//111129eb/connect/func/run_01/raprun_01.nii",
+	         "PortKey":"2"}],
+ "OutFile":
+	[{"Hash":"fb2625c06f184978ca982cff64b2cfbe34b2e87d",
+	   "Path":"/Volumes/ALS/ALS2008/Subjects/111129eb/connect/func/coRegRARUN/ht1overlay.nii",
+	      "PortKey":"1"}]
+ }
