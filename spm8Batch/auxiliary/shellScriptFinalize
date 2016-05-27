@@ -17,6 +17,10 @@ echo "then"                                                  >> ${FULLSCRIPTNAME
 echo "   echo \"${thisCommand} \${JOBSTATUS}, attempted at : ${theDate}\" >> \${UMSTREAM_STATUS_FILE}" >> ${FULLSCRIPTNAME}.sh
 echo "fi"                                                    >> ${FULLSCRIPTNAME}.sh
 
+# Log to imaging database
+
+. ${thisDir}/../bash_curl/curl_json.sh ${FULLSCRIPTNAME}.json ${DBHOST}
+
 # Automatic emailer.
 
 if [ "${USEREMAIL}" != "NOMAIL" ]
