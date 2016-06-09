@@ -32,7 +32,7 @@ thisDir=`dirname $theCommand`
 
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
-allowedOptions="BDdeflMntUv"
+allowedOptions="BDdeflMntUvyY"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart

@@ -369,6 +369,20 @@ do
 		"W")
                     . ${thisDir}/auxiliary/setWarpMethod
                     ;;
+	      # case_DBTarget_standard
+	      #
+	      # Lookup DBtarget from predefined list
+	      #
+		"y")
+		    . ${thisDir}/auxiliary/DBTarget_standard
+		    ;;
+	      # case_DBTarget_custom
+	      #
+	      # Take DBtarget as custom URL
+	      #
+		"Y")
+		    . ${thisDir}/auxiliary/DBTarget_custom
+		    ;;
               # case_voxel_size 
 	      #
 	      # Voxel size
