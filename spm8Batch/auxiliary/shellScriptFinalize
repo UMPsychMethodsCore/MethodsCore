@@ -21,7 +21,7 @@ echo "fi"                                                    >> ${FULLSCRIPTNAME
 
 if [ ! -z ${DBTarget} ] && [ -e ${FULLSCRIPTNAME}.json ]
 then
-    . ${thisDir}/../bash_curl/curl_json.sh ${FULLSCRIPTNAME}.json ${DBTarget}
+#    . ${thisDir}/../bash_curl/curl_json.sh ${FULLSCRIPTNAME}.json ${DBTarget}
 fi
 
 # Automatic emailer.

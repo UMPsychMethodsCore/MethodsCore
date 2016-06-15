@@ -33,6 +33,7 @@ then
     echo "addpath ${RECONMLIB} -END"                                             >> ${FULLSCRIPTNAME}.sh
 fi
 
+cat ${thisDir}/parts/mcRoot.m                                                    >> ${FULLSCRIPTNAME}.sh
 echo "addpath ${UMBatchMaster}/$MATLABDIR"                                       >> ${FULLSCRIPTNAME}.sh
 echo                                                                             >> ${FULLSCRIPTNAME}.sh
 echo "global UMBatchJobName"                                                     >> ${FULLSCRIPTNAME}.sh

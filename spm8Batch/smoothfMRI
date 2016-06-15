@@ -120,9 +120,10 @@ fi
 
 echo "    4) finalizing matlab scripts"
 
-echo "DBHOST = 'sopho.psych.med.umich.edu';"                 >> ${FULLSCRIPTNAME}.m
+echo "DBTarget = '"${DBTarget}"';" >> ${FULLSCRIPTNAME}.m
 echo "commandline = '${theFullCommand}';"                    >> ${FULLSCRIPTNAME}.m
-echo "MC_SHA = '"`cat ${thisDir}/../.local/CurrentVersionSHA`"';" >> ${FULLSCRIPTNAME}.m                   
+echo "MC_SHA = '"`cat ${thisDir}/../.local/CurrentVersionSHA`"';" >> ${FULLSCRIPTNAME}.m
+echo "FULLSCRIPTNAME = '"${FULLSCRIPTNAME}"';"               >> ${FULLSCRIPTNAME}.m               
 cat ${thisDir}/parts/smooth_part_2.m                         >> ${FULLSCRIPTNAME}.m
 
 echo "    5) building shell script"

@@ -15,7 +15,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - -
 
-function [CS SandBoxPID Images2Write] = moveToSandBox(sourceDir,sourceVolume,SandBoxPID,sourceExtension)
+function [CS SandBoxPID Images2Write Images2Write_orig] = moveToSandBox(sourceDir,sourceVolume,SandBoxPID,sourceExtension)
 
 % Check to see if sourceExtension was specified
 
@@ -26,6 +26,7 @@ end
 % Default is to use what we have on the source directory
 
 Images2Write = spm_select('ExtFPList',sourceDir,['^' sourceVolume sourceExtension],inf);
+Images2Write_orig = Images2Write;
 CS           = 0;
 
 % Does the sandbox even exist?
