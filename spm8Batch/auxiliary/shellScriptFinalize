@@ -19,10 +19,10 @@ echo "fi"                                                    >> ${FULLSCRIPTNAME
 
 # Log to imaging database
 
-if [ ! -z ${DBTarget} ] && [ -e ${FULLSCRIPTNAME}.json ]
-then
+#if [ ! -z ${DBTarget} ] && [ -e ${FULLSCRIPTNAME}.json ]
+#then
 #    . ${thisDir}/../bash_curl/curl_json.sh ${FULLSCRIPTNAME}.json ${DBTarget}
-fi
+#fi
 
 # Automatic emailer.
 
