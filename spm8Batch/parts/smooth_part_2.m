@@ -31,6 +31,45 @@ for iSub = 1:length(UMBatchSubjs)
     % Now move back out of sandbox if so specified
     %
     CSBACK = moveOutOfSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID,OutputName,CS);
+    
+    %
+    %build json file and submit to bash_curl
+    %
+    fid = fopen('','w');
+    fprintf(fid,'{"OpType":"smoothfMRI",\n"VerHash":"%s",\n',MC_SHA);
+    %paramdict
+    
+    %infiles
+    InFiles = unique(strtrim(regexprep(mat2cell(Images2Write,ones(size(Images2Write,1),1),size(Images2Write,2)),',[0-9]*','')));
+    fprintf(fid,'"InFile":[\n');
+    for iFile = 1:size(InFiles,1)
+        [sss ooo] = system(['sha256sum ' InFiles{iFile}]);
+        oooo = strsplit(ooo);
+        hash = oooo{1};
+        fprintf(fid,'{"Hash":"%s",\n"Path":"%s",\n"PortKey":"%d"}',hash,InFiles{iFile},iFile);
+        if (iFile < size(InFiles,1))
+            fprintf(fid,',');
+        end
+        fprintf(fid,'\n');
+    end
+    fprintf(fid,'],\n');
+    %outfiles
+    fprintf(fid,'"OutFile":[\n');
+    for iFile = 1:size(InFiles,1)
+        [p f e] = fileparts(InFiles{iFile});
+        OutputImage = fullfile(p,[OutputName f e]);
+        [sss ooo] = system(['sha256sum ' OutputImage]);
+        oooo = strsplit(ooo);
+        hash = oooo{1};
+        fprintf(fid,'{"Hash":"%s",\n"Path":"%s",\n"PortKey":"%d"}',hash,OutputImage,iFile);
+        if (iFile < size(InFiles,1))
+            fprintf(fid,',');
+        end
+        fprintf(fid,'\n');        
+    end
+    fprintf(fid,']\n}\n');
+    fclose(fid);
+    
   end
 end
 

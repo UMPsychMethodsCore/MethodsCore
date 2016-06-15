@@ -120,6 +120,9 @@ fi
 
 echo "    4) finalizing matlab scripts"
 
+echo "DBHOST = 'sopho.psych.med.umich.edu';"                 >> ${FULLSCRIPTNAME}.m
+echo "commandline = '${theFullCommand}';"                    >> ${FULLSCRIPTNAME}.m
+echo "MC_SHA = '"`cat ${thisDir}/../.local/CurrentVersionSHA`"';" >> ${FULLSCRIPTNAME}.m                   
 cat ${thisDir}/parts/smooth_part_2.m                         >> ${FULLSCRIPTNAME}.m
 
 echo "    5) building shell script"
@@ -134,14 +137,6 @@ echo "    5) building shell script"
 # Add the matlab code to the shell script
 
 . ${thisDir}/auxiliary/shellScriptMATLABCall
-
-# Construct the JSON corresponding to this job
-
-echo '{"Key1": "Value1", "Key2": "Value2"}' >> ${FULLSCRIPTNAME}.json
-
-# Parse the DBHost (hard coded for testing)
-
-DBHOST='http://sopho.psych.med.umich.edu/curltest.php'
 
 # Finalize the shell script.
 
