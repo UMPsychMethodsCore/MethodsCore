@@ -29,9 +29,6 @@ if [ -f .local/deployment ]; then #Only run this if in a deployment
 
     for file in $templatelist
     do
-	sed -i'' -e '/%DEVSTART/,/%DEVSTOP/ d' \
-	    -e "s:%\[DEVmcRootAssign\]:mcRoot = \'$mcRoot\':" \
-	    -e "s:%\[DEVmcRoot\]:$mcRoot:"  \
-	    $file
+	sed -i'' -e "/%DEVSTART/,/%DEVSTOP/ d; s:%\[DEVmcRootAssign\]:mcRoot = \'$mcRoot\':; s:%\[DEVmcRoot\]:$mcRoot:" $file
     done
 fi
