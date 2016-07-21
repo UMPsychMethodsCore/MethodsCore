@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # 
+#
+# Command to register an fMRI session
+# to the dB via JSON creation
+#
+#                         Robert C. Welsh
+#                         Copyright 2016-
+#
+# jsonRegSession
+#
+# This command always runs in the foreground
+# as it won't write a script file.
+#
+# # # # # # # # # # # # # # # # # #
+
+#
+# Main jsonRegSession
+#
+
+VERSION="1.0"
+VERSIONDATE="2016-07-20"
+
+# Find out where the current command lives and execute some common code.
+
+theFullCommand="$0 $*"
+execDIR=`pwd`
+
+# Find out where the current command lives and execute some common code.
+
+theCommand=`which $0`
+thisDir=`dirname $theCommand`
+
+thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
+
+echo "thisCommand : ${thisCommand}"
+allowedOptions="M"
+
+# This piece of code all of the spm8Batch scripts will use
+. ${thisDir}/auxiliary/commonCode_AllScriptsStart
+
+# Validate that we have FSL installed.
+. ${thisDir}/auxiliary/commonCode_FSL_01
+
+# This is common in-line code for all spm8Batch script to make sure arguments were passed
+. ${thisDir}/auxiliary/commonCode_checkIfArgsPassed
+
+#
+# The actual function.
+#
+
+. ${thisDir}/auxiliary/parse_arguments
+
+#
+
+. ${thisDir}/auxiliary/superDebugStatus
+
+#
+# Ok - let's start displaying things back to the terminal
+#
+
+. ${thisDir}/auxiliary/shellScriptInfo
+
+#
+# Prepare to write the script.
+#
+
+# Makes sure they speficied some subjects.
+. ${thisDir}/auxiliary/checkInputForSubjects
+
+# Write out debug status
+. ${thisDir}/auxiliary/debugStatus
+
+# Print out the list of subjects that we operate upon.
+. ${thisDir}/auxiliary/printSubjectsList
+
+# Make two loops, one to check that images p2 and p3 exist for all subjects, if they don't we will
+# bugger out.
+
+BAD=0
+
+# Set the erosion options
+
+for WORK in 0 1
+do  
+    for (( is=1 ; is<=$nSubjects ; is++ ))
+    do
+	echo "Building JSON registration for ${subjects[$is]}"
+    done
+done
+
+#
+# All done.
+# 

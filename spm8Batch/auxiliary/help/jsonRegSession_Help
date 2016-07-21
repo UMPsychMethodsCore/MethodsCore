@@ -1,0 +1,19 @@
+    echo
+    echo " A command line command to register a fMRI session to the dB via JSON."
+    echo
+    echo " THIS COMMAND RUNS RIGHT AWAY AND DOES NOT BUILD ANY SCRIPTS"
+    echo
+    . ${thisDir}/auxiliary/help/help_options_start
+
+    echo 
+    echo " e.g. "
+    echo
+    echo "   To register an fMRI session do:"
+    echo 
+    echo "     jsonRegSession 050126zz"
+    echo
+    echo
+    echo " Current command default configuration is:"
+    echo 
+
+    . ${thisDir}/auxiliary/help/help_jsonRegSession_Options
