@@ -1,3 +1,3 @@
-    echo "${helpComment} dB to communicate with                    : ${dBPointer}"
+    echo "${helpComment} dB to communicate with                    : ${DBTarget}"
    
     . ${thisDir}/auxiliary/help/help_options_end

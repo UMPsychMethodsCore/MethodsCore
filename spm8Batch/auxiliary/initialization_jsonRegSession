@@ -9,7 +9,7 @@
 
 echo "called initizalization_jsonRegSession"
 
-dBPointer=default_dB
+DBTarget=default_dB
 
 # This is a foreground command
 

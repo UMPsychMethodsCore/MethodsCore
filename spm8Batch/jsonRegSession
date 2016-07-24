@@ -35,7 +35,7 @@ thisDir=`dirname $theCommand`
 thisCommand=`echo $theCommand | awk -F/ '{print $NF}'`
 
 echo "thisCommand : ${thisCommand}"
-allowedOptions="M"
+allowedOptions="MUY"
 
 # This piece of code all of the spm8Batch scripts will use
 . ${thisDir}/auxiliary/commonCode_AllScriptsStart
@@ -51,6 +51,57 @@ allowedOptions="M"
 #
 
 . ${thisDir}/auxiliary/parse_arguments
+
+# Check to see if the .dBConfiguration file is present, however if the DBTarget (not "default_dB")
+# variable has been set, then don't overwrite.
+
+if [ "${DBTarget}" == "default_dB" ]
+then
+    # get the full path name of the directory where we expect the dbConfiguration file.
+    # which should be living in the directory just above "Subjects/"
+    # however, maybe we should also just the directory above that as well.
+    # this would allow for the directory structure of
+    #
+    #    [Experiment]/
+    #          Subjects/
+    #
+    # or
+    #
+    #    [Experiment]/
+    #      ImagingData/
+    #        Subjects/
+    #
+    # However, can't necessarily key off directory names as those are allowed to be
+    # whatever the user specifies (i.e. Subjects/ can be called something else by them)
+    #
+    curDIR=`pwd`
+    cd ${SUBJDIR}
+    dBConfigFile=
+    for searchDIR in ../ ../../
+    do
+	cd ${curDIR}/${SUBJDIR}
+	cd ${searchDIR}
+	dBConfigFileDIR=`pwd`
+	if [ -e "${dBConfigFileDIR}/.dBConfiguration" ]
+	then
+	    dBConfigFile=${dBConfigFileDIR}/.dBConfiguration
+	fi
+    done
+    if [ -z "${dBConfigFile}" ]
+	then
+	echo
+	echo ${dBConfigFile} does not exist, skipping dB usage.
+	echo
+    else
+	source ${dBConfigFile} 2> /dev/null
+	if [ $? != 0 ]
+	then
+	    . ${thisDir}/auxiliary/noDBConfigurationErrorMsg
+	    . ${thisDir}/auxiliary/exit_w_removal
+	fi
+    fi
+    cd ${curDIR}
+fi
 
 #
 
@@ -82,13 +133,43 @@ BAD=0
 
 # Set the erosion options
 
-for WORK in 0 1
+for WORK in 0 
 do  
     for (( is=1 ; is<=$nSubjects ; is++ ))
     do
-	echo "Building JSON registration for ${subjects[$is]}"
+	cd ${curDIR}
+	cd ${SUBJDIR}
+	DATE=`date`
+	JSONDATE=`date +%Y_%m_%d_%H_%M`
+	echo "${DATE} : Building JSON registration for ${subjects[$is]}"
+	JSONFILE=${curDIR}/${SUBDIR}/${subjects[$is]}/json_register_${subjects[$is]}_${JSONDATE}
+	# call the json builder for subject registration.
+	# this is an echo which needs "jsonRegBuilder" to be written.
+	echo "jsonRegBuilder ${subjects[$is]} ${JSONFILE} ${DBTarget} ${USEREMAIL}"
+	JSONSuccess=$?
+	if [ ${JSONSuccess} == 0 ]
+	then
+	    # call the json transmitter to send the JSON file to the dB interface"
+	    # this is an echo, which needs "jsonTransmit" to be written.
+	    echo "jsonTransmit ${subjects[$is]} ${JSONFILE} ${DBTarget} ${USEREMAIL}"
+	    JSONSucess=$?
+	    if [ ${JSONSuccess} != 0 ]
+	    then
+		echo "Failed to transmite JSON ${JSONFILE} to ${DBTarget}, error ${JSONSuccess}"
+		echo
+		exit 1
+	    fi
+	else
+	    echo "Failed to create JSON ${JSONFILE}, error ${JSONSuccess}"
+	    echo
+	    exit 1
+	fi
     done
 done
+
+echo
+echo All done
+echo
 
 #
 # All done.
