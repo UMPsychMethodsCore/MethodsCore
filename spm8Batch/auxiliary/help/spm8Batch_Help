@@ -19,7 +19,7 @@ echo The listing of commands is in the rough order that one would do for
 echo processing of data from k-space data to final smoothed, MNI-based 
 echo T2* images.
 echo
-echo August-2012
+echo August-2012/July-2016
 echo
 echo --------------------------------------------------------------------------
 echo 
@@ -70,5 +70,10 @@ echo
 echo "smoothfMRI      A wrapper to smooth images using SPM8 routines."
 echo
 echo
-echo "Copyright Robert C. Welsh and others, 2003-2012"
+echo "Database hooks"
+echo "--------------"
+echo
+echo "jsonRegBuilder  A command to register an imaging session to the local dB."
+echo
+echo "Copyright Robert C. Welsh and others, 2003-2016"
 echo

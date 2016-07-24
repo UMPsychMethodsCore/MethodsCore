@@ -72,7 +72,8 @@ then
     #        Subjects/
     #
     # However, can't necessarily key off directory names as those are allowed to be
-    # whatever the user specifies (i.e. Subjects/ can be called something else by them)
+    # whatever the user specifies (i.e. Subjects/ can be called something else by them),
+    # so just look at directory above ${SUBJDIR} and the directory above that.
     #
     curDIR=`pwd`
     cd ${SUBJDIR}
@@ -142,6 +143,9 @@ do
 	DATE=`date`
 	JSONDATE=`date +%Y_%m_%d_%H_%M`
 	echo "${DATE} : Building JSON registration for ${subjects[$is]}"
+	#
+	# JSONFILE will live in the subject directory, following BIDS concept
+	#
 	JSONFILE=${curDIR}/${SUBDIR}/${subjects[$is]}/json_register_${subjects[$is]}_${JSONDATE}
 	# call the json builder for subject registration.
 	# this is an echo which needs "jsonRegBuilder" to be written.
@@ -170,6 +174,8 @@ done
 echo
 echo All done
 echo
+
+exit 0
 
 #
 # All done.
