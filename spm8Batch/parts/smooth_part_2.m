@@ -46,7 +46,7 @@ for iSub = 1:length(UMBatchSubjs)
         OutFiles{iFile} = OutputImage;
     end
 
-    JSONFile = buildJSON('smoothfMRI',MC_SHA,commandline,FULLSCRIPTNAME,InFiles,OutFiles,[UMBatchSubjs{iSub} '_' Run]);
+    JSONFile = buildJSON('smoothfMRI',MC_SHA,CommandLine,FULLSCRIPTNAME,InFiles,OutFiles,[UMBatchSubjs{iSub} '_' Run]);
     
     %
     %submit json file to database

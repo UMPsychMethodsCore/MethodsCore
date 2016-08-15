@@ -120,10 +120,8 @@ fi
 
 echo "    4) finalizing matlab scripts"
 
-echo "DBTarget = '"${DBTarget}"';" >> ${FULLSCRIPTNAME}.m
-echo "commandline = '${theFullCommand}';"                    >> ${FULLSCRIPTNAME}.m
-echo "MC_SHA = '"`cat ${thisDir}/../.local/CurrentVersionSHA`"';" >> ${FULLSCRIPTNAME}.m
-echo "FULLSCRIPTNAME = '"${FULLSCRIPTNAME}"';"               >> ${FULLSCRIPTNAME}.m               
+. ${thisDir}/auxiliary/matlabVariables
+
 cat ${thisDir}/parts/smooth_part_2.m                         >> ${FULLSCRIPTNAME}.m
 
 echo "    5) building shell script"

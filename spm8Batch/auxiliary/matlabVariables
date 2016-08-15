@@ -1,4 +1,4 @@
 echo "DBTarget = '"${DBTarget}"';" >> ${FULLSCRIPTNAME}.m
-echo "commandline = '${theFullCommand}';"                    >> ${FULLSCRIPTNAME}.m
+echo "CommandLine = '${theFullCommand}';"                    >> ${FULLSCRIPTNAME}.m
 echo "MC_SHA = '"`cat ${thisDir}/../.local/CurrentVersionSHA`"';" >> ${FULLSCRIPTNAME}.m
 echo "FULLSCRIPTNAME = '"${FULLSCRIPTNAME}"';"               >> ${FULLSCRIPTNAME}.m               
