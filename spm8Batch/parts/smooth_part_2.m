@@ -41,43 +41,27 @@ for iSub = 1:length(UMBatchSubjs)
     fprintf(fid,'{"OpType":"smoothfMRI",\n"VerHash":"%s",\n',MC_SHA);
     %paramdict
     %hold for now, may no longer be logging command line paramters
+    %probably just store full command line as one item
+    %and path to log script as another item?
     %infiles
     InFiles = unique(strtrim(regexprep(mat2cell(Images2Write_orig,ones(size(Images2Write_orig,1),1),size(Images2Write_orig,2)),',[0-9]*','')));
     fprintf(fid,'"InFile":[\n');
-    for iFile = 1:size(InFiles,1)
-        [sss ooo] = system(['sha256sum ' InFiles{iFile}]);
-        oooo = strsplit(ooo);
-        hash = oooo{1};
-        fprintf(fid,'{"Hash":"%s",\n"Path":"%s",\n"PortKey":"%d"}',hash,InFiles{iFile},iFile);
-        if (iFile < size(InFiles,1))
-            fprintf(fid,',');
-        end
-        fprintf(fid,'\n');
-    end
+    [infilestring] = jsonFiles(InFiles,fid);
     fprintf(fid,'],\n');
+
     %outfiles
     fprintf(fid,'"OutFile":[\n');
+    OutFiles = [];
     for iFile = 1:size(InFiles,1)
         [p f e] = fileparts(InFiles{iFile});
         OutputImage = fullfile(p,[OutputName f e]);
-        [sss ooo] = system(['sha256sum ' OutputImage]);
-        oooo = strsplit(ooo);
-        hash = oooo{1};
-        fprintf(fid,'{"Hash":"%s",\n"Path":"%s",\n"PortKey":"%d"}',hash,OutputImage,iFile);
-        if (iFile < size(InFiles,1))
-            fprintf(fid,',');
-        end
-        fprintf(fid,'\n');        
+        OutFiles{iFile} = OutputImage;
     end
+    [outfilestring] = jsonFiles(OutFiles,fid);
     fprintf(fid,']\n}\n');
     fclose(fid);
     %submit json file to database
-    [status output] = system(sprintf('%s/bash_curl/curl_json.sh %s %s',mcRoot,JSONFile,DBTarget));
-    output
-    if (status ~= 0)
-        %error with logging to database
-        UMCheckFailure(-1);
-    end
+    submitJSON(JSONFile,DBTarget);
     
   end
 end
