@@ -36,31 +36,21 @@ for iSub = 1:length(UMBatchSubjs)
     %build json file and submit to bash_curl
     %
     [~,Run,~] = fileparts(UMImgDIRS{iSub}{iRun});
-    JSONFile = [FULLSCRIPTNAME '_' UMBatchSubjs{iSub} '_' Run '.json'];
-    fid = fopen(JSONFile,'w');
-    fprintf(fid,'{"OpType":"smoothfMRI",\n"VerHash":"%s",\n',MC_SHA);
-    %paramdict
-    %hold for now, may no longer be logging command line paramters
-    %probably just store full command line as one item
-    %and path to log script as another item?
-    %infiles
+    
     InFiles = unique(strtrim(regexprep(mat2cell(Images2Write_orig,ones(size(Images2Write_orig,1),1),size(Images2Write_orig,2)),',[0-9]*','')));
-    fprintf(fid,'"InFile":[\n');
-    [infilestring] = jsonFiles(InFiles,fid);
-    fprintf(fid,'],\n');
 
-    %outfiles
-    fprintf(fid,'"OutFile":[\n');
     OutFiles = [];
     for iFile = 1:size(InFiles,1)
         [p f e] = fileparts(InFiles{iFile});
         OutputImage = fullfile(p,[OutputName f e]);
         OutFiles{iFile} = OutputImage;
     end
-    [outfilestring] = jsonFiles(OutFiles,fid);
-    fprintf(fid,']\n}\n');
-    fclose(fid);
+
+    JSONFile = buildJSON('smoothfMRI',MC_SHA,commandline,FULLSCRIPTNAME,InFiles,OutFiles,[UMBatchSubjs{iSub} '_' Run]);
+    
+    %
     %submit json file to database
+    %
     submitJSON(JSONFile,DBTarget);
     
   end
