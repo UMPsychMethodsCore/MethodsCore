@@ -127,6 +127,8 @@ echo
 
 . ${thisDir}/auxiliary/warpPrepOtherImages
 
+. ${thisDir}/auxiliary/matlabVariables
+
 echo "    4) finalizing matlab scripts"
 
 cat ${thisDir}/parts/warp_HIRES_part_2.m                  >> ${FULLSCRIPTNAME}.m

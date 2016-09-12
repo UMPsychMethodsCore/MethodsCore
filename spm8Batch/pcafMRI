@@ -176,6 +176,8 @@ done
 
 echo "                };"                                 >> ${FULLSCRIPTNAME}.m
 
+. ${thisDir}/auxiliary/matlabVariables
+
 echo "    4) finalizing matlab scripts"
 
 cat ${thisDir}/parts/pcafMRI_part_2.m                     >> ${FULLSCRIPTNAME}.m

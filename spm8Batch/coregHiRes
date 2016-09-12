@@ -152,6 +152,8 @@ cd $curDIR
 
 . ${thisDir}/auxiliary/coregPrepOtherImages
 
+. ${thisDir}/auxiliary/matlabVariables
+
 # Wrap up the writing of the matlab script.
 
 . ${thisDir}/auxiliary/coregPart_02

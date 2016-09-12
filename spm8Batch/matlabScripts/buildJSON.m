@@ -17,6 +17,7 @@ JSONFile = [ScriptName '_' SubjectRun '.json'];
 fid = fopen(JSONFile,'w');
 if (fid<1)
     %error opening JSONFile
+    mc_Error('Unable to create JSON file %s for database logging',JSONFile);
 end
 
 fprintf(fid,'{"OpType":"%s",\n"VerHash":"%s",\n',OpType,VerHash);

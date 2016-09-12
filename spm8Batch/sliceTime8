@@ -101,6 +101,8 @@ allowedOptions="BDdFfGlMnOtUv"
 
 echo "    4) finalizing matlab scripts"
 
+. ${thisDir}/auxiliary/matlabVariables
+
 cat ${thisDir}/parts/sliceTime_part_2.m                         >> ${FULLSCRIPTNAME}.m
 
 echo "    5) building shell script"

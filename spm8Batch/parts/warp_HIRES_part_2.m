@@ -45,6 +45,26 @@ for iSub = 1:length(UMBatchSubjs)
       UMCheckFailure(results);
       exit(abs(results));
     end
+    
+    %
+    %build json file and submit to bash_curl
+    %
+
+    InFiles = unique(strtrim(regexprep(mat2cell(strvcat(TemplateImage,ParamImage,Img2Write),ones(size(Img2Write,1)+size(ParamImage,1)+size(TemplateImage,1),1),max(max(size(TemplateImage,2),size(ParamImage,2)),size(Img2Write,2))),',[0-9]*','')))
+
+    OutFiles = [];
+    for iFile = 2:size(InFiles,1)
+        [p f e] = fileparts(InFiles{iFile});
+        OutputImage = fullfile(p,[OutputName f e]);
+        OutFiles{iFile-1} = OutputImage;
+    end
+
+    JSONFile = buildJSON('warpHiRes',MC_SHA,CommandLine,FULLSCRIPTNAME,InFiles,OutFiles,UMBatchSubjs{iSub},[1:size(InFiles,1)],[2:size(InFiles,1)]);
+    
+    %
+    %submit json file to database
+    %
+    submitJSON(JSONFile,DBTarget);
 end
 
 fprintf('\nAll done with warping of High Resolution images to template\n');

@@ -28,7 +28,7 @@ for iSub = 1:length(UMBatchSubjs)
     %
     % Find out if they are using a sandbox for the warping.
     %
-    [CS SandBoxPID Images2Write] = moveToSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID);
+    [CS SandBoxPID Images2Write Images2Write_orig] = moveToSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID);
     nFiles = size(Images2Write,1);
     fprintf('Normalizing a total of %d %s''s\n',nFiles,UMVolumeWild);
     % 
@@ -46,7 +46,31 @@ for iSub = 1:length(UMBatchSubjs)
     % Now move back out of sandbox if so specified
     %
     CSBACK = moveOutOfSandBox(UMImgDIRS{iSub}{iRun},UMVolumeWild,SandBoxPID,OutputName,CS);
+
+    
+    %
+    %build json file and submit to bash_curl
+    %
+    [~,Run,~] = fileparts(UMImgDIRS{iSub}{iRun});
+
+    InFiles = unique(strtrim(regexprep(mat2cell(strvcat(VBM8RefImage,ParamImage,Images2Write_orig),ones(size(Images2Write_orig,1)+size(ParamImage,1)+size(VBM8RefImage,1),1),max(max(size(VBM8RefImage,2),size(ParamImage,2)),size(Images2Write_orig,2))),',[0-9]*','')))
+
+    OutFiles = [];
+    for iFile = 3:size(InFiles,1)
+        [p f e] = fileparts(InFiles{iFile});
+        OutputImage = fullfile(p,[OutputName f e]);
+        OutFiles{iFile-2} = OutputImage;
+    end
+    %need to check how to distinguish between overlay/hires call since it's the same code
+    JSONFile = buildJSON('warpfMRI',MC_SHA,CommandLine,FULLSCRIPTNAME,InFiles,OutFiles,[UMBatchSubjs{iSub} '_' Run],[1:size(InFiles,1)],[3:size(InFiles,1)]);
+    
+    %
+    %submit json file to database
+    %
+    submitJSON(JSONFile,DBTarget);
+    
   end
+
 end
 
 fprintf('\nAll done with warping of fMRIs to template using HiResolution data.\n');
