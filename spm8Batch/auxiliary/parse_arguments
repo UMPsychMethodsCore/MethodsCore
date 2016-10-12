@@ -4,7 +4,7 @@
 
 # permitted arguments
 # 
-# AabDdEeFfghiMmnOopPRrSsTtUuVvwZ#
+# AabDdEeFfghiMmnOopPRrSsTtUuVvwYZ#
 #
 #
 
@@ -369,19 +369,20 @@ do
 		"W")
                     . ${thisDir}/auxiliary/setWarpMethod
                     ;;
-	      # case_DBTarget_standard
+	      # case_dbConfig_Custom
 	      #
-	      # Lookup DBtarget from predefined list
-	      #
-		"y")
-		    . ${thisDir}/auxiliary/DBTarget_standard
-		    ;;
-	      # case_DBTarget_custom
-	      #
-	      # Take DBtarget as custom URL
+	      # Take custom path to dbConfig file
 	      #
 		"Y")
-		    . ${thisDir}/auxiliary/DBTarget_custom
+		    shift
+		    let argn++
+		    if (( $argn >= $args ))
+		    then
+			echo "Missing custom dbConfigPath, although Y was passed, aborting"
+			. ${thisDir}/auxiliary/exit_w_removal
+		    else
+			. ${thisDir}/auxiliary/set_manualdbConfigPath.sh $1
+		    fi
 		    ;;
               # case_voxel_size 
 	      #

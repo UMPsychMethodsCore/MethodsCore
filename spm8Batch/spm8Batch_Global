@@ -249,6 +249,11 @@ fi
 
 SPM8BATCHGLOBAL_CALLED=YES
 
+################
+# NIWT_dbSetup #
+################
+. {thisDir}/auxiliary/set_dbConfigPath.sh
+
 # # # # # # # # # # # # #
 # 
 # Function Definitions
