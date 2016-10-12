@@ -3,6 +3,8 @@
 FILE=$1
 RegType=$2
 
+. ${thisdir}/auxiliary/parse_dbConfig.sh # parse the dbConfig
+
 if [ -z "${dbKey}"  -z "{dbTarget}" ]; then # fall down if important vars not set
     return 0
 fi
