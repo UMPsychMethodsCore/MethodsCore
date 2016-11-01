@@ -165,8 +165,11 @@
 	        ;;
 	    "w") 
 	        . ${thisDir}/auxiliary/help/help_case_coreg_path
-	        ;;
-	    "z") 
+	        ;;		
+	    "Y") 
+	        . ${thisDir}/auxiliary/help/help_case_DBTarget_custom
+	        ;;		
+            "z") 
 	        . ${thisDir}/auxiliary/help/help_case_voxel_size
 	        ;;
 	    "#") 

@@ -1,0 +1,5 @@
+    echo -e "\a"
+    echo 
+    echo "* * * * * .dBConfiguration file in ${dBConfigFileDIR} failed to execute * * * * * "
+    echo 
+    ${thisCommand}

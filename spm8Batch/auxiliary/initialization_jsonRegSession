@@ -1,0 +1,24 @@
+#
+# Inialization.
+#
+
+# we do things in the top level of the subject, so not 
+# in the func directory.
+
+# default dB to utilize
+
+echo "called initizalization_jsonRegSession"
+
+DBTarget=default_dB
+
+# This is a foreground command
+
+BATCHCOMMAND=0
+
+# Is this command to run in the background
+
+BACKGROUNDJOBFLAG=0
+
+#
+# all done
+#

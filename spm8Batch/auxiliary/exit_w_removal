@@ -8,6 +8,7 @@ echo "An error was found in your data and/or parameter specification, so we can 
 echo "gently remove any script files partially written."
 echo
 echo "Aborted command : ${thisCommand}, that was attempted at : ${theDate}"
+echo "                : searching for ${FULLSCRIPTNAME}"
 echo
 
 if [ ! -z ${FULLSCRIPTNAME} ]
