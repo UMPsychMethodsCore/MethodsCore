@@ -2,7 +2,7 @@
 
 global mcRoot
 
-cmd = sprintf('%s/bash_curl/curl_json.sh %s %s',mcRoot,JSONFile,DBTarget);
+cmd = sprintf('%s/spm8Batch/auxiliary/log_json.sh %s op',mcRoot,JSONFile);
 
 [status, output] = system(cmd);
 
