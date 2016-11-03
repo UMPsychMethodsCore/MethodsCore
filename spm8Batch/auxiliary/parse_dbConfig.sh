@@ -1,4 +1,4 @@
-if [-f ${dbConfigPath}]; then # only if dbConfigFilePath exists (and is defined)
+if [ -f ${dbConfigPath} ]; then # only if dbConfigFilePath exists (and is defined)
     set -a
     source ${dbConfigPath}
     set +a

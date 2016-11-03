@@ -1,4 +1,4 @@
     echo "    -Y dBcustomName      set to call the custom dB, "
-    echo "                         default is to to look in [EXPT]/.dBConfiguration,"
-    echo "                         for a parameter \"DBTarget=[database target]\""
+    echo "                         default is to to look in [EXPT]/.dBConfig,"
+    echo "                         for a parameter \"dbTarget=[database target]\""
     echo 

@@ -155,7 +155,8 @@ do
 	then
 	    # call the json transmitter to send the JSON file to the dB interface"
 	    # this is an echo, which needs "jsonTransmit" to be written.
-	    echo "jsonTransmit ${subjects[$is]} ${JSONFILE} ${DBTarget} ${USEREMAIL}"
+	    #echo "jsonTransmit ${subjects[$is]} ${JSONFILE} ${DBTarget} ${USEREMAIL}"
+	    ${thisDir}/auxiliary/log_json.sh ${JSONFILE} session
 	    JSONSucess=$?
 	    if [ ${JSONSuccess} != 0 ]
 	    then
