@@ -147,6 +147,7 @@ do
 	# JSONFILE will live in the subject directory, following BIDS concept
 	#
 	JSONFILE=${curDIR}/${SUBDIR}/${subjects[$is]}/json_register_${subjects[$is]}_${JSONDATE}
+	JSONFILE=${curDIR}/${SUBDIR}/${subjects[$is]}/json_register_${subjects[$is]}_*
 	# call the json builder for subject registration.
 	# this is an echo which needs "jsonRegBuilder" to be written.
 	echo "jsonRegBuilder ${subjects[$is]} ${JSONFILE} ${DBTarget} ${USEREMAIL}"
