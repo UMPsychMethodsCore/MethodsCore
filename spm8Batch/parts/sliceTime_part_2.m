@@ -51,7 +51,7 @@ for iSub = 1:length(UMBatchSubjs)
     %
     %submit json file to database
     %
-    submitJSON(JSONFile,DBTarget);    
+    submitJSON(JSONFile);    
   end
 end
 

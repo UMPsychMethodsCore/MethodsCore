@@ -1,4 +1,4 @@
-[outstring, status] = jsonFiles(Files,varargin)
+function [outstring, status] = jsonFiles(Files,varargin)
 
 outstring = [];
 status = 0;
@@ -21,7 +21,7 @@ for iFile = 1:size(Files,1)
     if (iFile < size(Files,1))
         outstring{iFile} = [outstring{iFile} ','];
     end
-    outstring{iFile} = [outstring{iFile} '\n'];
+    outstring{iFile} = sprintf('%s\n',outstring{iFile});
     if (fid>0)
         fprintf(fid,'%s',outstring{iFile}); %need to error check here
     end

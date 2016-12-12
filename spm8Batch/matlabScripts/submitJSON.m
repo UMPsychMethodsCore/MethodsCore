@@ -1,4 +1,4 @@
-[status,output] = submitJSON(JSONFile,DBTarget)
+function [status,output] = submitJSON(JSONFile)
 
 global mcRoot
 

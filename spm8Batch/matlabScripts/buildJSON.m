@@ -3,11 +3,11 @@ function [JSONFile] = buildJSON(OpType, VerHash, CommandLine, ScriptName, InFile
 SubjectRun = '';
 InFilePorts = 1:size(InFile,1);
 OutFilePorts = 1:size(OutFile,1);
-if (nargin>0)
+if (nargin>6)
     SubjectRun = varargin{1}
-    if (nargin>1)
+    if (nargin>7)
         InFilePorts = varargin{2}
-        if (nargin>2)
+        if (nargin>8)
             OutFilePorts = varargin{3}
         end
     end
@@ -21,6 +21,7 @@ if (fid<1)
 end
 
 fprintf(fid,'{"OpType":"%s",\n"VerHash":"%s",\n',OpType,VerHash);
+fprintf(fid,'"ParamDict":{"CommandLine":"%s","ScriptName":"%s"},',CommandLine,ScriptName);
 
 fprintf(fid,'"InFile":[\n');
 jsonFiles(InFile,fid,InFilePorts);
