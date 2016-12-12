@@ -1,19 +1,14 @@
 #!/bin/bash
 
-SUBJDIR=$1
+SUBFOLDER=$1
+JSONFILE=$2
+USER=$3
 
 OPNAME=$(basename $0 .sh)
 VERHASH=$(sha1sum $0 | awk '{print $1}')
 
 
-if [ ! -z $2 ]
-then
-	JSONFILE=$2
-else
-	JSONFILE="register_root.json"
-fi
-
-cd $SUBJDIR
+cd $SUBFOLDER
 PDIR=`pwd`
 
 PATTERNS="run*.nii t1*.nii t2*.nii dtiDataSet.nii"
@@ -41,14 +36,8 @@ MM=$(echo $DATE | cut -d/ -f1)
 DD=$(echo $DATE | cut -d/ -f2)
 YYYY=20${DATE: -2}
 SESSIONDATE="${YYYY}-${MM}-${DD}"
-echo "{\"OpType\":\"${OPNAME}\"," > $JSONFILE
-echo "\"VerHash\":\"${VERHASH}\"," >> $JSONFILE
-echo "\"ParamDict\":\"{}\"," >> $JSONFILE
-echo "\"SubjectCode\":\"${SUBJECTCODE}\"," >> $JSONFILE
-echo "\"SessionDate\":\"${SESSIONDATE}\"," >> $JSONFILE
-echo "\"SubjectFolderName\":\"${SUBJECTFOLDERNAME}\"," >> $JSONFILE
-echo "\"Series\":" >> $JSONFILE
-echo -e "\t[" >> $JSONFILE
+echo "[" > $JSONFILE
+
 
 NUMFILES=$(echo $FILELIST | wc -w)
 LASTFILE=$(echo $FILELIST | awk '{ print $NF }')
@@ -91,20 +80,29 @@ do
 		SERIESDATETIME=$(echo ${TS:0:4}-${TS:4:2}-${TS:6:2} ${TS:9:2}:${TS:11:2})
 	fi
 	HASH=$(sha1sum $RUNNII | awk '{print $1}')
-	echo -e "\t\t{\"RawFile\":" >> $JSONFILE
-	echo -e "\t\t\t{\"Path\":\"${RUNNII}\"," >> $JSONFILE
-	echo -e "\t\t\t\"Hash\":\"${HASH}\"}," >> $JSONFILE
 
-	echo -e "\t\t\"SeriesType\":\"${SERIESTYPE}\"," >> $JSONFILE
+	echo "{\"OpType\":\"${OPNAME}\"," >> $JSONFILE
+	echo "\"VerHash\":\"${VERHASH}\"," >> $JSONFILE
+	echo "\"ParamDict\":{\"user\":\"${USER}\"}," >> $JSONFILE
+	echo "\"SubjectCode\":\"${SUBJECTCODE}\"," >> $JSONFILE
+	echo "\"SessionDate\":\"${SESSIONDATE}\"," >> $JSONFILE
+	echo "\"SubjectFolderName\":\"${SUBJECTFOLDERNAME}\"," >> $JSONFILE
+	echo "\"SeriesType\":\"${SERIESTYPE}\"," >> $JSONFILE
+	echo "\"SeriesDateTime\":\"${SERIESDATETIME}\"," >> $JSONFILE
+	echo "\"OutFile\":" >> $JSONFILE
+	echo  "[" >> $JSONFILE
+	
+	echo "{\"Path\":\"${RUNNII}\"," >> $JSONFILE
+	echo "\"Hash\":\"${HASH}\"}]" >> $JSONFILE
+
+
 
 	if [ "$RUNNII" == "$LASTFILE" ]
 	then
-		echo -e "\t\t\"SeriesDateTime\":\"${SERIESDATETIME}\"}" >> $JSONFILE
+	    echo "}" >> $JSONFILE
 	else
-		echo -e "\t\t\"SeriesDateTime\":\"${SERIESDATETIME}\"}," >> $JSONFILE
+	    echo "}," >> $JSONFILE
 	fi
 
 done
-echo -e "\t]" >> $JSONFILE
-
-echo "}" >> $JSONFILE
+echo "]" >> $JSONFILE
