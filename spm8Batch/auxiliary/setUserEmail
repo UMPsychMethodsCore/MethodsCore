@@ -10,7 +10,7 @@
 		      echo "Missing parameter for user email name, aborting"
 	              . ${thisDir}/auxiliary/exit_w_removal
 		  else
-		      USEREMAIL=$1
+		      export USEREMAIL=$1
 		  fi
 		  # 
 		  # Change back to success

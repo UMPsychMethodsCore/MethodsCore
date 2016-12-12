@@ -9,7 +9,7 @@ thisDir=`dirname $theCommand`
 . ${thisDir}/parse_dbConfig.sh # parse the dbConfig
 
 if [ -z "${dbKey}" ] || [ -z "{dbTarget}" ]; then # fall down if important vars not set
-    return 0
+    return 1
 fi
 
 
@@ -22,3 +22,5 @@ case ${RegType} in
 	curl -H "Content-Type: application/json" -H "Authorization: ${dbKey}" -X POST -d@${FILE} ${dbTarget}/register_session.php
 	;;
 esac
+
+return 0
