@@ -5,6 +5,7 @@ JSONFILE=$2
 USER=$3
 
 OPNAME=$(basename $0 .sh)
+OPNAME="regMRI"
 VERHASH=$(sha1sum $0 | awk '{print $1}')
 
 
@@ -79,7 +80,7 @@ do
 	else
 		SERIESDATETIME=$(echo ${TS:0:4}-${TS:4:2}-${TS:6:2} ${TS:9:2}:${TS:11:2})
 	fi
-	HASH=$(sha1sum $RUNNII | awk '{print $1}')
+	HASH=$(sha256sum $RUNNII | awk '{print $1}')
 
 	echo "{\"OpType\":\"${OPNAME}\"," >> $JSONFILE
 	echo "\"VerHash\":\"${VERHASH}\"," >> $JSONFILE
