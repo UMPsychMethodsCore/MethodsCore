@@ -25,21 +25,25 @@ for iSub = 1:size(UMBatchSubjs,1)
     %build json file and submit to bash_curl
     %
 
-    InFiles = unique(strtrim(regexprep(mat2cell(strvcat(TargetImageFull,ObjectImageFull,UMOtherImages{iSub}),ones(size(UMOtherImages{iSub},1)+size(ObjectImageFull,1)+size(TargetImageFull,1),1),max(max(size(TargetImageFull,2),size(ObjectImageFull,2)),size(UMOtherImages{iSub},2))),',[0-9]*','')))
+    Subject = UMBatchSubjs{iSub};
+    %OrigAnat = mc_GenPath(UMOrigAnat);
+    OrigAnat = regexprep(UMOrigAnat,'\[Subject\]',Subject);
+    InFiles = unique(strtrim(regexprep(mat2cell(strvcat(TargetImageFull,OrigAnat,UMOtherImages{iSub}),ones(size(UMOtherImages{iSub},1)+size(OrigAnat,1)+size(TargetImageFull,1),1),max(max(size(TargetImageFull,2),size(OrigAnat,2)),size(UMOtherImages{iSub},2))),',[0-9]*','')),'stable')
 
-    OutFiles = [];
-    for iFile = 2:size(InFiles,1)
-        [p f e] = fileparts(InFiles{iFile});
-        OutputImage = fullfile(p,[OutputName f e]);
-        OutFiles{iFile-1} = OutputImage;
-    end
+    OutFiles = unique(strtrim(regexprep(mat2cell(strvcat(ObjectImageFull,UMOtherImages{iSub}),ones(size(UMOtherImages{iSub},1)+size(ObjectImageFull,1),1),max(max(size(ObjectImageFull,2)),size(UMOtherImages{iSub},2))),',[0-9]*','')),'stable')
+    %OutFiles = [];
+    %for iFile = 2:size(InFiles,1)
+    %    [p f e] = fileparts(InFiles{iFile});
+    %    OutputImage = fullfile(p,[OutputName f e]);
+    %    OutFiles{iFile-1} = OutputImage;
+    %end
     %need to check how to distinguish between overlay/hires call since it's the same code
     JSONFile = buildJSON('coregOverlay',MC_SHA,CommandLine,FULLSCRIPTNAME,InFiles,OutFiles,UMBatchSubjs{iSub},[1:size(InFiles,1)],[2:size(InFiles,1)]);
     
     %
     %submit json file to database
     %
-    submitJSON(JSONFile,DBTarget);
+    submitJSON(JSONFile);
         
 end
 

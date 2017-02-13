@@ -13,6 +13,7 @@ echo "UMReSlice     = ${resliceFLAG}"                         >> ${FULLSCRIPTNAM
 echo " "                                                      >> ${FULLSCRIPTNAME}.m
 echo "UMImgWildCard = '${volumeWILD}*.nii';"                  >> ${FULLSCRIPTNAME}.m
 echo " "                                                      >> ${FULLSCRIPTNAME}.m
+echo "OutputName     = '${outputName}';"                           >> ${FULLSCRIPTNAME}.m
 
 # Use common in-line code #03 -- subject list.
 . ${thisDir}/auxiliary/buildMatlabScripts_03

@@ -163,6 +163,8 @@ done
 
 echo "                };"                                        >> ${FULLSCRIPTNAME}.m
 
+echo "UMOrigAnat = '${UMBatchMaster}/${SUBJDIR}/[Subject]/${anatomyPATH}/${SOURCENAME}${USEEXT}';" >> ${FULLSCRIPTNAME}.m
+
 # Get the other images into the matlab script
 
 . ${thisDir}/auxiliary/coregPrepOtherImages
