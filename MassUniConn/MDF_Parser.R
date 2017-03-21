@@ -27,7 +27,7 @@ master[,IncludeCol] = as.logical(master[,IncludeCol])
 mini = master [ master[,IncludeCol],]
 
 ## Build the design matrix and list of subjects
-design = model.matrix(model,mini)
+design = model.matrix(formula(model),mini)
 
 subs = mini$Subject
 

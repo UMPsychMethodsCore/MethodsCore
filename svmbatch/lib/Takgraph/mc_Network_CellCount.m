@@ -37,6 +37,7 @@ Net_num   = numel(Net_label);
 cellsize = zeros(Net_num);
 cellpos  = zeros(Net_num);
 cellneg  = zeros(Net_num);
+cellmean = zeros(Net_num);
 
 % Calculate cell sizes
 cell_length = zeros(Net_num,1);
@@ -81,3 +82,4 @@ a.cellcount.cellsize = cellsize;
 a.cellcount.cellpos  = cellpos;
 a.cellcount.cellneg  = cellneg;
 a.cellcount.celltot  = cellpos + cellneg;
+a.cellcount.cellmean = cellmean;

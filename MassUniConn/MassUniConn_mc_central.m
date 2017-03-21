@@ -18,7 +18,7 @@ end
 %%% R System Call
 cd(outputPath)
 
-FixedFxPath = fullfile(outputPath,'FixedFX.mat');
+FixedFxPath = mc_GenPath(fullfile(outputPath,'FixedFX.mat'));
 Rcmd = ['Rscript --vanilla ' mcRoot '/MassUniConn/MDF_Parser.R --args ' '"'  des.csvpath   '"' ' ' '"' des.IncludeCol '"' ' ' '"' des.model '"' ' ' '"' FixedFxPath '"' ' &> /dev/null'];
 Rstatus = system(Rcmd);
 
@@ -39,26 +39,28 @@ if des.FxFlip == 1; % flip the effect of interest, if desired
     s.design(:,des.FxCol) = -1 * s.design(:,des.FxCol);
 end
 
-
+if (LoadData)
 %% Load Connectomes
-switch paired
-  case 0
-    data = mc_load_connectomes_unpaired(s.subs,CorrTemplate,matrixtype); 
-    data = mc_connectome_clean(data);
-    if ZTrans == 1
-        data = mc_FisherZ(data);
+    switch paired
+      case 0
+        data = mc_load_connectomes_unpaired(s.subs,CorrTemplate,matrixtype); 
+        data = mc_connectome_clean(data);
+        if ZTrans == 1
+            data = mc_FisherZ(data);
+        end
+    % if paired, need to calculate deltas
+      case 1
+        s.subs(:,2) = num2cell(1:numel(RunDir),2);
+        [data savail] = mc_load_connectomes_paired(s.subs,CorrTemplate,RunDir,matrixtype);
+        data = mc_connectome_clean(data);
+        if ZTrans == 1
+            data = mc_FisherZ(data);
+        end
+        [data labels] = mc_calc_deltas_paired(data, savail, pairedContrast);
+        data = data(labels==1,:); % grab only the positive delta
     end
-% if paired, need to calculate deltas
-  case 1
-    s.subs(:,2) = num2cell(1:numel(RunDir),2);
-    [data savail] = mc_load_connectomes_paired(s.subs,CorrTemplate,RunDir,matrixtype);
-    data = mc_connectome_clean(data);
-    if ZTrans == 1
-        data = mc_FisherZ(data);
-    end
-    [data labels] = mc_calc_deltas_paired(data, savail, pairedContrast);
-    data = data(labels==1,:); % grab only the positive delta
 end
+
 %% Figure out Network Structure
 %%% Load parameter File
 Subject = s.subs{1};
@@ -71,7 +73,14 @@ param = load(ParamPath);
 
 %%% Look up ROI Networks
 roiMNI = param.parameters.rois.mni.coordinates;
-nets = mc_NearestNetworkNode(roiMNI,5);
+
+%%% added ability to specify alternate network image
+if (~exist('NetworkMask','var') | isempty(NetworkMask))
+    nets = mc_NearestNetworkNode(roiMNI,5);
+else
+    nets = mc_NearestNetworkNode(roiMNI,5,NetworkMask);
+end
+
 sq_blanks = zeros(size(roiMNI,1));
 
 
@@ -154,6 +163,7 @@ switch matrixtype
   case 'upper'
     a.tvalues = ts;
     a.bvalues = betas;
+    a.values = a.tvalues;
     a.NetworkLabels = nets;
     a = mc_Network_CellCount(mc_Network_FeatRestruct(a));
     
