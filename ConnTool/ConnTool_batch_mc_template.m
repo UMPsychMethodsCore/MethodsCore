@@ -123,6 +123,7 @@ NumScan = [9999 9999];
 %%%                       but do not run any ConnTool code
 %%%    'presave'    = run ConnTool code on previously saved parameters
 %%%    'full'       = generate parameters and immediately run ConnTool code
+%%%    'preprocsave'= preprocess the data, and then save the D0 to a 4D file.
 %%%
 %%%    NOTE: If you choose mode 'presave' then most variables except
 %%%       SubjDir and OutputTemplate/OutputName will be ignored as they
@@ -571,7 +572,7 @@ addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'ConnTool'));
 addpath(fullfile(mcRoot,'ConnTool/Code'));
 addpath(fullfile(mcRoot,'ConnTool/matlab'),'-END');
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R6313'));
 
 ConnToolCallingScriptName = which(mfilename);
 
