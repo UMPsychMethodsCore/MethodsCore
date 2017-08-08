@@ -99,7 +99,7 @@ Pswra = [smp nop rep stp];
 
 
 spmver = spm('Ver');
-if (strcmp(spmver,'SPM8')==1)
+if (strcmp(spmver,'SPM12')==1) %need to expand this checking to allow older versions or maintain a legacy script?
 	spm_jobman('initcfg');
 	spm_get_defaults('cmdline',true);
     if (exist('spmdefaults','var'))
@@ -109,7 +109,7 @@ end
 
 spm('defaults','fmri');
 global defaults
-global vbm8
+global cat
 warning off all
 
 RunNamesTotal = RunDir;
@@ -182,6 +182,51 @@ if (Processing(1) == 1)
         util.defs.fnames = {};
         util.defs.savedir.savesrc = 1;
         util.defs.interp = 1;
+    elseif (strcmp(spmver,'SPM12')) %use cat12
+        cat12.estwrite.data = {};
+        cat12.estwrite.nproc = 0;
+        cat12.estwrite.opts = cat.opts;
+        cat12.estwrite.extopts = cat.extopts;
+        cat12.estwrite.extopts.subfolders = 0;
+        cat12.estwrite.output.ROI = 0;
+        cat12.estwrite.output.surface = 0;
+        cat12.estwrite.output.GM.native = 1;
+        cat12.estwrite.output.GM.warped = 0;
+        cat12.estwrite.output.GM.mod = 1;
+        cat12.estwrite.output.GM.dartel = 0;
+        cat12.estwrite.output.WM.native = 1;
+        cat12.estwrite.output.WM.warped = 0;
+        cat12.estwrite.output.WM.mod = 1;
+        cat12.estwrite.output.WM.dartel = 0;
+        cat12.estwrite.output.CSF.native = 1;
+        cat12.estwrite.output.CSF.warped = 0;
+        cat12.estwrite.output.CSF.mod = 1;
+        cat12.estwrite.output.CSF.dartel = 0;
+        cat12.estwrite.output.WMH.native = 1;
+        cat12.estwrite.output.WMH.warped = 1;
+        cat12.estwrite.output.WMH.mod = 0;
+        cat12.estwrite.output.WMH.dartel = 0;
+        cat12.estwrite.output.label.native = 1;
+        cat12.estwrite.output.label.warped = 1;
+        cat12.estwrite.output.label.dartel = 0;
+        cat12.estwrite.output.bias.native = 1;
+        cat12.estwrite.output.bias.warped = 1;
+        cat12.estwrite.output.bias.dartel = 0;
+        cat12.estwrite.output.las.native = 0;
+        cat12.estwrite.output.las.warped = 0;
+        cat12.estwrite.output.las.dartel = 0;
+        cat12.estwrite.output.jacobian.warped = 0;
+        cat12.estwrite.output.warps = [1 1];        
+        
+        util.defs.comp{1}.def = {};
+        util.defs.out{1}.push.fnames = {};
+        util.defs.out{1}.push.weight = {''};
+        util.defs.out{1}.push.savedir.savesrc = 1;
+        util.defs.out{1}.push.fov.bbvox.bb = defaults.normalise.write.bb;
+        util.defs.out{1}.push.fov.bbvox.vox = VoxelSize;
+        util.defs.out{1}.push.preserve = 0;
+        util.defs.out{1}.push.fwhm = [0 0 0];
+
     else
         mc_Error('You are using an unsupported version of SPM.  This script is compatible with SPM8');
     end
@@ -211,11 +256,11 @@ if (Processing(1) == 1)
     preproc.output.CSF = [1 0 1];
     preproc.output.biascor = 1;
     preproc.output.cleanup = 0;
-    preproc.opts = defaults.preproc;
-    preproc.opts = rmfield(preproc.opts,'output');
-    preproc.opts = rmfield(preproc.opts,'fudge');
-    preproc.opts.mask = {''};
-    preproc.opts.regtype = ''; %disable affine registration
+    %preproc.opts = defaults.preproc; %under defaults.old.preproc
+    %preproc.opts = rmfield(preproc.opts,'output');
+    %preproc.opts = rmfield(preproc.opts,'fudge');
+    %preproc.opts.mask = {''};
+    %preproc.opts.regtype = ''; %disable affine registration
                                %temporary fix for weird segmentation results
                                %images should be coregistered first to the 
                                %template.  This will need to be integrated
@@ -272,7 +317,7 @@ if (Processing(1) == 1)
     
 	for x = 1:size(SubjDir,1)
         
-            SandboxFolders = {};
+        SandboxFolders = {};
         SandboxFiles = {};
         
 	    clear job
@@ -357,7 +402,11 @@ if (Processing(1) == 1)
             job{2}.spm.spatial.realign = realign;
             job{3}.spm.spatial.coreg = coreg;
             job{4}.spm.spatial.coreg = coreg;
-            job{5}.spm.tools.vbm8 = vbm;
+            if (strcmp(spmver,'SPM8'))
+                job{5}.spm.tools.vbm8 = vbm;
+            else
+                job{5}.spm.tools.cat = cat12;
+            end
             job{6}.spm.util = util;
             job{7}.spm.util = util;
             job{8}.spm.spatial.smooth = smooth; 
@@ -382,6 +431,7 @@ if (Processing(1) == 1)
 	    sscan = {};
 	    scancell = {};
         imagecell = {};
+        raimagefile = {};
         wimagefile = {};
         w2imagefile = {};
         wimagecell = {};
@@ -421,6 +471,11 @@ if (Processing(1) == 1)
             for s = 1:size(imagefile{r},1)
                 SandboxFiles{end+1,1} = fullfile(ImageDir, imagefile{r}(s,:));
                 SandboxFiles{end,2} = fullfile(Sandbox,ImageDir,imagefile{r}(s,:));
+                if (AlreadyDone(2) && r==1) %realignment is already done, copy mean image
+                    SandboxFiles{end+1,1} = fullfile(ImageDir,['mean' imagefile{r}(s,:)]);
+                    SandboxFiles{end,2} = fullfile(Sandbox,ImageDir,['mean' imagefile{r}(s,:)]);
+                end
+                raimagefile{r}(s,:) = fullfile(subjpath,[Pra imagefile{r}(s,:)]);
                 wimagefile{r}(s,:) = fullfile(subjpath,['w' Pra imagefile{r}(s,:)]);
                 w2imagefile{r}(s,:) = fullfile(subjpath,[Pwra imagefile{r}(s,:)]);
                 [p f e] = fileparts(imagefile{r}(s,:));
@@ -486,7 +541,7 @@ if (Processing(1) == 1)
             SandboxFolders{end+1,1} = mc_GenPath(AnatTemplate);
             SandboxFolders{end,2} = mc_GenPath(fullfile(Sandbox,AnatTemplate));
         end
-                
+        
         if (UseSandbox)
             mc_Logger('log','Copying files to sandbox',3);
             for iS = 1:size(SandboxFiles,1)
@@ -587,7 +642,7 @@ if (Processing(1) == 1)
                 f = f(2:end);
             end
             normsource = fullfile(p,['mean' f e]);
-
+        
             OverlayDir = '';
             if (docoregoverlay)
                 OverlayDirCheck = struct('Template',NewOverlayTemplate,'mode','check');
@@ -608,21 +663,30 @@ if (Processing(1) == 1)
                 job{4}.spm.spatial.coreg.estimate.source = {HiResDir};
             end           
 
-            job{5}.spm.tools.vbm8.estwrite.data = {HiResDir};
-
+            if (strcmp(spmver,'SPM8'))
+                job{5}.spm.tools.vbm8.estwrite.data = {HiResDir};
+            else
+                job{5}.spm.tools.cat.estwrite.data = {HiResDir};
+            end
             [HiResPath HiResName]=fileparts(HiResDir);
 
-            job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])}; 
-            job{6}.spm.util.defs.fnames = wscan;
-            
-            job{7}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_r' HiResName '.nii'])};
-            
-            %V = spm_vol(HiResDir);
-            %vox = spm_imatrix(V.mat);
-            %vox = vox(7:9);
-            %vox = abs(vox);
-            %job{7}.spm.util.defs.comp{2}.idbbvox.vox = vox;
-            job{7}.spm.util.defs.fnames = {HiResDir};
+            if (strcmp(spmver,'SPM8'))
+                job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_' HiResName '.nii'])}; 
+                job{6}.spm.util.defs.fnames = wscan;
+                job{7}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['y_' HiResName '.nii'])};            
+                %V = spm_vol(HiResDir);
+                %vox = spm_imatrix(V.mat);
+                %vox = vox(7:9);
+                %vox = abs(vox);
+                %job{7}.spm.util.defs.comp{2}.idbbvox.vox = vox;
+                job{7}.spm.util.defs.fnames = {HiResDir};
+            else
+                job{6}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['iy_' HiResName '.nii'])}; 
+                job{6}.spm.util.defs.out{1}.push.fnames = raimagefile';
+                job{7}.spm.util.defs.comp{1}.def = {fullfile(HiResPath,['iy_' HiResName '.nii'])};
+                job{7}.spm.util.defs.out{1}.push.fnames = {HiResDir};   
+            end
+
 
             job{8}.spm.spatial.smooth.data = sscan;
             if (~doslicetiming)
@@ -732,16 +796,18 @@ if (Processing(1) == 1)
 % can use matlabbatch jobs to move files, but it would need
 % to be done on a per-run basis because the job only allows a
 % single destination folder.
-            for iRun = 1:size(wimagefile,2)
-                temp = vertcat(wimagefile{iRun},wmatfile{iRun});
-                temp2 = mat2cell(temp,ones(1,size(temp,1)),size(temp,2));
-                cfg_basicio.file_move.files = temp2;
-                [p f e] = fileparts(temp2{1});
-                cfg_basicio.file_move.action.moveren.moveto = {p};
-                cfg_basicio.file_move.action.moveren.patrep.pattern = '^w';
-                cfg_basicio.file_move.action.moveren.patrep.repl = nop;
-                cfg_basicio.file_move.action.moveren.unique = 0;
-                job{end+1}.cfg_basicio = cfg_basicio;
+            if (donormalize)
+                for iRun = 1:size(wimagefile,2)
+                    temp = vertcat(wimagefile{iRun},wmatfile{iRun});
+                    temp2 = mat2cell(temp,ones(1,size(temp,1)),size(temp,2));
+                    cfg_basicio.file_move.files = temp2;
+                    [p f e] = fileparts(temp2{1});
+                    cfg_basicio.file_move.action.moveren.moveto = {p};
+                    cfg_basicio.file_move.action.moveren.patrep.pattern = '^w';
+                    cfg_basicio.file_move.action.moveren.patrep.repl = nop;
+                    cfg_basicio.file_move.action.moveren.unique = 0;
+                    job{end+1}.cfg_basicio = cfg_basicio;
+                end
             end
 %             result = cellfun(@mc_Move,wimagecell,w2imagecell);
         end

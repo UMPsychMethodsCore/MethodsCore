@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The folder that contains your experiment
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Exp = '/net/data4/MAS/';
+Exp = '/net/pepper/SCP';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Path where your logfiles will be stored
@@ -30,7 +30,7 @@ LogTemplate = '[Exp]/Logs';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/Subjects/[Subject]/func/[Run]/';  
+ImageTemplate = '[Exp]/derivatives/[Subject]/[Run]/';  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
@@ -46,8 +46,9 @@ imagetype = 'nii';
 %%% A list of run folders where the script can find the images to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 RunDir = {
-	'run_05/';
-	'run_06/';
+    'rest/run_01/';
+    'rest/run_02/';
+    'cpt/run_01/';
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,9 +56,8 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-      '5001/Tx1',50011,[1 2];
-      '5028/Tx1',50281,[2];
-      '5029/Tx1',50291,[1 2];
+    'scs16scp01507_05414',1,[1 2];
+    'scs16scp01529_05312',1,[1 2];
 };
 
 
@@ -69,12 +69,12 @@ SubjDir = {
 %%% Prefixes for slicetiming, realignment, coregistration, normalization, 
 %%% and smoothing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SliceTimePrefix = 'a';
-RealignPrefix = 'r';
+SliceTimePrefix = 't';
+RealignPrefix = 'u';
 CoregOverlayPrefix = '';
 CoregHiResPrefix = '';
 NormalizePrefix = 'w3';
-SmoothPrefix = 's8';
+SmoothPrefix = 's6';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing steps that you want to run
@@ -83,13 +83,13 @@ SmoothPrefix = 's8';
 %%% during 'func' normalization even if they're set to 1 here.  This may 
 %%% be changed in a future update.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-StepsToDo = [1 1 1 1 1 1];
+StepsToDo = [0 0 0 0 0 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing that has already been completed on images
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-AlreadyDone = [0 0 0 0 0 0];
+AlreadyDone = [1 1 1 1 1 0];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,12 +99,12 @@ AlreadyDone = [0 0 0 0 0 0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The TR your data was collected at
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TR = 2;
+TR = 1.35;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The number of slices in your functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumSlices = 29; 
+NumSlices = 60; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The order of your slice collection
@@ -134,7 +134,7 @@ RefSlice = [];
 %%% The reference image (in the first run) to use for realignment.
 %%% If left as [], it will default to the first image.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RefImage = [];
+RefImage = [1];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -153,8 +153,8 @@ RefImage = [];
 %%% OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/Overlay*'
 %%% HiresTemplate = '[Exp]/Subjects/[Subject]/anatomy/SPGR.nii';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-OverlayTemplate = '[Exp]/Subjects/[Subject]/anatomy/t1overlay.nii';
-HiResTemplate =    '[Exp]/Subjects/[Subject]/anatomy/t1spgr.nii';
+OverlayTemplate = '[Exp]/derivatives/[Subject]/anatomy/ht1overlay.nii';
+HiResTemplate =    '[Exp]/derivatives/[Subject]/anatomy/ht1spgr.nii';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Location for coregistered copies of anatomical images
@@ -162,7 +162,7 @@ HiResTemplate =    '[Exp]/Subjects/[Subject]/anatomy/t1spgr.nii';
 %%% you specify a coreg prefix above, or the coregistered copies will
 %%% overwrite the original images.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-AnatTemplate = '[Exp]/Subjects/[Subject]/func/coReg/';
+AnatTemplate = '[Exp]/derivatives/[Subject]/rest/coReg/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The normalization method
@@ -197,7 +197,7 @@ VoxelSize = [3 3 3];
 %%% Can be entered as a single value for isotropic kernels (i.e. 8) or a 3
 %%% element vector for non-isotropic kernels ([6 5 8]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SmoothingKernel = 8;
+SmoothingKernel = 6;
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -233,6 +233,7 @@ NumScan = [];
 %%% 1 file is required for seg option, but it must be a multivolume image
 %%% containing 6 volumes, 1 for each tissue type used in VBM
 %%% (GM,WM,CSF,bone, non-brain tissue, and air)
+%%% NOTE: Currently not implemented for SPM12
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CustomTPMs = {
 %     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_gm.nii';
@@ -245,6 +246,7 @@ CustomTPMs = {
 %%% NormMethod='seg'. This should point to the first template image (of
 %%% the 6 progressive templates), i.e. Template_1*.nii.
 %%% Leaving this blank will use the default (VBM8 provided) template.
+%%% NOTE: Currently not implemented for SPM12
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CustomDARTEL = {};
 
@@ -281,6 +283,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'Preprocess'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath('/home/slab/SPM/spm12_with_R6470/');
 
 Preprocess_mc_central
