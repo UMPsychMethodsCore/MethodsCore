@@ -41,6 +41,16 @@ for iSubject = 1:size(SubjDir,1)
 
         % calculate Euclidean displacement and FD criteria
         % first for SPM
+        if (~exist('RealignType','var') || isempty(RealignType))
+            [~,~,e] = fileparts(MotionPath);
+            if (strcmp(e,'txt'))
+                RealignType = 1;
+            elseif (strcmp(e,'dat'))
+                RealignType = 2;
+            else
+                mc_Error('Can''t determine RealignType from file extension. Please specify it in the template script');
+            end
+        end
         if RealignType == 1
             Output = euclideanDisplacement(fliplr(MotionParameters),LeverArm);
             [FD, FDjudge] = mc_FD_calculation(fliplr(MotionParameters), FDcriteria, FDLeverArm, FramesBefore, FramesAfter);
