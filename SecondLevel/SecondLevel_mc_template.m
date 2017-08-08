@@ -144,6 +144,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'SecondLevel'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
 
 [jobs jobs2] = SecondLevel_mc_central(opt);

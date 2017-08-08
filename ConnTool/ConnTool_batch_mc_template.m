@@ -572,7 +572,8 @@ addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'ConnTool'));
 addpath(fullfile(mcRoot,'ConnTool/Code'));
 addpath(fullfile(mcRoot,'ConnTool/matlab'),'-END');
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R6313'));
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R6313'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
 
 ConnToolCallingScriptName = which(mfilename);
 

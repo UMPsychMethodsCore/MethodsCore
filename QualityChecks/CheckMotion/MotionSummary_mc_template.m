@@ -151,6 +151,7 @@ mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckMotion'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
    
 MotionSummary_mc_central
