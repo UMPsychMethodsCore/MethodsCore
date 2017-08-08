@@ -73,7 +73,8 @@ for iSubject = 1:size(SubjDir,1)
     SPM = load(SPMmat);
     SPM = SPM.SPM;
     
-    RunList = SubjDir{iSubject,3};
+    [~,endcol] = size(SubjDir);
+    RunList = SubjDir{iSubject,endcol};
     NumRun = size(RunList,2);
         %%%%% This code cuts RunDir and NumScan based which Image Runs are present  
     clear RunDir;

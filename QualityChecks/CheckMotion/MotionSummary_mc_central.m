@@ -25,13 +25,14 @@ fprintf(1, '-----\n');
 
 clear CombinedOutput
 clear MotionPath
+[~,endcol] = size(SubjDir);
 for iSubject = 1:size(SubjDir,1)
 
     Subject = SubjDir{iSubject,1};
     Vols    = [];
 
-    for jRun = 1:numel(SubjDir{iSubject,3})
-        RunNum = SubjDir{iSubject,3}(jRun);
+    for jRun = 1:numel(SubjDir{iSubject,endcol})
+        RunNum = SubjDir{iSubject,endcol}(jRun);
         Run    = RunDir{RunNum};
 
         MotionPathCheck  = struct('Template',MotionPathTemplate,'mode','check');
@@ -111,8 +112,8 @@ if exist('OutputPlotPath', 'var') && ~isempty(OutputPlotPath)
         Subject = SubjDir{iSubject, 1};
         fprintf(1, 'Create motion PDF plot for subject %s', Subject);
         Vols = [];
-        for jRun = 1:size(SubjDir{iSubject, 3}, 2)
-            RunNum = SubjDir{iSubject, 3}(jRun);
+        for jRun = 1:size(SubjDir{iSubject, endcol}, 2)
+            RunNum = SubjDir{iSubject, endcol}(jRun);
             Run    = RunDir{RunNum};
 
             % save spm_vols if dealing with spm realigned functionals
@@ -179,7 +180,7 @@ end
 % let us log usage here because errors are very unlikely to occur past this point
 for iSubject = 1:size(SubjDir, 1)
     % now log usages
-    RunsChecked = size(SubjDir{iSubject,3},2);
+    RunsChecked = size(SubjDir{iSubject,endcol},2);
     str = sprintf('Subject:%s Runs:%d CheckMotion complete\n', Subject, RunsChecked);
     UsageResult = mc_Usage(str, 'CheckMotion');
     if ~UsageResult
@@ -197,8 +198,8 @@ switch OutputMode
         fprintf(theFID,'Subject,Run,maxSpace,meanSpace,sumSpace,maxAngle,meanAngle,sumAngle,maxFDpre,meanFDpre,stdFDpre,maxFDpost,meanFDpost,stdFDpost,SupraThresholdFD,TotalVolume,ScrubRatio\n'); %header
         for iSubject = 1:size(SubjDir,1)
             Subject = SubjDir{iSubject,1};
-            for jRun = 1:size(SubjDir{iSubject,3},2)
-                RunNum = SubjDir{iSubject,3}(jRun);
+            for jRun = 1:size(SubjDir{iSubject,endcol},2)
+                RunNum = SubjDir{iSubject,endcol}(jRun);
                 
                 % Select appropriate output based on h user has set
                 index = strfind(MotionPathTemplate,'Run');

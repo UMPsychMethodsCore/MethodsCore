@@ -24,8 +24,8 @@ ImageTemplate = fullfile(ImageTemplate, strcat(FilePrefix, '*nii'));
 for iSubject = 1:size(SubjDir,1)
 
     Subject = SubjDir{iSubject, 1};
-
-    numRuns = numel(SubjDir{iSubject, 3});
+    [~,endcol] = size(SubjDir);
+    numRuns = numel(SubjDir{iSubject, endcol});
     if numRuns > 3
         numRuns = 3;
     end
@@ -33,7 +33,7 @@ for iSubject = 1:size(SubjDir,1)
     runStr = '';
     ImagePaths = cell(numRuns, 1);
     for i = 1:numRuns
-        Run = RunDir{SubjDir{iSubject, 3}(i)};
+        Run = RunDir{SubjDir{iSubject, endcol}(i)};
         ImagePathCheck = struct('Template', ImageTemplate, 'mode', 'check');
         ImagePaths{i} = strcat(mc_GenPath(ImagePathCheck), ',1');
         runStr = strcat(runStr, ' ', Run);

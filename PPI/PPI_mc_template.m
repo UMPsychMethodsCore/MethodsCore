@@ -17,8 +17,8 @@ LogTemplate = '[Exp]/Logs';
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-      'subject01',1,[1 2];
-      'subject02',2,[1 2];
+      'subject01',[1 2];
+      'subject02',[1 2];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

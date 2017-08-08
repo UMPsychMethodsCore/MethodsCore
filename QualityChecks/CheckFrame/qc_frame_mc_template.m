@@ -14,8 +14,8 @@ Opt.Exp = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
 %%% The format is {'subjectfolder',subjectNumber,[runs to include]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.List.Subjects = {
-                     'CM2001NTX',1,[1 2 3 4 5 6 7];
-                     'CM2002NTX',2,[1 2 3 4 5 6 7];
+                     'CM2001NTX',[1 2 3 4 5 6 7];
+                     'CM2002NTX',[1 2 3 4 5 6 7];
                     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
