@@ -42,9 +42,13 @@ end
 RunMode = [0 0];
 if (strcmpi(Mode,'full'))
     RunMode = [1 1];
-else
+else                                % Added 2016-11-18 - RCWelsh
+  if (strcmpi(Mode,'preprocsave'))   % Run preprocessing, but skip the correlations and save the D0 4D image.
+    RunMode = [1 2];
+  else
     RunMode(1) = strcmpi(Mode,'parameters');
-    RunMode(2) = strcmpi(Mode,'som');
+    RunMode(2) = strcmpi(Mode,'presave');    % Changed on 2016-11-18, 'som' was not option in 'central' script.
+  end
 end
 
 [spmver spmsubver] = spm('Ver');
@@ -179,7 +183,9 @@ if (RunMode(1) | sum(RunMode) == 0)
             
             % Only get the motion parameters if the person asked for motion
             % regression.
-            
+            % We don't care about orthogonalizing these as they are just absorbing variance
+	    % and we are not concerned which absorbs variance as it's thrown away.
+
             if ~isempty(strfind(parameters.RegressFLAGS.order,'M'))
                 [RealignmentParametersFile EC]  = mc_GenPath(RealignmentParametersTemplate);
                 if ~isempty(EC)
@@ -188,19 +194,27 @@ if (RunMode(1) | sum(RunMode) == 0)
                     return
                 end
                 RealignmentParameters       = load(RealignmentParametersFile);
-                RealignmentParametersDeriv  = diff(RealignmentParameters);
-                RealignmentParametersDerivR = [zeros(1,size(RealignmentParametersDeriv,2));RealignmentParametersDeriv];
+		RealignmentParametersDerivR = 0*RealignmentParameters;         % Pre-allocate.
+		%
+		% Change from doing diff to using gradient which does better estimation of the derivative. - RCWelsh 2016-11-21
+		% (Gradient has be be explicitly called with single vector else it'll calculate the 2d gradient)
+		%
+		for iReg = 1:size(RealignmentParameters,2)
+		  RealignmentParametersDerivR(:,iReg) = gradient(RealignmentParameters(:,iReg));
+		end
+		% Now to square things.
                 if (MotionDeriv)
                     RealignmentParametersQuad = [RealignmentParameters RealignmentParametersDerivR].^2;
                 else
                     RealignmentParametersQuad = RealignmentParameters.^2;
                 end
-
+		%
                 parameters.data.run(iRun).MotionParameters = [RealignmentParameters];
-                
+                % Derivatives included?
                 if (MotionDeriv)
                     parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersDerivR];
                 end
+		% Squared included?
                 if (MotionQuad)
                     parameters.data.run(iRun).MotionParameters = [parameters.data.run(iRun).MotionParameters RealignmentParametersQuad];
                 end
@@ -599,28 +613,42 @@ if (RunMode(2))
             SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo data was returned from SOM_PreProcessData\n');
             return
         else
-            SOM_LOG('STATUS : Going to calculate the correlations');
-            results = SOM_CalculateCorrelations(D0,parameters);
-            if isnumeric(results)
-                SOM_LOG('FATAL ERROR : ');
-                SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo results were returned from SOM_CalculateCorrelations\n');
-                return
-            else
-                for iR = 1:size(results,1)
-                    SOM_LOG(['OUTPUT : ',results(iR,:)]);
-                end
+	    if (RunMode(2) == 1)    %Regular correlation calculations.
+                SOM_LOG('STATUS : Going to calculate the correlations');
+                results = SOM_CalculateCorrelations(D0,parameters);
+                if isnumeric(results)
+                    SOM_LOG('FATAL ERROR : ');
+                    SOM_LOG('FATAL ERROR : There is something wrong with your template or your data.\nNo results were returned from SOM_CalculateCorrelations\n');
+                    return
+                else
+                    for iR = 1:size(results,1)
+                        SOM_LOG(['OUTPUT : ',results(iR,:)]);
+                    end
+	   	    %
+		    % Log the usage
+	 	    %
+		    mcUsageReturn = mc_Usage([Subject ': SOM calculated'],'ConnTool');
+		    if ~mcUsageReturn
+		      SOM_LOG('WARNING : Can not write mc_Usage token for calculation');
+		    end		
+                    SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
+                    SOM_LOG('STATUS : ');
+                    SOM_LOG(sprintf('STATUS : Calculation done for Subject : %s',Subject));
+                    SOM_LOG('STATUS : ');
+                    SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');		
+	        end
+	    else
+	        % RunMode(2) == 2 case.
+		% We must be in the mode to save the 4D data to disk.
 		%
-		% Log the usage
-		%
-		mcUsageReturn = mc_Usage([Subject ': SOM calculated'],'ConnTool');
-		if ~mcUsageReturn
-		  SOM_LOG('WARNING : Can not write mc_Usage token for calculation');
-		end		
-                SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
-                SOM_LOG('STATUS : ');
-                SOM_LOG(sprintf('STATUS : Calculation done for Subject : %s',Subject));
-                SOM_LOG('STATUS : ');
-                SOM_LOG('STATUS : * * * * * * * * * * * * * * * * * * * * ');
+		SOM_LOG(sprintf('STATUS : Writing 4D data to disk for subject : %s',Subject));
+		SOM_LOG(sprintf('STATUS : Save to :%s',fullfile(parameters.Output.directory,[parameters.Output.name '.nii'])));
+		data4D2Save = zeros(prod(parameters.maskInfo.size),size(D0,2));
+		data4D2Save(parameters.maskInfo.iMask,:) = D0;
+		data4D2Save = reshape(data4D2Save,[parameters.maskInfo.size size(D0,2)]);
+		SOM_WriteNII(parameters.data.run.P,fullfile(parameters.Output.directory,[parameters.Output.name '.nii']),data4D2Save);
+		clear data4D2Save;
+		clear D0;
             end
         end
     end

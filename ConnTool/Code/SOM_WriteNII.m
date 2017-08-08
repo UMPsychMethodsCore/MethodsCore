@@ -53,25 +53,26 @@ if length(niiDIM) < length(volDIM)
     niiDIM = [niiDIM 1];
 end
 
-if any(volDIM(1:3)-niiDIM)
+if any(volDIM(1:3)-niiDIM(1:3))
   SOM_LOG(sprintf('FATAL ERROR : TemplateImage dimension doesn''t match data dimension to be written\n'));
   return 
 end
 
 % data area.
-niftiOutData          = file_array;
-
-niftiOutData.fname    = NewName;
-niftiOutData.dim      = volDIM;
 
 % No error checking on that they pass in!!!
 if exist('dtype') == 0
-  niftiOutData.dtype    = niftiIn.dat.dtype;
-else
-  niftiOutData.dtype     = dtype;
+  dtype    = niftiIn.dat.dtype;
 end
 
-niftiOutData.offset   = niftiIn.dat.offset;
+% Fixed on 2016-11-18 - RCWelsh to fully call with all parameters
+
+% Seems best to force the offset to be 0 instead of the offset from the
+% template image. When I try to use niftiIn.dat.offset, the results are 
+% a badly shifted image. Most likely the offset is forced to be 0 by SPM 
+% even though it's specified otherwise.
+
+niftiOutData          = file_array(NewName,volDIM,dtype,0,niftiIn.dat.scl_slope,niftiIn.dat.scl_inter,'rw');
 
 % header area
 niftiOut              = nifti;

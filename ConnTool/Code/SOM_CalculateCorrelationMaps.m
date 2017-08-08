@@ -55,6 +55,10 @@ SOM_LOG('STATUS : Entering CorrCoeff Map Calculation');
 rMatrix  = zeros(parameters.rois.nroisRequested,parameters.rois.nroisRequested);
 pMatrix  =  ones(parameters.rois.nroisRequested,parameters.rois.nroisRequested);
 
+% Added RCWelsh - 2016-11-21 - to calculated the zmatrix as well.
+
+zMatrix  = rMatrix;
+
 % Array of ROI time courses.
 
 roiTC = zeros(size(D0,2),parameters.rois.nroisRequested);
@@ -92,15 +96,19 @@ else
   nameOption = '_paritalcorr';
 end
 
+zMatrix = SOM_Rho2Z(rMatrix);
+
 % It is quite possible that some of the ROI's are messed up? That
 % is they don't really exist, even though specified. We can easily 
-% known those out.
+% zero those out.
 
 for iROI = 1 : parameters.rois.nroisRequested
   if parameters.rois.ROIOK(iROI) == 0
     rMatrix(iROI,:) = 0;
+    zMatrix(iROI,:) = 0;
     pMatrix(iROI,:) = 1;
     rMatrix(:,iROI) = 0;
+    zMatrix(:,iROI) = 0;
     pMatrix(:,iROI) = 1;
     if parameters.Output.saveroiTC ~= 0
       roiTC(:,iROI) = 0; % also zero out the time course if the rMat is censored
@@ -126,12 +134,12 @@ corrName = fullfile(parameters.Output.directory,[parameters.Output.name nameOpti
 
 %
 % Now recalculate the p-values based on fewer degrees of freedom.
-%
+% -- not doing that yet, but need to. - RCWelsh 2016-11-21
 
 if parameters.Output.power
-  save(corrName,'rMatrix','pMatrix','power');
+  save(corrName,'rMatrix','pMatrix','zMatrix','power');
 else
-  save(corrName,'rMatrix','pMatrix');
+  save(corrName,'rMatrix','pMatrix','zMatrix');
 end
 
 results = corrName;
