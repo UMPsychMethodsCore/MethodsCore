@@ -293,9 +293,8 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 %[DEVmcRootAssign]
 
-addpath(fullfile(mcRoot,'matlabScripts'))
-addpath(fullfile(mcRoot,'Preprocess'))
-%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
-addpath('/home/slab/SPM/spm12_with_R6470/');
+addpath(fullfile(mcRoot,'matlabScripts'));
+addpath(fullfile(mcRoot,'Preprocess'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
 
 Preprocess_mc_central
