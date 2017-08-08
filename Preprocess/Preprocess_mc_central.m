@@ -557,7 +557,11 @@ if (Processing(1) == 1)
                 job{1}.spm.temporal.st.scans = ascan;
                 job{2}.spm.spatial.realign.estwrite.data = rscan;
                 [p f e] = fileparts(rscan{1}{1});
-                normsource = fullfile(p,['mean' f e]);
+                if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
+                    normsource = mc_GenPath(CoregFuncTarget);
+                else
+                    normsource = fullfile(p,['mean' f e]);
+                end
                 
                 job{3}.spm.spatial.normalise.estwrite.subj.source = {normsource};
                 job{3}.spm.spatial.normalise.estwrite.subj.resample = wscan;
@@ -586,7 +590,11 @@ if (Processing(1) == 1)
                 if (strcmp(f(1),'r') & AlreadyDone(2))
                     f = f(2:end);
                 end
-                normsource = fullfile(p,['mean' f e]);
+                if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
+                    normsource = mc_GenPath(CoregFuncTarget);
+                else
+                    normsource = fullfile(p,['mean' f e]);
+                end
                 
                 OverlayDir = '';
                 if (docoregoverlay)
@@ -642,7 +650,11 @@ if (Processing(1) == 1)
                 if (strcmp(f(1),'r') && AlreadyDone(2))
                     f = f(2:end);
                 end
-                normsource = fullfile(p,['mean' f e]);
+                if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
+                    normsource = mc_GenPath(CoregFuncTarget);
+                else
+                    normsource = fullfile(p,['mean' f e]);
+                end
                 
                 OverlayDir = '';
                 if (docoregoverlay)
@@ -720,7 +732,11 @@ if (Processing(1) == 1)
                 if (strcmp(f(1),'r') & AlreadyDone(2))
                     f = f(2:end);
                 end
-                normsource = fullfile(p,['mean' f e]);
+                if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
+                    normsource = mc_GenPath(CoregFuncTarget);
+                else
+                    normsource = fullfile(p,['mean' f e]);
+                end
                 
                 OverlayDir = '';
                 if (docoregoverlay)
