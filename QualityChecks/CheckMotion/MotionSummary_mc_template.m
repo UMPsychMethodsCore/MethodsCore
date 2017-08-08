@@ -115,8 +115,8 @@ LogTemplate = '[Exp]/Logs';
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
 %%% censored frame to create sensor vectors as well.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FramesBefore = 1;
-FramesAfter = 2;
+FramesBefore = 0;
+FramesAfter = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RealignType states what program (FSL or SPM) was used to realign the

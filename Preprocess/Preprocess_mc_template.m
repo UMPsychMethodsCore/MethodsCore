@@ -70,7 +70,7 @@ SubjDir = {
 %%% and smoothing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SliceTimePrefix = 't';
-RealignPrefix = 'u';
+RealignPrefix = 'r';
 CoregOverlayPrefix = '';
 CoregHiResPrefix = '';
 NormalizePrefix = 'w3';
@@ -83,13 +83,13 @@ SmoothPrefix = 's6';
 %%% during 'func' normalization even if they're set to 1 here.  This may
 %%% be changed in a future update.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-StepsToDo = [0 0 0 0 0 1];
+StepsToDo = [0 0 1 1 1 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing that has already been completed on images
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-AlreadyDone = [1 1 1 1 1 0];
+AlreadyDone = [1 1 0 0 0 0];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

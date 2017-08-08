@@ -391,7 +391,7 @@ HighFreqBand2  = 0.50;
 %%%         Suggested order is "DSM[G]CWB"
 %%% NOTE - If runing in ALFF or fALFF mode, you can not do censoring (edit by removal)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-RegressOrder = 'DMCWEB';
+RegressOrder = 'DMCWBE';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
