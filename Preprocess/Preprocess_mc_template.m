@@ -30,7 +30,7 @@ LogTemplate = '[Exp]/Logs';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/func/run_0[iRun]/';
 %%% ImageTemplate = '[Exp]/Subjects/[Subject]/TASK/func/[Run]/'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ImageTemplate = '[Exp]/derivatives/[Subject]/[Run]/';  
+ImageTemplate = '[Exp]/derivatives/[Subject]/[Run]/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The  prefix of each functional file
@@ -49,7 +49,7 @@ RunDir = {
     'rest/run_01/';
     'rest/run_02/';
     'cpt/run_01/';
-};
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The list of subjects to process
@@ -58,7 +58,7 @@ RunDir = {
 SubjDir = {
     'scs16scp01507_05414',1,[1 2];
     'scs16scp01529_05312',1,[1 2];
-};
+    };
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,7 +66,7 @@ SubjDir = {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Prefixes for slicetiming, realignment, coregistration, normalization, 
+%%% Prefixes for slicetiming, realignment, coregistration, normalization,
 %%% and smoothing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SliceTimePrefix = 't';
@@ -79,8 +79,8 @@ SmoothPrefix = 's6';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing steps that you want to run
 %%% [slicetime realign coregoverlay coreghires normalize smooth]
-%%% NOTE: Currently, CoregOverlay and CoregHiRes will not be performed 
-%%% during 'func' normalization even if they're set to 1 here.  This may 
+%%% NOTE: Currently, CoregOverlay and CoregHiRes will not be performed
+%%% during 'func' normalization even if they're set to 1 here.  This may
 %%% be changed in a future update.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 StepsToDo = [0 0 0 0 0 1];
@@ -104,7 +104,7 @@ TR = 1.35;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The number of slices in your functional images
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumSlices = 60; 
+NumSlices = 60;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The order of your slice collection
@@ -176,7 +176,7 @@ AnatTemplate = '[Exp]/derivatives/[Subject]/rest/coReg/';
 NormMethod = 'seg';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The template to normalize the functional images to 
+%%% The template to normalize the functional images to
 %%% NOTE: only applies to func or anat methods, not seg, custom templates
 %%%       are not currently supported for segmentation based normalization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,7 +226,7 @@ NumScan = [];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This setting allows use of customized Tissue Probablity Maps for VBM8
-%%% and SPMs built-in segmentation via 'seg' and 'spmseg' options 
+%%% and SPMs built-in segmentation via 'seg' and 'spmseg' options
 %%% respectively. This should be a cell array of filenames.
 %%% 3 files are required for spmseg option: gray matter, white matter, and
 %%% CSF
@@ -236,10 +236,10 @@ NumScan = [];
 %%% NOTE: Currently not implemented for SPM12
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CustomTPMs = {
-%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_gm.nii';
-%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_wm';
-%     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_csf';
-};
+    %     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_gm.nii';
+    %     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_wm';
+    %     '/home/slab/mri_templates/nihpd_asym_04.5-18.5_template/nihpd_asym_04.5-18.5_csf';
+    };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% This setting allows use of a customized DARTEL template when using
@@ -271,7 +271,7 @@ CustomDARTEL = {};
 %%% options in SPM.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 spmdefaults = {
-};
+    };
 
 
 global mcRoot;
