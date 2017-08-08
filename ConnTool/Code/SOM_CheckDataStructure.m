@@ -70,14 +70,14 @@ for iRUN = 1:length(data.run)
         return
     end
     
-    if isfield(data.run(iRUN),'cP') == 0
-        SOM_LOG(sprintf('WARNING : Missing cP variable in parameters.data, will use P for run %d',iRUN));
-        data.run(iRUN).cP = P;
-    end
-    
     if ischar(data.run(iRUN).P) == 0
         SOM_LOG('FATAL ERROR : You need to specify a character array of files');
         return
+    end
+    
+    if isfield(data.run(iRUN),'cP') == 0
+        SOM_LOG(sprintf('WARNING : Missing cP variable in parameters.data, will use P for run %d',iRUN));
+        data.run(iRUN).cP = data.run(iRUN).P;  % Fixed RCWelsh 2016-11-21
     end
     
     if ischar(data.run(iRUN).cP) == 0
