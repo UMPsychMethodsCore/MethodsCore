@@ -56,8 +56,8 @@ RunDir = {
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-    'scs16scp01507_05414',1,[1 2];
-    'scs16scp01529_05312',1,[1 2];
+    'scs16scp01507_05414',[1 2];
+    'scs16scp01529_05312',[1 2];
     };
 
 

@@ -322,7 +322,8 @@ if (Processing(1) == 1)
         
         clear job
         Subject=SubjDir{x,1};
-        RunList=SubjDir{x,3};
+        [i,j] = size(SubjDir);
+        RunList=SubjDir{x,j};
         
         mc_Logger('log',sprintf('Working on subject %s',Subject),3);
         
