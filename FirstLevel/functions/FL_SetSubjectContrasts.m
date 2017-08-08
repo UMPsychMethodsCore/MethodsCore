@@ -159,7 +159,7 @@ function SubjectContrasts = FL_SetSubjectContrasts(SubjectNumber, opt, OneSubj)
 
         % perform weight correction
         if ContrastBaseSum == 0 && PosWeight > 0 && NegWeight > 0
-            NumRunIncluded = NumRunInclude * 2;
+            NumRunIncluded = NumRunIncluded * 2;
         end
 
         if PosWeight == 0
