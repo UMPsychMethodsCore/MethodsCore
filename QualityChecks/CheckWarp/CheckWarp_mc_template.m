@@ -68,8 +68,12 @@ SubjDir = {
 '5042/Tx2',[1 2];   
 };
 
-
+global mcRoot
+%DEVSTART
 mcRoot = '/net/dysthymia/MethodsCore'
+%DEVSTOP
+
+%[DEVmcRootAssign]
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckReg'))
