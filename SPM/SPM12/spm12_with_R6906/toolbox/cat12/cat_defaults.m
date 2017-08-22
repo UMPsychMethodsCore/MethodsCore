@@ -196,7 +196,7 @@ cat.extopts.colormap     = 'BCGWHw'; % {'BCGWHw','BCGWHn'} and matlab colormaps 
 cat.extopts.verb         = 2;     % verbose output:        1 - default; 2 - details; 3 - write debugging files 
 cat.extopts.ignoreErrors = 0;     % catch errors:          0 - stop with error (default); 1 - catch preprocessing errors (requires MATLAB 2008 or higher); 
 cat.extopts.expertgui    = 1;     % control of user GUI:   0 - common user modus with simple GUI; 1 - expert modus with extended GUI; 2 - development modus with full GUI
-cat.extopts.subfolders   = 1;     % use subfolders such as mri, surf, report, and label to organize your data
+cat.extopts.subfolders   = 0;     % use subfolders such as mri, surf, report, and label to organize your data
 cat.extopts.experimental = 0;     % experimental functions: 0 - default, 1 - call experimental unsave functions
 
 
