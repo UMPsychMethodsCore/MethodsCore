@@ -561,6 +561,8 @@ if (Processing(1) == 1)
                     normsource = mc_GenPath(CoregFuncTarget);
                 else
                     normsource = fullfile(p,['mean' f e]);
+                    normsource = strsplit(normsource,',');
+                    normsource = normsource{1};
                 end
                 
                 job{3}.spm.spatial.normalise.estwrite.subj.source = {normsource};
@@ -594,6 +596,8 @@ if (Processing(1) == 1)
                     normsource = mc_GenPath(CoregFuncTarget);
                 else
                     normsource = fullfile(p,['mean' f e]);
+                    normsource = strsplit(normsource,',');
+                    normsource = normsource{1};
                 end
                 
                 OverlayDir = '';
@@ -654,6 +658,8 @@ if (Processing(1) == 1)
                     normsource = mc_GenPath(CoregFuncTarget);
                 else
                     normsource = fullfile(p,['mean' f e]);
+                    normsource = strsplit(normsource,',');
+                    normsource = normsource{1};
                 end
                 
                 OverlayDir = '';
@@ -736,6 +742,8 @@ if (Processing(1) == 1)
                     normsource = mc_GenPath(CoregFuncTarget);
                 else
                     normsource = fullfile(p,['mean' f e]);
+                    normsource = strsplit(normsource,',');
+                    normsource = normsource{1};
                 end
                 
                 OverlayDir = '';
