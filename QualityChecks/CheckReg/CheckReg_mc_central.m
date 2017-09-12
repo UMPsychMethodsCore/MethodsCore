@@ -26,8 +26,8 @@ for iSubject = 1:size(SubjDir,1)
     Subject = SubjDir{iSubject, 1};
     [~,endcol] = size(SubjDir);
     numRuns = numel(SubjDir{iSubject, endcol});
-    if numRuns > 3
-        numRuns = 3;
+    if numRuns > 4
+        numRuns = 4;
     end
     
     runStr = '';
@@ -47,7 +47,7 @@ for iSubject = 1:size(SubjDir,1)
 
     data = { [OverlayPathFile] [HiResPathFile] ImagePaths{:} };
 
-    CheckRegJob.jobs{1}.util{1}.checkreg.data=data;
+    CheckRegJob.jobs{1}.util{1}.checkreg.data=data';
     
     fprintf(1, '\n\n\n');
     fprintf(1, 'Performing check registration for subject : %s\n', Subject);

@@ -12,6 +12,10 @@ fprintf(1, '*****************************************************************');
 fprintf(1, 'Starting Check Warp to examine registration of canonical template and first five functional.');
 fprintf(1, '*****************************************************************');
 
+if (~exist('FileSuffix','var') | isempty(FileSuffix))
+    FileSuffix = '.nii';
+end
+
 ImageTemplate = strcat(ImageTemplate, FilePrefix, '*',FileSuffix);
 for iSubject = 1:size(SubjDir,1)
 
@@ -37,7 +41,7 @@ for iSubject = 1:size(SubjDir,1)
     WarpAnatPath = mc_GenPath(WarpAnat);
     data = {WarpTemplate WarpAnatPath ImagePaths{:}};
     
-    CheckRegJob.jobs{1}.util{1}.checkreg.data = data;
+    CheckRegJob.jobs{1}.util{1}.checkreg.data = data';
     
     fprintf('\n\n\n');
     fprintf('Performing check registration for subject : %s\n', Subject);
