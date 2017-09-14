@@ -200,11 +200,11 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
 			jobs2{n2}.stats{2}.fmri_est.method.Classical = 1;
 			job{1} = jobs2{n2};
             
-            if (strcmp(options.spmver,'SPM8')==1)
+            if (strcmp(options.spmver,'SPM12')==1 || strcmp(options.spmver,'SPM8')==1)
                 savetemp{1} = {jobs2{n2}};
-                savetemp2 = spm_jobman('spm5tospm8',savetemp);
-                matlabbatch{1} = savetemp2{1}{1};
-                matlabbatch{2} = savetemp2{1}{2};
+                savetemp2 = spm_jobman('convert',savetemp{1});
+                matlabbatch{1} = savetemp2{1};
+                matlabbatch{2} = savetemp2{2};
                 save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'me_group.mat'),'matlabbatch');
                 clear savetemp savetemp2 matlabbatch;
             else
@@ -228,12 +228,12 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
 		jobs{n}.stats{2}.fmri_est.method.Classical = 1;
 		jobs{n}.stats{3}.con = con;
 		job{1} = jobs{n};
-        if (strcmp(options.spmver,'SPM8')==1)
+        if (strcmp(options.spmver,'SPM12')==1 || strcmp(options.spmver,'SPM8')==1)
             savetemp{1} = {jobs{n}};
-            savetemp2 = spm_jobman('spm5tospm8',savetemp);
-            matlabbatch{1} = savetemp2{1}{1};
-            matlabbatch{2} = savetemp2{1}{2};
-            matlabbatch{3} = savetemp2{1}{3};
+            savetemp2 = spm_jobman('convert',savetemp{1});
+            matlabbatch{1} = savetemp2{1};
+            matlabbatch{2} = savetemp2{2};
+            matlabbatch{3} = savetemp2{3};
             save(fullfile(job{1}.stats{1}.factorial_design.dir{1},'second_level.mat'),'matlabbatch');
             clear savetemp savetemp2 matlabbatch;
         else
@@ -251,11 +251,15 @@ function [jobs jobs2] = SecondLevel_mc_central(opt)
         
         end
         if (~isempty(jobs))
-            if (strcmp(options.spmver,'SPM8')==1)
+            if (strcmp(options.spmver,'SPM12')==1 || strcmp(options.spmver,'SPM8')==1)
                 temp{1} = jobs;
                 temp{2} = jobs2;
-                matlabbatch = spm_jobman('spm5tospm8',temp)
+                matlabbatch = spm_jobman('convert',temp{1});
                 spm_jobman('run',matlabbatch);
+                if (~isempty(temp{2}))
+                    matlabbatch = spm_jobman('convert',temp{2});
+                    spm_jobman('run',matlabbatch);
+                end
             else
                 spm_jobman('run',jobs);
                 spm_jobman('run',jobs2);
@@ -930,9 +934,9 @@ function [specall con icell] = get_within_images3(model,columns)
 			icell(l).scans = icell(l).scans';
         end
         mc_Logger('log','Creating average images for main effect of group model.',3);
-		if (strcmp(options.spmver,'SPM8')==1)
+		if (strcmp(options.spmver,'SPM12')==1 || strcmp(options.spmver,'SPM8')==1)
 		    	temp{1} = jobs;
-		        matlabbatch = spm_jobman('spm5tospm8',temp)
+		        matlabbatch = spm_jobman('convert',temp{1})
 		        spm_jobman('run',matlabbatch);
 		else
 		    	spm_jobman('run',jobs);
