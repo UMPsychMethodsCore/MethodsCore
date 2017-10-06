@@ -512,7 +512,7 @@ addpath(genpath(fullfile(mcRoot,'GraphTheory')));
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(genpath(fullfile(mcRoot,'svmbatch')))
 addpath(fullfile(mcRoot,'spm8Batch'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R6313'))
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
