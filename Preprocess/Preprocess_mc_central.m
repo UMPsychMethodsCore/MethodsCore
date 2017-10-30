@@ -97,6 +97,10 @@ Pwra = [nop rep stp];
 Pswra = [smp nop rep stp];
 
 
+spm('defaults','fmri');
+global defaults
+global cat
+warning off all
 
 spmver = spm('Ver');
 if (strcmp(spmver,'SPM12')==1) %need to expand this checking to allow older versions or maintain a legacy script?
@@ -107,10 +111,6 @@ if (strcmp(spmver,'SPM12')==1) %need to expand this checking to allow older vers
     end
 end
 
-spm('defaults','fmri');
-global defaults
-global cat
-warning off all
 
 RunNamesTotal = RunDir;
 if (~exist('NumScan','var'))
@@ -145,6 +145,7 @@ if (Processing(1) == 1)
     realign.estwrite.eoptions = defaults.realign.estimate;
     realign.estwrite.roptions = defaults.realign.write;
     realign.estwrite.roptions.prefix = rep;
+    realign.estwrite.roptions.mask = 0;
     
     coreg.estimate = defaults.coreg.estimate;
     coreg.estimate.ref = {};
@@ -668,8 +669,12 @@ if (Processing(1) == 1)
                     OverlayDir=mc_GenPath(OverlayDirCheck);
                 end
                 
-                HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
-                HiResDir=mc_GenPath(HiResDirCheck);
+                if (docoreghires || donormalize)
+                    HiResDirCheck = struct('Template',NewHiResTemplate,'mode','check');
+                    HiResDir=mc_GenPath(HiResDirCheck);
+                else
+                    HiResDir = '';
+                end
                 
                 job{3}.spm.spatial.coreg.estimate.ref = {normsource};
                 job{3}.spm.spatial.coreg.estimate.source = {OverlayDir};

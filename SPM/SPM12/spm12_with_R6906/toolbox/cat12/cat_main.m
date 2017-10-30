@@ -2034,7 +2034,9 @@ if printCATreport
       str3(si).name  = [str3(si).name '  '];  str3(si).value = [str3(si).value '  '];
     end
 
-
+    %%%EDITED BY MA TO NOT DISPLAY GRAPHICS OUTPUT
+    cmdline = spm_get_defaults('cmdline');
+    if (~cmdline)
     %
     fg = spm_figure('FindWin','Graphics'); 
     set(0,'CurrentFigure',fg)
@@ -2269,6 +2271,7 @@ if printCATreport
     if exist('hhm' ,'var'), spm_orthviews('window',hhm ,[0 WMfactor]); end
     if exist('hhp0','var'), spm_orthviews('window',hhp0,[0 WMfactor]); end
 
+    end
     warning on;  %#ok<WNON>
 
 
