@@ -68,7 +68,7 @@ AnatomyFiles = {
 %%% respectively, or define a 3D binary array representing your custom
 %%% kernel.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ErosionKernel = {7};
+ErosionKernel = {19};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ErosionSteps
@@ -76,7 +76,7 @@ ErosionKernel = {7};
 %%% There should either be a single value, or 1 value for each image in
 %%% AnatomyFiles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ErosionSteps = [2];
+ErosionSteps = [2 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% ImageThreshold

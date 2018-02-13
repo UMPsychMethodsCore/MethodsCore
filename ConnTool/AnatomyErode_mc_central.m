@@ -25,7 +25,7 @@ warning off all
 matlabbatch{1}.spm.util.imcalc.input = {''};
 matlabbatch{1}.spm.util.imcalc.output = '';
 matlabbatch{1}.spm.util.imcalc.outdir = {''};
-matlabbatch{1}.spm.util.imcalc.expression = 'ma_dilate_erode(i2>threshold,k,''erode'')';
+matlabbatch{1}.spm.util.imcalc.expression = '';
 matlabbatch{1}.spm.util.imcalc.var = struct('name', {}, 'value', {});
 matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
 matlabbatch{1}.spm.util.imcalc.options.mask = 0;
@@ -85,17 +85,12 @@ for iSubject = 1:nSub
         image = [fullfile(outdir,AnatomyFiles{iImage}) ',1'];
         input = {refimage;image};
         threshold = ImageThreshold(iImage);
-        %job{1}.spm.util.imcalc.expression = strrep('ma_dilate_erode(double((i2>threshold),kernel,''erode'')','threshold',num2str(threshold));
         job{1}.spm.util.imcalc.expression = strrep('i2>threshold','threshold',num2str(threshold));
         
         output = ['t' sprintf('%0.3f',ImageThreshold(iImage)) '_' AnatomyFiles{iImage}];
-        %job{1}.spm.util.imcalc.var(1).name = 'kernel';
-        %job{1}.spm.util.imcalc.var(1).value = {kernel};
         job{1}.spm.util.imcalc.input = input;
         job{1}.spm.util.imcalc.output = output;
         job{1}.spm.util.imcalc.outdir = {outdir};
-        %job{1}.spm.util.imcalc.var(1).name = 'k';
-        %job{1}.spm.util.imcalc.var(1).value = {double(kernel)};
         spm_jobman('run',job);
         hdr = spm_vol(fullfile(outdir,output));
         d = spm_read_vols(hdr);
