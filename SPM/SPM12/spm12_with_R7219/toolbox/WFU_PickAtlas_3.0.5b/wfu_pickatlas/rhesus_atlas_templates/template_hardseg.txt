@@ -1,0 +1,4 @@
+[ UNC Type]
+3	Cerebro-Spinal Fluid
+2	Gray Matter
+1	White Matter

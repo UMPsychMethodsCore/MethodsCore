@@ -1,0 +1,138 @@
+WFU_PickAtlas 3.0.5 Update (2015-02-12)
+
+* wfu_pickatlas/spm_getSPM.m
+* wfu_pickatlas/wfu_spm_getSPM12.m
+* wfu_pickatlas/wfu_spm_getSPM8.m
+* Removed wfu_pickatlas/wfu_spm_getSPM.m
+  - SPM12 intergration
+
+* wfu_pickatlas/subplot_tight.license
+* wfu_pickatlas/subplot_tight.m
+* wfu_pickatlas/wfu_pickatlas.fig
+* wfu_pickatlas/wfu_pickatlas.m
+  - MAG button
+
+* wfu_pickatlas/wfu_pickatlas_itksnap.m
+* wfu_pickatlas/wfu_read_itksnap_labels.m
+* wfu_pickatlas/wfu_write_itksnap_labels.m
+  - Experimental ITKSNAP useage
+
+* wfu_tbx_common/spm_lite/spm_bsplinc.mexmaci64
+* wfu_tbx_common/spm_lite/spm_bsplins.mexmaci64
+* wfu_tbx_common/spm_lite/spm_bwlabel.mexmaci
+* wfu_tbx_common/spm_lite: spm_bwlabel.mexmaci64
+* wfu_tbx_common/spm_lite: spm_existfile.mexmaci64
+* wfu_tbx_common/spm_lite/spm_get_lm.mexmaci
+* wfu_tbx_common/spm_lite: spm_get_lm.mexmaci64
+* wfu_tbx_common/spm_lite: spm_resels_vol.mexmaci64
+* wfu_tbx_common/spm_lite: spm_sample_vol.mexmaci64
+* wfu_tbx_common/spm_lite: spm_slice_vol.mexmaci64
+  - MEX files for MAC
+
+* wfu_pickatlas/wfu_extract_labels.m
+* wfu_get_atlas_list.m
+* wfu_pickatlas/wfu_pickatlas_version.m
+* wfu_pickatlas/wfu_read_flist.m
+* wfu_pickatlas/wfu_require_tbx_common.m
+  - Misc changes
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+WFU_PickAtlas 3.0.4 Update (2012-05-22):
+
+* wfu_results/wfu_roi_table.m
+* wfu_results/wfu_results_viewer.m
+* wfu_results/wfu_require_tbx_common.m
+* wfu_results/wfu_results_import_screen.m
+* wfu_results/wfu_results_viewer.fig
+* wfu_results/wfu_correct_afni_nifti.m
+* wfu_results/private/saveReport.m
+* wfu_results/private/loadSelect.m
+* wfu_results/private/load_saved_results_session.m
+* wfu_results/private/loadGeneric.m
+* wfu_results/private/loadSPM.m
+* wfu_results/private/wfu_results_compute.m
+* wfu_results/private/loadFSL.m
+* wfu_tbx_common/wfu_require_spm_lite.m
+* wfu_tbx_common/wfu_require_tbx_common.m
+* wfu_tbx_common/wfu_ROI.m
+* wfu_tbx_common/wfu_uncompress_nifti.m
+* wfu_tbx_common/wfu_check_nifti.m
+* wfu_pickatlas/wfu_require_tbx_common.m
+* wfu_pickatlas/wfu_pickatlas.m
+* wfu_pickatlas/wfu_extract_labels.m
+  - Fixes for Matlab API change to fileparts
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+WFU_PickAtlas 3.0.3 Update (2010-08-31):
+
+* wfu_pickatlas/wfu_spm_getSPM.m
+  - FWE Threshold correction fix
+* wfu_pickatlas/wfu_pickatlas_version.m
+  - Updated to version 3.0.3
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+WFU_PickAtlas 3.0.2 Update (2010-08-30):
+* wfu_pickatlas/wfu_pickatlas_version.m
+  - Updated to version 3.0.2
+* wfu_pickatlas/wfu_roi.m
+  - removed
+* wfu_pickatlas/wfu_pickatlas.m
+  - Results calculation routine changed
+* wfu_pickatlas/spm_getSPM.m
+  - Override function wrapper call to wfu_spm_getSPM to 
+    allow ROI analysis from results
+* wfu_pickatlas/wfu_spm_getSPM.m
+	- Modified version of spm_getSPM allowing ROI analysis
+* wfu_tbx_common/spm_lite
+  - Updated to SPM8 rev 4010
+* wfu_results/wfu_ROI.m
+* wfu_results/wfu_VOI.m
+* wfu_results/wfu_spm_hread.m
+* wfu_results/wfu_spm_invCcdf.m
+* wfu_results/wfu_spm_P.m
+* wfu_results/wfu_spm_P_RF2.m
+* wfu_results/wfu_spm_P_RF5.m
+  - removed
+* wfu_results/private/printResultsTable.m
+  - Added ability to click on coordinates to update brain
+  - Shows the Num of clusted show on statistics
+* wfu_results/private/printClusterLabelStats.m
+  - Added ability to click on coordinates to update brain
+* wfu_results/private/timeCourse.m
+  - Added ability to click on coordinates to update brain
+* wfu_results/private/wfu_results_compute.m  
+  - use wfu_spm_getSPM for statistics generation
+* wfu_results/wfu_list.m
+	- Updated tp SPM8 rev 4010
+* wfu_results/wfu_results_viewer.m
+	- Only show FDR method if defaults.stats.topFDR == 0
+* wfu_results/wfu_updateBrain.m
+* wfu_results/wfu_voxelImageConversion.m
+  - Accessors to private methods
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+WFU_PickAtlas 3.0.1 Update (2010-08-19):
+* wfu_results/private/loadSPM.m
+  - Loading of Timecourses is now Y/N, not Y/N/Cancel.
+  - User is not prompted to load Timecourse for 2nd level 
+    analysis. [from Yannis P.]
+* WFU_PickAtlas_User_Manual_v3.0.pdf
+  - Documentation fixes [from Kathy P.]
+* wfu_pickatlas/findindex.m
+  - Update to PA 3.0 data structure. [from Yannis P.]
+* wfu_pickatlas/wfu_pickatlas_version.m
+  - Updated to version 3.0.1
+* wfu_pickatlas/wfu_pickatlas.m
+  - Disabled L/L+R/R reduction if atlas volume has orgin 
+    at (1,1,1)
+* wfu_pickatlas/vervet_atlas_templates/info.html
+  - Updated information
+* wfu_tbx_common/wfu_ROI.m
+  - Fixed error in height threshold calculation from 
+    FWE [from Yannis P.]
+* WFU_PickAtlas_Developers_Manual_v3.0.pdf
+  - documentation fixes [from Kathy P.]
