@@ -600,7 +600,7 @@ if (graph.ttest || graph.perm)
     
 %%%% end of reorganizing data %%%%
     
-    input.types=Types(SubUseMark==1);
+    input.types=Types(SubUseMark==1,:);
     input.unitype=unique(input.types);
     if ~exist('ttype','var')
         ttype='2-sample';
