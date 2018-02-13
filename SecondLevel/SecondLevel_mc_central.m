@@ -410,7 +410,7 @@ function [models columns] = parse_scans(options)
         model(n-1).include = str2num(joblist{n}{1});
         model(n-1).type = str2num(joblist{n}{2});
         model(n-1).outputpath = joblist{n}{3};
-        model(n-1).pathcolumn = str2num(joblist{n}{4});
+        model(n-1).pathcolumn = str2num(strrep(joblist{n}{4},'"',''));
         
         if options.ImColFlag == 1
             model(n-1).NumDes = ImColTokenizer(joblist{n}{5},model(n-1).type);
@@ -897,6 +897,10 @@ function [specall con icell] = get_within_images3(model,columns)
 		end
 	end
 	mtx = [repl subj group within];
+    if (size(scans,1)==1)
+        scans = scans';
+    end
+    
 	specall.scans = scans;
 	specall.imatrix = mtx;
 	
@@ -1372,6 +1376,7 @@ switch type
                    '   * * * A B O R T I N G * * * \n'],input);
         end
     case {3} % PairedSamplesT
+        input = regexprep(input,'"',''); %remove possible quote characters that annoying spreadsheet programs may have inserted
         ColonLoc = regexp(input,':');
         if length(ColonLoc) == 0
             Spaces = regexp(input,' ');
