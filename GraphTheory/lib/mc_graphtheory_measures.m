@@ -293,6 +293,8 @@ if Flag.hier
     display('Calculating hierarchy');
     logk = log(deg);
     logc = log(cluster);
+    if (size(logk,1)==1)
+        logk = logk';
     beta = polyfit(logk,logc,1);
     Output.hier = -beta(1);
 end
