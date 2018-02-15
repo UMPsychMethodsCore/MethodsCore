@@ -360,12 +360,13 @@ if (Processing(1) == 1)
             Run = RunDir{iRun};
             ImageDirCheck = struct('Template',ImageTemplate,'mode','check');
             ImageDir = mc_GenPath(ImageDirCheck);
+            newbasefilefilled = mc_GenPath(newbasefile);
             tmpP = [];
             if (strcmp(imagetype,'nii'))
                 %%%load NIFTI image and check frames
-                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],[1:10000]);
+                tmpP = spm_select('ExtFPList',ImageDir,['^' newbasefilefilled '.*.' imagetype],[1:10000]);
             else
-                tmpP = spm_select('ExtFPList',ImageDir,['^' basefile '.*.' imagetype],frames);
+                tmpP = spm_select('ExtFPList',ImageDir,['^' newbasefilefilled '.*.' imagetype],frames);
             end
             
             if (nsflag)
@@ -450,8 +451,9 @@ if (Processing(1) == 1)
             iRun=num2str(r);
             ImageDirCheck = struct('Template',ImageTemplate,'type',1,'mode','check');
             ImageDir=mc_GenPath(ImageDirCheck);
-            scan{r} = spm_select('ExtList',ImageDir,['^' newbasefile '.*' imagetype],frames);
-            imagefile{r} = spm_select('List',ImageDir,['^' newbasefile '.*\.*' imagetype]);
+            newbasefilefilled = mc_GenPath(newbasefile);
+            scan{r} = spm_select('ExtList',ImageDir,['^' newbasefilefilled '.*' imagetype],frames);
+            imagefile{r} = spm_select('List',ImageDir,['^' newbasefilefilled '.*\.*' imagetype]);
             
             %%%%%%%%% Copy Images to Sandbox directory if necessary
             if (UseSandbox)
@@ -590,7 +592,7 @@ if (Processing(1) == 1)
                 job{2}.spm.spatial.realign.estwrite.data = rscan;
                 
                 [p f e] = fileparts(rscan{1}{1});
-                if (strcmp(f(1),'r') & AlreadyDone(2))
+                if (strcmp(f(1),rep) & AlreadyDone(2))
                     f = f(2:end);
                 end
                 if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
@@ -652,7 +654,7 @@ if (Processing(1) == 1)
                 job{2}.spm.spatial.realign.estwrite.data = rscan;
                 
                 [p f e] = fileparts(rscan{1}{1});
-                if (strcmp(f(1),'r') && AlreadyDone(2))
+                if (strcmp(f(1),rep) && AlreadyDone(2)) %this will break if rep is more than one character
                     f = f(2:end);
                 end
                 if (exist('CoregFuncTarget','var') & ~isempty(CoregFuncTarget))
