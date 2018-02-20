@@ -34,6 +34,13 @@ Please give us your feedback about how we're doing.
 
 
 Release Notes:
+2/20/2017  - Release 3.0
+	     This release updates Methods Core to SPM12 (R7219)
+	     This includes the addition of a Preprocess folder which contains
+	     MATLAB based preprocessing template/central scripts.
+	     The ConnTool folder also now contains AnatomyErode scripts to aid
+	     in creating eroded WM/CSF masks for resting state processing.
+	     
 5/3/2016   - Release 2.0
 	     This release incorporates many substantial updates & improvements to
 	     previously released tools, including
