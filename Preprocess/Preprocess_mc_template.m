@@ -303,6 +303,6 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'Preprocess'));
-addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 Preprocess_mc_central

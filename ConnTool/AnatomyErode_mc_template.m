@@ -107,6 +107,6 @@ mcRoot = '/home/mangstad/repos/MethodsCore';
 
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'ConnTool'));
-addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 AnatomyErode_mc_central
