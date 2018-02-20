@@ -9,6 +9,10 @@ function mc_SetSPMDefaults(spmdefaults)
 %                           'stats.fmri.ufp'  0.05;
 %                        };
 %
+% NOTE: At the moment this function only supports the setting of SPM
+% defaults (as contained in the defaults global variable).  It does not yet
+% allow setting of defaults for VBM (contained in the vbm8 global
+% variable).
 
 global defaults;
 

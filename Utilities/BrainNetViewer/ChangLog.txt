@@ -1,0 +1,32 @@
+Version 1.21 Released
+- Add default path for Brain Template load
+- Fix a spelling mistake in option panel
+- Add AAL parcellation information for data cursor
+- Add render methods selection to fix problem of text upside down
+- Add a function for graph detail adjusting
+- Fix a bug on edge colormap
+- Fix a compatibility bug of calling from REST
+
+Version 1.2 Released 20120412
+- Add custum colorbar for volume mapping
+- Fix a bug that an error occurs when entering in the edge thershold edit box
+- Add volume & node display manner
+- Add a colormap editor
+- Fix panel display under linux
+- Add a option for draw inter hemispheres edges
+- Add volume, node & edge display manner
+- Add function for object material, lighting, shading adjusting
+- Add a smoothed surface of ICBM152 in Talairach space
+- Add a function for auto set colorbar range for volume mapping
+- Fix a bug in calculating the distance between two node
+
+
+Version 1.1 Released 20111028
+- Add a Interface to REST (http://restfmri.net/forum/), can be called from the Slice Viewer function in REST to draw a vloume-surface mapping graph. (function BrainNet_MapVolumet to draw volume-surface mapping graph by script). 
+- Add a new graph layout called 'Medium view', which would show the lateral and medium side of hemispheres.
+- Integrat SPM NIFTI file lodaing functions, SPM NIFTI or Analyzed files can be supported.
+- Add several new colormap for volume-surface mapping function, and algorithm of colormap is adjusted
+- Adjust the position of nodal label.
+- Add a smoothed ICBM152 surface.
+- Adjust the Tab order in Option panel.
+- Change function name with uniformed prefix 'BrainNet_' to avoid confusion

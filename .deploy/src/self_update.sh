@@ -10,7 +10,7 @@ harddir=`pwd`
 
 export GIT_SSH=${harddir}/git_ssh.sh
 
-branch=`cat $thisdir/../../.local/branch`
+branch=`cat ${harddir}/../../.local/branch`
 
 git reset --hard HEAD
 

@@ -20,8 +20,8 @@ Exp = '/net/data4/MAS/';
 %%% motion summary plots for a subject will not make sense.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-'5001/Tx1/',1,[1 2 3];
-'5002/Tx1/',1,[1 2 3];
+'5001/Tx1/',[1 2 3];
+'5002/Tx1/',[1 2 3];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,8 +115,8 @@ LogTemplate = '[Exp]/Logs';
 %%% sensor vectors as well.  FramesAfter is the number of frames after a
 %%% censored frame to create sensor vectors as well.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FramesBefore = 1;
-FramesAfter = 2;
+FramesBefore = 0;
+FramesAfter = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RealignType states what program (FSL or SPM) was used to realign the
@@ -151,6 +151,7 @@ mcRoot = '/oracle7/Researchers/heffjos/MethodsCore';
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'QualityChecks','CheckMotion'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
    
 MotionSummary_mc_central

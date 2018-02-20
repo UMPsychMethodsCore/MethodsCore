@@ -145,17 +145,9 @@ RegFilesTemplate = {
 %%% section.  Contrasts listed here are still generated.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ContrastList = {
-    %'C'            1  0  0  0 [0 0 0 0 0 0];
-    %'I'            0  1  0  0 [0 0 0 0 0 0];
-    %'IvC'         -1  1  0  0 [0 0 0 0 0 0];
-    
-    %'C'           [1 0 0]   [0 0 0]  [0 0 0]  [0 0 0] [0 0 0 0 0 0];
-    %'I'           [0 0 0]   [1 0 0]  [0 0 0]  [0 0 0] [0 0 0 0 0 0];
-    %'IvC'         [-1 0 0]  [1 0 0]  [0 0 0]  [0 0 0] [0 0 0 0 0 0];
-    
-    'C'           [1 0 0 0 0 0 0 0]   [0 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0] [0 0 0 0 0 0];
-    'I'           [0 0 0 0 0 0 0 0]   [1 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0] [0 0 0 0 0 0];
-    'IvC'         [-1 0 0 0 0 0 0 0]  [1 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0]  [0 0 0 0 0 0 0 0] [0 0 0 0 0 0];
+    'C'            1  0  0  0 [0 0 0 0 0 0];
+    'I'            0  1  0  0 [0 0 0 0 0 0];
+    'IvC'         -1  1  0  0 [0 0 0 0 0 0];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,6 +343,7 @@ mcRoot = '/home/slab/users/mangstad/repos/MethodsCoreTesting/';
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'FirstLevel','functions'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 FirstLevel_mc_central

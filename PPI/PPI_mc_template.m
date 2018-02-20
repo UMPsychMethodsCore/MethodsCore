@@ -17,8 +17,8 @@ LogTemplate = '[Exp]/Logs';
 %%% The format is 'subjectfolder',subject number in masterfile,[runs to include]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SubjDir = {
-      'subject01',1,[1 2];
-      'subject02',2,[1 2];
+      'subject01',[1 2];
+      'subject02',[1 2];
 };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,6 +140,7 @@ mcRoot = fullfile(fileparts(mfilename('fullpath')),'..');
 
 addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'PPI'))
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 PPI_mc_central

@@ -14,8 +14,8 @@ Opt.Exp = '/zubdata/oracle7/Researchers/heffjos/TestSubject';
 %%% The format is {'subjectfolder',subjectNumber,[runs to include]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.List.Subjects = {
-                     'CM2001NTX',1,[1 2 3 4 5 6 7];
-                     'CM2002NTX',2,[1 2 3 4 5 6 7];
+                     'CM2001NTX',[1 2 3 4 5 6 7];
+                     'CM2002NTX',[1 2 3 4 5 6 7];
                     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,6 +73,7 @@ mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'QualityChecks','CheckFrame'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 qc_frame_mc_central(Opt);

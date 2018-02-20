@@ -243,7 +243,7 @@ function opt = CheckOpt(opt)
     end
 
     % check mode
-    if opt.Mode == 2
+    if opt.Mode == 2 | opt.Mode == 3
         opt.UseSandbox = 0;
     end
 

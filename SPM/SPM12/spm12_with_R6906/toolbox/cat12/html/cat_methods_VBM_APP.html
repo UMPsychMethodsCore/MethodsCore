@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>CAT12 - Computational Anatomy Toolbox for SPM12</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link rel="stylesheet" type="text/css" href="spm.css" />
+    <link rel="stylesheet" type="text/css" href="../spm.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  
+  <body>
+    <div id="header" style="background: black url('images/contact.jpg') right;">
+      <h1><a href="matlab:web('http://www.neuro.uni-jena.de/','-browser');">Structural Brain Mapping Group</a></h1>
+      <p>
+          <a href="matlab:web('http://dbm.neuro.uni-jena.de/people/christian-gaser','-browser');">Christian Gaser</a> |
+          <a href="matlab:web('http://www.neuro.uniklinikum-jena.de','-browser');">Department of Neurology</a> | 
+          <a href="matlab:web('http://www.psychiatrie.uniklinikum-jena.de','-browser');">Department of Psychiatry</a> | 
+          <a href="matlab:web('http://www.uni-jena.de/en/start_en.html','-browser');">University of Jena</a>
+      </p>
+      <div id="breadcrumbs">
+        <a href="cat.html">CAT</a> > <a href="cat_methods.html">Methods</a> > <a href="cat_methods_VBM.html">Voxel-based Preprocessing Methods</a> > <a href="cat_methods_VBM_APP.html">Affine PreProcessing</a>
+      </div>
+    </div>
+      
+    <div id="content">
+      <h2>Affine PreProcessing (APP) (in development):</h2>
+
+      <p>
+        APP was developed to process animal data with the standard CAT pipeline because these data require a reliable brain mask for SPM preprocessing. 
+        It includes a rough initial inhomogeneity correction in order to improve the affine registration and to allow an initial skull-stripping that can be used as mask in the SPM preprocessing.
+        However, APP is also useful for human data, where the affine registration runs into problems due to strong inhomogeneities or untypical protocols (e.g. synthetic images).
+      </p><p> 
+        There are two default-user and five expert-user options that control further internal parameters for bias correction (BC), masking (M), and initial affine registration (A): 
+      </p><p>
+        <table align="center">
+          <thead>
+            <tr>
+              <th>APP</th><th>BC</th><th>M</th><th>A</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>none</td><td>none</td><td>none</td><td>initial affine registration</td>
+            </tr><tr>
+              <td>light</td><td>initial</td><td>head masked</td><td>initial affine registration</td>
+            </tr><tr>
+              <td>medium</td><td>initial</td><td>head extracted</td><td>no initial affine registration</td>
+            </tr><tr>
+              <td>strong</td><td>fine</td><td>brain masked</td><td>no initial affine registration</td>
+            </tr><tr>
+              <td>heavy/hard</td><td>fine</td><td>brain extracted</td><td>no initial affine registration</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3"></td></tr>
+          </tfoot>
+        </table>
+      </p>  
+    
+    
+    
+    </div>
+
+    
+    <div id="content"><a href="cat_methods_CAT.html">< Voxel-based Preprocessing Methods</a></div>  
+    <div id="footer">
+      <p>Copyright (C) Structural Brain Mapping Group &lt;<a href="mailto:christian.gaser@uni-jena.de">christian.gaser@uni-jena.de</a>&gt;</p>
+    </div>
+  </body>
+</html>

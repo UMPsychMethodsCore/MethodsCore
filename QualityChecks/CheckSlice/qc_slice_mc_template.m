@@ -14,8 +14,8 @@ Opt.Exp  = '/zubdata/oracle7/Researchers/heffjos/SignalChange/ChronicPain/testDa
 %%% The format is {'subjectfolder',subjectNumber,[runs to include]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Opt.List.Subjects = {
-                     'CM1286CHR',1,[1 2];
-                     'CM1329CHR',2,[1 2];
+                     'CM1286CHR',[1 2];
+                     'CM1329CHR',[1 2];
                     };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,6 +72,7 @@ mcRoot = '/zubdata/oracle7/Researchers/heffjos/MethodsCore';
 %[DEVmcRootAssign]
 addpath(fullfile(mcRoot,'matlabScripts'));
 addpath(fullfile(mcRoot,'QualityChecks','CheckSlice'));
-addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+%addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 qc_slice_mc_central(Opt);

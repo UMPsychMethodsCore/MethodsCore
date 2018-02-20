@@ -5,7 +5,8 @@ function cleansed=cleanse(mcRoot,des,cvals,SubjWiseTemp,EdgeField,Exp,NamePre)
 
 
 %% set options
-outputPath = '~/users/yfang/temp';
+outputPath = fullfile(Exp,'gt_temp');
+mkdir(outputPath);
 
 cd(outputPath)
 

@@ -1,0 +1,18 @@
+In this folder, you'll find a PDF with a guide on how to use the
+MATLAB-based preprocessing software.
+
+For assistance with Path Generation, see the help file in the 
+Methods Core Root repository.
+
+
+In addition, you can find a series of Video Tutorial Walkthroughs
+online.
+
+1 Introduction                                   TBA
+2 Subjects & Runs                                TBA
+3 Slicetime Correction and Realignment           TBA
+4 Coregistration, Normalization, and Smoothing	 TBA
+5 Conclusion                                     TBA
+
+More information is available about the MethodsCore Team and support 
+options in the README file at the top level of the Methods Core Directory.
