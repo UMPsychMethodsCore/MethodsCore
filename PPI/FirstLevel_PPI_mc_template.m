@@ -340,6 +340,6 @@ addpath(fullfile(mcRoot,'matlabScripts'))
 addpath(fullfile(mcRoot,'FirstLevel'))
 addpath(fullfile(mcRoot,'FirstLevel','functions'));
 %addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'))
-addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
 
 FirstLevel_mc_central

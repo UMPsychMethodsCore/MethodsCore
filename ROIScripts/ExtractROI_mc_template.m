@@ -64,7 +64,7 @@ addpath(fullfile(mcRoot,'ROIScripts'));
 addpath(fullfile(mcRoot,'Utilities','marsbar','marsbar-0.43'));
 addpath(fullfile(mcRoot,'matlabScripts'));
 %addpath(fullfile(mcRoot,'SPM','SPM8','spm8_with_R4667'));
-addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R6906'));
+addpath(fullfile(mcRoot,'SPM','SPM12','spm12_with_R7219'));
     
     
 ExtractROI_mc_central
