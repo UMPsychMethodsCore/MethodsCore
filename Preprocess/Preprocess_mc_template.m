@@ -142,6 +142,14 @@ RefImage = [1];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% IMPORTANT NOTE
+%%% Matlab's file coyping function does not interact nicely with symbolic
+%%% links. Do NOT use symbolic links for the Overlay or Hires images below.
+%%% If you point these paths to symbolically linked files, the original 
+%%% files will be modified by the coregistration.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Paths to your anatomical images
 %%%
 %%%  Variables you can use in your templates are:
