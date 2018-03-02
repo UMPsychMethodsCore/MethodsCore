@@ -75,10 +75,12 @@ param = load(ParamPath);
 roiMNI = param.parameters.rois.mni.coordinates;
 
 %%% added ability to specify alternate network image
-if (~exist('NetworkMask','var') | isempty(NetworkMask))
-    nets = mc_NearestNetworkNode(roiMNI,5);
-else
-    nets = mc_NearestNetworkNode(roiMNI,5,NetworkMask);
+if (~exist('nets','var') || size(nets,2) ~= size(roiMNI,1))
+    if (~exist('NetworkMask','var') || isempty(NetworkMask))
+        nets = mc_NearestNetworkNode(roiMNI,5);
+    else
+        nets = mc_NearestNetworkNode(roiMNI,5,NetworkMask);
+    end
 end
 
 sq_blanks = zeros(size(roiMNI,1));
@@ -275,12 +277,15 @@ end
 
 if permDone ~= 1
 
-    perms = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
+    perms.count = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
+    perms.meanT = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
+    perms.meanB = zeros(nNet,nNet,numel(thresh),nRep); %4D object: nNet x nNet x thresh x reps
 
 % attempt parallel
     if permCores ~= 1
         try
-            matlabpool('open',permCores)
+            %matlabpool('open',permCores)
+            pool = parpool(permCores);
             parfor i=1:nRep
                 [count(:,:,:,i), meanT(:,:,:,i), meanB(:,:,:,i)] = mc_uni_permute_count(data,netmask,thresh,des.FxCol,s.design);
                 fprintf(1,'%g\n',i)
@@ -291,9 +296,11 @@ if permDone ~= 1
             perms.meanB = meanB;
             clear count meanT meanB
             
-            matlabpool('close')
+            delete(pool);
+            %matlabpool('close')
         catch
-            matlabpool('close')
+            delete(pool);
+            %matlabpool('close')
             for i=1:nRep
                 [perms.count(:,:,:,i), perms.meanT(:,:,:,i), perms.meanB(:,:,:,i)] = mc_uni_permute_count(data,netmask,thresh,des.FxCol,s.design,1);
                 fprintf(1,'%g\n',i)
@@ -353,13 +360,13 @@ if ShadingEnable
     
     print -dbmp -r300 TakGraph_shaded_cellcount.bmp
     
-    a = mc_TakGraph_plot(a);
-    
-    a = mc_TakGraph_CalcShadeColor(a,2);
-    
-    a = mc_TakGraph_AddShading(a,2);
-    
-    print -dbmp -r300 TakGraph_shaded_cellmean.bmp
+%     a = mc_TakGraph_plot(a);
+%     
+%     a = mc_TakGraph_CalcShadeColor(a,2);
+%     
+%     a = mc_TakGraph_AddShading(a,2);
+%     
+%     print -dbmp -r300 TakGraph_shaded_cellmean.bmp
     
 end
 

@@ -91,6 +91,7 @@ for iSub=1:nSubs
             end
             if ~exist('unsprung','var') || unsprung==0
                 data_conditions = zeros(nSubs,size(conn,2),nCond);
+                unsprung = 1;
             end
             SubjAvail(iSub,iCond)=1;
             data_conditions(iSub,:,iCond) = conn;
