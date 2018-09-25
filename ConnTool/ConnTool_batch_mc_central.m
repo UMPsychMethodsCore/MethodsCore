@@ -484,6 +484,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                 switch(ROIInput)
                     case 'coordinates'
                         grid_coord = ROICenters;
+                        ROIGridSize = ROISize;
                     case 'coordload'
                         [ROIFileName EC] = mc_GenPath(ROIFile);
                         if ~isempty(EC)
@@ -534,7 +535,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                     XYZ = SOM_MakeSphereROI(ROIGridSize);
                     parameters.rois.mni.size.XROI = XYZ(1,:);
                     parameters.rois.mni.size.YROI = XYZ(2,:);
-                    parameters.rois.mni.size.ZROI = XYZ(2,:);
+                    parameters.rois.mni.size.ZROI = XYZ(3,:);
                 end
         end
         
