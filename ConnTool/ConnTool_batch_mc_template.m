@@ -465,9 +465,9 @@ ROISize    = {19};
 %%% If a '.mat" file you need make sure it contains a single array
 %%% with each row being an ROI and columns are x,y,z, in MNI mm.
 %%%
+%%% If using coordload, you need to set the ROISize variable above
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ROIFile = '[mcRoot]/ConnTool/Templates/V_MNI_12mmgrid.mat';
-ROISize = {19};
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
