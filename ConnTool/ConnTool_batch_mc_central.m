@@ -486,6 +486,7 @@ if (RunMode(1) | sum(RunMode) == 0)
                         grid_coord = ROICenters;
                         ROIGridSize = ROISize;
                     case 'coordload'
+                        ROIGridSize = ROISize;
                         [ROIFileName EC] = mc_GenPath(ROIFile);
                         if ~isempty(EC)
                             SOM_LOG('FATAL : Failure to find the ROI file');
