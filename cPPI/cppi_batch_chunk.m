@@ -6,6 +6,7 @@ function results = cppi_batch_chunk(chunkFile)
     load(chunkFile);
     mc_Logger('log',sprintf('Current MATLAB PID: %d\n',feature('GetPID')),3);
     SubjDir = tempSubjDir;
+    cwd = pwd;
     for iSubject = 1:size(SubjDir,1)
         clear D0 parameters results;
         Subject=SubjDir{iSubject,1};
@@ -35,5 +36,6 @@ function results = cppi_batch_chunk(chunkFile)
         
         logstring = sprintf('%s: Finished subject %s\n',datestr(now),Subject);
         mc_Logger('log',logstring,3);
+        cd(cwd);
     end
 return;

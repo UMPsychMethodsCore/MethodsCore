@@ -236,6 +236,8 @@ if (RunMode(1) | sum(RunMode) == 0)
         parameters.cppi.SPM = mc_GenPath(fullfile(SPMTemplate,'SPM.mat'));
         parameters.cppi.UseSandbox = UseSandbox;
         parameters.cppi.NumScan = NumScan;
+        parameters.cppi.adjust = AdjustContrast;
+        
         if (~exist('StandardizeBetas','var') || isempty(StandardizeBetas))
             StandardizeBetas = 1;
         end

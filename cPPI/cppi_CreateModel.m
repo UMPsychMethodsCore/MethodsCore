@@ -2,28 +2,28 @@ function model = cppi_CreateModel(cppiregressors,roiTC,parameters)
 model = -1;
 curpath = pwd;
 
-mc_GenPath(struct('Template',parameters.cppi.sandbox,'mode','makedir'));
+% mc_GenPath(struct('Template',parameters.cppi.sandbox,'mode','makedir'));
 cd(parameters.cppi.sandbox);
 
-Vtemplate.fname = fullfile(parameters.cppi.sandbox,'roiTC');
-Vtemplate.mat = spm_matrix([0 0 0 0 0 0 1 1 1 0 0 0]);
-Vtemplate.dim = [parameters.rois.nroisRequested 1 1];
-Vtemplate.dt = [4 0];
-Vtemplate.descrip = '';
-%create dummy images consisting of roiTC
-
-FDTC = zeros(size(roiTC,2),1,1,size(roiTC,1));
-FDTC(:,1,1,:) = roiTC';
-
-V(1:size(roiTC,1)) = Vtemplate;
-for iV = 1:size(V,2)
-    V(iV).fname = sprintf('%s_%04d.img',V(iV).fname,iV);
-    spm_write_vol(V(iV),FDTC(:,:,:,iV));
-end
-
-Vmask = Vtemplate;
-Vmask.fname = sprintf('%s_mask.img',Vtemplate.fname);
-spm_write_vol(Vmask,ones(size(roiTC,2),1,1));
+% Vtemplate.fname = fullfile(parameters.cppi.sandbox,'roiTC');
+% Vtemplate.mat = spm_matrix([0 0 0 0 0 0 1 1 1 0 0 0]);
+% Vtemplate.dim = [parameters.rois.nroisRequested 1 1];
+% Vtemplate.dt = [4 0];
+% Vtemplate.descrip = '';
+% %create dummy images consisting of roiTC
+% 
+% FDTC = zeros(size(roiTC,2),1,1,size(roiTC,1));
+% FDTC(:,1,1,:) = roiTC';
+% 
+% V(1:size(roiTC,1)) = Vtemplate;
+% for iV = 1:size(V,2)
+%     V(iV).fname = sprintf('%s_%04d.img',V(iV).fname,iV);
+%     spm_write_vol(V(iV),FDTC(:,:,:,iV));
+% end
+% 
+% Vmask = Vtemplate;
+% Vmask.fname = sprintf('%s_mask.img',Vtemplate.fname);
+% spm_write_vol(Vmask,ones(size(roiTC,2),1,1));
 
 %enter these dummy images into an SPM model with the cppi regressors
 offset = 0;
@@ -50,7 +50,9 @@ SPM.xGX.iGXcalc    = 'None';
 SPM.xX.K.HParam  = 128; 
 SPM.xVi.form = 'AR(0.2)';
 SPM.xY.RT = parameters.TIME.run(1).TR;
-SPM.xM.VM = Vmask;
+%SPM.xM.VM = Vmask;
+SPM.xM.VM = spm_vol(fullfile(parameters.cppi.sandbox,'roiTC_mask.img'));
+
 global defaults
 defaults.mask.thresh = -Inf;
 SPM = spm_fmri_spm_ui(SPM);

@@ -20,24 +20,24 @@ for iRun = 1:size(SPM.Sess,2)
     xY.X0 = xY.X0(SPM.Sess(iRun).row,:);
     xY.X0 = [xY.X0 SPM.xX.K(iRun).X0];
     xY.X0 = xY.X0(:,any(xY.X0));
-
-    [m n] = size(roiTCtemp);
-    if m>n
-        [v s v] = svd(roiTCtemp'*roiTCtemp);
-        s = diag(s);
-        v = v(:,1);
-        u = roiTCtemp*v/sqrt(s(1));
-    else
-        [u s u] = svd(roiTCtemp*roiTCtemp');
-        s = diag(s);
-        u = u(:,1);
-        v = roiTCtemp'*u/sqrt(s(1));
-    end
-    d = sign(sum(v));
-    u = u*d;
-    v = v*d;
-    Y = u*sqrt(s(1)/n);
-    roiTCtemp = Y;
+% 
+%     [m n] = size(roiTCtemp);
+%     if m>n
+%         [v s v] = svd(roiTCtemp'*roiTCtemp);
+%         s = diag(s);
+%         v = v(:,1);
+%         u = roiTCtemp*v/sqrt(s(1));
+%     else
+%         [u s u] = svd(roiTCtemp*roiTCtemp');
+%         s = diag(s);
+%         u = u(:,1);
+%         v = roiTCtemp'*u/sqrt(s(1));
+%     end
+%     d = sign(sum(v));
+%     u = u*d;
+%     v = v*d;
+%     Y = u*sqrt(s(1)/n);
+%     roiTCtemp = Y;
     
     Sess = SPM.Sess(iRun);
 
@@ -141,6 +141,13 @@ for iRun = 1:size(SPM.Sess,2)
     %    R = [R parameters.data.run(iRun).MotionParameters];
     %end
     betanames = [betanames betanames2];
+    
+    %%%%% TEMPORARY HACK FOR GOLDIN ERT DATA %%%%%%
+    if (size(R,2)==13)
+        R = [zeros(size(R,1),4) R];
+    end
+    %%%%% TEMPORARY HACK FOR GOLDIN ERT DATA %%%%%%
+    
     regressors = [regressors; R];
 end
 

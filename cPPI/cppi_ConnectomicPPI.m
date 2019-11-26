@@ -72,8 +72,70 @@ switch parameters.Output.type
 
         % Create an array of our data that is Time x ROI#
 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %ADJUST DATA FOR CONTRAST
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %need contrast struct from SPM
+        %need betas from SPM.Vbeta
+        curwd = pwd;
+        cd(fileparts(parameters.cppi.SPM));
+        load(parameters.cppi.SPM);
+
+        beta = spm_read_vols(SPM.Vbeta);
+        rbeta = reshape(beta,prod(size(beta(:,:,:,1))),size(beta,4));
+        mrbeta = rbeta(parameters.maskInfo.iMask,:);
+        cd(curwd);
+
         for iROI = 1 : parameters.rois.nroisRequested
-          roiTC(:,iROI) = mean(D0(parameters.rois.IDX{iROI},:),1);
+            y = D0(parameters.rois.IDX{iROI},:)';
+            y = spm_filter(SPM.xX.K,SPM.xX.W*y);
+            beta = mrbeta(parameters.rois.IDX{iROI},:)';
+            
+            y = y - spm_FcUtil('Y0',SPM.xCon(parameters.cppi.adjust),SPM.xX.xKXs,beta);
+            
+            y(isnan(y)) = 0;
+            %loop over runs
+            fy = [];
+            for iRun = 1:size(SPM.Sess,2)
+                xY.X0     = SPM.xX.xKXs.X(:,[SPM.xX.iB SPM.xX.iG]);
+                i     = SPM.Sess(iRun).row;
+                ty     = y(i,:);
+                xY.X0 = xY.X0(i,:);
+                try
+                    xY.X0 = [xY.X0 SPM.xX.K(iRun).X0];
+                end
+                try
+                    xY.X0 = [xY.X0 SPM.xX.K(iRun).KH]; % Compatibility check
+                end
+
+                %-Remove null space of X0
+                %--------------------------------------------------------------------------
+                xY.X0     = xY.X0(:,any(xY.X0));
+
+                %-Compute regional response in terms of first eigenvariate
+                %--------------------------------------------------------------------------
+                [m n]   = size(ty);
+                if m > n
+                    [v s v] = svd(ty'*ty);
+                    s       = diag(s);
+                    v       = v(:,1);
+                    u       = ty*v/sqrt(s(1));
+                else
+                    [u s u] = svd(ty*ty');
+                    s       = diag(s);
+                    u       = u(:,1);
+                    v       = ty'*u/sqrt(s(1));
+                end
+                d       = sign(sum(v));
+                u       = u*d;
+                v       = v*d;
+                Y       = u*sqrt(s(1)/n);
+                ty = Y;
+                fy = [fy;ty];
+            end
+            fy(isnan(fy)) = 0;
+            roiTC(:,iROI) = fy;
+          %roiTC(:,iROI) = mean(D0(parameters.rois.IDX{iROI},:),1);
         end
  
         % Now loop on the ROIs and calculate PPI models for each one
@@ -83,6 +145,16 @@ switch parameters.Output.type
         for iROI = 1:parameters.rois.nroisRequested
             roiTCscaled(:,iROI) = roiTC(:,iROI).*SPM.xGX.gSF;
         end
+        cppi_CreateImages(roiTC,parameters);
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %attempt to filter out bad timepoints
+        pctnonconstant = sum(diff(roiTCscaled)~=0)./(size(roiTCscaled,1)-1);
+        badmask = pctnonconstant<.75;
+        roiTCscaled(:,badmask) = 0;
+        roiTC(:,badmask) = 0;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         logstring = sprintf('%s: %d ROIs total',datestr(now),parameters.rois.nroisRequested);
         mc_Logger('log',logstring,3);
         for iROI = 1:parameters.rois.nroisRequested
@@ -123,8 +195,15 @@ switch parameters.Output.type
                mc_Logger('log',err.message);
            end
            if (result)
-               [status result] = system(sprintf('rm -rf %s',model));
-               if (status ~= 0)
+               %[status result] = system(sprintf('rm -rf %s',model));
+               [status(1) result] = system(sprintf('rm -rf %s',fullfile(model,'spmT*')));
+               [status(2) result] = system(sprintf('rm -rf %s',fullfile(model,'con*')));
+               [status(3) result] = system(sprintf('rm -rf %s',fullfile(model,'SPM*')));
+               [status(4) result] = system(sprintf('rm -rf %s',fullfile(model,'mask*')));
+               [status(5) result] = system(sprintf('rm -rf %s',fullfile(model,'beta*')));
+               [status(6) result] = system(sprintf('rm -rf %s',fullfile(model,'ResMS*')));
+               [status(7) result] = system(sprintf('rm -rf %s',fullfile(model,'RPV*')));
+               if (any(status) ~= 0)
                    mc_Error('There was an error deleting temporary files: %s',result);
                end
            else
